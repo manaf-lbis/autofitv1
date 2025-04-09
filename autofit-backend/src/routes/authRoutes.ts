@@ -32,6 +32,7 @@ const router = Router();
 
 router.post('/user/login', (req, res, next) => authController.login(req, res, next))
 router.post('/user/signup', (req, res, next) => authController.signup(req, res,next))
+router.get('/user/me',authenticate, (req,res,next)=> authController.getUser(req,res, next))
 
 router.post('/user/verify-otp',authenticate, (req,res, next)=>authController.verifyOtp(req,res,next) )
 

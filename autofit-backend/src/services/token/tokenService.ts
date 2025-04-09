@@ -17,6 +17,7 @@ export class TokenService {
 
   verifyToken(token: string): JwtPayload {
     const decoded = jwt.verify(token, this.jwtSecret);
+    console.log('token',decoded);
     if (typeof decoded === 'string') {
       throw new Error("Invalid token payload");
     }

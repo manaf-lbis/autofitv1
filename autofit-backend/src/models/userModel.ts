@@ -21,7 +21,8 @@ const userSchema: Schema <userDocument> = new Schema<userDocument>({
     },
     status: {
         type: String,
-        enum: ['active', 'blocked']
+        enum: ['active', 'blocked'],
+        default : 'active'
     }
 }, { timestamps: true })
 

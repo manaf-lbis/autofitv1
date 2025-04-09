@@ -4,6 +4,7 @@ import { loginValidation, signupValidation } from "../validation/authValidation"
 import { UserRegistrationService } from "../services/user/userRegistrationService";
 import { CustomJwtPayload } from "../types/express/index";
 import { sendSuccess, StatusCode } from "../utils/apiResponse";
+import { ApiError } from "../utils/apiError";
 
 export class AuthController {
     constructor(
@@ -21,7 +22,7 @@ export class AuthController {
             res.cookie('jwt', result.token, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === 'production',
-                sameSite: 'strict',
+                sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
                 maxAge: 60 * 60 * 1000
             });
 
@@ -42,7 +43,7 @@ export class AuthController {
             res.cookie('jwt', result.token, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === 'production',
-                sameSite: 'strict',
+                sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
                 maxAge: 60 * 60 * 1000
             });
             sendSuccess(res,result.message)
@@ -82,4 +83,21 @@ export class AuthController {
             next(error);
         }
     }
+
+    async getUser(req:Request,res:Response,next:NextFunction) : Promise<void> {
+        try {
+            console.log(req?.user?.id);
+            
+            if(!req?.user?.id) throw new ApiError("Can't Find User!!",500)
+
+                
+            const data = await this.authService.getUser(req.user.id)
+
+            sendSuccess(res,'user Active',data)
+
+        } catch (error) {
+            next(error)
+        }
+    }
 }
+

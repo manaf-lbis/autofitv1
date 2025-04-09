@@ -18,8 +18,8 @@ export class UserRegistrationService {
             throw new ApiError("User already exists", 400);
         }
 
-        const {_id,role} = await this.userRepository.create({email,password,mobile,name,role:'user'});
-        return {name,_id,role}
+        const {role} = await this.userRepository.create({email,password,mobile,name,role:'user'});
+        return {name,role}
           
     }
 }

@@ -2,6 +2,7 @@ import { User } from "../types/user";
 import { IUserRepository } from "./interfaces/IUserRepository";
 import { UserModel } from "../models/userModel";
 import { CreateUserInput } from "../types/user/userInput";
+import { ObjectId } from "mongodb";
 
 
 export class UserRepository implements IUserRepository {
@@ -23,7 +24,7 @@ export class UserRepository implements IUserRepository {
         return await UserModel.findOne({email})  
     }
 
-    async findById(id: string): Promise<User | null> {
+    async findById(id: ObjectId): Promise<User | null> {
         return await UserModel.findById(id)
     }
 
@@ -41,5 +42,4 @@ export class UserRepository implements IUserRepository {
     }
 
    
-
 }

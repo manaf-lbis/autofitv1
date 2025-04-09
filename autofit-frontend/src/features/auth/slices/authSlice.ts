@@ -1,41 +1,31 @@
-import { createSlice ,PayloadAction} from "@reduxjs/toolkit";
-
-
-interface User {
-    id : string;
-    email : string;
-    name : string;
-    role : 'user' | 'admin' | 'mechanic'
-}
+// features/auth/authSlice.ts
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { User } from "../api/authApi";
 
 interface AuthState {
-    user : User | null,
-    isLoggedIn : boolean;
-    error : string | null
+    user: User | null;
+    isAuthenticated: boolean;
 }
 
-const initalState : AuthState = {
-    user : null,
-    isLoggedIn : false,
-    error :null,
-}
+const initialState: AuthState = {
+    user: null,
+    isAuthenticated: false,
+};
 
 const authSlice = createSlice({
-    name : 'auth',
-    initialState : initalState,
-    reducers:{
-        authSuccess : (state :AuthState , action :PayloadAction<User>)=>{
-            initalState.user = action.payload,
-            initalState.isLoggedIn = true
+    name: "auth",
+    initialState,
+    reducers: {
+        setUser: (state, action: PayloadAction<User>) => {
+            state.user = action.payload;
+            state.isAuthenticated = true;
         },
-        logout :(state :AuthState)=>{
-            initalState.isLoggedIn = false;
-            initalState.error = null;
-            initalState.user = null  
-        }
-    }
-}) 
+        clearUser: (state) => {
+            state.user = null;
+            state.isAuthenticated = false;
+        },
+    },
+});
 
-
-export const {authSuccess,logout} = authSlice.actions
-export default authSlice.reducer
+export const { setUser, clearUser } = authSlice.actions;
+export default authSlice.reducer;

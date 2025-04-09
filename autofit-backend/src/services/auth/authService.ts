@@ -4,6 +4,7 @@ import { IOtpRepository } from "../../repositories/interfaces/IOtpRepository";
 import { HashService } from "../hash/hashService";
 import { TokenService } from "../token/tokenService";
 import { ApiError } from "../../utils/apiError";
+import { ObjectId } from "mongodb";
 
 
 
@@ -32,7 +33,7 @@ export class AuthService {
 
         const token =  this.tokenService.generateToken({ id: user._id, role: user.role })
 
-        return { token, user: { _id: user._id, name: user.name, role: user.role } };
+        return { token, user: {  name: user.name, role: user.role } };
     }
 
 
@@ -98,5 +99,16 @@ export class AuthService {
         if (data._id) {
           await this.otpRepository.markAsVerified(data._id);
         }
+    }
+
+    async getUser(_id:ObjectId){
+      const user =  await this.userRepository.findById(_id)
+
+      if(user?.status !== 'active'){
+        throw new ApiError('user blocked')
+      }
+      const {name,role} = user;
+      return {name,role}
+
     }
 }

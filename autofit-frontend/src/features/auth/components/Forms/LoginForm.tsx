@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Separator } from '@/components/ui/separator';
 import GoogleLoginButton from '@/components/Auth/GoogleLoginButton';
 import FormInput from '@/components/shared/FormInput';
@@ -9,6 +9,8 @@ import { useLoginMutation } from '../../api/authApi';
 import { Loader2 } from "lucide-react"
 import { toast } from 'react-toastify';
 import { ApiError } from '@/types/apiError';
+import { useDispatch } from 'react-redux';
+import { setUser } from '../../slices/authSlice';
 
 
 type FormData = {
@@ -20,15 +22,20 @@ type FormData = {
 const LoginForm: React.FC = () => {
 
   const { register, handleSubmit, formState: { errors } } = useForm<FormData>();
-
   const [login,{isLoading,isError,isSuccess,data}] = useLoginMutation()
 
+  const dispatch = useDispatch();
+  const navigate = useNavigate()
 
   const  onValidSubmit = async (data : FormData) =>{
     try {
       const res = await login(data).unwrap()
-      console.log(res);
-      
+      if(res.status === 'success'){
+        const {_id,name,role,email} = res.data
+
+        dispatch(setUser({id:_id,name,role,email}))
+        navigate("/");
+      }
 
     } catch (error ) {
       const err = error as ApiError;
