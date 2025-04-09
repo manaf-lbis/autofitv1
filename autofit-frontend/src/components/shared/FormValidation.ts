@@ -1,0 +1,64 @@
+ 
+// TODO: Add formvalidation rules here 
+export type Rule ={
+    name : object,
+    password : object,
+    email : object
+    mobile : object
+} 
+
+
+export const FormValidation : Rule = {
+    name : {
+        required:'Enter full Name',
+        minLength:{
+            value:3,
+            message: 'Enter a valid Name'
+        },
+        validate:{
+            minTrimmedLength: (value: string) =>{
+              return  value.trim().length >= 3 || 'Name must be at least 3 characters'
+            }
+        }
+    },
+    
+    password : {
+        required: 'Password is required',
+        minLength: {
+          value: 6,
+          message: 'Password must be at least 6 characters'
+        },
+        validate:{
+            minTrimmedLength: (value: string) =>{
+                return  value.trim().length >= 3 || 'password must be at least 6 characters'
+            }
+        }
+    },
+    
+    email : {
+        required: 'Email is required',
+        pattern: {
+          value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+          message: 'Enter a valid email'
+        },
+        validate:{
+            minTrimmedLength: (value: string) =>{
+                return  value.trim().length >= 3 || 'email must be at least 3 characters'
+            }
+        }
+    },
+    mobile: {
+        required: 'Mobile number is required',
+        pattern: {
+          value: /^[6-9]\d{9}$/, 
+          message: 'Enter a valid 10-digit mobile number'
+        },
+        validate: {
+          noSpaces: (value: string) => {
+            return !/\s/.test(value) || 'Mobile number should not contain spaces';
+          }
+        }
+      }
+
+}
+ 
