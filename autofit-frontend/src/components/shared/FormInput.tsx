@@ -18,7 +18,7 @@ interface FormInputProps {
 }
 
 const FormInput: React.FC<FormInputProps> = ({ id, label, type, placeholder, error, register, name, validationRule }) => {
-
+  
   return (
     <div className="flex flex-col gap-1">
       <Label htmlFor={id}>{label}</Label>

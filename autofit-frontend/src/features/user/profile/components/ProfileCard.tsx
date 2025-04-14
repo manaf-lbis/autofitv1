@@ -36,25 +36,33 @@ const ProfileCard = () => {
       </CardHeader>
 
       <CardContent className="p-8 space-y-6">
-        <div className="flex items-center gap-3 text-gray-700">
-          <SquareUser className="w-5 h-5 text-blue-500" />
-          <span className="text-sm font-semibold">Username</span>
-          <span className="text-gray-600 ml-auto">{userData.username}</span>
+        <div className="flex justify-between items-center gap-3 text-gray-700">
+          <div className="flex items-center gap-3">
+            <SquareUser className="w-5 h-5 text-blue-500" />
+            <span className="text-sm font-semibold">Username</span>
+          </div>
+          <span className="text-gray-600">{userData.username}</span>
         </div>
-        <div className="flex items-center gap-3 text-gray-700">
-          <Mail className="w-5 h-5 text-blue-500" />
-          <span className="text-sm font-semibold">Email</span>
-          <span className="text-gray-600 ml-auto">{userData.email}</span>
+        <div className="flex justify-between items-center gap-3 text-gray-700">
+          <div className="flex items-center gap-3">
+            <Mail className="w-5 h-5 text-blue-500" />
+            <span className="text-sm font-semibold">Email</span>
+          </div>
+          <span className="text-gray-600">{userData.email}</span>
         </div>
-        <div className="flex items-center gap-3 text-gray-700">
-          <Phone className="w-5 h-5 text-blue-500" />
-          <span className="text-sm font-semibold">Phone</span>
-          <span className="text-gray-600 ml-auto">{userData.phone}</span>
+        <div className="flex justify-between items-center gap-3 text-gray-700">
+          <div className="flex items-center gap-3">
+            <Phone className="w-5 h-5 text-blue-500" />
+            <span className="text-sm font-semibold">Phone</span>
+          </div>
+          <span className="text-gray-600">{userData.phone}</span>
         </div>
-        <div className="flex items-center gap-3 text-gray-700">
-          <Clock className="w-5 h-5 text-blue-500" />
-          <span className="text-sm font-semibold">Last Active</span>
-          <span className="text-gray-600 ml-auto">{userData.lastActive}</span>
+        <div className="flex justify-between items-center gap-3 text-gray-700">
+          <div className="flex items-center gap-3">
+            <Clock className="w-5 h-5 text-blue-500" />
+            <span className="text-sm font-semibold">Last Active</span>
+          </div>
+          <span className="text-gray-600">{userData.lastActive}</span>
         </div>
       </CardContent>
     </Card>

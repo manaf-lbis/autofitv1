@@ -5,10 +5,7 @@ export type Rule = {
   password: object,
   email: object,
   mobile: object,
-  regNo: object,
-  brand: object,
-  model: object,
-  fuelType: object
+  regNo: object
 }
 
 
@@ -72,34 +69,6 @@ export const FormValidation : Rule = {
         }
       },
     
-    brand: {
-        required: 'Brand is required',
-        minLength: {
-          value: 2,
-          message: 'Brand must be at least 2 characters'
-        },
-        validate: {
-          noNumbers: (value: string) =>
-            !/\d/.test(value) || 'Brand name should not contain numbers'
-        }
-      },
-    
-    model: {
-        required: 'Model is required',
-        minLength: {
-          value: 1,
-          message: 'Enter a valid model name'
-        }
-      },
-    
-      fuelType: {
-        required: 'Fuel type is required',
-        validate: {
-          isValidType: (value: string) =>
-            ['Petrol', 'Diesel', 'Electric', 'CNG', 'Hybrid'].includes(value) ||
-            'Select a valid fuel type'
-        }
-      }
 
 }
  

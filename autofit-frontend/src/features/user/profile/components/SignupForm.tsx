@@ -5,9 +5,9 @@ import { Separator } from '@/components/ui/separator';
 import GoogleLoginButton from '@/features/auth/components/GoogleAuth/GoogleLoginButton';
 import FormInput from '@/components/shared/FormInput';
 import { useForm } from 'react-hook-form';
-import { useSignupMutation } from '../../api/authApi';
+import { useSignupMutation } from '../../../auth/api/authApi';
 import { toast } from 'react-toastify';
-import OtpForm from './OtpForm';
+import OtpForm from '../../../auth/components/Forms/OtpForm';
 import { Loader2 } from 'lucide-react';
 
 
