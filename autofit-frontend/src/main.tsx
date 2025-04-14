@@ -6,11 +6,14 @@ import { store } from './store/store.js'
 import './index.css'
 import 'react-toastify/dist/ReactToastify.css';
 import { ToastContainer } from 'react-toastify';
+import { GoogleOAuthProvider } from '@react-oauth/google'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <Provider store={store}>
-      <App />
+        <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
+          <App />
+        </GoogleOAuthProvider>
       <ToastContainer position="top-right" autoClose={3000}  limit={3} hideProgressBar={true}/>
     </Provider>
   </StrictMode>,

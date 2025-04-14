@@ -4,6 +4,7 @@ import path from 'path-browserify';
 
 export default defineConfig({
   plugins: [react()],
+  assetsInclude: ["**/*.lottie"],
   resolve: {
     alias: {
       '@': path.resolve('src'),

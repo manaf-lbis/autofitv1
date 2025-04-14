@@ -4,12 +4,18 @@ import { Button } from '@/components/ui/button'
 import { toast } from 'react-toastify'
 import { useVerifyOtpMutation } from '../../api/authApi'
 import { Loader2 } from 'lucide-react'
+import { ApiError } from '@/types/apiError'
+import { useNavigate } from 'react-router-dom'
+import { useDispatch } from 'react-redux'
+import { setUser } from '../../slices/authSlice'
 
 
 const OtpForm = () => {
   const [otp, setOtp] = useState('')
   const [verifyOtp, { isSuccess, isLoading }] = useVerifyOtpMutation()
-
+  const navigate = useNavigate()
+  const despatch = useDispatch()
+  
 
 
   const submitOtp = async () => {
@@ -19,13 +25,17 @@ const OtpForm = () => {
       }
 
       const response = await verifyOtp(otp).unwrap()
-      toast.success("OTP Verified Successfully!")
-     
+      if(response){
+        const {name,role} = response.data
+        toast.success("OTP Verified Successfully!")
+        despatch(setUser({name,role}))
+        navigate('/')
+      }
+
       
     } catch (error) {
-      console.log(error)
-      const err = error as { data: { message: string } }
-      toast.error(err.data.message)
+      const err = error as ApiError;
+      toast.error(err.data.message ,{ position: "top-right", autoClose: 3000, hideProgressBar: true})
     }
   }
 

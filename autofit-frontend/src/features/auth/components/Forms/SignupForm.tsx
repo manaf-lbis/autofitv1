@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { Separator } from '@/components/ui/separator';
-import GoogleLoginButton from '@/components/Auth/GoogleLoginButton';
+import GoogleLoginButton from '@/features/auth/components/GoogleAuth/GoogleLoginButton';
 import FormInput from '@/components/shared/FormInput';
 import { useForm } from 'react-hook-form';
 import { useSignupMutation } from '../../api/authApi';
@@ -27,9 +27,10 @@ const SignupForm : React.FC = () => {
 
     const onValidSubmit = async (data: FormData) =>{
       try {
-        const response = await signup(data).unwrap()
-        setPage('otp')
-
+        const result = await signup(data).unwrap()
+        if(result){
+          setPage('otp')
+        }
       } catch (error) {
         console.log(error);
         const err = error as { data: { message: string } };
@@ -58,7 +59,7 @@ const SignupForm : React.FC = () => {
           <FormInput id="password" label="Password" type="password" placeholder="Password" error={errors.password} register={register} name='password' validationRule='password' />
           <FormInput id="mobile" label="Mobile Number" type="text" placeholder="Mobile number" error={errors.mobile} register={register} name='mobile' validationRule='mobile' />
 
-          <Button onClick={handleSubmit(onValidSubmit)} className="bg-af_darkBlue mt-2" disabled={isLoading}>
+          <Button onClick={handleSubmit(onValidSubmit)} className="bg-af_darkBlue mt-2" disabled={isLoading} >
           { isLoading ? <Loader2 className="animate-spin" /> : 'Signup'}
         </Button>
 

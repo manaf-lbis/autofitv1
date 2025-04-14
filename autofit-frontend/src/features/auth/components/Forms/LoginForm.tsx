@@ -2,7 +2,7 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Link, useNavigate } from 'react-router-dom';
 import { Separator } from '@/components/ui/separator';
-import GoogleLoginButton from '@/components/Auth/GoogleLoginButton';
+import GoogleLoginButton from '@/features/auth/components/GoogleAuth/GoogleLoginButton';
 import FormInput from '@/components/shared/FormInput';
 import { useForm } from 'react-hook-form';
 import { useLoginMutation } from '../../api/authApi';
@@ -22,18 +22,20 @@ type FormData = {
 const LoginForm: React.FC = () => {
 
   const { register, handleSubmit, formState: { errors } } = useForm<FormData>();
-  const [login,{isLoading,isError,isSuccess,data}] = useLoginMutation()
+  const [login,{isLoading}] = useLoginMutation()
 
   const dispatch = useDispatch();
   const navigate = useNavigate()
 
   const  onValidSubmit = async (data : FormData) =>{
     try {
-      const res = await login(data).unwrap()
-      if(res.status === 'success'){
-        const {_id,name,role,email} = res.data
+      const response = await login(data).unwrap()
+      if(response.status === 'success'){
+        const {name,role} = response.data
 
-        dispatch(setUser({id:_id,name,role,email}))
+        dispatch(setUser({name,role}))
+        console.log('navigating');
+        
         navigate("/");
       }
 
@@ -75,7 +77,7 @@ const LoginForm: React.FC = () => {
           <Separator className="flex-1" />
         </div>
 
-        <GoogleLoginButton />
+        <GoogleLoginButton role='user'/>
       </div>
     </>
   );
