@@ -14,12 +14,13 @@ export class UserRegistrationService {
         }
 
         const existingUser = await this.userRepository.findByEmail(email);
+        
         if (existingUser) {
             throw new ApiError("User already exists", 400);
         }
 
-        const {role} = await this.userRepository.create({email,password,mobile,name,role:'user'});
-        return {name,role}
+        const {role,_id} = await this.userRepository.create({email,password,mobile,name,role:'user'});
+        return {_id,name,role}
           
     }
 }

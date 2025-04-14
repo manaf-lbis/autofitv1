@@ -1,11 +1,15 @@
  
 // TODO: Add formvalidation rules here 
-export type Rule ={
-    name : object,
-    password : object,
-    email : object
-    mobile : object
-} 
+export type Rule = {
+  name: object,
+  password: object,
+  email: object,
+  mobile: object,
+  regNo: object,
+  brand: object,
+  model: object,
+  fuelType: object
+}
 
 
 export const FormValidation : Rule = {
@@ -57,6 +61,43 @@ export const FormValidation : Rule = {
           noSpaces: (value: string) => {
             return !/\s/.test(value) || 'Mobile number should not contain spaces';
           }
+        }
+      },
+
+    regNo: {
+        required: 'Registration number is required',
+        pattern: {
+          value: /^[A-Z]{2}\s?\d{2}\s?[A-Z]{1,2}\s?\d{4}$/i, // e.g., KL 07 AB 1234
+          message: 'Enter a valid registration number'
+        }
+      },
+    
+    brand: {
+        required: 'Brand is required',
+        minLength: {
+          value: 2,
+          message: 'Brand must be at least 2 characters'
+        },
+        validate: {
+          noNumbers: (value: string) =>
+            !/\d/.test(value) || 'Brand name should not contain numbers'
+        }
+      },
+    
+    model: {
+        required: 'Model is required',
+        minLength: {
+          value: 1,
+          message: 'Enter a valid model name'
+        }
+      },
+    
+      fuelType: {
+        required: 'Fuel type is required',
+        validate: {
+          isValidType: (value: string) =>
+            ['Petrol', 'Diesel', 'Electric', 'CNG', 'Hybrid'].includes(value) ||
+            'Select a valid fuel type'
         }
       }
 

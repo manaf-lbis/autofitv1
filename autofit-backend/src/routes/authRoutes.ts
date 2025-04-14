@@ -8,6 +8,7 @@ import { TokenService } from "../services/token/tokenService";
 import { HashService } from "../services/hash/hashService";
 import { authenticate } from "../middlewares/authenticate";
 import { UserRegistrationService } from "../services/user/userRegistrationService";
+import { GoogleAuthService } from "../services/auth/googleAuthService";
 
 
 
@@ -23,17 +24,23 @@ const authService = new AuthService(userRepository,
     tokenService,
     hashService,
 );
+const googleAuthService = new GoogleAuthService(userRepository, tokenService)
 const userRegistrationService = new UserRegistrationService(userRepository)
-const authController = new AuthController(authService,userRegistrationService);
+const authController = new AuthController(authService,
+    userRegistrationService,
+    googleAuthService,
+    tokenService
+);
 
 
 
 const router = Router();
 
 router.post('/user/login', (req, res, next) => authController.login(req, res, next))
-router.post('/user/signup', (req, res, next) => authController.signup(req, res,next))
-router.get('/user/me',authenticate, (req,res,next)=> authController.getUser(req,res, next))
-
-router.post('/user/verify-otp',authenticate, (req,res, next)=>authController.verifyOtp(req,res,next) )
+router.post('/user/signup', (req, res, next) => authController.signup(req, res, next))
+router.get('/user/me', authenticate, (req, res, next) => authController.getUser(req, res, next))
+router.post('/google/callback', (req, res, next) => authController.googleCallback(req, res, next))
+router.post('/user/verify-otp', authenticate, (req, res, next) => authController.verifyOtp(req, res, next))
+router.post('/logout', authenticate ,(req,res,next)=> authController.logout(req,res,next) )
 
 export default router;

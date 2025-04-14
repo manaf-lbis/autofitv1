@@ -7,7 +7,6 @@ import { ApiError } from "../../utils/apiError";
 import { ObjectId } from "mongodb";
 
 
-
 export class AuthService {
 
     constructor (
@@ -91,9 +90,10 @@ export class AuthService {
     
         const isCorrect = await this.hashService.compare(otp, data.otp);
 
+
         if (!isCorrect && data._id) {
           await this.otpRepository.incrementAttemptCount(data._id);
-          throw new ApiError("Invalid OTP",400);
+          throw new ApiError(`Invalid OTP you have ${3 - data.attempt } attempt left`,400);
         }
         
         if (data._id) {
@@ -111,4 +111,5 @@ export class AuthService {
       return {name,role}
 
     }
+
 }

@@ -5,11 +5,18 @@ import { UserRegistrationService } from "../services/user/userRegistrationServic
 import { CustomJwtPayload } from "../types/express/index";
 import { sendSuccess, StatusCode } from "../utils/apiResponse";
 import { ApiError } from "../utils/apiError";
+import { GoogleAuthService } from "../services/auth/googleAuthService";
+import { TokenService } from "../services/token/tokenService";
+
+
 
 export class AuthController {
+    
     constructor(
         private authService: AuthService,
-        private userRegistrationService: UserRegistrationService
+        private userRegistrationService: UserRegistrationService,
+        private googleAuthService : GoogleAuthService,
+        private tokenService : TokenService
     ) {}
 
     async login(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -69,15 +76,23 @@ export class AuthController {
             }
 
             await this.authService.verifyOtp(otp, email);
-           const user =  await this.userRegistrationService.registerUser({ 
+            const {_id} = await this.userRegistrationService.registerUser({ 
                 name, 
                 email, 
                 password, 
                 mobile, 
                 role: role || 'user' 
             });
+            const token = this.tokenService.generateToken({id:_id,role})
 
-            sendSuccess(res,'OTP verified successfully',user,StatusCode.CREATED)
+            res.cookie('jwt', token, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+                maxAge: 60 * 60 * 1000
+            });
+
+            sendSuccess(res,'OTP verified successfully',{name,role},StatusCode.CREATED)
 
         } catch (error: any) {
             next(error);
@@ -86,10 +101,10 @@ export class AuthController {
 
     async getUser(req:Request,res:Response,next:NextFunction) : Promise<void> {
         try {
-            console.log(req?.user?.id);
             
-            if(!req?.user?.id) throw new ApiError("Can't Find User!!",500)
-
+            if(!req?.user?.id){
+              throw new ApiError("Not authenticated!",401)
+            } 
                 
             const data = await this.authService.getUser(req.user.id)
 
@@ -97,6 +112,41 @@ export class AuthController {
 
         } catch (error) {
             next(error)
+        }
+    }
+
+    async googleCallback (req:Request,res:Response,next:NextFunction) :Promise<void>{
+        try {
+
+            const { code, role } = req.body;
+            const result = await this.googleAuthService.googleAuth({code,role})
+
+            res.cookie('jwt',result.token, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+                maxAge: 60 * 60 * 1000
+            });
+
+            sendSuccess(res,'Login Success',result.user)
+
+        } catch (error) {
+            next(error)   
+        }
+    }
+
+    async logout (req:Request,res:Response,next:NextFunction): Promise<void>{
+        try {
+            res.clearCookie('jwt', {
+                httpOnly: true,
+                sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+                secure: process.env.NODE_ENV === 'production',
+            });
+            
+            sendSuccess(res,'Logout Successfully')
+
+        } catch (error) {
+            next(error) 
         }
     }
 }

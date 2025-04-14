@@ -10,8 +10,23 @@ export class OtpRepository implements IOtpRepository {
     }
 
     async save(entity: Otp): Promise<OtpDocument> {
-        const newOtp = new OtpModel(entity);
-        return await newOtp.save();
+        const updatedOtp = await OtpModel.findOneAndUpdate(
+            { email: entity.email },
+            {
+                $set: {
+                    otp: entity.otp,
+                    expiresAt: entity.expiresAt,
+                    createdAt: new Date(),
+                    attempt: 0,
+                    verified: false
+                }
+            },
+            {
+                upsert: true,
+                new: true,
+            }
+        );
+        return updatedOtp as OtpDocument;
     }
 
     async incrementAttemptCount(id: ObjectId): Promise<void> {

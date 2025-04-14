@@ -15,7 +15,6 @@ export class UserRepository implements IUserRepository {
         const newUser = new UserModel({
           ...user
         })
-
         await newUser.save()
         return newUser.toObject();
     }
@@ -41,5 +40,6 @@ export class UserRepository implements IUserRepository {
         await UserModel.findByIdAndDelete(id)
     }
 
-   
+
+
 }

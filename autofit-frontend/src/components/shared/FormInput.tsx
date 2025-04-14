@@ -32,4 +32,7 @@ const FormInput: React.FC<FormInputProps> = ({ id, label, type, placeholder, err
   );
 };
 
+
+
+
 export default FormInput;

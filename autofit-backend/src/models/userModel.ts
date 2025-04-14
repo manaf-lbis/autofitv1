@@ -1,6 +1,7 @@
 import mongoose, { Schema, Document,Types } from 'mongoose';
 import { User } from '../types/user';
 
+
 interface userDocument extends User,Document<Types.ObjectId> {}
 
 const userSchema: Schema <userDocument> = new Schema<userDocument>({
@@ -19,11 +20,15 @@ const userSchema: Schema <userDocument> = new Schema<userDocument>({
         type: String,
         enum: ['user', 'admin', 'mechanic']
     },
+    googleId:{
+        type:String
+    },
     status: {
         type: String,
         enum: ['active', 'blocked'],
         default : 'active'
-    }
+    },
+ 
 }, { timestamps: true })
 
 

@@ -8,6 +8,7 @@ export interface User {
     password: string,
     role: 'user' | 'admin' | 'mechanic',
     status: 'active' | 'blocked',
+    googleId?:string,
     createdAt?: Date,
     updatedAt?: Date
 }
