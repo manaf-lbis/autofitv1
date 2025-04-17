@@ -1,111 +1,228 @@
+// import React, { useState } from "react";
+// import { Car, Pencil, Trash2 } from "lucide-react";
+// import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+// import { ScrollArea } from "@/components/ui/scroll-area";
+// import { Button } from "@/components/ui/button";
+// import VehicleModal from "./VehicleModal";
+// import { useDeleteVehicleMutation, useGetMyVehiclesQuery } from "../api/profileApi";
+// import { Vehicle } from "@/types/vehicle";
+// import ConfirmationAlert from "@/components/shared/ConfirmationAlert";
+
+// const VehicleCard: React.FC = () => {
+//   const { data: response, isLoading, error, refetch } = useGetMyVehiclesQuery({});
+//   const [deleteVehicle] = useDeleteVehicleMutation();
+
+//   console.log(response);
+
+//   const vehicles: Vehicle[] = response?.data ?? [];
+
+//   const [isOpen, setIsOpen] = useState(false);
+//   const [vehicle, setVehicle] = useState<Vehicle | null>(null);
+
+//   const handleOpenModal = (selectedVehicle: Vehicle | null = null) => {
+//     setVehicle(selectedVehicle);
+//     setIsOpen(true);
+//   };
+
+//   const handleDelete = async (id: string) => {
+//     await deleteVehicle(id);
+//     refetch();
+//   };
+
+//   return (
+//     <Card className="w-full bg-white shadow-sm rounded-lg border border-gray-100 mt-4 mb-36 md:mb-20">
+//       <CardHeader className="bg-gradient-to-r from-gray-800 to-gray-700 p-6">
+//         <div className="flex justify-between items-center">
+//           <div className="flex items-center gap-3">
+//             <div className="bg-white/15 p-2.5 rounded-lg">
+//               <Car className="w-5 h-5 text-sky-400" />
+//             </div>
+//             <CardTitle className="text-xl font-medium text-white">My Vehicle</CardTitle>
+//           </div>
+//           <Button 
+//             variant="outline"
+//             className="bg-transparent text-white border-white/30 hover:bg-white/10 hover:text-white"
+//             onClick={() => handleOpenModal()}
+//           >
+//             Add new Vehicle
+//           </Button>
+//         </div>
+//       </CardHeader>
+//       <CardContent className="p-6">
+//         <ScrollArea className="h-64 rounded-md">
+//           {vehicles.length === 0 ? (
+//             <div className="flex flex-col items-center justify-center h-64 bg-gray-50 rounded-lg border border-dashed border-gray-200">
+//               <Car className="w-12 h-12 text-gray-300 mb-4" />
+//               <p className="text-gray-600 font-medium mb-2">No vehicles added yet.</p>
+//               <p className="text-gray-400 text-sm text-center max-w-md mb-4">
+//                 Add your vehicles to get personalized service
+//               </p>
+//               <Button
+//                 className="bg-blue-500 hover:bg-blue-600 text-white"
+//                 onClick={() => handleOpenModal()}
+//               >
+//                 Add Your First Vehicle
+//               </Button>
+//             </div>
+//           ) : (
+//             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 pr-2">
+//               {vehicles.map((vehicle) => (
+//                 <div 
+//                   key={vehicle._id} 
+//                   className="bg-white p-4 rounded-lg border border-gray-100 hover:border-gray-200 hover:shadow-sm transition-all flex items-center group"
+//                 >
+//                   <div className="bg-gray-50 p-2 rounded-lg mr-4">
+//                     <img 
+//                       src="https://png.pngtree.com/png-vector/20220711/ourmid/pngtree-automotive-car-logo-png-image_5837187.png" 
+//                       alt={`${vehicle.modelName} image`} 
+//                       className="w-20 h-12 object-contain rounded" 
+//                     />
+//                   </div>
+//                   <div className="flex-1">
+//                     <p className="text-gray-800 font-semibold">{vehicle.regNo}</p>
+//                     <p className="text-gray-500 text-sm">{vehicle.owner}</p>
+//                     <p className="text-gray-500 text-sm">{`${vehicle.brand} - ${vehicle.modelName}`}</p>
+//                   </div>
+//                   <div className="flex flex-col items-end gap-2 opacity-80 group-hover:opacity-100">
+//                     <Button 
+//                       variant="ghost" 
+//                       size="sm" 
+//                       className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 h-8 w-8 p-0"
+//                       onClick={() => handleOpenModal(vehicle)}
+//                     >
+//                       <Pencil size={16} />
+//                     </Button>
+//                     <ConfirmationAlert
+//                       description={`Are you sure you want to delete vehicle ${vehicle.regNo}?`}
+//                       onConfirm={() => handleDelete(vehicle._id)}
+//                     >
+//                       <Button 
+//                         variant="ghost" 
+//                         size="sm" 
+//                         className="text-red-600 hover:text-red-700 hover:bg-red-50 h-8 w-8 p-0"
+//                       >
+//                         <Trash2 size={16} />
+//                       </Button>
+//                     </ConfirmationAlert>
+//                   </div>
+//                 </div>
+//               ))}
+//             </div>
+//           )}
+//         </ScrollArea>
+//       </CardContent>
+//       <VehicleModal isOpen={isOpen} setIsOpen={setIsOpen} vehicle={vehicle} refetchVehicles={refetch} />
+//     </Card>
+//   );
+// };
+
+// export default VehicleCard;
+
+
+
 import React, { useState } from "react";
 import { Car, Pencil, Trash2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import VehicleModal from "./VehicleModal";
-
-
-export interface Vehicle {
-  id: number;
-  registration: string;
-  owner: string;
-  model: string;
-  image: string;
-}
+import { useDeleteVehicleMutation, useGetMyVehiclesQuery } from "../api/profileApi";
+import { Vehicle } from "@/types/vehicle";
+import ConfirmationAlert from "@/components/shared/ConfirmationAlert";
 
 const VehicleCard: React.FC = () => {
-  const vehicles: Vehicle[] = [
-    {
-      id: 1,
-      registration: "KL 00 AA 000",
-      owner: "Owner Name",
-      model: "Vehicle Model",
-      image: "https://via.placeholder.com/100x60",
-    },
-    {
-      id: 2,
-      registration: "KL 00 BB 111",
-      owner: "Another Owner",
-      model: "Another Model",
-      image: "https://via.placeholder.com/100x60",
-    },
-  ];
+  const { data: response, isLoading, error, refetch } = useGetMyVehiclesQuery({});
+  const [deleteVehicle] = useDeleteVehicleMutation();
 
-  const  [isOpen,setIsOpen] = useState(false)
-  const [vehicle,setVehicle] = useState<Vehicle | null>(null)
+  const vehicles: Vehicle[] = response?.data ?? [];
+  const [isOpen, setIsOpen] = useState(false);
+  const [vehicle, setVehicle] = useState<Vehicle | null>(null);
 
-  const handleOpenModal = (vehicle: Vehicle | null = null) => {
-    setVehicle(null); 
-  
-    setTimeout(() => {
-      if (vehicle) {
-        setVehicle(vehicle);
-      }
-      setIsOpen(true); 
-    }, 0); 
+  const handleOpenModal = (selectedVehicle: Vehicle | null = null) => {
+    setVehicle(selectedVehicle);
+    setIsOpen(true);
+  };
+
+  const handleDelete = async (id: string) => {
+    await deleteVehicle(id);
+    refetch();
   };
 
   return (
-    <Card className="w-full  bg-white shadow-sm rounded-lg border border-gray-200 mt-4 mb-36 md:mb-20">
-      <CardHeader className="bg-gray-100 p-6 border-b border-gray-200">
+    <Card className="w-full bg-white shadow-sm rounded-lg border border-gray-100 mt-4 mb-36 md:mb-20">
+      <CardHeader className="bg-gray-50 p-4 sm:p-6">
         <div className="flex justify-between items-center">
-          <div className="flex items-center gap-3 text-gray-800">
-            <Car className="w-6 h-6 text-blue-500" />
-            <CardTitle className="text-2xl font-semibold">My Vehicle</CardTitle>
+          <div className="flex items-center gap-3">
+            <div className="bg-blue-50 p-2 rounded-lg">
+              <Car className="w-5 h-5 text-blue-500" />
+            </div>
+            <CardTitle className="text-xl font-medium text-gray-800">My Vehicle</CardTitle>
           </div>
-
           <Button
-            variant="link"
-            className="text-blue-600 hover:text-blue-800 text-sm font-medium p-0"
-            onClick={() => handleOpenModal(null)}
+            variant="outline"
+            className="bg-transparent text-blue-500 border-blue-500 hover:bg-blue-50"
+            onClick={() => handleOpenModal()}
           >
             Add new Vehicle
           </Button>
-
         </div>
       </CardHeader>
-
-      <CardContent className="p-8">
-        <ScrollArea className="h-48 rounded-md border border-gray-200">
+      <CardContent className="p-4 sm:p-6">
+        <ScrollArea className="h-64 rounded-md">
           {vehicles.length === 0 ? (
-            <p className="text-gray-500 text-center py-4">No vehicles added yet.</p>
+            <div className="flex flex-col items-center justify-center h-64 bg-gray-50 rounded-lg border border-dashed border-gray-200">
+              <Car className="w-12 h-12 text-gray-300 mb-4" />
+              <p className="text-gray-600 font-medium mb-2">No vehicles added yet.</p>
+              <p className="text-gray-400 text-sm text-center max-w-md mb-4">
+                Add your vehicles to get personalized service
+              </p>
+              <Button
+                className="bg-blue-500 hover:bg-blue-600 text-white"
+                onClick={() => handleOpenModal()}
+              >
+                Add Your First Vehicle
+              </Button>
+            </div>
           ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 pr-2">
               {vehicles.map((vehicle) => (
                 <div
-                  key={vehicle.id}
-                  className="bg-white p-4 rounded-lg border border-gray-100 hover:bg-gray-50 transition-colors duration-200 flex items-center"
+                  key={vehicle._id}
+                  className="bg-white p-4 rounded-lg border border-gray-100 hover:border-gray-200 hover:shadow-sm transition-all flex items-center group"
                 >
-                  <img
-                    src={vehicle.image}
-                    alt={`${vehicle.model} image`}
-                    className="w-24 h-14 object-cover rounded mr-4"
-                  />
-                  <div className="flex-1">
-                    <p className="text-gray-800 font-semibold text-lg">{vehicle.registration}</p>
-                    <p className="text-gray-600 text-sm">{vehicle.owner}</p>
-                    <p className="text-gray-600 text-sm">{vehicle.model}</p>
+                  <div className="bg-gray-50 p-2 rounded-lg mr-4">
+                    <img
+                      src="https://png.pngtree.com/png-vector/20220711/ourmid/pngtree-automotive-car-logo-png-image_5837187.png"
+                      alt={`${vehicle.modelName} image`}
+                      className="w-20 h-12 object-contain rounded"
+                    />
                   </div>
-                  <div className="flex flex-col items-end gap-2">
-
+                  <div className="flex-1">
+                    <p className="text-gray-800 font-semibold">{vehicle.regNo}</p>
+                    <p className="text-gray-500 text-sm">{vehicle.owner}</p>
+                    <p className="text-gray-500 text-sm">{`${vehicle.brand} - ${vehicle.modelName}`}</p>
+                  </div>
+                  <div className="flex flex-col items-end gap-2 opacity-80 group-hover:opacity-100">
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="text-blue-600 hover:text-blue-800"
+                      className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 h-8 w-8 p-0"
                       onClick={() => handleOpenModal(vehicle)}
                     >
-                      <Pencil size={18} />
+                      <Pencil size={16} />
                     </Button>
-
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="text-red-600 hover:text-red-800"
-                      onClick={() => handleOpenModal(vehicle)}
+                    <ConfirmationAlert
+                      description={`Are you sure you want to delete vehicle ${vehicle.regNo}?`}
+                      onConfirm={() => handleDelete(vehicle._id)}
                     >
-                      <Trash2 size={18} />
-                    </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-red-600 hover:text-red-700 hover:bg-red-50 h-8 w-8 p-0"
+                      >
+                        <Trash2 size={16} />
+                      </Button>
+                    </ConfirmationAlert>
                   </div>
                 </div>
               ))}
@@ -113,10 +230,9 @@ const VehicleCard: React.FC = () => {
           )}
         </ScrollArea>
       </CardContent>
-      <VehicleModal isOpen={isOpen} setIsOpen={setIsOpen} vehicle={vehicle} />
+      <VehicleModal isOpen={isOpen} setIsOpen={setIsOpen} vehicle={vehicle} refetchVehicles={refetch} />
     </Card>
   );
 };
 
 export default VehicleCard;
-

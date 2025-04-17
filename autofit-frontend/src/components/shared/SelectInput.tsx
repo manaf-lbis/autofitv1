@@ -1,56 +1,50 @@
-import React from 'react';
+import React from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Label } from '@/components/ui/label';
-import { FieldError } from 'react-hook-form';
-import { FormValidation, Rule } from './SelectValidation';
+import { Label } from "@/components/ui/label";
+import { Controller } from "react-hook-form";
+import { VehicleFormData } from "@/types/vehicle";
 
 interface SelectInputProps {
   id: string;
   label: string;
-  name: string;
-  placeholder: string;
+  name: keyof VehicleFormData;
   options: string[];
-  error?: FieldError;
-  register: any;
-  setValue: any; 
-  validationRule: keyof Rule;
+  placeholder: string;
+  control: any;  // From useForm
+  error?: any;
 }
 
 const SelectInput: React.FC<SelectInputProps> = ({
   id,
   label,
   name,
-  placeholder,
   options,
+  placeholder,
+  control,
   error,
-  register,
-  setValue,
-  validationRule
-}) => {
-  React.useEffect(() => {
-    register(name, FormValidation[validationRule]);
-  }, [name, register, validationRule]);
-
-  return (
-    <div className="flex flex-col gap-1">
-      <Label htmlFor={id}>{label}</Label>
-      <Select onValueChange={(value) => setValue(name, value)} defaultValue="">
-        <SelectTrigger id={id}>
-          <SelectValue placeholder={placeholder} />
-        </SelectTrigger>
-        <SelectContent>
-          {options.map((option) => (
-            <SelectItem key={option} value={option}>
-              {option}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-      <span className="text-red-500 text-xs min-h-[0.875rem] transition-all duration-300">
-        {error?.message ?? ''}
-      </span>
-    </div>
-  );
-};
+}) => (
+  <div className="flex flex-col gap-1">
+    <Label htmlFor={id}>{label}</Label>
+    <Controller
+      name={name}
+      control={control}
+      render={({ field }) => (
+        <Select onValueChange={field.onChange} value={field.value || ""}>
+          <SelectTrigger id={id}>
+            <SelectValue placeholder={placeholder} />
+          </SelectTrigger>
+          <SelectContent>
+            {options.map((option) => (
+              <SelectItem key={option} value={option}>
+                {option}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      )}
+    />
+    {error && <span className="text-red-500 text-xs min-h-[0.875rem]">{error.message}</span>}
+  </div>
+);
 
 export default SelectInput;
