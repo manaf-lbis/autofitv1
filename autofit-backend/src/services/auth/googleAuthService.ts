@@ -53,12 +53,16 @@ export class GoogleAuthService {
 
         }else if(role === 'mechanic'){
             //! mech impli
+            
         }
 
-        const token = this.tokenService.generateToken({
-            id: user._id,
-            role: user.role,
-        });
+       const tokenPayload =  { id: user._id, role: user.role}
+
+        const token = this.tokenService.generateToken(tokenPayload);
+
+        const refreshToken = this.tokenService.generateRefreshToken(tokenPayload);
+        await this.userRepository.storeRefreshToken(user._id, refreshToken);
+
 
         return {token,user:{name: user.name,role: user.role,}}
     }

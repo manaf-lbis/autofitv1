@@ -78,6 +78,13 @@ export const authApi = createApi({
         method: 'POST',
       }),
     }),
+
+    refresh: builder.mutation<LoginResponse, void>({
+      query: () => ({
+        url: "/auth/refresh",
+        method: "POST",
+      }),
+    })
   })
 
 });
@@ -89,4 +96,6 @@ export const {
   useSignupMutation,
   useVerifyOtpMutation,
   useGoogleLoginMutation,
+  useRefreshMutation
+  
 } = authApi;

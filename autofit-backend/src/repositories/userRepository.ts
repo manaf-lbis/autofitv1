@@ -40,6 +40,13 @@ export class UserRepository implements IUserRepository {
         await UserModel.findByIdAndDelete(id)
     }
 
-
+    async storeRefreshToken(userId: ObjectId, token: string): Promise<void> {
+        await UserModel.updateOne({ _id: userId }, { refreshToken: token });
+      }
+      
+    async getRefreshToken(userId: ObjectId): Promise<string | null> {
+        const user = await UserModel.findById(userId);
+        return user?.refreshToken || null;
+    }
 
 }

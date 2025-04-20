@@ -2,7 +2,6 @@ import {Request, Response, NextFunction} from 'express'
 import { TokenService } from '../services/token/tokenService';
 
 
-
 const tokenService = new TokenService()
 
 export const authenticate = (req: Request, res: Response, next: NextFunction): void => {

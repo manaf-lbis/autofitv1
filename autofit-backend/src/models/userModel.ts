@@ -28,6 +28,9 @@ const userSchema: Schema <userDocument> = new Schema<userDocument>({
         enum: ['active', 'blocked'],
         default : 'active'
     },
+    refreshToken :{
+        type:String
+    }
  
 }, { timestamps: true })
 

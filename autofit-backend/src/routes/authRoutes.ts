@@ -17,7 +17,6 @@ const otpService = new OtpService()
 const otpRepository = new OtpRepository()
 const tokenService = new TokenService()
 const hashService = new HashService()
-
 const authService = new AuthService(userRepository,
     otpService,
     otpRepository,
@@ -33,14 +32,17 @@ const authController = new AuthController(authService,
 );
 
 
-
 const router = Router();
+
 
 router.post('/user/login', (req, res, next) => authController.login(req, res, next))
 router.post('/user/signup', (req, res, next) => authController.signup(req, res, next))
 router.get('/user/me', authenticate, (req, res, next) => authController.getUser(req, res, next))
 router.post('/google/callback', (req, res, next) => authController.googleCallback(req, res, next))
 router.post('/user/verify-otp', authenticate, (req, res, next) => authController.verifyOtp(req, res, next))
-router.post('/logout', authenticate ,(req,res,next)=> authController.logout(req,res,next) )
+router.post('/logout' ,(req,res,next)=> authController.logout(req,res,next) )
+
+router.post("/refresh", (req, res, next) => authController.refreshToken(req, res, next));
+
 
 export default router;

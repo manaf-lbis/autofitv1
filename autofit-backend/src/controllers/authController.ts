@@ -23,18 +23,18 @@ export class AuthController {
         try {
             const { email, password } = req.body;
             loginValidation.parse({ email, password });
-
+    
             const result = await this.authService.login(email, password);
-
+            
             res.cookie('jwt', result.token, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === 'production',
                 sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-                maxAge: 60 * 60 * 1000
+                path: '/',       
+                maxAge: 7*24*60*60*1000 
             });
-
-            sendSuccess(res,'Login SuccessFull',result.user)
-
+    
+            sendSuccess(res, 'Login Successful', result.user);
         } catch (error: any) {
             next(error);
         }
@@ -51,7 +51,8 @@ export class AuthController {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === 'production',
                 sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-                maxAge: 60 * 60 * 1000
+                path: '/', 
+                maxAge: 60*60*1000       
             });
             sendSuccess(res,result.message)
 
@@ -89,7 +90,8 @@ export class AuthController {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === 'production',
                 sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-                maxAge: 60 * 60 * 1000
+                path: '/',   
+                maxAge: 7*24*60*60*1000     
             });
 
             sendSuccess(res,'OTP verified successfully',{name,role},StatusCode.CREATED)
@@ -125,7 +127,8 @@ export class AuthController {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === 'production',
                 sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-                maxAge: 60 * 60 * 1000
+                path: '/',       
+                maxAge: 7*24*60*60*1000 
             });
 
             sendSuccess(res,'Login Success',result.user)
@@ -149,5 +152,36 @@ export class AuthController {
             next(error) 
         }
     }
+
+    async refreshToken(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+
+          const token = req.cookies.jwt || req.headers.authorization?.split(" ")[1];
+          
+          if (!token) {
+            throw new ApiError("No token provided", 401);
+          }
+      
+          const decoded = this.tokenService.verifyToken(token, true);
+          const userId = decoded.id;
+      
+          const result = await this.authService.refreshAccessToken(userId);
+          console.log('token refreshed');
+          
+      
+   
+          res.cookie("jwt", result.accessToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+            path: '/', 
+            maxAge: 7*24*60*60*1000       
+          });
+      
+          sendSuccess(res, "Token refreshed"); 
+        } catch (error: any) {
+          next(error);
+        }
+      }
 }
 
