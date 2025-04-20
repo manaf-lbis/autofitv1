@@ -9,6 +9,8 @@ export interface User {
     role: 'user' | 'admin' | 'mechanic',
     status: 'active' | 'blocked',
     refreshToken:string
+    failedLoginAttempts:number
+    lockUntil:Date | null
     googleId?:string,
     createdAt?: Date,
     updatedAt?: Date

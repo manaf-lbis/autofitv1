@@ -30,7 +30,15 @@ const userSchema: Schema <userDocument> = new Schema<userDocument>({
     },
     refreshToken :{
         type:String
-    }
+    },
+    failedLoginAttempts: {
+        type: Number,
+        default: 0 
+    },
+    lockUntil: {
+        type: Date,
+        default: null
+    },
  
 }, { timestamps: true })
 
