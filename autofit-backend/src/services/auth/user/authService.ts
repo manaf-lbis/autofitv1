@@ -1,9 +1,9 @@
-import { IUserRepository } from "../../repositories/interfaces/IUserRepository";
-import { OtpService } from "../otp/otpService";
-import { IOtpRepository } from "../../repositories/interfaces/IOtpRepository";
-import { HashService } from "../hash/hashService";
-import { TokenService } from "../token/tokenService";
-import { ApiError } from "../../utils/apiError";
+import { IUserRepository } from "../../../repositories/interfaces/IUserRepository";
+import { OtpService } from "../../otp/otpService";
+import { IOtpRepository } from "../../../repositories/interfaces/IOtpRepository";
+import { HashService } from "../../hash/hashService";
+import { TokenService } from "../../token/tokenService";
+import { ApiError } from "../../../utils/apiError";
 import { ObjectId } from "mongodb";
 import { Types } from "mongoose";
 
@@ -18,7 +18,6 @@ export class AuthService {
     private hashService: HashService,
   ) { }
 
-  
   async login(email: string, password: string) {
     const user = await this.userRepository.findByEmail(email);
     if (!user) throw new ApiError('Invalid email or password', 404);
@@ -28,7 +27,7 @@ export class AuthService {
         `Account locked until ${user.lockUntil.toLocaleTimeString()}`, 423
       );
     }
-  
+
     const isMatch = await this.hashService.compare(password, user.password);
     if (!isMatch) {
 
@@ -36,12 +35,12 @@ export class AuthService {
       const lockUntil = attempts >= 3
         ? new Date(Date.now() + 5 * 60 * 1000)
         : undefined;
-  
+
       await this.userRepository.update(user._id.toString(), {
         failedLoginAttempts: attempts,
         ...(lockUntil && { lockUntil }),
       });
-  
+
       throw new ApiError(
         attempts >= 3
           ? 'Account locked due to too many failed attempts'
@@ -49,18 +48,18 @@ export class AuthService {
         401
       );
     }
-  
+
 
     await this.userRepository.update(user._id.toString(), {
       failedLoginAttempts: 0,
       lockUntil: null,
     });
-  
+
 
     const payload = { id: user._id, role: user.role };
-    const accessToken  = this.tokenService.generateToken(payload);
+    const accessToken = this.tokenService.generateToken(payload);
     const refreshToken = this.tokenService.generateRefreshToken(payload);
-  
+
     await this.userRepository.storeRefreshToken(user._id, refreshToken);
     return { token: accessToken, user: { name: user.name, role: user.role } };
   }
@@ -69,66 +68,19 @@ export class AuthService {
   async signup(name: string, email: string, password: string, mobile: string) {
 
     const isExist = await this.userRepository.findByEmail(email)
-
     if (isExist) throw new ApiError('User With Email Already Exists!', 400)
 
-
-    const otp = this.otpService.generate();
-    console.error('your OTP is :', otp);
-
-    this.otpService.send(email, otp);
-
-    const otpHash = await this.hashService.hash(otp)
     const passwordHash = await this.hashService.hash(password)
 
-    await this.otpRepository.save({
+    await this.otpService.saveAndSentOtp(email, 'user')
+    const token = this.tokenService.generateToken({
+      name,
+      password: passwordHash,
       email,
-      otp: otpHash,
-      attempt: 0,
-      createdAt: new Date(),
-      expiresAt: new Date(Date.now() + 5 * 60 * 1000),
-      verified: false
+      mobile,
+      role: 'user'
     })
-
-    const token = this.tokenService.generateToken({ name, password: passwordHash, email, mobile, role: 'user' })
-
     return { token, message: 'OTP sent successfully' }
-  }
-
-  async verifyOtp(otp: string, email: string): Promise<void> {
-
-    const data = await this.otpRepository.findByEmail(email);
-
-    const now = new Date();
-    if (!data || data.expiresAt < now) {
-      throw new ApiError("Please request a new OTP.", 400);
-    }
-
-    if (data.attempt >= 3) {
-      const timeLeftMs = data.expiresAt.getTime() - now.getTime();
-      const minutes = Math.floor(timeLeftMs / 60000);
-      const seconds = Math.floor((timeLeftMs % 60000) / 1000);
-
-      const formattedMinutes = String(minutes).padStart(2, '0');
-      const formattedSeconds = String(seconds).padStart(2, '0');
-
-      throw new ApiError(
-        `Too many invalid attempts. Please try again in ${formattedMinutes}:${formattedSeconds}`,
-        400
-      );
-    }
-
-    const isCorrect = await this.hashService.compare(otp, data.otp);
-
-
-    if (!isCorrect && data._id) {
-      await this.otpRepository.incrementAttemptCount(data._id);
-      throw new ApiError(`Invalid OTP you have ${3 - data.attempt} attempt left`, 400);
-    }
-
-    if (data._id) {
-      await this.otpRepository.markAsVerified(data._id);
-    }
   }
 
 
@@ -140,7 +92,6 @@ export class AuthService {
     }
     const { name, role } = user;
     return { name, role }
-
   }
 
 
@@ -172,10 +123,8 @@ export class AuthService {
       throw new ApiError("Invalid refresh token", 401);
     }
 
-
     const payload = { id: userId, role: user.role };
     const newAccessToken = this.tokenService.generateAccessToken(payload);
-
 
     const newRefreshToken = this.tokenService.generateRefreshToken(payload);
     await this.userRepository.storeRefreshToken(new Types.ObjectId(userId), newRefreshToken);

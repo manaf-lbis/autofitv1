@@ -2,7 +2,7 @@
 
 import { ObjectId } from "mongodb";
 
-export interface IBaseRerpository<T> {
+export interface IBaseRepository<T> {
 
     findById(id: ObjectId): Promise<T | null>;
     findAll(): Promise<T[] | null>;

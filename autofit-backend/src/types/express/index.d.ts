@@ -7,6 +7,7 @@ export interface CustomJwtPayload extends JwtPayload {
     name?: string;
     password?: string;
     mobile?: string;
+    otpResent?:number
     role?: 'user' | 'admin' | 'mechanic';
 }
 

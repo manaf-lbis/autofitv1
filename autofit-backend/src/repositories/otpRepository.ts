@@ -5,6 +5,7 @@ import { Otp } from "../types/otp";
 import { ObjectId } from "mongodb";
 
 export class OtpRepository implements IOtpRepository {
+    
     async findByEmail(email: string): Promise<OtpDocument | null> {
         return await OtpModel.findOne({ email });
     }
@@ -18,6 +19,7 @@ export class OtpRepository implements IOtpRepository {
                     expiresAt: entity.expiresAt,
                     createdAt: new Date(),
                     attempt: 0,
+                    role:entity.role,
                     verified: false
                 }
             },
@@ -34,6 +36,7 @@ export class OtpRepository implements IOtpRepository {
     }
 
     async markAsVerified(id: ObjectId): Promise<void> {
-        await OtpModel.findByIdAndUpdate(id, { verified: true });
+        await OtpModel.findByIdAndDelete(id);
     }
 }
+

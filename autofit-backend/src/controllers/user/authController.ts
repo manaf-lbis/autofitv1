@@ -1,12 +1,14 @@
 import { Request, Response, NextFunction } from "express";
-import { AuthService } from "../services/auth/authService";
-import { loginValidation, signupValidation } from "../validation/authValidation";
-import { UserRegistrationService } from "../services/user/userRegistrationService";
-import { CustomJwtPayload } from "../types/express/index";
-import { sendSuccess, StatusCode } from "../utils/apiResponse";
-import { ApiError } from "../utils/apiError";
-import { GoogleAuthService } from "../services/auth/googleAuthService";
-import { TokenService } from "../services/token/tokenService";
+import { AuthService } from "../../services/auth/user/authService";
+import { loginValidation, signupValidation } from "../../validation/authValidation";
+import { UserRegistrationService } from "../../services/user/userRegistrationService";
+import { CustomJwtPayload } from "../../types/express/index";
+import { sendSuccess, StatusCode } from "../../utils/apiResponse";
+import { ApiError } from "../../utils/apiError";
+import { GoogleAuthService } from "../../services/auth/user/googleAuthService";
+import { TokenService } from "../../services/token/tokenService";
+import { OtpService } from "../../services/otp/otpService";
+import { Role } from "../../types/role";
 
 
 
@@ -16,7 +18,8 @@ export class AuthController {
         private authService: AuthService,
         private userRegistrationService: UserRegistrationService,
         private googleAuthService : GoogleAuthService,
-        private tokenService : TokenService
+        private tokenService : TokenService,
+        private otpService : OtpService
     ) {}
 
     async login(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -63,7 +66,8 @@ export class AuthController {
 
     async verifyOtp(req: Request & { user?: CustomJwtPayload }, res: Response, next: NextFunction): Promise<void> {
         try {
-            const { otp } = req.body;
+
+            const { otp } = req.body.otp;
 
             if (!req.user) {
                 res.status(401).json({ message: "Unauthorized No token" });
@@ -75,8 +79,9 @@ export class AuthController {
             if (!email || !password || !mobile || !name) {
                 throw new Error('Missing required user data in token');
             }
+            
+            await this.otpService.verifyOtp(otp,email)
 
-            await this.authService.verifyOtp(otp, email);
             const {_id} = await this.userRegistrationService.registerUser({ 
                 name, 
                 email, 
@@ -107,6 +112,10 @@ export class AuthController {
             if(!req?.user?.id){
               throw new ApiError("Not authenticated!",401)
             } 
+
+            if (req.user.role !== 'user') {
+                throw new ApiError("Forbidden: Insufficient permissions", 403);
+            }
                 
             const data = await this.authService.getUser(req.user.id)
 
@@ -120,8 +129,8 @@ export class AuthController {
     async googleCallback (req:Request,res:Response,next:NextFunction) :Promise<void>{
         try {
 
-            const { code, role } = req.body;
-            const result = await this.googleAuthService.googleAuth({code,role})
+            const { code} = req.body;
+            const result = await this.googleAuthService.googleAuth({code})
 
             res.cookie('jwt',result.token, {
                 httpOnly: true,
@@ -144,12 +153,36 @@ export class AuthController {
                 httpOnly: true,
                 sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
                 secure: process.env.NODE_ENV === 'production',
+                path: '/'
             });
             
             sendSuccess(res,'Logout Successfully')
 
         } catch (error) {
             next(error) 
+        }
+    }
+
+    async resentOtp(req: Request , res: Response, next: NextFunction): Promise<void>{
+        try {
+            
+            if (!req.user) {
+                res.status(401).json({ message: "Unauthorized No token" });
+                return;
+            }
+
+            const { email, role } = req.user;
+
+            if (!email ) {
+                throw new Error('Missing required user data in token');
+            }
+
+            await this.otpService.saveAndResentOtp(email,role as Role)
+
+            sendSuccess(res,'Resent Success')
+            
+        } catch (error:any) {
+            next(error)
         }
     }
 
@@ -182,6 +215,8 @@ export class AuthController {
         } catch (error: any) {
           next(error);
         }
-      }
+    }
+
 }
+
 

@@ -20,6 +20,9 @@ const otpSchema : Schema<OtpDocument> =  new Schema<OtpDocument>  ({
         type : Number,
         default : 0
     },
+    role:{
+        type: String,
+    },
     createdAt: {
         type: Date,
         default: Date.now,

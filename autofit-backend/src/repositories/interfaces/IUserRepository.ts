@@ -1,10 +1,10 @@
-import { IBaseRerpository } from "./IBaseRepository"
+import { IBaseRepository } from "./IBaseRepository"
 import { User } from "../../types/user"
 import { CreateUserInput } from "../../types/user/userInput"
 import { Types } from "mongoose"
 
 
-export interface IUserRepository extends IBaseRerpository <User> {
+export interface IUserRepository extends IBaseRepository <User> {
     findByEmail(email :string) : Promise<User | null>
     create(user:CreateUserInput): Promise<User>
     getRefreshToken(userId: Types.ObjectId): Promise<string | null> 
