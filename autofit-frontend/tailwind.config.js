@@ -25,6 +25,8 @@ export default {
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
 			af_lightBlue: "#BFDBFE",
+			mechanicBlue: "#1D4ED8",
+        	adminBlue: "#273C7C",
   			card: {
   				DEFAULT: 'hsl(var(--card))',
   				foreground: 'hsl(var(--card-foreground))'

@@ -77,8 +77,8 @@ const VehicleModal = ({ isOpen, setIsOpen, vehicle, refetchVehicles }: { isOpen:
           <FormInput id="regNo" label="Registration No" name="regNo" placeholder="KL 00 AA 0000" type="text" register={register} error={errors.regNo} validationRule="regNo" />
           <SelectInput id="brand" label="Select Brand" name="brand" options={brands} placeholder="Vehicle Brand" control={control} error={errors.brand} />
           <SelectInput id="modelName" label="Select Vehicle" name="modelName" options={models} placeholder="Vehicle Model" control={control} error={errors.modelName} />
-          <SelectInput id="fuel" label="Fuel Type" name="fuelType" options={["Petrol", "Diesel"]} placeholder="Fuel Type" control={control} error={errors.fuelType} />
-          <FormInput id="owner" label="Owner Name" name="owner" placeholder="eg: John" type="text" register={register} error={errors.owner} validationRule="name" />
+          <SelectInput  id="fuel" label="Fuel Type" name="fuelType" options={["Petrol", "Diesel"]} placeholder="Fuel Type" control={control} error={errors.fuelType} />
+          <FormInput  id="owner" label="Owner Name" name="owner" placeholder="eg: John" type="text" register={register} error={errors.owner} validationRule="name" />
         </div>
         <DialogFooter>
           <Button onClick={handleSubmit(onSubmit)} type="submit">Save changes</Button>

@@ -3,39 +3,37 @@ import { Button } from "@/components/ui/button";
 import googleLogo from "@/assets/common/googleLogo.webp";
 import { useGoogleLogin } from "@react-oauth/google";
 import { useGoogleLoginMutation } from "@/features/auth/api/authApi";
-import { setUser } from "@/features/auth/slices/authSlice";
+import { setUser, setError } from "@/features/auth/slices/authSlice";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { ApiError } from "@/types/apiError";
 import { toast } from "react-toastify";
-import GoogleLoading from "../../../../components/Animations/GoogleLogin";
+import GoogleLoading from "@/components/Animations/GoogleLogin";
+import { Role } from "../Layouts/AuthLayout";
+import { roleConfig } from "@/utils/roleConfig";
 
-type GoogleButtonProps = {
-  role: "mechanic" | "user";
-};
+type GoogleButtonProps = { role: Role };
 
-type GoogleResponse = {
-  code: string;
-};
+type GoogleResponse = { code: string };
 
 const GoogleLoginButton: React.FC<GoogleButtonProps> = ({ role }) => {
-  const [googleLogin, { isLoading, isError, isSuccess }] = useGoogleLoginMutation();
+  const [googleLogin, { isLoading }] = useGoogleLoginMutation();
   const [googleSigningIn, setGoogleSigningIn] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const handleGoogleSuccess = async (response: GoogleResponse) => {
+  const handleGoogleSuccess = async ({ code }: GoogleResponse) => {
     try {
-      const res = await googleLogin({ code: response.code, role }).unwrap();
-      
+      const res = await googleLogin({ code, role }).unwrap();
       if (res.status === "success") {
-        const { name, role } = res.data;
-        dispatch(setUser({ name, role }));
-        navigate("/");
+        dispatch(setUser({ name: res.data.name, role: res.data.role }));
+        localStorage.setItem('userRole', res.data.role);
+        navigate(roleConfig[res.data.role].defaultRoute, { replace: true });
+        toast.success("Logged in with Google!");
       }
-    } catch (error) {
-      const err = error as ApiError;
-      toast.error(err?.data?.message, { position: "top-right", autoClose: 3000, hideProgressBar: true });
+    } catch (err) {
+      const error = err as { data?: { message: string } };
+      dispatch(setError(error.data?.message || "Google login failed"));
+      toast.error(error.data?.message || "Google login failed");
     } finally {
       setGoogleSigningIn(false);
     }
@@ -50,12 +48,13 @@ const GoogleLoginButton: React.FC<GoogleButtonProps> = ({ role }) => {
   return (
     <Button
       onClick={() => {
-        login();
         setGoogleSigningIn(true);
+        login();
       }}
       className="bg-white flex items-center gap-2 px-4 py-2 border border-gray-300 hover:bg-gray-100 transition-colors"
+      disabled={isLoading || googleSigningIn}
     >
-      {googleSigningIn || isLoading ? (
+      {(isLoading || googleSigningIn) ? (
         <GoogleLoading />
       ) : (
         <>

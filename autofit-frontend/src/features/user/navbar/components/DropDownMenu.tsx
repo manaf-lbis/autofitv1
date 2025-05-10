@@ -1,24 +1,21 @@
 import React, { useRef, useState } from "react";
-import {
-  Popover,
-  PopoverTrigger,
-  PopoverContent,
-} from "@/components/ui/popover";
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLogoutMutation } from "@/features/auth/api/authApi";
 import { toast } from "react-toastify";
-import { ApiError } from "@/types/apiError";
-import { useDispatch } from "react-redux";
-import { AppDispatch } from "@/store/store";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "@/store/store";
 import { clearUser } from "@/features/auth/slices/authSlice";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export function Dropdown({ children }: { children: React.ReactElement }) {
   const [logout] = useLogoutMutation();
-  const dispatch = useDispatch<AppDispatch>();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const { user } = useSelector((state: RootState) => state.auth);
 
   const handleMouseEnter = () => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
@@ -26,9 +23,7 @@ export function Dropdown({ children }: { children: React.ReactElement }) {
   };
 
   const handleMouseLeave = () => {
-    timeoutRef.current = setTimeout(() => {
-      setOpen(false);
-    }, 200);
+    timeoutRef.current = setTimeout(() => setOpen(false), 200);
   };
 
   const closePopover = () => {
@@ -40,20 +35,19 @@ export function Dropdown({ children }: { children: React.ReactElement }) {
     try {
       await logout().unwrap();
       dispatch(clearUser());
+      navigate('/user/login', { replace: true });
       toast.success("Logged out successfully");
-      closePopover();
     } catch (error) {
-      const err = error as ApiError;
-      toast.error(err.status);
-      closePopover();
+      toast.error("Logout failed");
     }
   };
+
+  if (!user) return null;
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <div onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
         <PopoverTrigger asChild>{children}</PopoverTrigger>
-
         <PopoverContent
           align="end"
           className={cn(
@@ -63,10 +57,12 @@ export function Dropdown({ children }: { children: React.ReactElement }) {
           autoFocus={false}
           onOpenAutoFocus={(e) => e.preventDefault()}
         >
-          <div className="px-3 py-2 text-sm font-semibold text-Dark">My Account</div>
+          <div className="px-3 py-2 text-sm font-semibold text-Dark">
+            Hi, {user.name.toUpperCase()}
+          </div>
           <div className="border-t" />
           <div className="py-1">
-            <Link to="/profile">
+            <Link to="/user/profile">
               <button
                 onClick={closePopover}
                 className="w-full text-left text-sm px-3 py-2 hover:bg-muted hover:text-foreground transition-colors"

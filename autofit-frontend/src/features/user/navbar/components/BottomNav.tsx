@@ -10,7 +10,7 @@ const navItems = [
   { label: "Service", icon: Wrench ,route:'/service'},
   { label: "About", icon: Info ,route:'/about'},
   { label: "Contact", icon: Mail ,route:'/contact'},
-  { label: "Start", icon: LogIn, route:'/login' },
+  { label: "Start", icon: LogIn, route:'/user/login' },
 ];
 
 const BottomNav: React.FC = () => {

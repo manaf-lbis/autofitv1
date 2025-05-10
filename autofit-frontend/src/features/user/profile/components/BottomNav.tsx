@@ -21,7 +21,7 @@ const BottomNav = () => {
           icon: <LogOut className="w-6 h-6" />,
           onClick: () => {
             dispatch(clearUser());
-            navigate("/login");
+            navigate("/user/login");
           },
         },
       ];

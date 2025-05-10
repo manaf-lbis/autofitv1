@@ -21,7 +21,7 @@ const ResponsiveSidebar: React.FC = () => {
   const handleClick = (item: typeof navItems[number]) => {
     if (item.action === 'logout') {
       dispatch(clearUser());
-      navigate('/login');
+      navigate('/user/login');
     } else if (item.path) {
       navigate(item.path);
     }

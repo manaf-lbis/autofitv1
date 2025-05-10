@@ -1,4 +1,4 @@
-import LoginPage from '@/features/auth/Pages/LoginPage'
+import LoginPage from '@/features/auth/Pages/user/LoginPage'
 import React from 'react'
 
 const Login : React.FC = () => {

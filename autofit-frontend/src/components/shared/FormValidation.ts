@@ -1,5 +1,4 @@
- 
-// TODO: Add formvalidation rules here 
+  
 export type Rule = {
   name: object,
   password: object,
@@ -64,7 +63,7 @@ export const FormValidation : Rule = {
     regNo: {
         required: 'Registration number is required',
         pattern: {
-          value: /^[A-Z]{2}\s?\d{2}\s?[A-Z]{1,2}\s?\d{4}$/i, // e.g., KL 07 AB 1234
+          value: /^[A-Z]{2}\s?\d{2}\s?[A-Z]{1,2}\s?\d{4}$/i, 
           message: 'Enter a valid registration number'
         }
       },

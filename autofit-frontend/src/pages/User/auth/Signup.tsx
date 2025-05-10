@@ -1,5 +1,5 @@
 import React from 'react'
-import SignupPage from '@/features/auth/Pages/SignupPage'
+import SignupPage from '@/features/auth/Pages/user/SignupPage'
 import AnimatedPage from '@/components/Animations/AnimatedPage'
 
 const Signup = () => {

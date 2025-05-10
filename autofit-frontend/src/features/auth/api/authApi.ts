@@ -1,60 +1,65 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-
-export interface User {
-  name: string;
-  role: "mechanic" | "user" | "admin";
-}
+import { createApi } from "@reduxjs/toolkit/query/react";
+import { baseQueryWithRefresh } from "@/utils/baseQuery";
+import { Role } from "../components/Layouts/AuthLayout";
+import { clearUser } from "../slices/authSlice";
 
 export interface LoginRequest {
   email: string;
   password: string;
+  role: Role;
 }
 
 export interface SignupRequest {
-  email: string;
   name: string;
+  email: string;
   password: string;
   mobile: string;
+  role: Exclude<Role, 'admin'>;
 }
 
 export interface LoginResponse {
   status: "success" | "error";
   data: {
     name: string;
-    role: "user" | "admin" | "mechanic";
+    role: Role;
   };
 }
 
 interface AuthInput {
   code: string;
-  role: "user" | "mechanic";
+  role: Role;
 }
 
 export const authApi = createApi({
   reducerPath: "authApi",
-  baseQuery: fetchBaseQuery({
-    baseUrl: import.meta.env.VITE_API_URL,
-    credentials: "include",
-  }),
+  baseQuery: baseQueryWithRefresh,
   endpoints: (builder) => ({
+    
     login: builder.mutation<LoginResponse, LoginRequest>({
-      query: (credentials) => ({
-        url: "auth/user/login",
-        method: "POST",
-        body: credentials,
-      }),
-    }),
-    getCurrentUser: builder.query<LoginResponse, void>({
-      query: () => ({
-        url: "auth/user/me",
-        method: "GET",
-      }),
+      query: ({ email, password, role }) => ({
+        url: `auth/${role}/login`,
+        method: 'POST',
+        body: { email, password }
+      })
     }),
     signup: builder.mutation<any, SignupRequest>({
-      query: (credentials) => ({
-        url: "auth/user/signup",
-        method: "POST",
-        body: credentials,
+      query: ({ name, email, password, mobile, role }) => ({
+        url: `auth/${role}/signup`,
+        method: 'POST',
+        body: { name, email, password, mobile }
+      })
+    }),
+    getCurrentUser: builder.query<LoginResponse, void>({
+      query: () => {
+        const role = localStorage.getItem('userRole') || 'user';
+        return `auth/${role}/me`;
+      },
+    }),
+    googleLogin: builder.mutation<LoginResponse, AuthInput>({
+      query: ({ code, role }) => ({
+        url: `auth/${role}/google/callback`,
+        method: 'POST',
+        body: { code },
       }),
     }),
     verifyOtp: builder.mutation<LoginResponse, { otp: string }>({
@@ -64,38 +69,41 @@ export const authApi = createApi({
         body: { otp },
       }),
     }),
-    googleLogin: builder.mutation<LoginResponse, AuthInput>({
-      query: ({ code, role }) => ({
-        url: "/auth/google/callback",
+    resentOtp: builder.mutation({
+      query: (otp) => ({
+        url: "auth/user/resent-otp",
         method: "POST",
-        body: { code, role },
-      })
+      }),
     }),
-
     logout: builder.mutation<LoginResponse, void>({
-      query: () => ({
-        url: '/auth/logout',
-        method: 'POST',
-      }),
+      query: () => {
+        const role = localStorage.getItem('userRole') || 'user';
+        return {
+          url: `auth/${role}/logout`,
+          method: 'POST',
+          credentials: 'include',
+        };
+      },
+      onQueryStarted: async (_, { dispatch, queryFulfilled }) => {
+        try {
+          await queryFulfilled;
+          dispatch(clearUser());
+          localStorage.clear();
+          document.cookie = 'jwt=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/';
+        } catch (error) {
+          console.error('Logout failed:', error);
+        }
+      },
     }),
-
-    refresh: builder.mutation<LoginResponse, void>({
-      query: () => ({
-        url: "/auth/refresh",
-        method: "POST",
-      }),
-    })
-  })
-
+  }),
 });
 
 export const {
   useLoginMutation,
   useGetCurrentUserQuery,
-  useLogoutMutation,
   useSignupMutation,
-  useVerifyOtpMutation,
   useGoogleLoginMutation,
-  useRefreshMutation
-  
+  useLogoutMutation,
+  useVerifyOtpMutation,
+  useResentOtpMutation
 } = authApi;

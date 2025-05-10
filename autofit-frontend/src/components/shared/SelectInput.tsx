@@ -10,7 +10,7 @@ interface SelectInputProps {
   name: keyof VehicleFormData;
   options: string[];
   placeholder: string;
-  control: any;  // From useForm
+  control: any; 
   error?: any;
 }
 

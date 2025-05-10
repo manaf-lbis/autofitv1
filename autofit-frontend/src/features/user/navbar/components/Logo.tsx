@@ -2,15 +2,18 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import af_Logo from "@/assets/common/af_Logo.png";  
 import logoName from "@/assets/common/LogoName.png"; 
+import { useNavigate } from "react-router-dom";
 
 const AnimatedLogo: React.FC = () => {
   const [isHovered, setIsHovered] = useState(false);
+  const navigate = useNavigate()
 
   return (
     <div
       className="w-24 cursor-pointer"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      onClick={()=>navigate('/')}
     >
       <AnimatePresence mode="wait">
         {!isHovered ? (
