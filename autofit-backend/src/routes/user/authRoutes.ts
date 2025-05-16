@@ -9,6 +9,7 @@ import { HashService } from "../../services/hash/hashService";
 import { authenticate } from "../../middlewares/authenticate";
 import { UserRegistrationService } from "../../services/user/userRegistrationService";
 import { GoogleAuthService } from "../../services/auth/user/googleAuthService";
+import { authorize } from "../../middlewares/authorize";
 
 
 
@@ -17,12 +18,7 @@ const otpRepository = new OtpRepository();
 const tokenService = new TokenService();
 const hashService = new HashService();
 const otpService = new OtpService(otpRepository,hashService);
-const authService = new AuthService(userRepository,
-    otpService,
-    otpRepository,
-    tokenService,
-    hashService,
-);
+const authService = new AuthService(userRepository,otpService,tokenService,hashService);
 const googleAuthService = new GoogleAuthService(userRepository, tokenService);
 const userRegistrationService = new UserRegistrationService(userRepository);
 const authController = new AuthController(authService,
@@ -38,7 +34,7 @@ const router = Router();
 
 router.post('/login', (req, res, next) => authController.login(req, res, next));
 router.post('/signup', (req, res, next) => authController.signup(req, res, next));
-router.get('/me', authenticate, (req, res, next) => authController.getUser(req, res, next));
+router.get('/me', authenticate,authorize(['user']), (req, res, next) => authController.getUser(req, res, next));
 router.post('/google/callback', (req, res, next) => authController.googleCallback(req, res, next));
 router.post('/verify-otp', authenticate, (req, res, next) => authController.verifyOtp(req, res, next));
 router.post('/logout',(req,res,next)=> authController.logout(req,res,next));

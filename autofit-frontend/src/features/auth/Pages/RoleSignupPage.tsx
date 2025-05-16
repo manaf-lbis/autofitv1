@@ -5,7 +5,7 @@ import AuthLayout, { Role } from '../components/Layouts/AuthLayout';
 import AnimatedPage from '@/components/Animations/AnimatedPage';
 
 const RoleSignupPage: React.FC = () => {
-  const { role } = useParams<{ role: string }>();
+  const { role } = useParams<{ role: Role }>();
   const validRole = ['user', 'mechanic'].includes(role || '') ? role as Role : 'user';
 
   return (

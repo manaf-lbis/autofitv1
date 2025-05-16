@@ -1,5 +1,5 @@
 
-import { OtpRepository } from "../../repositories/otpRepository";
+import { IOtpRepository } from "../../repositories/interfaces/IOtpRepository";
 import { Role } from "../../types/role";
 import { ApiError } from "../../utils/apiError";
 import { HashService } from "../hash/hashService";
@@ -8,7 +8,7 @@ import { sendMail } from "../mail/mailService";
 export class OtpService {
 
   constructor(
-    private otpRepository: OtpRepository,
+    private otpRepository: IOtpRepository,
     private hashService: HashService,
   ) { }
 

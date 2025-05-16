@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import FormInput from '@/components/shared/FormInput';
 import { useForm } from 'react-hook-form';
 import { useSignupMutation } from '@/features/auth/api/authApi';
@@ -18,7 +18,6 @@ const SignupForm: React.FC<Props> = ({ role }) => {
   const [step, setStep] = useState<'signup' | 'otp'>('signup');
   const { register, handleSubmit, formState: { errors } } = useForm<FormData>();
   const [signup, { isLoading }] = useSignupMutation();
-  const navigate = useNavigate();
 
   const onValid = async (data: FormData) => {
     try {
@@ -35,7 +34,6 @@ const SignupForm: React.FC<Props> = ({ role }) => {
       <div className="text-xs text-end">
         <span>Already registered?</span> <Link to={`/${role}/login`} className="text-blue-600 ml-1">Login Now</Link>
       </div>
-      {/* {step === 'signup' ? ( */}
       {step === 'signup' ? (
         <div className="grid gap-2">
 
@@ -53,7 +51,7 @@ const SignupForm: React.FC<Props> = ({ role }) => {
           </Button>
         </div>
       ) : (
-        <OtpForm />
+        <OtpForm role={role} />
       )}
     </>
   );

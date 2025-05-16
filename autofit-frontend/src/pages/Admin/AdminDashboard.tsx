@@ -1,8 +1,11 @@
 import React from 'react'
+import Page from '@/features/admin/navbar/Navbar'
+
 
 const AdminDashboard = () => {
   return (
-    <div>admin home</div>
+    <Page />
+    
   )
 }
 

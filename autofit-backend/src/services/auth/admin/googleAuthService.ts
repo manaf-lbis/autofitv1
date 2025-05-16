@@ -56,6 +56,7 @@ export class AdminGoogleAuthService {
       user: {
         name: admin.name,
         role: admin.role,
+        email : admin.email
       },
     };
   }

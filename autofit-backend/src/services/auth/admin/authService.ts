@@ -95,7 +95,7 @@ export class AdminAuthService {
     if (!admin) {
       throw new ApiError("Admin not found", 404);
     }
-    return { name: admin.name, role: admin.role };
+    return { name: admin.name, role: admin.role , email : admin.email };
   }
 
 }

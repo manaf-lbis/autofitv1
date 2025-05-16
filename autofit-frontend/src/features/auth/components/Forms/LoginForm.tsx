@@ -30,7 +30,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ role }) => {
       setErrorMessage(null); 
       const res = await login({ ...data, role }).unwrap();
       if (res.status === "success") {
-        dispatch(setUser({ name: res.data.name, role: res.data.role }));
+        dispatch(setUser({ name: res.data.name, role: res.data.role ,email : res.data.email }));
         localStorage.setItem('userRole', res.data.role);
         localStorage.setItem('isAuthenticated', 'true');
         navigate(roleConfig[res.data.role].defaultRoute, { replace: true });

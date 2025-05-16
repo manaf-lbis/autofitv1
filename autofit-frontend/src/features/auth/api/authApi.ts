@@ -2,13 +2,14 @@ import { createApi } from "@reduxjs/toolkit/query/react";
 import { baseQueryWithRefresh } from "@/utils/baseQuery";
 import { Role } from "../components/Layouts/AuthLayout";
 import { clearUser } from "../slices/authSlice";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store/store";
 
 export interface LoginRequest {
   email: string;
   password: string;
   role: Role;
 }
-
 export interface SignupRequest {
   name: string;
   email: string;
@@ -22,9 +23,9 @@ export interface LoginResponse {
   data: {
     name: string;
     role: Role;
+    email:string
   };
 }
-
 interface AuthInput {
   code: string;
   role: Role;
@@ -62,16 +63,16 @@ export const authApi = createApi({
         body: { code },
       }),
     }),
-    verifyOtp: builder.mutation<LoginResponse, { otp: string }>({
-      query: (otp) => ({
-        url: "auth/user/verify-otp",
+    verifyOtp: builder.mutation<LoginResponse, { otp: string; role: Role }>({
+      query: ({otp,role}) => ({
+        url: `auth/${role}/verify-otp`,
         method: "POST",
         body: { otp },
       }),
     }),
-    resentOtp: builder.mutation({
-      query: (otp) => ({
-        url: "auth/user/resent-otp",
+    resentOtp: builder.mutation<any, { role: Role }>({
+      query: ({role}) => ({
+        url: `auth/${role}/resent-otp`,
         method: "POST",
       }),
     }),

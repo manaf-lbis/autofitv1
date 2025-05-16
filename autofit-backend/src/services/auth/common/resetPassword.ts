@@ -1,20 +1,18 @@
-import { AdminRepository } from "../../../repositories/adminRepository";
-import { UserRepository } from "../../../repositories/userRepository";
 import { ApiError } from "../../../utils/apiError";
 import { User } from "../../../types/user";
 import { Admin } from "../../../types/admin";
 import { Role } from "../../../types/role";
 import { OtpService } from "../../otp/otpService";
-import { OtpRepository } from "../../../repositories/otpRepository";
 import { HashService } from "../../hash/hashService";
-import { emailValidation } from "../../../validation/authValidation";
+
+import { IUserRepository } from "../../../repositories/interfaces/IUserRepository";
+import { IAdminRepository } from "../../../repositories/interfaces/IAdminRepository";
 
 class ResetPassword {
     constructor(
-        private userRepository: UserRepository,
-        private adminRepository: AdminRepository,
+        private userRepository: IUserRepository,
+        private adminRepository: IAdminRepository,
         private otpService: OtpService,
-        private otpRepository: OtpRepository,
         private hashService: HashService
     ) { }
 

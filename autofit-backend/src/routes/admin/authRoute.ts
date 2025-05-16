@@ -1,4 +1,4 @@
-import { Router ,} from "express";
+import { Router} from "express";
 import { AdminAuthController } from "../../controllers/admin/authController";
 import { authenticate } from "../../middlewares/authenticate";
 import { AdminAuthService } from "../../services/auth/admin/authService";

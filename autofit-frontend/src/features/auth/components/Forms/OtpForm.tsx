@@ -5,15 +5,18 @@ import { toast } from 'react-hot-toast'
 import { useResentOtpMutation, useVerifyOtpMutation } from '../../api/authApi'
 import { Loader2 } from 'lucide-react'
 import { ApiError } from '@/types/apiError'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
 import { setUser } from '../../slices/authSlice'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import CountdownTimer from '@/components/shared/CoundDownTimer'
+import { Role } from '../Layouts/AuthLayout'
+import { roleConfig } from '@/utils/roleConfig'
 
 const RESEND_WAIT_TIME = 30
 
-const OtpForm = () => {
+const OtpForm = ({role}:{role:Role}) => {
+
   const [otp, setOtp] = useState('')
   const [verifyOtp, { isLoading }] = useVerifyOtpMutation()
   const [resentOtp, { isLoading: resentLoading }] = useResentOtpMutation()
@@ -27,12 +30,14 @@ const OtpForm = () => {
       setError(null) 
       if (otp.length !== 6) return toast.error('Invalid OTP')
 
-      const response = await verifyOtp({ otp }).unwrap()
+      const response = await verifyOtp({otp,role}).unwrap()
+
       if (response) {
-        const { name, role } = response.data
+        const { name, role,email } = response.data
         toast.success('OTP Verified Successfully!')
-        dispatch(setUser({ name, role }))
-        navigate('/')
+        dispatch(setUser({ name, role ,email}))
+        localStorage.setItem('userRole',role)
+        navigate(roleConfig[role].defaultRoute, { replace: true })
       }
     } catch (error) {
       const err = error as ApiError
@@ -43,7 +48,7 @@ const OtpForm = () => {
   const handleResend = async () => {
     try {
       setError(null) 
-      const res = await resentOtp({}).unwrap()
+      const res = await resentOtp({role}).unwrap()
       toast.success(res.message || 'OTP resent successfully!')
       setCountdown(RESEND_WAIT_TIME)
     } catch (error: any) {

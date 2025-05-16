@@ -113,10 +113,6 @@ export class AuthController {
               throw new ApiError("Not authenticated!",401)
             } 
 
-            if (req.user.role !== 'user') {
-                throw new ApiError("Forbidden: Insufficient permissions", 403);
-            }
-                
             const data = await this.authService.getUser(req.user.id)
 
             sendSuccess(res,'user Active',data)

@@ -25,7 +25,7 @@ const GoogleLoginButton: React.FC<GoogleButtonProps> = ({ role }) => {
     try {
       const res = await googleLogin({ code, role }).unwrap();
       if (res.status === "success") {
-        dispatch(setUser({ name: res.data.name, role: res.data.role }));
+        dispatch(setUser({ name: res.data.name, role: res.data.role ,email:res.data.email}));
         localStorage.setItem('userRole', res.data.role);
         navigate(roleConfig[res.data.role].defaultRoute, { replace: true });
         toast.success("Logged in with Google!");

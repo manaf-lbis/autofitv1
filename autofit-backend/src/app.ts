@@ -7,9 +7,11 @@ import userRoute from "./routes/user/userRoutes";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import { errorHandler } from "./middlewares/errorHandler";
-import resetPassword from "./routes/common/ResetPassword";
+import resetPassword from "./routes/common/resetPassword";
+import mechanicAuth from './routes/mechanic/authRoutes'
 
 dotenv.config();
+
 const app = express();
 
 app.use(
@@ -27,6 +29,7 @@ connectDB();
 app.use("/auth/:role/reset-password",resetPassword)
 app.use("/auth/user", userAuth);
 app.use("/auth/admin", adminAuth);
+app.use("/auth/mechanic",mechanicAuth)
 
 
 

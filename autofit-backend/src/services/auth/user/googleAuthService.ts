@@ -62,6 +62,7 @@ export class GoogleAuthService {
       user: {
         name: user.name,
         role: user.role,
+        email: user.email
       },
     };
   }

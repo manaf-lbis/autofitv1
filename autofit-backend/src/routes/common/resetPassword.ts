@@ -14,11 +14,7 @@ const adminRepository = new AdminRepository()
 const otpRepository = new OtpRepository()
 const hashService =  new HashService()
 const otpService = new OtpService(otpRepository,hashService)
-const resetPasswordService = new ResetPasswordService(userRepository,
-    adminRepository,
-    otpService,
-    otpRepository,
-    hashService)
+const resetPasswordService = new ResetPasswordService(userRepository,adminRepository,otpService,hashService)
 const tokenService = new TokenService()
 const resetPasswordController = new  ResetPasswordController(resetPasswordService,otpService,tokenService)
 

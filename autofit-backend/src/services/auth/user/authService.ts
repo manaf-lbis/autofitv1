@@ -13,7 +13,6 @@ export class AuthService {
   constructor(
     private userRepository: IUserRepository,
     private otpService: OtpService,
-    private otpRepository: IOtpRepository,
     private tokenService: TokenService,
     private hashService: HashService,
   ) { }
@@ -90,8 +89,8 @@ export class AuthService {
     if (user?.status !== 'active') {
       throw new ApiError('user blocked')
     }
-    const { name, role } = user;
-    return { name, role }
+    const { name, role, email } = user;
+    return { name, role ,email}
   }
 
 
