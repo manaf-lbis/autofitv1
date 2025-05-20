@@ -9,6 +9,7 @@ import cors from "cors";
 import { errorHandler } from "./middlewares/errorHandler";
 import resetPassword from "./routes/common/resetPassword";
 import mechanicAuth from './routes/mechanic/authRoutes'
+import mechanicRoute from './routes/mechanic/mechanicRoutes'
 
 dotenv.config();
 
@@ -34,6 +35,7 @@ app.use("/auth/mechanic",mechanicAuth)
 
 
 app.use("/user", userRoute);
+app.use("/mechanic", mechanicRoute );
 
 
 app.use(errorHandler);

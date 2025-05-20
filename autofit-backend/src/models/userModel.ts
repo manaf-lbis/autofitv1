@@ -16,6 +16,9 @@ const userSchema: Schema <userDocument> = new Schema<userDocument>({
     password: {
         type: String,
     },
+    mobile:{
+        type:String
+    },
     role: {
         type: String,
         enum: ['user', 'admin', 'mechanic']

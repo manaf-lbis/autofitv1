@@ -7,7 +7,6 @@ import { VehicleBrandRepository } from "../../repositories/vehicleBrandRepositor
 import { authorize } from "../../middlewares/authorize";
 
 
-
 const vehiclerepository  = new VehicleRepository()
 const vehicleBrands = new VehicleBrandRepository()
 const vehicleService = new VehicleService(vehiclerepository,vehicleBrands)

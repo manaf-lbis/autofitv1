@@ -2,7 +2,7 @@ import { JwtPayload } from "jsonwebtoken";
 import { ObjectId } from "mongodb";
 
 export interface CustomJwtPayload extends JwtPayload {
-    _id?:ObjectId
+    id?:ObjectId
     email?: string;
     name?: string;
     password?: string;

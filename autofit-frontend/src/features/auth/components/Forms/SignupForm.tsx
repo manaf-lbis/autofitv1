@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
-import FormInput from '@/components/shared/FormInput';
+import FormInput from '@/components/shared/formInput/FormInput';
 import { useForm } from 'react-hook-form';
 import { useSignupMutation } from '@/features/auth/api/authApi';
 import { toast } from 'react-toastify';

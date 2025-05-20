@@ -13,7 +13,7 @@ const AnimatedPage = ({ children }: { children: React.ReactNode }) => {
         exit={{ y: -100, opacity: 0 }}
         transition={{
         duration: 0.7,
-        ease: [0.25, 0.8, 0.25, 1.1] // ease-in-out with slight bounce
+        ease: [0.25, 0.8, 0.25, 1.1] 
         }}
     >
       {children}

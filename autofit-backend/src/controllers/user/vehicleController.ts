@@ -34,7 +34,7 @@ export class VehicleController {
     async getVehicles(req: Request, res: Response,next:NextFunction):Promise<void> {
         try {
 
-            const userId = new Types.ObjectId(req.user?.id as string);
+            const userId = new Types.ObjectId(req.user?.id);
             if(!userId) throw new ApiError('user Unauthenticated', 401);
 
             const response = await this.vehicleService.getVehicle(userId)
@@ -51,7 +51,7 @@ export class VehicleController {
         try {
             const {regNo,brand,modelName,fuelType,owner,id:_id} = req.body;
 
-            const userId = new Types.ObjectId(req.user?.id as string);
+            const userId = new Types.ObjectId(req.user?.id);
             if(!userId) throw new ApiError('user Unauthenticated', 401);
 
             const response = await this.vehicleService.updateVehicle({regNo,brand,modelName,fuelType,owner,userId,_id})
@@ -70,7 +70,7 @@ export class VehicleController {
           if(!req.user?.id) throw new ApiError('user Unauthenticated', 401);
           if(!id) throw new ApiError('Invalid Parameters', 401);
 
-          const userId = new Types.ObjectId(req.user?.id as string);
+          const userId = new Types.ObjectId(req.user?.id);
           const _id = new Types.ObjectId(id as string);
 
 

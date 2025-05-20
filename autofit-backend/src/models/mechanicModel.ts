@@ -3,7 +3,6 @@ import { Mechanic } from '../types/mechanic';
 
 
 interface MechanicDocument extends Mechanic,Document<Types.ObjectId> {}
-
 const mechanicSchema: Schema <MechanicDocument> = new Schema<MechanicDocument>({
     name: {
         type: String,
@@ -16,6 +15,10 @@ const mechanicSchema: Schema <MechanicDocument> = new Schema<MechanicDocument>({
     password: {
         type: String,
     },
+    mobile :{
+        type: String,
+    },
+  
     role: {
         type: String,
         enum: ['user', 'admin', 'mechanic']
@@ -41,8 +44,6 @@ const mechanicSchema: Schema <MechanicDocument> = new Schema<MechanicDocument>({
     },
  
 }, { timestamps: true })
-
-
 
 export const MechanicModel = mongoose.model<MechanicDocument>('Mechanic', mechanicSchema)
 

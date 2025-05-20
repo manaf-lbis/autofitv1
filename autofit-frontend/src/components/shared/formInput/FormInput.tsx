@@ -14,6 +14,7 @@ interface FormInputProps {
   register: any;
   name: string;
   validationRule: keyof Rule;
+  defaultValue?: string | number;
 }
 
 const FormInput: React.FC<FormInputProps> = ({
@@ -25,12 +26,13 @@ const FormInput: React.FC<FormInputProps> = ({
   register,
   name,
   validationRule,
+  defaultValue,
 }) => {
   const [showPassword, setShowPassword] = useState(false);
   const isPassword = type === 'password';
 
   return (
-    <div className="relative flex flex-col gap-1">
+    <div className="relative flex flex-col gap-1 transition-all duration-300 ease-in-out">
       <Label htmlFor={id}>{label}</Label>
 
       <div className="relative">
@@ -40,6 +42,7 @@ const FormInput: React.FC<FormInputProps> = ({
           type={isPassword && showPassword ? 'text' : type}
           placeholder={placeholder}
           className={`${isPassword ? 'pr-10' : ''}`}
+          defaultValue={defaultValue}
         />
 
         {isPassword && (
@@ -53,9 +56,14 @@ const FormInput: React.FC<FormInputProps> = ({
         )}
       </div>
 
-      <span className="text-red-500 text-xs min-h-[0.875rem] transition-all duration-300">
-        {error?.message ?? ''}
-      </span>
+
+      <div
+        className={`min-h-[0.875rem] transition-all duration-300 ease-in-out ${
+          error ? 'opacity-100 mt-1' : 'opacity-0 h-0'
+        }`}
+      >
+        <span className="text-xs text-red-500 block">{error?.message}</span>
+      </div>
     </div>
   );
 };

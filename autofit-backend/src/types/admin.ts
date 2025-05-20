@@ -4,6 +4,7 @@ export interface Admin {
     _id: ObjectId,
     name: string,
     email: string,
+    mobile: string,
     password: string,
     role: 'admin',
     refreshToken:string

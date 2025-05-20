@@ -1,8 +1,12 @@
 import React from 'react'
+import ModernStepForm from '@/features/mechanic/mechanicRegistration/Registration'
 
 const Home = () => {
   return (
-    <div>mech home</div>
+    <div>
+      Home
+    </div>
+    
   )
 }
 

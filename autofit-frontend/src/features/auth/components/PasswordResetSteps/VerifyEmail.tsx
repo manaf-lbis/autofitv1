@@ -2,7 +2,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import FormInput from "@/components/shared/FormInput";
+import FormInput from "@/components/shared/formInput/FormInput";
 import { useForm } from "react-hook-form";
 import { useVerifyEmailMutation } from "../../api/passwordResetApi";
 import { Alert, AlertDescription } from "@/components/ui/alert";

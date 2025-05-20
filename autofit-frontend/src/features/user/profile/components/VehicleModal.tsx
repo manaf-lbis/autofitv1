@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import FormInput from "@/components/shared/FormInput";
+import FormInput from "@/components/shared/formInput/FormInput";
 import SelectInput from "@/components/shared/SelectInput";
 import { useForm } from "react-hook-form";
 import { useNewVehicleMutation, useUpdateVehicleMutation, useGetVehicleBrandQuery } from "../api/profileApi";

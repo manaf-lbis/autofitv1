@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Link, useNavigate } from "react-router-dom";
 import { Separator } from "@/components/ui/separator";
 import GoogleLoginButton from "@/features/auth/components/GoogleAuth/GoogleLoginButton";
-import FormInput from "@/components/shared/FormInput";
+import FormInput from "@/components/shared/formInput/FormInput";
 import { useForm } from "react-hook-form";
 import { useLoginMutation } from "@/features/auth/api/authApi";
 import { Loader2, X } from "lucide-react";
