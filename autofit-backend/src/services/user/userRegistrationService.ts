@@ -23,4 +23,11 @@ export class UserRegistrationService {
         return {_id,name,role}
           
     }
+
+
+    async allUsers() {
+      return await this.userRepository.findAll()
+    }
+
+
 }

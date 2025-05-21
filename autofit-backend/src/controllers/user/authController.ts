@@ -9,6 +9,7 @@ import { GoogleAuthService } from "../../services/auth/user/googleAuthService";
 import { TokenService } from "../../services/token/tokenService";
 import { OtpService } from "../../services/otp/otpService";
 import { Role } from "../../types/role";
+import { User } from "../../types/user";
 
 
 
@@ -67,7 +68,7 @@ export class AuthController {
     async verifyOtp(req: Request & { user?: CustomJwtPayload }, res: Response, next: NextFunction): Promise<void> {
         try {
 
-            const { otp } = req.body.otp;
+            const { otp } = req.body;
 
             if (!req.user) {
                 res.status(401).json({ message: "Unauthorized No token" });
@@ -79,8 +80,9 @@ export class AuthController {
             if (!email || !password || !mobile || !name) {
                 throw new Error('Missing required user data in token');
             }
-            
+
             await this.otpService.verifyOtp(otp,email)
+             
 
             const {_id} = await this.userRegistrationService.registerUser({ 
                 name, 
@@ -208,6 +210,17 @@ export class AuthController {
           });
       
           sendSuccess(res, "Token refreshed"); 
+        } catch (error: any) {
+          next(error);
+        }
+    }
+
+
+    async allusers(req: Request, res: Response, next: NextFunction):Promise<void>{
+        try {
+            const result = await this.userRegistrationService.allUsers()
+            sendSuccess(res,'success',result)
+
         } catch (error: any) {
           next(error);
         }

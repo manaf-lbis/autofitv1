@@ -10,7 +10,7 @@ export class TokenService {
     this.jwtSecret = process.env.JWT_SECRET;
   }
 
-  generateToken(payload: object, expiresIn: `${number}${'s' | 'm' | 'h' | 'd'}` = "15m"): string {
+  generateToken(payload: object, expiresIn: `${number}${'s' | 'm' | 'h' | 'd'}` = "60m"): string {
     const options: SignOptions = { expiresIn };
     return jwt.sign(payload, this.jwtSecret, options);
   }
@@ -25,7 +25,7 @@ export class TokenService {
   }
 
   generateAccessToken(payload: object): string {
-    const options: SignOptions = { expiresIn: "15m" };
+    const options: SignOptions = { expiresIn: "60m" };
     return jwt.sign(payload, this.jwtSecret, options);
   }
 

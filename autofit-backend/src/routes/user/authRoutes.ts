@@ -40,7 +40,9 @@ router.post('/verify-otp', authenticate, (req, res, next) => authController.veri
 router.post('/logout',(req,res,next)=> authController.logout(req,res,next));
 router.post('/resent-otp', authenticate, (req, res, next) => authController.resentOtp(req, res, next));
 
+router.get('/allusers', authenticate, (req, res, next) => authController.allusers(req, res, next));
 
+//test Route
 router.post("/refresh", (req, res, next) => authController.refreshToken(req, res, next));
 
 

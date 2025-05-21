@@ -3,8 +3,6 @@ import { VehicleService } from '../../services/vehicleService/vehicleService';
 import { ObjectId, Types } from 'mongoose';
 import { sendSuccess } from '../../utils/apiResponse';
 import { ApiError } from '../../utils/apiError';
-import { vehicleBrandModel } from '../../models/vehicleBrandModel';
-
 
 
 
