@@ -7,11 +7,11 @@ import SideBar from "../components/SideBar";
 const ProfileLayout: React.FC = () => {
 
   return (
-    <div className="flex flex-col md:flex-row h-screen bg-gray-50 font-poppins l ">
+    <div className="flex flex-col md:flex-row h-screen bg-gray-50 font-poppins mt-14 ">
       <SideBar />
-      <main className="flex-1 p-6 overflow-y-auto ">
+      <div className="flex-1 p-6 overflow-y-auto ">
         <Outlet />
-      </main>
+      </div>
       <BottomNav />
     </div>
   );

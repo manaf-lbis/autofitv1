@@ -31,7 +31,7 @@ const data = {
       items: [
         {
           title: "Users",
-          url: "/admin/user/users",
+          url: "/admin/users",
         },
       ],
     },

@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 import { nextStep, prevStep, updateFormData } from "../registrationSlice";
 import { RootState } from "@/store/store";
-import LocationInput from "@/components/shared/LocationInput";
+import LocationInput from "@/components/shared/LocationInput/LocationInput";
 import FormInput from "@/components/shared/formInput/FormInput";
 import NextPreviewButton from "../components/NextPreviewButton";
 import { steps } from "./stepsInfo";
@@ -21,6 +21,8 @@ const Step3: React.FC = () => {
   const dispatch = useDispatch();
 
   const onSubmit = (data: FormData) => {
+    console.log(data);
+    
     dispatch(updateFormData(data));
     dispatch(nextStep());
   };
@@ -40,11 +42,15 @@ const Step3: React.FC = () => {
         </div>
         
         <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
+
           <LocationInput
-            register={register}
-            setValue={setValue}
-            error={errors.location}
-            defaultValue={formData?.location}
+          id="location"
+          label="Pick Your Location"
+          name="location"
+          register={register}
+          error={errors.location}
+          setValue={setValue}
+          defaultValue={formData?.location}
           />
           <FormInput
             id="shopName"

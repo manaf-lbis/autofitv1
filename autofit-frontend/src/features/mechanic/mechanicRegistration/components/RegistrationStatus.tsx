@@ -1,6 +1,24 @@
+import { Button } from '@/components/ui/button';
+import { useLogoutMutation } from '@/features/auth/api/authApi';
+import { ApiError } from '@/types/apiError';
 import React from 'react';
+import toast from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
 
 const RegistrationStatus = () => {
+  const [logout,{isLoading}] = useLogoutMutation()
+  const navigate = useNavigate()
+
+const handleLogout = async () =>{
+  try {
+    const response = await logout()
+    toast.success('Logout Success')
+    navigate('/auth/mechanic/login',{replace:true})
+  } catch (error) {
+    toast.error('Logout Failed')
+  }
+}
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 px-4">
       <div className="bg-white rounded-lg shadow-lg p-8 max-w-md w-full text-center">
@@ -32,12 +50,7 @@ const RegistrationStatus = () => {
         </p>
 
 
-        <button
-          className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition"
-          onClick={() => alert('Redirect to Dashboard or Home')}
-        >
-          Go to Dashboard
-        </button>
+       <Button onClick={handleLogout} >Logout</Button>
       </div>
     </div>
   );

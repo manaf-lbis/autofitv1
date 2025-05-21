@@ -32,7 +32,7 @@ const SignupForm: React.FC<Props> = ({ role }) => {
   return (
     <>
       <div className="text-xs text-end">
-        <span>Already registered?</span> <Link to={`/${role}/login`} className="text-blue-600 ml-1">Login Now</Link>
+        <span>Already registered?</span> <Link to={`/auth/${role}/login`} className="text-blue-600 ml-1">Login Now</Link>
       </div>
       {step === 'signup' ? (
         <div className="grid gap-2">

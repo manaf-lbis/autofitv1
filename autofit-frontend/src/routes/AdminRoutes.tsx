@@ -2,6 +2,7 @@ import { Routes, Route } from "react-router-dom";
 import ProtectedRoute from "../components/Routes/ProtectedRoute";
 import AdminLayout from "../pages/Admin/AdminLayout";
 import AdminDashboard from "../pages/Admin/AdminDashboard";
+import { UserDashboard } from "@/pages/Admin/UserDashboard";
 
 const AdminRoutes: React.FC = () => {
   return (
@@ -9,6 +10,7 @@ const AdminRoutes: React.FC = () => {
       <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
         <Route element={<AdminLayout />}>
           <Route path="dashboard" element={<AdminDashboard />} />
+          <Route path="users" element={<UserDashboard />} />
 
           <Route  path="*" element={<>Not Found</>}></Route>
         </Route>

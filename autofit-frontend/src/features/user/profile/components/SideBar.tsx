@@ -7,9 +7,9 @@ import { clearUser } from '@/features/auth/slices/authSlice';
 
 const navItems = [
   { label: 'Home', icon: <Home className="w-6 h-6" />, path: '/' },
-  { label: 'Profile', icon: <User className="w-6 h-6" />, path: '/profile' },
-  { label: 'Service History', icon: <Wrench className="w-6 h-6" />, path: '/service-history' },
-  { label: 'Password', icon: <Lock className="w-6 h-6" />, path: '/password' },
+  { label: 'Profile', icon: <User className="w-6 h-6" />, path: '/user/profile' },
+  { label: 'Service History', icon: <Wrench className="w-6 h-6" />, path: '/user/service-history' },
+  // { label: 'Password', icon: <Lock className="w-6 h-6" />, path: '/password' },
   { label: 'Logout', icon: <LogOut className="w-6 h-6" />, action: 'logout' },
 ];
 
