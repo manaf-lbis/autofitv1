@@ -1,4 +1,3 @@
-"use client"
 import * as React from "react"
 import { NavMain } from "./NavMain"
 import { NavUser } from "./NavUser"
@@ -13,7 +12,7 @@ import {
 } from "@/components/ui/sidebar"
 import af_logo from '@/assets/common/af_logo_b_text.png'
 
-import data from "../utils"
+import data from "../../utils/navData"
 import { useSelector} from "react-redux"
 import { RootState } from "@/store/store"
 

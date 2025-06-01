@@ -1,13 +1,13 @@
 import { motion } from "framer-motion";
 import FormAnimation from "@/components/Animations/mechanic/Form";
-import ProgressIndicator from "./components/Combined";
-import FormContent from "./components/FormComponent";
+import ProgressIndicator from "../components/registration/Combined";
+import FormContent from "../components/registration/FormComponent";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store/store";
 import FormVerifying from "@/components/Animations/formVerifying";
-import RegistrationStatus from "./components/RegistrationStatus";
+import RegistrationStatus from "../components/registration/RegistrationStatus";
 
-const ModernStepFormConverted: React.FC = () => {
+const Registration: React.FC = () => {
   const drawerVariants = {
     hidden: { y: "100%" },
     visible: { y: 0, transition: { duration: 0.5, ease: "easeInOut" } },
@@ -70,4 +70,4 @@ const ModernStepFormConverted: React.FC = () => {
   );
 };
 
-export default ModernStepFormConverted;
+export default Registration;

@@ -1,10 +1,8 @@
-import { Suspense,lazy } from "react";
-
 import { Routes, Route } from "react-router-dom";
 import ProtectedRoute from "../components/Routes/ProtectedRoute";
-import AdminLayout from "../features/admin/layout/AdminLayout";
-import AdminDashboard from "../pages/Admin/AdminDashboard";
-import UserDashboard from "@/pages/Admin/userManagement/Dashboard";
+import AdminLayout from "../features/admin/components/layout/AdminLayout";
+import AdminDashboard from "../features/admin/pages/AdminDashboard";
+import UserDashboard from "@/features/admin/pages/userManagement/Dashboard";
 
 const AdminRoutes: React.FC = () => {
   return (

@@ -1,4 +1,4 @@
-import UserDashboard from '@/features/admin/userManagement/UsersDashboard'
+import UserDashboard from '@/features/admin/components/UsersDashboard'
 import React from 'react'
 
 const Dashboard = () => {

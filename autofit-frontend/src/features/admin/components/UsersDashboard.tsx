@@ -9,7 +9,7 @@ import {
   Circle,
 } from "lucide-react";
 import { useDispatch } from "react-redux";
-import { setBreadcrumbs } from "../slice/adminSlice";
+import { setBreadcrumbs } from "../slices/adminSlice";
 
 type Status = "active" | "inactive" | "blocked";
 

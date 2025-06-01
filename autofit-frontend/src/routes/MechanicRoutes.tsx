@@ -1,9 +1,9 @@
 import { Routes, Route } from "react-router-dom";
 import ProtectedRoute from "../components/Routes/ProtectedRoute";
-import Home from "@/pages/Mechanic/Home";
+import Home from "@/features/mechanic/pages/Home";
 import MechanicInitGuard from "@/components/Auth/MechanicInitGuard";
-import Registration from "@/pages/Mechanic/Registration";
-import RegistrationStatus from "@/features/mechanic/mechanicRegistration/components/RegistrationStatus";
+import Registration from '@/features/mechanic/pages/Registration'
+import RegistrationStatus from "@/features/mechanic/components/registration/RegistrationStatus";
 
 
 const MechanicRoutes: React.FC = () => {

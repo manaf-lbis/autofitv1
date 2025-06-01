@@ -1,9 +1,9 @@
   import React from "react";
   import { motion, AnimatePresence } from "framer-motion";
-  import Step1 from "../steps/Step1";
-  import Step2 from "../steps/Step2";
-  import Step3 from "../steps/Step3";
-  import Step4 from "../steps/Step4";
+  import Step1 from "./steps/Step1";
+  import Step2 from "./steps/Step2";
+  import Step3 from "./steps/Step3";
+  import Step4 from "./steps/Step4";
   import { useSelector } from "react-redux";
   import { RootState } from "@/store/store";
 

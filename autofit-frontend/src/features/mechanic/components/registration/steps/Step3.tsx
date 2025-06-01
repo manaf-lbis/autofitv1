@@ -1,12 +1,12 @@
 import React from "react";
 import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
-import { nextStep, prevStep, updateFormData } from "../registrationSlice";
+import { nextStep, prevStep, updateFormData } from "../../../slices/registrationSlice";
 import { RootState } from "@/store/store";
 import LocationInput from "@/components/shared/LocationInput/LocationInput";
 import FormInput from "@/components/shared/formInput/FormInput";
-import NextPreviewButton from "../components/NextPreviewButton";
-import { steps } from "./stepsInfo";
+import NextPreviewButton from "../NextPreviewButton";
+import { steps } from "../../../utils/RegistrationStepsInfo";
 
 interface FormData {
   location: string;

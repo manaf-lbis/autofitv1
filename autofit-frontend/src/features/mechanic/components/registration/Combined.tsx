@@ -1,6 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { steps } from "../steps/stepsInfo";
+import { steps } from "../../utils/RegistrationStepsInfo";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store/store";
 

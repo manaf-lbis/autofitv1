@@ -13,7 +13,7 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { AppSidebar } from "@/features/admin/navbarLeft/components/AppSidebar";
+import { AppSidebar } from "@/features/admin/components/navbar/AppSidebar";
 import { Bell } from "lucide-react";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store/store";
