@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { VehicleController } from "../../controllers/user/vehicleController";
 import { VehicleRepository } from "../../repositories/vehicleRepository";
-import { VehicleService } from "../../services/vehicleService/vehicleService";
+import { VehicleService } from "../../services/vehicle/vehicleService";
 import { authenticate } from "../../middlewares/authenticate";
 import { VehicleBrandRepository } from "../../repositories/vehicleBrandRepository";
 import { authorize } from "../../middlewares/authorize";

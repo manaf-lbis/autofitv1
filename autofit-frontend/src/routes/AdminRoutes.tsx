@@ -1,21 +1,23 @@
+import { Suspense,lazy } from "react";
+
 import { Routes, Route } from "react-router-dom";
 import ProtectedRoute from "../components/Routes/ProtectedRoute";
-import AdminLayout from "../pages/Admin/AdminLayout";
+import AdminLayout from "../features/admin/layout/AdminLayout";
 import AdminDashboard from "../pages/Admin/AdminDashboard";
-import { UserDashboard } from "@/pages/Admin/UserDashboard";
+import UserDashboard from "@/pages/Admin/userManagement/Dashboard";
 
 const AdminRoutes: React.FC = () => {
   return (
-    <Routes>
-      <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
-        <Route element={<AdminLayout />}>
-          <Route path="dashboard" element={<AdminDashboard />} />
-          <Route path="users" element={<UserDashboard />} />
+      <Routes>
+        <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
+          <Route element={<AdminLayout />}>
+            <Route path="dashboard" element={<AdminDashboard />} />
+            <Route path="users" element={<UserDashboard />} />
 
-          <Route  path="*" element={<>Not Found</>}></Route>
+            <Route  path="*" element={<>Not Found</>}></Route>
+          </Route>
         </Route>
-      </Route>
-    </Routes>
+      </Routes>
   );
 };
 

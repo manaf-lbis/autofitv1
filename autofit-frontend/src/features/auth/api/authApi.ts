@@ -2,30 +2,29 @@ import { createApi } from "@reduxjs/toolkit/query/react";
 import { baseQueryWithRefresh } from "@/utils/baseQuery";
 import { Role } from "../components/Layouts/AuthLayout";
 import { clearUser } from "../slices/authSlice";
-import { useSelector } from "react-redux";
-import { RootState } from "@/store/store";
+
+interface UserData {
+  name : string;
+  email : string;
+  mobile : string;
+  role : Role
+}
 
 export interface LoginRequest {
   email: string;
   password: string;
   role: Role;
 }
-export interface SignupRequest {
-  name: string;
-  email: string;
+export interface SignupRequest extends UserData {
   password: string;
-  mobile: string;
   role: Exclude<Role, 'admin'>;
 }
 
 export interface LoginResponse {
   status: "success" | "error";
-  data: {
-    name: string;
-    role: Role;
-    email:string
-  };
+  data: UserData
 }
+
 interface AuthInput {
   code: string;
   role: Role;

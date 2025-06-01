@@ -10,6 +10,7 @@ export type Rule = {
 
 
 export const FormValidation: Rule = {
+  
   name: {
     required: 'Enter full Name',
     minLength: {

@@ -35,7 +35,7 @@ export class AdminRepository implements IAdminRepository {
         }
     }
 
-    async update(id: string, update: Partial<Admin>): Promise<Admin | null> {
+    async update(id: Types.ObjectId, update: Partial<Admin>): Promise<Admin> {
         try {
             const updatedAdmin = await AdminModel.findByIdAndUpdate(
                 id,
@@ -45,14 +45,14 @@ export class AdminRepository implements IAdminRepository {
             if (!updatedAdmin) {
                 throw new ApiError(`Admin with ID ${id} not found`, 404);
             }
-            return updatedAdmin as Admin | null;
+            return updatedAdmin 
         } catch (error) {
             if (error instanceof ApiError) throw error;
             throw new ApiError(`Error updating admin: ${(error as Error).message}`, 500);
         }
     }
 
-    async delete(id: string): Promise<void> {
+    async delete(id:Types.ObjectId): Promise<void> {
         try {
             const result = await AdminModel.findByIdAndDelete(id).exec();
             if (!result) {

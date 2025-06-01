@@ -29,7 +29,7 @@ export class AuthService {
             const attempts = (mechanic.failedLoginAttempts || 0) + 1;
             const lockUntil = attempts >= 3 ? new Date(Date.now() + 5 * 60 * 1000) : undefined;
 
-            await this.mechanicRepository.update(mechanic._id.toString(), {
+            await this.mechanicRepository.update(mechanic._id, {
                 failedLoginAttempts: attempts,
                 ...(lockUntil && { lockUntil }),
             });
@@ -42,7 +42,7 @@ export class AuthService {
             );
         }
 
-        await this.mechanicRepository.update(mechanic._id.toString(), {
+        await this.mechanicRepository.update(mechanic._id, {
             failedLoginAttempts: 0,
             lockUntil: null,
         });

@@ -25,7 +25,7 @@ const authController = new AuthController(authService,
     userRegistrationService,
     googleAuthService,
     tokenService,
-    otpService
+    otpService,
 );
 
 

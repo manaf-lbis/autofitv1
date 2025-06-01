@@ -20,7 +20,6 @@
     const requestArgs = typeof args === "string" ? url : { ...args, url };
     let result = await baseQuery(requestArgs, api, extraOptions);
 
-    // Skip token refresh for login requests to preserve server error messages
     const isLoginRequest =
       typeof args !== "string" &&
       args.method === "POST" &&

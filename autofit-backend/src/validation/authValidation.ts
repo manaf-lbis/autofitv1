@@ -16,3 +16,9 @@ export const loginValidation = z.object({
 export const emailValidation = z.object({
     email: z.string().email('Invalid email'),
 })
+
+export const profileValidation = z.object({
+    name: z.string().min(3, 'Name Requires'),
+    email: z.string().email('Invalid Email'),
+    mobile: z.string().regex(/^\d{10}$/, 'Mobile must be 10 digits'),
+});

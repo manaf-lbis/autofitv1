@@ -1,5 +1,5 @@
 import React from "react";
-import Loading from "../Animations/Loading";
+import Loading from "../Animations/PageLoading";
 import { Navigate, Outlet } from "react-router-dom"; 
 import { useGetMechanicQuery } from "@/features/mechanic/mechanicRegistration/api/registrationApi";
 import { useDispatch } from "react-redux";

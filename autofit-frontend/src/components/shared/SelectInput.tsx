@@ -35,7 +35,7 @@ const SelectInput: React.FC<SelectInputProps> = ({
           </SelectTrigger>
           <SelectContent>
             {options.map((option) => (
-              <SelectItem key={option} value={option}>
+              <SelectItem key={option} value={option} className="hover:bg-slate-100 cursor-pointer">
                 {option}
               </SelectItem>
             ))}

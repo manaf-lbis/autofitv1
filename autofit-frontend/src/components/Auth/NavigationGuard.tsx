@@ -32,3 +32,4 @@ const NavigationGuard: React.FC<NavigationGuardProps> = ({ children }) => {
 };
 
 export default NavigationGuard;
+

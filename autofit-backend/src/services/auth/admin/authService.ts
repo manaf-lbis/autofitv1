@@ -26,7 +26,7 @@ export class AdminAuthService {
       const attempts = (admin.failedLoginAttempts || 0) + 1;
       const lockUntil = attempts >= 3 ? new Date(Date.now() + 5 * 60 * 1000) : undefined;
 
-      await this.adminRepository.update(admin._id.toString(), {
+      await this.adminRepository.update(admin._id, {
         failedLoginAttempts: attempts,
         ...(lockUntil && { lockUntil }),
       });
@@ -39,7 +39,7 @@ export class AdminAuthService {
       );
     }
 
-    await this.adminRepository.update(admin._id.toString(), {
+    await this.adminRepository.update(admin._id, {
       failedLoginAttempts: 0,
       lockUntil: null,
     });

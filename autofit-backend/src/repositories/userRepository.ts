@@ -4,6 +4,7 @@ import { UserModel } from "../models/userModel";
 import { CreateUserInput } from "../types/user/userInput";
 import { ObjectId } from "mongodb";
 import { ApiError } from "../utils/apiError"; 
+import { Types } from "mongoose";
 
 export class UserRepository implements IUserRepository {
     async findAll(): Promise<User[] | null> {
@@ -53,20 +54,20 @@ export class UserRepository implements IUserRepository {
         }
     }
 
-    async update(id: string, update: Partial<User>): Promise<User | null> {
+    async update(id: Types.ObjectId, update: Partial<User>): Promise<User> {
         try {
             const updatedUser = await UserModel.findByIdAndUpdate(id, update, { new: true }).exec();
             if (!updatedUser) {
                 throw new ApiError(`User with ID ${id} not found`, 404);
             }
-            return updatedUser as User | null;
+            return updatedUser;
         } catch (error) {
             if (error instanceof ApiError) throw error;
             throw new ApiError(`Error updating user: ${(error as Error).message}`, 500);
         }
     }
 
-    async delete(id: string): Promise<void> {
+    async delete(id: Types.ObjectId): Promise<void> {
         try {
             const result = await UserModel.findByIdAndDelete(id).exec();
             if (!result) {

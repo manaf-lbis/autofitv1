@@ -8,6 +8,7 @@ import { ObjectId } from "mongodb";
 import { Types } from "mongoose";
 
 
+
 export class AuthService {
 
   constructor(
@@ -35,7 +36,7 @@ export class AuthService {
         ? new Date(Date.now() + 5 * 60 * 1000)
         : undefined;
 
-      await this.userRepository.update(user._id.toString(), {
+      await this.userRepository.update(user._id, {
         failedLoginAttempts: attempts,
         ...(lockUntil && { lockUntil }),
       });
@@ -49,7 +50,7 @@ export class AuthService {
     }
 
 
-    await this.userRepository.update(user._id.toString(), {
+    await this.userRepository.update(user._id, {
       failedLoginAttempts: 0,
       lockUntil: null,
     });
@@ -89,8 +90,8 @@ export class AuthService {
     if (user?.status !== 'active') {
       throw new ApiError('user blocked')
     }
-    const { name, role, email } = user;
-    return { name, role ,email}
+    const { name, role, email, mobile } = user;
+    return { name, role ,email, mobile}
   }
 
 

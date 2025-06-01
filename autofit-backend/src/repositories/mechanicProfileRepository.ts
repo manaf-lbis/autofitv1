@@ -3,6 +3,7 @@ import { MechanicProfileModel } from '../models/mechanicProfileModel';
 import { MechanicProfile, MechanicRegisterInput } from '../types/mechanic';
 import { IMechanicProfileRepository } from './interfaces/IMechanicProfileRepository';
 import { ApiError } from '../utils/apiError';
+import { Types } from 'mongoose';
 
 export class MechanicProfileRepository implements IMechanicProfileRepository {
   async findById(id: ObjectId): Promise<MechanicProfile | null> {
@@ -30,7 +31,7 @@ export class MechanicProfileRepository implements IMechanicProfileRepository {
     }
   }
 
-  async update(id: string, update: Partial<MechanicProfile>): Promise<MechanicProfile | null> {
+  async update(id: Types.ObjectId, update: Partial<MechanicProfile>): Promise<MechanicProfile | null> {
     try {
       return await MechanicProfileModel
         .findByIdAndUpdate(id, update, { new: true })
@@ -40,7 +41,7 @@ export class MechanicProfileRepository implements IMechanicProfileRepository {
     }
   }
 
-  async delete(id: string): Promise<void> {
+  async delete(id: Types.ObjectId): Promise<void> {
     try {
       await MechanicProfileModel.findByIdAndDelete(id).exec();
     } catch (err) {

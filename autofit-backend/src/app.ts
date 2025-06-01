@@ -17,7 +17,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: process.env.FRONTEND_ORIGIN!,
     credentials: true,
   })
 );
@@ -26,6 +26,11 @@ app.use(express.json());
 app.use(cookieParser());
 
 connectDB();
+
+app.use((req, res, next) => {
+  const delay = 1500; 
+  setTimeout(() => next(), delay);
+});
 
 app.use("/auth/:role/reset-password",resetPassword)
 app.use("/auth/user", userAuth);
@@ -40,5 +45,6 @@ app.use("/mechanic", mechanicRoute );
 
 app.use(errorHandler);
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server started Running on ${PORT}`));
+
+
+export default app

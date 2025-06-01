@@ -11,6 +11,6 @@
     "noImplicitReturns": true,
     "noImplicitAny": true
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "src/socket"],
   "exclude": ["node_modules"]
 }

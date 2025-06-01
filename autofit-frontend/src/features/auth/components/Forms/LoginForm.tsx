@@ -30,7 +30,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ role }) => {
       setErrorMessage(null); 
       const res = await login({ ...data, role }).unwrap();
       if (res.status === "success") {
-        dispatch(setUser({ name: res.data.name, role: res.data.role ,email : res.data.email }));
+        dispatch(setUser({ name: res.data.name, role: res.data.role ,email : res.data.email ,mobile : res.data.mobile}));
         localStorage.setItem('userRole', res.data.role);
         localStorage.setItem('isAuthenticated', 'true');
         navigate(roleConfig[res.data.role].defaultRoute, { replace: true });
@@ -60,22 +60,30 @@ const LoginForm: React.FC<LoginFormProps> = ({ role }) => {
 
       <div className="flex flex-col justify-center items-center mt-4 mb-6">
         <h2 className="text-xl font-semibold">Hello Again!</h2>
-        <h5 className="text-xs font-medium">Welcome back, you’ve been missed!</h5>
+        <h5 className="text-xs font-medium">Welcome back, you've been missed!</h5>
       </div>
 
       <form onSubmit={handleSubmit(onValidSubmit)} className="grid gap-2">
-      {errorMessage && (
-          <div className="flex items-center justify-between bg-red-100 text-red-800 p-3 rounded-md">
+        
+        <div 
+          className={`transition-all duration-300 ease-in-out overflow-hidden ${
+            errorMessage 
+              ? 'max-h-20 opacity-100 mb-2' 
+              : 'max-h-0 opacity-0 mb-0'
+          }`}
+        >
+          <div className="flex items-center justify-between bg-red-100 text-red-800 p-3 rounded-md transform transition-transform duration-300">
             <span className="text-sm">{errorMessage}</span>
             <button
               type="button"
               onClick={() => setErrorMessage(null)}
-              className="text-red-800 hover:text-red-900"
+              className="text-red-800 hover:text-red-900 transition-colors duration-200"
             >
               <X className="h-5 w-5" />
             </button>
           </div>
-        )}
+        </div>
+        
         <FormInput
           id="email"
           label="Email"

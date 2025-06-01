@@ -7,6 +7,7 @@ import { HashService } from "../../hash/hashService";
 
 import { IUserRepository } from "../../../repositories/interfaces/IUserRepository";
 import { IAdminRepository } from "../../../repositories/interfaces/IAdminRepository";
+import { Types } from "mongoose";
 
 class ResetPassword {
     constructor(
@@ -44,7 +45,7 @@ class ResetPassword {
         return true
     };
 
-    async updatePassword(email:string,password:string,role:Role,_id:string){
+    async updatePassword(email:string,password:string,role:Role,_id:Types.ObjectId){
 
         let user: User | Admin | null
 

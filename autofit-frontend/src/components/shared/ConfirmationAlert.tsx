@@ -1,4 +1,3 @@
-
 import React, { ReactNode } from 'react'
 import {
   AlertDialog,
@@ -11,14 +10,16 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
+import { Loader } from 'lucide-react';
 
 interface Props {
   children: ReactNode;
   description: string;
   onConfirm: () => void;
+  isLoading:boolean
 }
 
-const ConfirmationAlert: React.FC<Props> = ({ children, description, onConfirm }) => {
+const ConfirmationAlert: React.FC<Props> = ({ children, description, onConfirm ,isLoading}) => {
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
@@ -31,9 +32,11 @@ const ConfirmationAlert: React.FC<Props> = ({ children, description, onConfirm }
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
+
           <AlertDialogAction className="bg-red-600" onClick={onConfirm}>
-            Continue
+           { isLoading ?  <Loader className='animate-spin' />: 'Continue'}
           </AlertDialogAction>
+
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

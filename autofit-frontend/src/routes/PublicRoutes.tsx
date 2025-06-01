@@ -1,19 +1,21 @@
 import { Routes, Route } from "react-router-dom";
 import PublicRoute from "../components/Routes/PublicRoute";
 import RedirectToAuth from "../components/Auth/RedirectToAuth";
-import MainLayout from "../pages/User/Layout";
-import Home from "../pages/User/Home";
-import Service from "../pages/User/Service";
+import MainLayout from "../features/user/components/layout/UserLayout";
 import RoleLoginPage from "../features/auth/Pages/RoleLoginPage";
 import RoleSignupPage from "../features/auth/Pages/RoleSignupPage";
 import RoleForgotPassword from "../features/auth/Pages/RoleForgotPassword";
+import HomePage from "@/features/user/pages/Home";
+import Services from "@/features/user/pages/Services";
+
+
 
 const PublicRoutes: React.FC = () => {
   return (
     <Routes>
       <Route element={<MainLayout />}>
-        <Route path="/" element={<Home />} />
-        <Route path="/service" element={<Service />} />
+        <Route path="/" element={<HomePage />} />
+        <Route path="/services" element={<Services/>} />
       </Route>
 
       <Route element={<PublicRoute />}>
@@ -28,3 +30,6 @@ const PublicRoutes: React.FC = () => {
 };
 
 export default PublicRoutes;
+
+
+

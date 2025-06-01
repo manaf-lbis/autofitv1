@@ -1,9 +1,7 @@
 import React from "react";
-import Page from "@/features/admin/navbar/Navbar";
 
 const AdminDashboard = () => {
   return (
-    // <Page />
     <>
       <div className="px-5">Admin dashboard </div>
       <div className="flex flex-1 flex-col gap-4 p-4 pt-0">

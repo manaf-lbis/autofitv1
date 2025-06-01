@@ -9,8 +9,6 @@ import { GoogleAuthService } from "../../services/auth/user/googleAuthService";
 import { TokenService } from "../../services/token/tokenService";
 import { OtpService } from "../../services/otp/otpService";
 import { Role } from "../../types/role";
-import { User } from "../../types/user";
-
 
 
 export class AuthController {
@@ -20,7 +18,7 @@ export class AuthController {
         private userRegistrationService: UserRegistrationService,
         private googleAuthService : GoogleAuthService,
         private tokenService : TokenService,
-        private otpService : OtpService
+        private otpService : OtpService,
     ) {}
 
     async login(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -37,7 +35,7 @@ export class AuthController {
                 path: '/',       
                 maxAge: 7*24*60*60*1000 
             });
-    
+
             sendSuccess(res, 'Login Successful', result.user);
         } catch (error: any) {
             next(error);
@@ -101,7 +99,7 @@ export class AuthController {
                 maxAge: 7*24*60*60*1000     
             });
 
-            sendSuccess(res,'OTP verified successfully',{name,role},StatusCode.CREATED)
+            sendSuccess(res,'OTP verified successfully',{name,role,email,mobile},StatusCode.CREATED)
 
         } catch (error: any) {
             next(error);

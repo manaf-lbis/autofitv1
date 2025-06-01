@@ -3,6 +3,7 @@ import { Mechanic } from "../types/mechanic";
 import { IMechanicRepository } from "./interfaces/IMechanicRepository";
 import { ApiError } from "../utils/apiError";
 import { MechanicModel } from "../models/mechanicModel";
+import { Types } from "mongoose";
 
 
 export class MechanicRepository implements IMechanicRepository{
@@ -54,20 +55,20 @@ export class MechanicRepository implements IMechanicRepository{
            }
        }
    
-       async update(id: string, update: Partial<Mechanic>): Promise<Mechanic | null> {
+       async update(id: Types.ObjectId, update: Partial<Mechanic>): Promise<Mechanic > {
            try {
                const updatedMechanic = await MechanicModel.findByIdAndUpdate(id, update, { new: true }).exec();
                if (!updatedMechanic) {
                    throw new ApiError(`User with ID ${id} not found`, 404);
                }
-               return updatedMechanic as Mechanic | null;
+               return updatedMechanic
            } catch (error) {
                if (error instanceof ApiError) throw error;
                throw new ApiError(`Error updating user: ${(error as Error).message}`, 500);
            }
        }
    
-       async delete(id: string): Promise<void> {
+       async delete(id: Types.ObjectId): Promise<void> {
            try {
                const result = await MechanicModel.findByIdAndDelete(id).exec();
                if (!result) {
