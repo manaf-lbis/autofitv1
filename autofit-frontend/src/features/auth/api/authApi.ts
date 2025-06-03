@@ -7,7 +7,8 @@ interface UserData {
   name : string;
   email : string;
   mobile : string;
-  role : Role
+  role : Role;
+  avatar?: string
 }
 
 export interface LoginRequest {

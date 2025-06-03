@@ -7,7 +7,7 @@ import { mechanicRegisterValidation } from "../../validation/mechanicValidation"
 
 export class ProfileController {
     constructor(
-        private mechanicProfileService: ProfileService
+        private mechanicProfileService: ProfileService,
     ) { }
 
     async profile(req: Request, res: Response, next: NextFunction): Promise<void> {

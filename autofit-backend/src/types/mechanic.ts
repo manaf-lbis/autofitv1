@@ -5,6 +5,7 @@ export interface Mechanic {
     name: string,
     email: string,
     mobile:string,
+    avatar:string,
     password: string,
     role: 'user' | 'admin' | 'mechanic',
     status: 'active' | 'blocked',

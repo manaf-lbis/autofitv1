@@ -84,8 +84,8 @@ export class AuthService {
     if (mechanic?.status !== 'active') {
       throw new ApiError('user blocked')
     }
-    const { name, role ,email } = mechanic;
-    return { name, role ,email}
+    const { name, role ,email ,mobile,avatar} = mechanic;
+    return { name, role ,email,mobile,avatar}
   }
 
 

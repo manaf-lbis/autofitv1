@@ -49,7 +49,7 @@ const Profile = () => {
         </motion.div>
 
         <ProfileCard />
-        <AddressCard />
+        {/* <AddressCard /> */}
       </div>
     </div>
   );

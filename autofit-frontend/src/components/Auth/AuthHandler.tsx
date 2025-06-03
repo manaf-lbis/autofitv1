@@ -32,7 +32,6 @@ const AuthHandler: React.FC<AuthHandlerProps> = ({ children }) => {
     skip: !isAuthenticated && !localStorage.getItem("isAuthenticated"),
   });
 
-  // Update auth state based on API response
   useEffect(() => {
     if (data && data.status === "success") {
       dispatch(
@@ -40,7 +39,8 @@ const AuthHandler: React.FC<AuthHandlerProps> = ({ children }) => {
           name: data.data.name,
           role: data.data.role,
           email: data.data.email,
-          mobile : data.data.mobile
+          mobile : data.data.mobile,
+          avatar: data?.data?.avatar
         })
       );
       localStorage.setItem("userRole", data.data.role);

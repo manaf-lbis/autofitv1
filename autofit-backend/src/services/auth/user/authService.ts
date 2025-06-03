@@ -115,11 +115,9 @@ export class AuthService {
 
     const user = await this.userRepository.findById(new Types.ObjectId(userId));
     if (!user) throw new ApiError("User not found", 404);
-    // if(user.status === 'blocked') throw new ApiError("User not found", 404);
 
     const storedRefreshToken = user.refreshToken;
     if (!storedRefreshToken) throw new ApiError("No refresh token available", 401);
-
 
     try {
       this.tokenService.verifyToken(storedRefreshToken);
@@ -129,10 +127,9 @@ export class AuthService {
 
     const payload = { id: userId, role: user.role };
     const newAccessToken = this.tokenService.generateAccessToken(payload);
-
     const newRefreshToken = this.tokenService.generateRefreshToken(payload);
+    
     await this.userRepository.storeRefreshToken(new Types.ObjectId(userId), newRefreshToken);
-
     return { accessToken: newAccessToken };
   }
 

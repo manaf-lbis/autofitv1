@@ -37,6 +37,7 @@ export class ProfileService {
         mechanicId,
     };
 
+    await this.mechanicRepository.update(mech._id, { avatar: photo.path });
     await this.mechanicProfileRepository.create(toCreate);
   }
 

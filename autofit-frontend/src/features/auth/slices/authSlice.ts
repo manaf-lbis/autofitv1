@@ -6,6 +6,7 @@ interface UserData {
   role: "mechanic" | "user" | "admin" ;
   email:string ;
   mobile :string ;
+  avatar?: string
 }
 
 interface AuthState {

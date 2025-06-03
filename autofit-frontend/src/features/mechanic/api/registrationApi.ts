@@ -38,13 +38,11 @@ export const registrationApi = createApi({
     }),
 
     resubmitRequest: builder.mutation({
-      query: ({ id }) => ({
+      query: () => ({
         url: `/mechanic/profile/resubmit-request`,
         method: "POST",
       }),
-    }),
-
-
+    })
 
   }),
 });

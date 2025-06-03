@@ -19,7 +19,9 @@ const mechanicSchema: Schema <MechanicDocument> = new Schema<MechanicDocument>({
     mobile :{
         type: String,
     },
-  
+    avatar:{
+        type:String
+    },
     role: {
         type: String,
         enum: ['user', 'admin', 'mechanic']

@@ -80,7 +80,7 @@ export class AdminAuthService {
     } catch (error) {
       throw new ApiError("Invalid refresh token", 401);
     }
-
+    
     const payload = { id: userId, role: admin.role };
     const newAccessToken = this.tokenService.generateToken(payload);
     const newRefreshToken = this.tokenService.generateRefreshToken(payload);
