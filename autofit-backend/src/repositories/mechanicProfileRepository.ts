@@ -121,6 +121,10 @@ export class MechanicProfileRepository implements IMechanicProfileRepository {
     );
   }
 
+  async deleteByMechanicId(mechanicId: Types.ObjectId): Promise<void> {
+    await MechanicProfileModel.deleteOne({ mechanicId });
+  }
+
 
 
 }

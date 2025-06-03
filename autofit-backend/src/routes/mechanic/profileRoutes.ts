@@ -20,7 +20,7 @@ const router = Router();
 
 router.get('/me',authenticate,authorize(['mechanic']),(req,res,next)=>mechProfileController.profile(req,res,next))
 router.post('/register',authenticate,authorize(['mechanic']),fileUploadMiddleware,(req,res,next)=>mechProfileController.register(req,res,next))
-
+router.post('/resubmit-request',authenticate,authorize(['mechanic']),(req,res,next)=>mechProfileController.removeApplication(req,res,next))
 
 
 export default router

@@ -47,7 +47,7 @@ export class ProfileService {
       const profile = await this.mechanicProfileRepository.findByMechanicId(mechanicId);
       if (!profile) return null;
 
-      const { _id, mechanicId: mid, createdAt, updatedAt, ...filteredProfile } = profile
+      const { _id, mechanicId: mid, updatedAt, ...filteredProfile } = profile
 
       return filteredProfile;
 
@@ -58,7 +58,11 @@ export class ProfileService {
   }
 
   async changeStatus ({profileId,status}:{profileId:Types.ObjectId,status:'approved' | 'rejected'}){
-    this.mechanicProfileRepository.updateApplicationStatus(profileId,status)
+    await this.mechanicProfileRepository.updateApplicationStatus(profileId,status)
+  }
+
+  async deleteApplication (mechanicId :Types.ObjectId){
+    await this.mechanicProfileRepository.deleteByMechanicId(mechanicId)
   }
 
 

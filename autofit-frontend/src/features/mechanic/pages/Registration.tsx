@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import FormAnimation from "@/components/Animations/mechanic/Form";
-import ProgressIndicator from "../components/registration/Combined";
+import ProgressIndicator from "../components/registration/ProgressIndicator";
 import FormContent from "../components/registration/FormComponent";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store/store";

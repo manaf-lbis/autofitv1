@@ -1,7 +1,7 @@
 import { Routes, Route } from "react-router-dom";
 import ProtectedRoute from "../components/Routes/ProtectedRoute";
 import Home from "@/features/mechanic/pages/Home";
-import MechanicInitGuard from "@/components/Auth/MechanicInitGuard";
+import MechanicInitGuard from "@/features/mechanic/components/MechanicInitGuard";
 import Registration from '@/features/mechanic/pages/Registration'
 import RegistrationStatus from "@/features/mechanic/components/registration/RegistrationStatus";
 
@@ -15,7 +15,6 @@ const MechanicRoutes: React.FC = () => {
         </Route>
 
         <Route path="registration" element={<Registration />} />
-        <Route path="status" element={<RegistrationStatus />} />
       </Route>
 
       <Route path="*" element={<>Not Found</>} />

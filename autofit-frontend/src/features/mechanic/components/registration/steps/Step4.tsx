@@ -72,7 +72,7 @@ const Step4: React.FC = () => {
       const data = await mechRegistration(form)
       dispatch(stopLoading())
       dispatch(setCurrentStep(4))
-      navigate('/mechanic/status',{replace:true})
+      location.href = '/admin/dashboard'
 
     } catch (error) {
       dispatch(stopLoading())

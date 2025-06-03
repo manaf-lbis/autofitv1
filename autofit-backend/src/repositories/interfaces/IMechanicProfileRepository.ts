@@ -25,4 +25,6 @@ export interface IMechanicProfileRepository extends IBaseRepository<MechanicProf
     status: 'approved' | 'rejected'
   ): Promise<MechanicProfileDocument | null>;
 
+  deleteByMechanicId(mechanicId: Types.ObjectId): Promise<void>;
+
 } 

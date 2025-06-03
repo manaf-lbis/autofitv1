@@ -16,7 +16,6 @@ import {
   ExternalLink,
   CheckCircle,
   AlertTriangle,
-  X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -26,9 +25,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { useNavigate, useParams } from "react-router-dom";
 import { useGetMechanicDetailsQuery, useUpdateMechanicStatusMutation, useApplicationStatusMutation } from "../../api/mechanicManagement";
 import toast from "react-hot-toast";
-
-// Replace with your actual Google Maps API key
-const GOOGLE_MAPS_API_KEY = "YOUR_GOOGLE_MAPS_API_KEY";
+import { GoogleMap, Marker, useLoadScript } from "@react-google-maps/api";
 
 // TypeScript interfaces for API data
 interface Mechanic {
@@ -54,7 +51,7 @@ interface MechanicProfile {
   landmark: string;
   location: {
     type: "Point";
-    coordinates: [number, number];
+    coordinates: [number, number]; // [longitude, latitude]
   };
   photo: string;
   shopImage: string;
@@ -82,6 +79,11 @@ export default function MechanicDetails() {
   const { data, isLoading, error, refetch } = useGetMechanicDetailsQuery(id!);
   const [updateMechanicStatus, { isLoading: isUpdating }] = useUpdateMechanicStatusMutation();
   const [updateApplicationStatus, { isLoading: isUpdatingApplication }] = useApplicationStatusMutation();
+
+  // Load Google Maps script
+  const { isLoaded, loadError } = useLoadScript({
+    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "",
+  });
 
   // Date formatting
   const formatDate = (dateString: string) => {
@@ -158,13 +160,18 @@ export default function MechanicDetails() {
     }
   };
 
-  // Open documents in new tab with URL validation
   const openDocument = (documentPath: string) => {
     if (documentPath) {
       window.open(documentPath, "_blank");
     } else {
       toast.error("Document not available");
     }
+  };
+
+
+  const mapContainerStyle = {
+    width: "100%",
+    height: "192px", 
   };
 
   // Loading and error states
@@ -187,9 +194,13 @@ export default function MechanicDetails() {
   }
 
   const { mechanic, mechanicProfile } = data.data;
-  const googleMapsUrl = mechanicProfile
-    ? `https://www.google.com/maps?q=${mechanicProfile.location.coordinates[1]},${mechanicProfile.location.coordinates[0]}&z=15`
-    : "#";
+
+  const mapCenter = mechanicProfile
+    ? {
+        lat: mechanicProfile.location.coordinates[1], 
+        lng: mechanicProfile.location.coordinates[0], 
+      }
+    : { lat: 0, lng: 0 }; 
 
   return (
     <div className="min-h-screen bg-gray-50 p-4 md:p-6">
@@ -412,26 +423,30 @@ export default function MechanicDetails() {
                     </div>
                   </div>
                   <div className="w-full h-48 bg-gray-100 rounded-lg overflow-hidden border border-gray-200 mt-2">
-                    <iframe
-                      title="Shop Location"
-                      width="100%"
-                      height="100%"
-                      frameBorder="0"
-                      src={`https://www.google.com/maps/embed/v1/place?key=${GOOGLE_MAPS_API_KEY}&q=${mechanicProfile.location.coordinates[1]},${mechanicProfile.location.coordinates[0]}&zoom=15`}
-                      allowFullScreen
-                      loading="lazy"
-                    ></iframe>
-                  </div>
-                  <div className="flex justify-end">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => window.open(googleMapsUrl, "_blank")}
-                      aria-label="Open location in Google Maps"
-                    >
-                      <ExternalLink className="h-4 w-4 mr-2" />
-                      Open in Google Maps
-                    </Button>
+                    {loadError ? (
+                      <div className="flex items-center justify-center h-full text-red-600">
+                        <AlertTriangle className="h-6 w-6 mr-2" />
+                        Failed to load map
+                      </div>
+                    ) : !isLoaded ? (
+                      <div className="flex items-center justify-center h-full text-gray-600">
+                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-gray-900 mr-2"></div>
+                        Loading map...
+                      </div>
+                    ) : (
+                      <GoogleMap
+                        mapContainerStyle={mapContainerStyle}
+                        center={mapCenter}
+                        zoom={15}
+                        options={{
+                          disableDefaultUI: true,
+                          zoomControl: true,
+                          fullscreenControl: true,
+                        }}
+                      >
+                        <Marker position={mapCenter} />
+                      </GoogleMap>
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -580,11 +595,15 @@ export default function MechanicDetails() {
                     <Button variant="outline" onClick={() => setShowApproveDialog(false)}>
                       Cancel
                     </Button>
-                    <Button
-                      onClick={handleApprove}
-                      disabled={isUpdatingApplication}
-                    >
-                      {isUpdatingApplication ? "Approving..." : "Approve"}
+                    <Button onClick={handleApprove} disabled={isUpdatingApplication}>
+                      {isUpdatingApplication ? (
+                        <>
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                          Approving...
+                        </>
+                      ) : (
+                        "Approve"
+                      )}
                     </Button>
                   </div>
                 </DialogContent>
@@ -593,7 +612,7 @@ export default function MechanicDetails() {
               <Dialog open={showRejectDialog} onOpenChange={setShowRejectDialog}>
                 <DialogTrigger asChild>
                   <Button variant="destructive">
-                    <X className="h-4 w-4 mr-2" />
+                    <CheckCircle className="h-4 w-4 mr-2" />
                     Reject Application
                   </Button>
                 </DialogTrigger>
@@ -606,12 +625,15 @@ export default function MechanicDetails() {
                     <Button variant="outline" onClick={() => setShowRejectDialog(false)}>
                       Cancel
                     </Button>
-                    <Button
-                      variant="destructive"
-                      onClick={handleReject}
-                      disabled={isUpdatingApplication}
-                    >
-                      {isUpdatingApplication ? "Rejecting..." : "Reject"}
+                    <Button variant="destructive" onClick={handleReject} disabled={isUpdatingApplication}>
+                      {isUpdatingApplication ? (
+                        <>
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                          Rejecting...
+                        </>
+                      ) : (
+                        "Reject"
+                      )}
                     </Button>
                   </div>
                 </DialogContent>

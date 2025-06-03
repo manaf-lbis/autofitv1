@@ -30,12 +30,21 @@ export const registrationApi = createApi({
       }),
     }),
 
-    getMechanic: builder.query<SuccessResponse, void>({
+    getMechanic: builder.query<any, void>({
       query: () => ({
         url: "/mechanic/profile/me",
         method: "GET",
       }),
-    })
+    }),
+
+    resubmitRequest: builder.mutation({
+      query: ({ id }) => ({
+        url: `/mechanic/profile/resubmit-request`,
+        method: "POST",
+      }),
+    }),
+
+
 
   }),
 });
@@ -44,4 +53,5 @@ export const {
   useRegisterMechanicMutation,
   useUpdateMechanicMutation,
   useGetMechanicQuery,
+  useResubmitRequestMutation
 } = registrationApi;

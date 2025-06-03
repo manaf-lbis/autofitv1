@@ -25,9 +25,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { useNavigate, useParams } from "react-router-dom";
 import { useGetMechanicDetailsQuery, useUpdateMechanicStatusMutation } from "../../api/mechanicManagement";
 import toast from "react-hot-toast";
-
-// Replace with your actual Google Maps API key
-const GOOGLE_MAPS_API_KEY = "YOUR_GOOGLE_MAPS_API_KEY";
+import { GoogleMap, Marker, useLoadScript } from "@react-google-maps/api";
 
 // TypeScript interfaces for API data
 interface Mechanic {
@@ -53,7 +51,7 @@ interface MechanicProfile {
   landmark: string;
   location: {
     type: "Point";
-    coordinates: [number, number];
+    coordinates: [number, number]; // [longitude, latitude]
   };
   photo: string;
   shopImage: string;
@@ -67,7 +65,7 @@ interface ApiResponse {
   message: string;
   data: {
     mechanic: Mechanic;
-    mechanicProfile?: MechanicProfile; // Optional for unregistered mechanics
+    mechanicProfile?: MechanicProfile;
   };
 }
 
@@ -77,6 +75,11 @@ export default function MechanicDetails() {
   const { id } = useParams<{ id: string }>();
   const { data, isLoading, error, refetch } = useGetMechanicDetailsQuery(id!);
   const [updateMechanicStatus, { isLoading: isUpdating }] = useUpdateMechanicStatusMutation();
+
+  // Load Google Maps script
+  const { isLoaded, loadError } = useLoadScript({
+    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "", // Fallback to empty string if undefined
+  });
 
   // Date formatting
   const formatDate = (dateString: string) => {
@@ -105,7 +108,7 @@ export default function MechanicDetails() {
       await updateMechanicStatus({ id: id!, status: "blocked" }).unwrap();
       setShowBlockDialog(false);
       toast.success("Mechanic blocked successfully");
-      refetch(); // Update UI after blocking
+      refetch();
     } catch (error) {
       console.error("Failed to block mechanic:", error);
       toast.error("Failed to block mechanic");
@@ -119,6 +122,12 @@ export default function MechanicDetails() {
     } else {
       toast.error("Document not available");
     }
+  };
+
+  // Map container style
+  const mapContainerStyle = {
+    width: "100%",
+    height: "192px", // Matches h-48 (48 * 4px = 192px)
   };
 
   // Loading and error states
@@ -141,9 +150,14 @@ export default function MechanicDetails() {
   }
 
   const { mechanic, mechanicProfile } = data.data;
-  const googleMapsUrl = mechanicProfile
-    ? `https://www.google.com/maps?q=${mechanicProfile.location.coordinates[1]},${mechanicProfile.location.coordinates[0]}&z=15`
-    : "#";
+
+  // Map center and marker position
+  const mapCenter = mechanicProfile
+    ? {
+        lat: mechanicProfile.location.coordinates[1],
+        lng: mechanicProfile.location.coordinates[0],
+      }
+    : { lat: 0, lng: 0 }; // Fallback center
 
   return (
     <div className="min-h-screen bg-gray-50 p-4 md:p-6">
@@ -366,26 +380,30 @@ export default function MechanicDetails() {
                     </div>
                   </div>
                   <div className="w-full h-48 bg-gray-100 rounded-lg overflow-hidden border border-gray-200 mt-2">
-                    <iframe
-                      title="Shop Location"
-                      width="100%"
-                      height="100%"
-                      frameBorder="0"
-                      src={`https://www.google.com/maps/embed/v1/place?key=${GOOGLE_MAPS_API_KEY}&q=${mechanicProfile.location.coordinates[1]},${mechanicProfile.location.coordinates[0]}&zoom=15`}
-                      allowFullScreen
-                      loading="lazy"
-                    ></iframe>
-                  </div>
-                  <div className="flex justify-end">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => window.open(googleMapsUrl, "_blank")}
-                      aria-label="Open location in Google Maps"
-                    >
-                      <ExternalLink className="h-4 w-4 mr-2" />
-                      Open in Google Maps
-                    </Button>
+                    {loadError ? (
+                      <div className="flex items-center justify-center h-full text-red-600">
+                        <AlertTriangle className="h-6 w-6 mr-2" />
+                        Failed to load map
+                      </div>
+                    ) : !isLoaded ? (
+                      <div className="flex items-center justify-center h-full text-gray-600">
+                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-gray-900 mr-2"></div>
+                        Loading map...
+                      </div>
+                    ) : (
+                      <GoogleMap
+                        mapContainerStyle={mapContainerStyle}
+                        center={mapCenter}
+                        zoom={15}
+                        options={{
+                          disableDefaultUI: true,
+                          zoomControl: true,
+                          fullscreenControl: true,
+                        }}
+                      >
+                        <Marker position={mapCenter} />
+                      </GoogleMap>
+                    )}
                   </div>
                 </CardContent>
               </Card>
