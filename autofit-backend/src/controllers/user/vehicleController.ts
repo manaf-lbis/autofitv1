@@ -1,6 +1,6 @@
 import { NextFunction, Request, response, Response } from 'express';
 import { VehicleService } from '../../services/vehicle/vehicleService';
-import { ObjectId, Types } from 'mongoose';
+import { Types } from 'mongoose';
 import { sendSuccess } from '../../utils/apiResponse';
 import { ApiError } from '../../utils/apiError';
 

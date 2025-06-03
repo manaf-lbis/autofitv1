@@ -2,9 +2,9 @@ import mongoose, { Schema, Document,Types } from 'mongoose';
 import { User } from '../types/user';
 
 
-interface userDocument extends User,Document<Types.ObjectId> {}
+export interface UserDocument extends User,Document<Types.ObjectId> {}
 
-const userSchema: Schema <userDocument> = new Schema<userDocument>({
+const userSchema: Schema <UserDocument> = new Schema<UserDocument>({
     name: {
         type: String,
         required: true
@@ -47,5 +47,5 @@ const userSchema: Schema <userDocument> = new Schema<userDocument>({
 
 
 
-export const UserModel = mongoose.model<userDocument>('User', userSchema)
+export const UserModel = mongoose.model<UserDocument>('User', userSchema)
 

@@ -10,6 +10,7 @@ import { errorHandler } from "./middlewares/errorHandler";
 import resetPassword from "./routes/common/resetPassword";
 import mechanicAuth from './routes/mechanic/authRoutes'
 import mechanicRoute from './routes/mechanic/mechanicRoutes'
+import adminRoute from './routes/admin/adminRoute'
 
 dotenv.config();
 
@@ -41,8 +42,9 @@ app.use("/auth/mechanic",mechanicAuth)
 
 app.use("/user", userRoute);
 app.use("/mechanic", mechanicRoute );
+app.use("/admin",adminRoute)
 
-
+ 
 app.use(errorHandler);
 
 

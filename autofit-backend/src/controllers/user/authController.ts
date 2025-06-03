@@ -195,10 +195,9 @@ export class AuthController {
           const userId = decoded.id;
       
           const result = await this.authService.refreshAccessToken(userId);
+          
           console.log('token refreshed');
           
-      
-   
           res.cookie("jwt", result.accessToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",

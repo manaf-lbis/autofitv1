@@ -2,7 +2,8 @@ import { ObjectId } from "mongodb";
 import { IMechanicProfileRepository } from "../../repositories/interfaces/IMechanicProfileRepository";
 import { IMechanicRepository } from "../../repositories/interfaces/IMechanicRepository";
 import { ApiError } from "../../utils/apiError";
-import { MechanicProfile, MechanicRegisterInput } from "../../types/mechanic";
+import {  MechanicRegisterInput } from "../../types/mechanic";
+import { Types } from "mongoose";
 
 
 type FileWithField = Express.Multer.File;
@@ -21,6 +22,7 @@ export class ProfileService {
     private mechanicRepository: IMechanicRepository
   ) { }
 
+ 
   async registerUser(payload: MechanicRegisterPayload): Promise<void> {
     const { data, photo, shopImage, qualification, mechanicId } = payload;
 
@@ -28,11 +30,11 @@ export class ProfileService {
     if (!mech) throw new ApiError('Mechanic not found', 404);
 
     const toCreate = {
-      ...data,
-      photo: photo.filename,
-      shopImage: shopImage.filename,
-      qualification: qualification.filename,
-      mechanicId,
+        ...data,
+        photo: photo.path,
+        shopImage: shopImage.path,
+        qualification:qualification.path,
+        mechanicId,
     };
 
     await this.mechanicProfileRepository.create(toCreate);
@@ -53,6 +55,10 @@ export class ProfileService {
       if (err instanceof ApiError) throw err;
       throw new ApiError(`Error retrieving profile: ${(err as Error).message}`, 500);
     }
+  }
+
+  async changeStatus ({profileId,status}:{profileId:Types.ObjectId,status:'approved' | 'rejected'}){
+    this.mechanicProfileRepository.updateApplicationStatus(profileId,status)
   }
 
 

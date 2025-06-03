@@ -21,8 +21,7 @@ export interface MechanicProfile {
     mechanicId:ObjectId
     registration: {
         status: 'pending' | 'approved',
-        approvedOn : Date 
-        rejectedOn : Date 
+        date : Date 
     },
     education: string,
     specialised : string,

@@ -42,8 +42,7 @@ router.post('/resent-otp', authenticate, (req, res, next) => authController.rese
 
 router.get('/allusers', authenticate, (req, res, next) => authController.allusers(req, res, next));
 
-//test Route
-router.post("/refresh", (req, res, next) => authController.refreshToken(req, res, next));
+router.post("/refresh",authenticate, (req, res, next) => authController.refreshToken(req, res, next));
 
 
 export default router;

@@ -1,0 +1,68 @@
+import { Request, Response, NextFunction } from "express";
+import { UserServices } from "../../services/admin/userServices";
+import { User } from "../../types/user";
+import { sendSuccess } from "../../utils/apiResponse";
+import { Types } from "mongoose";
+
+
+
+export class UserController {
+    constructor(
+        private userServices : UserServices
+
+    ) { }
+
+
+    async getAllUsers(req: Request, res: Response, next: NextFunction) {
+        
+        try {
+            const { page = '1', limit = '10', search, sortField = 'createdAt', sortOrder = 'desc' } = req.query;
+    
+            const result = await this.userServices.allUsers({
+                page: parseInt(page as string),
+                limit: parseInt(limit as string),
+                search: search as string,
+                sortField: sortField as keyof User,
+                sortOrder: sortOrder as 'asc' | 'desc',
+            });
+            sendSuccess(res,'Users List',result)
+
+        } catch (error) {
+            next(error) 
+        }
+    }
+
+    async getUserById(req: Request, res: Response, next: NextFunction) {
+         try {
+            const userId = new Types.ObjectId(req.params.id);
+            const result = await this.userServices.userDetails({userId})
+            console.log(result);
+
+            sendSuccess(res,'Fetched Successfully',result)
+            
+        } catch (error) {
+            next(error)
+        }
+    }
+
+
+    async changeStatus(req: Request, res: Response, next: NextFunction) {
+        try {
+            const userId = new Types.ObjectId(req.params.id);
+            const {status} = req.body
+
+            await this.userServices.updataUser({userId,data:{status}})
+            sendSuccess(res,'updated sucessfully')
+            
+        } catch (error) {
+            next(error)
+        }
+
+    }
+
+
+
+
+
+
+}

@@ -2,23 +2,20 @@ import mongoose, { Schema, Document, Types } from 'mongoose';
 import { MechanicProfile } from '../types/mechanic';
 
 
-interface MechanicDocument extends MechanicProfile, Document<Types.ObjectId> { }
+export interface MechanicProfileDocument extends MechanicProfile, Document<Types.ObjectId> { }
 
-const mechanicProfileSchema: Schema<MechanicDocument> = new Schema<MechanicDocument>({
+const mechanicProfileSchema: Schema<MechanicProfileDocument> = new Schema<MechanicProfileDocument>({
     mechanicId:{
         type : mongoose.Schema.ObjectId,
-        ref:'mechanic'
+        ref:'Mechanic'
     },
     registration: {
         status: {
             type: String,
-            enum: ['pending', 'approved'],
+            enum: ['pending', 'approved','rejected'],
             default: 'pending',
         },
-        approvedOn: {
-            type: Date,
-        },
-        rejectedOn: {
+        date: {
             type: Date,
         },
     },
@@ -73,4 +70,4 @@ const mechanicProfileSchema: Schema<MechanicDocument> = new Schema<MechanicDocum
     timestamps: true,
 });
 
-export const MechanicProfileModel = mongoose.model<MechanicDocument>('MechanicProfile', mechanicProfileSchema);
+export const MechanicProfileModel = mongoose.model<MechanicProfileDocument>('MechanicProfile', mechanicProfileSchema);

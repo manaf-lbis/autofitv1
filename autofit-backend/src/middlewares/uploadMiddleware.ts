@@ -12,10 +12,13 @@ const storage = new CloudinaryStorage({
         if (file.fieldname === 'qualification') folder += '/docs';
 
         const ext = file.originalname.split('.').pop()?.toLowerCase();
+        const isPDF = ext === 'pdf';
 
         return {
             folder,
-            format: ext
+            format: ext,
+            resource_type: isPDF ? 'raw' : 'image',
+            public_id: file.originalname.split('.')[0], 
         };
     }
 });

@@ -1,41 +1,41 @@
 import { ObjectId } from "bson";
-import { Admin } from "../types/admin";
 import { IAdminRepository } from "./interfaces/IAdminRepository";
 import { Types } from "mongoose";
-import { AdminModel } from "../models/adminModel";
+import { AdminModel, AdminDocument } from "../models/adminModel";
 import { ApiError } from "../utils/apiError";
 
 export class AdminRepository implements IAdminRepository {
     
-    async findById(id: ObjectId): Promise<Admin | null> {
+    async findById(id: ObjectId): Promise<AdminDocument | null> {
         try {
             const admin = await AdminModel.findById(id).exec();
-            return admin as Admin | null;
+            return admin 
         } catch (error) {
             throw new ApiError(`Error finding admin by ID: ${(error as Error).message}`, 500);
         }
     }
 
-    async findAll(): Promise<Admin[] | null> {
+    async findAll(): Promise<AdminDocument[] | null> {
         try {
             const admins = await AdminModel.find().exec();
-            return admins as Admin[] | null;
+            return admins
+
         } catch (error) {
             throw new ApiError(`Error finding all admins: ${(error as Error).message}`, 500);
         }
     }
 
-    async save(entity: Admin): Promise<Admin> {
+    async save(entity: AdminDocument): Promise<AdminDocument> {
         try {
             const admin = new AdminModel(entity);
             const savedAdmin = await admin.save();
-            return savedAdmin as Admin;
+            return savedAdmin
         } catch (error) {
             throw new ApiError(`Error saving admin: ${(error as Error).message}`, 500);
         }
     }
 
-    async update(id: Types.ObjectId, update: Partial<Admin>): Promise<Admin> {
+    async update(id: Types.ObjectId, update: Partial<AdminDocument>): Promise<AdminDocument> {
         try {
             const updatedAdmin = await AdminModel.findByIdAndUpdate(
                 id,
@@ -46,6 +46,7 @@ export class AdminRepository implements IAdminRepository {
                 throw new ApiError(`Admin with ID ${id} not found`, 404);
             }
             return updatedAdmin 
+
         } catch (error) {
             if (error instanceof ApiError) throw error;
             throw new ApiError(`Error updating admin: ${(error as Error).message}`, 500);
@@ -64,10 +65,11 @@ export class AdminRepository implements IAdminRepository {
         }
     }
 
-    async findByEmail(email: string): Promise<Admin | null> {
+    async findByEmail(email: string): Promise<AdminDocument | null> {
         try {
             const admin = await AdminModel.findOne({ email }).exec();
-            return admin as Admin | null;
+            return admin 
+
         } catch (error) {
             throw new ApiError(`Error finding admin by email: ${(error as Error).message}`, 500);
         }
@@ -80,6 +82,7 @@ export class AdminRepository implements IAdminRepository {
                 throw new ApiError(`Admin with ID ${userId} not found`, 404);
             }
             return admin.refreshToken || null;
+            
         } catch (error) {
             if (error instanceof ApiError) throw error;
             throw new ApiError(`Error retrieving refresh token: ${(error as Error).message}`, 500);

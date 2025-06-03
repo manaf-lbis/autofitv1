@@ -20,6 +20,8 @@ export class AuthService {
         const mechanic = await this.mechanicRepository.findByEmail(email);
         if (!mechanic) throw new ApiError("Invalid email or password", 404);
 
+        if(mechanic.status === 'blocked') throw new ApiError('User Blocked - Contact Admin', 401);
+
         if (mechanic.lockUntil && mechanic.lockUntil > new Date()) {
             throw new ApiError(`Account locked until ${mechanic.lockUntil.toLocaleTimeString()}`, 423);
         }

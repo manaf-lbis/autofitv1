@@ -19,8 +19,10 @@ export class AuthService {
   ) { }
 
   async login(email: string, password: string) {
+
     const user = await this.userRepository.findByEmail(email);
     if (!user) throw new ApiError('Invalid email or password', 404);
+    if(user.status === 'blocked') throw new ApiError('User Blocked Contact Admin', 401);
 
     if (user.lockUntil && user.lockUntil > new Date()) {
       throw new ApiError(
@@ -110,8 +112,10 @@ export class AuthService {
   }
 
   async refreshAccessToken(userId: string): Promise<{ accessToken: string }> {
+
     const user = await this.userRepository.findById(new Types.ObjectId(userId));
     if (!user) throw new ApiError("User not found", 404);
+    // if(user.status === 'blocked') throw new ApiError("User not found", 404);
 
     const storedRefreshToken = user.refreshToken;
     if (!storedRefreshToken) throw new ApiError("No refresh token available", 401);

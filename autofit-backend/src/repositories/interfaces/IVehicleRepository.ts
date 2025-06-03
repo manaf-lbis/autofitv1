@@ -1,13 +1,13 @@
-import { IBaseRerpository } from "./IBaseRepository"
+import { IBaseRepository } from "./IBaseRepository"
 import { Vehicle } from "../../types/vehicle"
 import { ObjectId } from "mongodb"
+import { VehicleDocument } from "../../models/vehicleModel"
 
 
+export interface IVehicleRepository extends IBaseRepository <VehicleDocument> {
 
-export interface IVehicleRepository extends IBaseRerpository <Vehicle> {
-
-    findWithUserId(id:ObjectId) : Promise <Vehicle[] | null>  
-    updateByUserId(data:Vehicle) : Promise <Vehicle | null>  
+    findWithUserId(id:ObjectId) : Promise <VehicleDocument[] | null>  
+    updateByUserId(data:Vehicle) : Promise <VehicleDocument | null>  
     blockVehicle(userId:ObjectId ,id:ObjectId) : Promise<null>
 }
 

@@ -2,7 +2,8 @@ import mongoose, { Schema, Document,Types } from 'mongoose';
 import { Mechanic } from '../types/mechanic';
 
 
-interface MechanicDocument extends Mechanic,Document<Types.ObjectId> {}
+export interface MechanicDocument extends Mechanic,Document<Types.ObjectId> {}
+
 const mechanicSchema: Schema <MechanicDocument> = new Schema<MechanicDocument>({
     name: {
         type: String,
