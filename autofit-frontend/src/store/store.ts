@@ -5,6 +5,8 @@ import { passwordResetApi } from "@/features/auth/api/passwordResetApi";
 import { registrationApi } from "@/features/mechanic/api/registrationApi";
 import { mapsApi } from "@/api/mapsApi";
 import { profileApi } from '@/features/user/api/profileApi'
+import { userManagementApi } from "@/features/admin/api/userManagement";
+import { mechananicManagementApi } from "@/features/admin/api/mechanicManagement";
 
 import authReducer from "../features/auth/slices/authSlice";
 import registrationReducer from '@/features/mechanic/slices/registrationSlice'
@@ -21,7 +23,9 @@ export const store = configureStore({
     [passwordResetApi.reducerPath]: passwordResetApi.reducer,
     [registrationApi.reducerPath]: registrationApi.reducer,
     [mapsApi.reducerPath]: mapsApi.reducer,
-    [profileApi.reducerPath] : profileApi.reducer
+    [profileApi.reducerPath] : profileApi.reducer,
+    [userManagementApi.reducerPath] : userManagementApi.reducer,
+    [mechananicManagementApi.reducerPath] : mechananicManagementApi.reducer
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(
@@ -30,7 +34,9 @@ export const store = configureStore({
       passwordResetApi.middleware,
       registrationApi.middleware,
       mapsApi.middleware,
-      profileApi.middleware
+      profileApi.middleware,
+      userManagementApi.middleware,
+      mechananicManagementApi.middleware
     ),
 });
 

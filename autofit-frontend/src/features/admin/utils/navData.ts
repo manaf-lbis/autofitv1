@@ -42,15 +42,15 @@ const data = {
       items: [
         {
           title: "New Application",
-          url: "/admin/mechanic/new-application",
+          url: "/admin/new-application",
         },
          {
           title: "Mechanics",
-          url: "/admin/mechanic/mechanics",
+          url: "/admin/mechanics",
         },
          {
           title: "Update Requests",
-          url: "/admin/mechanic/update-requests",
+          url: "/admin/update-requests",
         },
       ],
     },

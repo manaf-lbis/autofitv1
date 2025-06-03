@@ -9,9 +9,10 @@ import {
   Circle,
 } from "lucide-react";
 import { useDispatch } from "react-redux";
-import { setBreadcrumbs } from "../slices/adminSlice";
+import { setBreadcrumbs } from "../../slices/adminSlice"; 
 import { useNavigate } from "react-router-dom";
-import { useGetAllUsersQuery, useUpdateUserStatusMutation } from "../api/userManagement";
+import { useGetAllMechanicQuery,useUpdateMechanicStatusMutation } from "../../api/mechanicManagement";
+
 
 type Status = "active" | "inactive" | "blocked";
 
@@ -56,7 +57,7 @@ const UserTableShimmer: React.FC = () => (
   </>
 );
 
-const UserDashboard: React.FC = () => {
+const MechanicDashboard: React.FC = () => {
   // State management
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
@@ -73,7 +74,7 @@ const UserDashboard: React.FC = () => {
   const navigate = useNavigate();
   const observerRef = useRef<IntersectionObserver | null>(null);
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
-  const [updateUserStatus, { isLoading: isUpdatingStatus }] = useUpdateUserStatusMutation();
+  const [updateUserStatus, { isLoading: isUpdatingStatus }] = useUpdateMechanicStatusMutation();
 
   // Set breadcrumbs
   useEffect(() => {
@@ -81,7 +82,7 @@ const UserDashboard: React.FC = () => {
   }, [dispatch]);
 
   // Fetch users
-  const { data: response, isLoading, isFetching } = useGetAllUsersQuery({
+  const { data: response, isLoading, isFetching } = useGetAllMechanicQuery({
     page,
     limit,
     search: searchTerm,
@@ -214,7 +215,7 @@ const UserDashboard: React.FC = () => {
             />
             <div className="absolute right-2 sm:right-4 top-8 sm:top-10 z-20 w-40 sm:w-48 bg-white rounded-lg shadow-lg border border-gray-100 py-1">
               <button
-                onClick={() => navigate(`/admin/user-details/${user.id}`)}
+                onClick={() => navigate(`/admin/mechanic-details/${user.id}`)}
                 className="w-full px-3 sm:px-4 py-2 text-left text-xs sm:text-sm hover:bg-gray-50 flex items-center gap-2 text-gray-700"
                 disabled={isUpdatingStatus}
               >
@@ -370,4 +371,4 @@ const UserDashboard: React.FC = () => {
   );
 };
 
-export default UserDashboard;
+export default MechanicDashboard;
