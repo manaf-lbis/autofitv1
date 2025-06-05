@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { LayoutDashboard, MessageSquareText, Wrench, User, DollarSign, Bell, LogOut, Menu, X, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -7,6 +7,7 @@ import { useLogoutMutation } from '@/features/auth/api/authApi';
 import { toast } from 'react-toastify';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store/store';
+import AnimatedLogo from '@/features/user/components/AnimatedLogo';
 
 export default function MechanicDashboardLayout() {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
@@ -15,6 +16,7 @@ export default function MechanicDashboardLayout() {
   const location = useLocation();
   const [logout, { isLoading: isLoggingOut }] = useLogoutMutation();
   const mechanicData = useSelector((state: RootState) => state.auth.user);
+  const profileMenuRef = useRef<HTMLDivElement>(null);
 
   const sidebarItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, href: '/mechanic/dashboard' },
@@ -49,6 +51,17 @@ export default function MechanicDashboardLayout() {
     setSidebarOpen(false);
   };
 
+  // Handle outside clicks to close profile menu
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (profileMenuRef.current && !profileMenuRef.current.contains(event.target as Node)) {
+        setShowProfileMenu(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   return (
     <div className="h-screen bg-gradient-to-br from-slate-50 via-blue-50/40 to-slate-100 flex flex-col">
       {/* Top Navigation */}
@@ -65,12 +78,8 @@ export default function MechanicDashboardLayout() {
               {sidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </Button>
             <div className="flex items-center space-x-3">
-              <div className="h-9 w-9 bg-blue-500/90 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20">
-                <Wrench className="h-5 w-5 text-white" />
-              </div>
               <div className="hidden sm:block">
-                <h1 className="text-xl font-semibold text-slate-800">AutoFit</h1>
-                <p className="text-xs text-slate-500 -mt-1">Mechanic Portal</p>
+                <AnimatedLogo />
               </div>
             </div>
           </div>
@@ -80,10 +89,10 @@ export default function MechanicDashboardLayout() {
               <Bell className="h-5 w-5 text-slate-600" />
               <span className="absolute -top-1 -right-1 h-3 w-3 bg-blue-500 rounded-full border-2 border-white"></span>
             </Button>
-            <div className="relative">
+            <div className="relative" ref={profileMenuRef}>
               <button
                 onClick={() => setShowProfileMenu(!showProfileMenu)}
-                className="flex items-center space-x-3 p-2 rounded-xl hover:bg-white/50 transition-all duration-200"
+                className="flex items-center space-x-3 p-2 rounded-xl hover:bg-white/50 transition-all duration-200 z-[201]"
               >
                 <Avatar className="h-8 w-8 ring-2 ring-white/50">
                   <AvatarImage src={mechanicData?.avatar || "/placeholder.svg"} alt="avatar" />
@@ -94,15 +103,14 @@ export default function MechanicDashboardLayout() {
                 {mechanicData && (
                   <div className="hidden md:block text-left">
                     <p className="text-sm font-medium text-slate-800">{mechanicData.name}</p>
-                    {/* Remove shopName if not in UserData */}
-                    {/* <p className="text-xs text-slate-500">{mechanicData.shopName}</p> */}
+                    <p className="text-xs font-medium text-slate-800">{mechanicData.email}</p>
                   </div>
                 )}
               </button>
               {showProfileMenu && mechanicData && (
                 <>
                   <div className="fixed inset-0 z-[250]" onClick={() => setShowProfileMenu(false)} />
-                  <div className="absolute right-0 top-12 z-[300] w-56 bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl border border-white/30 py-2 overflow-hidden">
+                  <div className="absolute right-0 top-12 z-[251] w-56 bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl border border-white/30 py-2 overflow-hidden">
                     <div className="px-4 py-3 border-b border-white/30">
                       <p className="text-sm font-medium text-slate-800">{mechanicData.name}</p>
                       <p className="text-xs text-slate-500">{mechanicData.email}</p>
@@ -137,16 +145,16 @@ export default function MechanicDashboardLayout() {
         {/* Mobile Sidebar Overlay */}
         {sidebarOpen && (
           <div
-            className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40 lg:hidden"
+            className="fixed inset-0 bg-black/20 backdrop-blur-sm z-[199] lg:hidden"
             onClick={() => setSidebarOpen(false)}
           />
         )}
         {/* Sidebar */}
         <aside
           className={`
-            fixed lg:static inset-y-0 left-0 z-50 lg:z-auto
+            fixed lg:static top-16 lg:top-0 left-0 z-[200] lg:z-auto
             w-72 bg-white/50 backdrop-blur-xl border-r border-white/30 
-            h-full shadow-xl flex flex-col
+            h-[calc(100vh-4rem)] lg:h-full shadow-xl flex flex-col
             transform transition-all duration-300 ease-out
             ${sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
           `}
@@ -162,8 +170,6 @@ export default function MechanicDashboardLayout() {
               {mechanicData && (
                 <div>
                   <h3 className="font-medium text-slate-800">{mechanicData.name}</h3>
-                  {/* Remove shopName if not in UserData */}
-                  {/* <p className="text-sm text-slate-500">{mechanicData.shopName}</p> */}
                 </div>
               )}
             </div>
@@ -215,11 +221,11 @@ export default function MechanicDashboardLayout() {
         {/* Main Content Area */}
         <main className="flex-1 flex flex-col overflow-hidden">
           <div className="p-4 lg:p-6 flex-1 overflow-y-auto">
-            <div className="max-w-7xl mx-auto w-full flex flex-col h-full">
-              <div className="mb-6 flex-shrink-0">
+            <div className="max-w-7xl mx-auto w-full">
+              <div className="mb-1 flex-shrink-0">
                 <div className="flex items-center space-x-4 mb-2">
                   {sidebarItems.find((item) => item.id === activeTab)?.icon && (
-                    <div className="p-3 rounded-xl bg-blue-500/10 backdrop-blur-sm border border-blue-200/30 shadow-lg shadow-blue-500/10">
+                    <div className="p-3 rounded-full bg-blue-500/50 backdrop-blur-sm border border-blue-200/30">
                       {(() => {
                         const Icon = sidebarItems.find((item) => item.id === activeTab)?.icon;
                         return Icon ? <Icon className="h-4 w-4 text-blue-600" /> : null;
@@ -227,18 +233,18 @@ export default function MechanicDashboardLayout() {
                     </div>
                   )}
                   <div>
-                    <h1 className="text-lg lg:text-xl font-semibold text-slate-800 capitalize">{activeTab}</h1>
-                    <p className="text-slate-600 text-sm lg:text-sm">
-                      {activeTab === 'dashboard' && 'Overview of your business performance'}
-                      {activeTab === 'messages' && 'Communicate with your customers'}
-                      {activeTab === 'jobs' && 'Manage your service requests'}
-                      {activeTab === 'account' && 'Update your profile and settings'}
-                      {activeTab === 'earnings' && 'Track your income and payments'}
+                    <h1 className="text-lg  sm:text-xl font-semibold text-gray-900 capitalize">{activeTab}</h1>
+                    <p className="text-gray-600 text-sm sm:text-sm">
+                      {activeTab === 'dashboard' && 'Overview of your auto repair business.'}
+                      {activeTab === 'messages' && 'Connect and communicate with customers.'}
+                      {activeTab === 'jobs' && 'Manage your repair and service requests.'}
+                      {activeTab === 'account' && 'Update your profile and account settings.'}
+                      {activeTab === 'earnings' && 'Monitor your income and payment details.'}
                     </p>
                   </div>
                 </div>
               </div>
-              <div className="bg-white/50 backdrop-blur-xl rounded-2xl border border-white/30 shadow-xl flex-1 overflow-y-auto">
+              <div className="bg-white/80 backdrop-blur-md min-h-[80vh] rounded-3xl border border-gray-200/30 shadow-xl flex-1 overflow-y-auto">
                 <Outlet />
               </div>
             </div>

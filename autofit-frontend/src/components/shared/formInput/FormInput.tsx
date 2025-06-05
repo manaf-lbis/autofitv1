@@ -15,6 +15,8 @@ interface FormInputProps {
   name: string;
   validationRule: keyof Rule;
   defaultValue?: string | number;
+  disabled?:boolean
+
 }
 
 const FormInput: React.FC<FormInputProps> = ({
@@ -26,6 +28,8 @@ const FormInput: React.FC<FormInputProps> = ({
   register,
   name,
   validationRule,
+  defaultValue,
+  disabled = false
 }) => {
   const [showPassword, setShowPassword] = useState(false);
   const isPassword = type === 'password';
@@ -41,6 +45,8 @@ const FormInput: React.FC<FormInputProps> = ({
           type={isPassword && showPassword ? 'text' : type}
           placeholder={placeholder}
           className={`${isPassword ? 'pr-10' : ''}`}
+          defaultValue={defaultValue}
+          disabled={disabled}
         />
 
         {isPassword && (

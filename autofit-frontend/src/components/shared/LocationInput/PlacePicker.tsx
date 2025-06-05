@@ -1,8 +1,9 @@
-import React, { useState, useCallback } from "react";
-import { GoogleMap, Marker, useLoadScript } from "@react-google-maps/api";
+import React, { useState, useCallback, useEffect } from "react";
+import { APIProvider, Map, AdvancedMarker, MapMouseEvent } from "@vis.gl/react-google-maps";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { LocateFixed } from "lucide-react";
+import toast from "react-hot-toast";
 
 const containerStyle = { width: "100%", height: "400px" };
 const center = { lat: 20.5937, lng: 78.9629 };
@@ -14,38 +15,45 @@ interface PlacePickerProps {
 
 const PlacePicker: React.FC<PlacePickerProps> = ({ onChange, value }) => {
   const [open, setOpen] = useState(false);
+  const [hasPermissionBeenDenied, setHasPermissionBeenDenied] = useState(false);
 
-  const { isLoaded, loadError } = useLoadScript({
-    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY!,
-  });
-
-  const onMapClick = useCallback((e: google.maps.MapMouseEvent) => {
-    if (e.latLng) {
-      const lat = e.latLng.lat();
-      const lng = e.latLng.lng();
+  const onMapClick = useCallback((event: MapMouseEvent) => {
+    const clickData = event.detail as { latLng: { lat: number; lng: number } | null; placeId: string | null };
+    if (clickData.latLng) {
+      const { lat, lng } = clickData.latLng;
       onChange({ lat, lng });
     }
   }, [onChange]);
 
   const getCurrentLocation = () => {
     if (!navigator.geolocation) {
-      alert("Geolocation not supported");
+      toast.error("Geolocation is not supported by your browser.", {
+        id: "geolocation-unsupported",
+      });
       return;
     }
+
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         const lat = pos.coords.latitude;
         const lng = pos.coords.longitude;
         onChange({ lat, lng });
+        setHasPermissionBeenDenied(false);
       },
       () => {
-        alert("Permission denied or location unavailable");
+        if (!hasPermissionBeenDenied) {
+          toast.error("Permission denied or location unavailable.", {
+            id: "location-permission-denied",
+          });
+          setHasPermissionBeenDenied(true);
+        }
       }
     );
   };
 
-  if (loadError) return <p>Error loading map</p>;
-  if (!isLoaded) return <p>Loading map…</p>;
+  useEffect(() => {
+    getCurrentLocation();
+  }, []);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -58,19 +66,20 @@ const PlacePicker: React.FC<PlacePickerProps> = ({ onChange, value }) => {
         </DialogHeader>
 
         <div className="h-[400px] w-full">
-          <GoogleMap
-            mapContainerStyle={containerStyle}
-            center={value||center}
-            zoom={value ? 15 : 5}
-            onClick={onMapClick}
-            options={{
-              disableDefaultUI: true,
-              zoomControl: true,
-              fullscreenControl: true,
-            }}
-          >
-            {value && <Marker position={value} />}
-          </GoogleMap>
+          <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY || ""}>
+            <Map
+              style={containerStyle}
+              defaultCenter={value || center}
+              defaultZoom={value ? 15 : 5}
+              mapId={import.meta.env.VITE_MAP_ID}
+              onClick={onMapClick}
+              disableDefaultUI={true}
+              zoomControl={true}
+              fullscreenControl={true}
+            >
+              {value && <AdvancedMarker position={value} />}
+            </Map>
+          </APIProvider>
         </div>
 
         <DialogFooter className="p-4 border-t justify-end">

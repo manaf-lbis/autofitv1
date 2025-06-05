@@ -1,10 +1,9 @@
 import { DotLottiePlayer } from "@dotlottie/react-player";
-import formAnimation from "@/assets/lottieFiles/mechanic/form.lottie";
-
+import formAnimation from "@/assets/lottieFiles/mechanic/registratioForm.lottie";
 
 import React from 'react'
 
-const FormAnimation : React.FC = () => {
+const RegistrationFormAnimation : React.FC = () => {
   return (
     <div className="w-full">
       <DotLottiePlayer
@@ -17,4 +16,4 @@ const FormAnimation : React.FC = () => {
   )
 }
 
-export default FormAnimation
+export default RegistrationFormAnimation

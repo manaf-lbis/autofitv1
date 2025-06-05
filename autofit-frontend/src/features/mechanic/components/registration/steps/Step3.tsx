@@ -30,7 +30,7 @@ const Step3: React.FC = () => {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <div className="h-[400px] flex flex-col bg-white border rounded-md overflow-hidden">
+      <div className="h-[440px] flex flex-col bg-white border rounded-md overflow-hidden">
         
         <div className="px-6 py-4 border-b">
           <h2 className="font-semibold text-[#1c2b30] text-lg sm:text-xl">
@@ -63,28 +63,35 @@ const Step3: React.FC = () => {
             error={errors.shopName}
             defaultValue={formData?.shopName}
           />
-          <FormInput
-            id="place"
-            label="Place"
-            name="place"
-            placeholder="eg. Kollam"
-            register={register}
-            type="text"
-            validationRule="text"
-            error={errors.place}
-            defaultValue={formData?.place}
-          />
-          <FormInput
-            id="landmark"
-            label="Landmark"
-            name="landmark"
-            placeholder="Near School"
-            register={register}
-            type="text"
-            validationRule="text"
-            error={errors.landmark}
-            defaultValue={formData?.landmark}
-          />
+          <div className="flex gap-2 w-full">
+            <div className="flex-1">
+              <FormInput
+                id="place"
+                label="Place"
+                name="place"
+                placeholder="eg. Kollam"
+                register={register}
+                type="text"
+                validationRule="text"
+                error={errors.place}
+                defaultValue={formData?.place}
+              />
+            </div>
+
+            <div className="flex-1">
+              <FormInput
+                id="landmark"
+                label="Landmark"
+                name="landmark"
+                placeholder="Near School"
+                register={register}
+                type="text"
+                validationRule="text"
+                error={errors.landmark}
+                defaultValue={formData?.landmark}
+              />
+            </div>
+          </div>
         </div>
         
         <div className="px-6  border-t">

@@ -36,7 +36,6 @@ export class UserController {
          try {
             const userId = new Types.ObjectId(req.params.id);
             const result = await this.userServices.userDetails({userId})
-            console.log(result);
 
             sendSuccess(res,'Fetched Successfully',result)
             

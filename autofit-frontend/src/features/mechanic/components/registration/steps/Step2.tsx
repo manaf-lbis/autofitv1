@@ -27,7 +27,7 @@ const Step2: React.FC = () => {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <div className="h-[400px] flex flex-col bg-white border rounded-md overflow-hidden">
+      <div className="h-[440px] flex flex-col bg-white border rounded-md overflow-hidden">
 
         <div className="px-6 py-4 border-b">
           <h2 className="font-semibold text-[#1c2b30] text-lg sm:text-xl">

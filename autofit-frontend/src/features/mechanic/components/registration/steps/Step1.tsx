@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import FormInput from "@/components/shared/formInput/FormInput";
 import { useForm } from "react-hook-form";
 import { RootState } from "@/store/store";
@@ -14,9 +14,25 @@ interface FormData {
 }
 
 const Step1: React.FC = () => {
-  const { register, handleSubmit, formState: { errors } } = useForm<FormData>();
-  const { formData } = useSelector((state: RootState) => state.mechRegistration);
+  const user = useSelector((state: RootState) => state.auth.user);
   const dispatch = useDispatch();
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm<FormData>();
+
+  useEffect(() => {
+    if (user) {
+      reset({
+        name: user.name || "",
+        email: user.email || "",
+        mobile: user.mobile || "",
+      });
+    }
+  }, [user, reset]);
 
   const onSubmit = (data: FormData) => {
     dispatch(updateFormData(data));
@@ -27,7 +43,7 @@ const Step1: React.FC = () => {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <div className="h-[400px] flex flex-col bg-white border rounded-md overflow-hidden">
+      <div className="h-[440px] flex flex-col bg-white border rounded-md overflow-hidden">
 
         <div className="px-6 py-4 border-b">
           <h2 className="font-semibold text-[#1c2b30] text-lg sm:text-xl">
@@ -48,7 +64,7 @@ const Step1: React.FC = () => {
             type="text"
             validationRule="name"
             error={errors.name}
-            defaultValue={formData?.name}
+            disabled={true}
           />
           <FormInput
             id="email"
@@ -59,7 +75,7 @@ const Step1: React.FC = () => {
             type="email"
             validationRule="email"
             error={errors.email}
-            defaultValue={formData?.email}
+            disabled={true}
           />
           <FormInput
             id="mobile"
@@ -70,14 +86,13 @@ const Step1: React.FC = () => {
             type="tel"
             validationRule="mobile"
             error={errors.mobile}
-            defaultValue={formData?.mobile}
+            disabled={true}
           />
         </div>
 
         <div className="px-6 border-t">
           <NextPreviewButton onPrev={onPrev} onNext={handleSubmit(onSubmit)} />
         </div>
-
       </div>
     </form>
   );

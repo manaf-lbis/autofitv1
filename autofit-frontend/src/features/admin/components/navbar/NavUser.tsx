@@ -1,4 +1,3 @@
-"use client";
 import { BadgeCheck, ChevronsUpDown, LogOut } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {DropdownMenu,DropdownMenuContent,DropdownMenuGroup,DropdownMenuItem,
@@ -10,7 +9,6 @@ import { clearUser } from "@/features/auth/slices/authSlice";
 import { useLogoutMutation } from "@/features/auth/api/authApi";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-
 
 
 export function NavUser({ user,}: {

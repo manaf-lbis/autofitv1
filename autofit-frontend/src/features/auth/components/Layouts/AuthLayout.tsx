@@ -2,7 +2,7 @@ import React from 'react';
 import userImg from '@/assets/userSide/carworkerImage.png';
 import mechImg from '@/assets/mechanicSide/mechanicIMG.png';
 import af_logo from '@/assets/common/af_logo.png';
-import AdminLoginpageAnimation from '@/components/Animations/admin/LoginPage'; 
+import AdminLoginpageAnimation from '@/components/Animations/admin/AdminLoginpageAnimation'; 
 import Footer from '@/features/user/components/Footer';
 
 export type Role = 'user' | 'mechanic' | 'admin';
