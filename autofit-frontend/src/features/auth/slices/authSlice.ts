@@ -1,13 +1,7 @@
 
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { UserData } from "../api/authApi";
 
-interface UserData {
-  name: string;
-  role: "mechanic" | "user" | "admin" ;
-  email:string ;
-  mobile :string ;
-  avatar?: string
-}
 
 interface AuthState {
   user: UserData | null;

@@ -4,8 +4,11 @@ import { MechanicRegisterInput } from '../types/mechanic';
 import { IMechanicProfileRepository } from './interfaces/IMechanicProfileRepository';
 import { ApiError } from '../utils/apiError';
 import { Types } from 'mongoose';
+import { ProfileStatus } from '../types/mechanic';
+
 
 export class MechanicProfileRepository implements IMechanicProfileRepository {
+  
   async findById(id: ObjectId): Promise<MechanicProfileDocument | null> {
     try {
       return await MechanicProfileModel.findById(id).exec();
@@ -111,8 +114,17 @@ export class MechanicProfileRepository implements IMechanicProfileRepository {
     }
   }
 
-  async updateApplicationStatus( profileId: Types.ObjectId,  status: 'approved' | 'rejected'): Promise<MechanicProfileDocument | null> {
-    const update = {  'registration.status': status, 'registration.date': new Date()};
+  async updateApplicationStatus( profileId: Types.ObjectId,  status: 'approved' | 'rejected',rejectionReason: string): Promise<MechanicProfileDocument | null> {
+    
+    let update ;
+
+    if(status === 'approved'){
+      update = {  'registration.status': status, 'registration.approvedOn': new Date()};
+
+    }else{
+      update = {  'registration.status': status, 'registration.rejectedOn': new Date(),'registration.rejectionReason':rejectionReason};
+
+    }
 
     return MechanicProfileModel.findOneAndUpdate(
       { _id: profileId },
@@ -123,6 +135,10 @@ export class MechanicProfileRepository implements IMechanicProfileRepository {
 
   async deleteByMechanicId(mechanicId: Types.ObjectId): Promise<void> {
     await MechanicProfileModel.deleteOne({ mechanicId });
+  }
+
+  async getProfileStatus(mechanicId: Types.ObjectId): Promise<ProfileStatus | null> {
+    return await MechanicProfileModel.findOne({mechanicId},{'registration.status':1,_id:0})   
   }
 
 

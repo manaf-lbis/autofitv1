@@ -6,14 +6,14 @@ type SuccessResponse = {
   data?: any;
 };
 
-type UpdateMechanicFormData = FormData & { id: string };
 
-export const registrationApi = createApi({
-  reducerPath: "registrationApi",
+export const mechanicApi = createApi({
+  reducerPath: "mechanicApi",
   baseQuery: baseQueryWithRefresh,
 
   endpoints: (builder) => ({
 
+    //registration
     registerMechanic: builder.mutation<SuccessResponse, FormData>({
       query: (formData) => ({
         url: "/mechanic/profile/register",
@@ -21,15 +21,15 @@ export const registrationApi = createApi({
         body: formData,
       }),
     }),
-
-    updateMechanic: builder.mutation<SuccessResponse, UpdateMechanicFormData>({
-      query: ({ id, ...form }) => ({
-        url: `/mechanic/update/${id}`,
-        method: "PUT",
-        body: form as FormData,
+  
+    resubmitRequest: builder.mutation({
+      query: () => ({
+        url: `/mechanic/profile/resubmit-request`,
+        method: "POST",
       }),
     }),
 
+    //fetch profile
     getMechanic: builder.query<any, void>({
       query: () => ({
         url: "/mechanic/profile/me",
@@ -37,19 +37,19 @@ export const registrationApi = createApi({
       }),
     }),
 
-    resubmitRequest: builder.mutation({
+    getDashboard: builder.query<any, void>({
       query: () => ({
-        url: `/mechanic/profile/resubmit-request`,
-        method: "POST",
+        url: "/mechanic/details",
+        method: "GET",
       }),
-    })
+    }),
+
 
   }),
 });
 
 export const {
   useRegisterMechanicMutation,
-  useUpdateMechanicMutation,
   useGetMechanicQuery,
   useResubmitRequestMutation
-} = registrationApi;
+} = mechanicApi;

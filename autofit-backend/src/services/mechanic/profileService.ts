@@ -58,8 +58,8 @@ export class ProfileService {
     }
   }
 
-  async changeStatus ({profileId,status}:{profileId:Types.ObjectId,status:'approved' | 'rejected'}){
-    await this.mechanicProfileRepository.updateApplicationStatus(profileId,status)
+  async changeStatus ({profileId,status,rejectionReason}:{profileId:Types.ObjectId,status:'approved' | 'rejected',rejectionReason?:string}){
+    await this.mechanicProfileRepository.updateApplicationStatus(profileId,status,rejectionReason)
   }
 
   async deleteApplication (mechanicId :Types.ObjectId){

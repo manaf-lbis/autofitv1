@@ -1,21 +1,16 @@
 import React from "react";
-import Loading from "../../../components/Animations/PageLoading";
 import { Navigate, Outlet } from "react-router-dom"; 
-import { useGetMechanicQuery } from "@/features/mechanic/api/registrationApi";
-import { useDispatch } from "react-redux";
 import RegistrationStatus from "./registration/RegistrationStatus";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store/store";
 
-const MechanicInitGuard = () => {
-  const { data, error, isLoading } = useGetMechanicQuery();
-  console.log(data);
+const MechanicInitGuard:React.FC = () => {
 
-  const status = data?.data?.registration?.status;
+  const user = useSelector((state:RootState)=>state.auth.user)
 
-    if (isLoading) return <Loading />;
-
-    if (!status) return <Navigate to="/mechanic/registration" replace />;
-    if (status === "pending" || status === "rejected") return <RegistrationStatus data={data}  />
-    if (status === "approved") return <Outlet />;
+    if (user?.profileStatus === null) return <Navigate to="/mechanic/registration" replace />;
+    if (user?.profileStatus === 'pending' || user?.profileStatus === 'rejected') return <RegistrationStatus />
+    if (user?.profileStatus === "approved") return <Outlet />;
 };
 
 export default MechanicInitGuard;

@@ -2,6 +2,7 @@ import { DotLottiePlayer } from "@dotlottie/react-player";
 import carLoading from "@/assets/lottieFiles/carLoading.lottie";
 import React from "react";
 
+
 const PageLoading: React.FC = () => {
   return (
     <div className="w-screen h-screen flex flex-col items-center justify-center bg-gray-50">

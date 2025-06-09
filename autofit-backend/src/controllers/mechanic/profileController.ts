@@ -54,7 +54,7 @@ export class ProfileController {
     }
 
 
-     async removeApplication(req: Request, res: Response, next: NextFunction): Promise<void> {
+    async removeApplication(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const mechanicId = req.user?.id;
             if(!mechanicId) throw new ApiError('Invalid User') 

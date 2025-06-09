@@ -33,7 +33,7 @@ export class MechanicService {
         return await this.mechanicRepository.findMechanicWithPagination(data)
     }
 
-    async updataUser({ userId, data }: { userId: Types.ObjectId, data: Partial<MechanicDocument> }) {
+    async updataUser({ userId, data  }: { userId: Types.ObjectId, data: Partial<MechanicDocument> }) {
         await this.mechanicRepository.update(userId, data)
     }
 

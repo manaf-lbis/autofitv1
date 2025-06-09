@@ -16,7 +16,7 @@ export class AuthController {
         private otpService: OtpService,
         private tokenService: TokenService,
         private mechanicRegistrationService: MechanicRegistrationService,
-        private googleAuthService : GoogleAuthService
+        private googleAuthService: GoogleAuthService
 
     ) { }
 
@@ -40,6 +40,38 @@ export class AuthController {
             next(error);
         }
     }
+
+    async refreshToken(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+
+            const token = req.cookies.jwt || req.headers.authorization?.split(" ")[1];
+
+            if (!token) {
+                throw new ApiError("No token provided", 401);
+            }
+
+            const decoded = this.tokenService.verifyToken(token, true);
+            const userId = decoded.id;
+
+            const result = await this.authService.refreshAccessToken(userId);
+
+            console.log('token refreshed');
+
+            res.cookie("jwt", result.accessToken, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === "production",
+                sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+                path: '/',
+                maxAge: 7 * 24 * 60 * 60 * 1000
+            });
+
+            sendSuccess(res, "Token refreshed");
+        } catch (error: any) {
+            next(error);
+        }
+    }
+
+
 
     async signup(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
@@ -162,25 +194,25 @@ export class AuthController {
         }
     }
 
-     async googleCallback (req:Request,res:Response,next:NextFunction) :Promise<void>{
-            try {
-    
-                const { code} = req.body;
-                const result = await this.googleAuthService.googleAuth({code})
-    
-                res.cookie('jwt',result.token, {
-                    httpOnly: true,
-                    secure: process.env.NODE_ENV === 'production',
-                    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-                    path: '/',       
-                    maxAge: 7*24*60*60*1000 
-                });
-    
-                sendSuccess(res,'Login Success',result.user)
-    
-            } catch (error) {
-                next(error)   
-            }
+    async googleCallback(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+
+            const { code } = req.body;
+            const result = await this.googleAuthService.googleAuth({ code })
+
+            res.cookie('jwt', result.token, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+                path: '/',
+                maxAge: 7 * 24 * 60 * 60 * 1000
+            });
+
+            sendSuccess(res, 'Login Success', result.user)
+
+        } catch (error) {
+            next(error)
         }
+    }
 
 }

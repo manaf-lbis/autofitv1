@@ -2,7 +2,7 @@ import { configureStore } from "@reduxjs/toolkit";
 import { authApi } from "../features/auth/api/authApi";
 import { vehicleApi } from "@/features/user/api/vehicleApi";
 import { passwordResetApi } from "@/features/auth/api/passwordResetApi";
-import { registrationApi } from "@/features/mechanic/api/registrationApi";
+import { mechanicApi } from "@/features/mechanic/api/registrationApi";
 import { mapsApi } from "@/api/mapsApi";
 import { profileApi } from '@/features/user/api/profileApi'
 import { userManagementApi } from "@/features/admin/api/userManagement";
@@ -21,7 +21,7 @@ export const store = configureStore({
     [authApi.reducerPath]: authApi.reducer,
     [vehicleApi.reducerPath]: vehicleApi.reducer,
     [passwordResetApi.reducerPath]: passwordResetApi.reducer,
-    [registrationApi.reducerPath]: registrationApi.reducer,
+    [mechanicApi.reducerPath]: mechanicApi.reducer,
     [mapsApi.reducerPath]: mapsApi.reducer,
     [profileApi.reducerPath] : profileApi.reducer,
     [userManagementApi.reducerPath] : userManagementApi.reducer,
@@ -32,7 +32,7 @@ export const store = configureStore({
       authApi.middleware,
       vehicleApi.middleware,
       passwordResetApi.middleware,
-      registrationApi.middleware,
+      mechanicApi.middleware,
       mapsApi.middleware,
       profileApi.middleware,
       userManagementApi.middleware,

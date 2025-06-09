@@ -71,13 +71,13 @@ export const mechananicManagementApi = createApi({
             }),
         }),
 
-         applicationStatus: builder.mutation<any, { id: string; status: 'approved' | 'rejected' }>({
-            query: ({ id, status }) => ({
+        applicationStatus: builder.mutation<any, { id: string; status: 'approved' | 'rejected', rejectionReason?: string  }>({
+            query: ({ id, status, rejectionReason }) => ({
                 url: `admin/mechanic/application/${id}/status`,
                 method: "PATCH",
-                body: { status },
+                body: { status ,rejectionReason },
             }),
-        }),
+        })
 
     }),
 });

@@ -1,15 +1,13 @@
+import { Socket , Server } from "socket.io";
 import http from "http";
 import app from "./app";
+import { initSocket } from "./sockets/socket";
 
 const server = http.createServer(app);
 
 
+initSocket(server)
 
-// const PORT = Number(process.env.PORT) || 3000;
-
-// server.listen(PORT, '192.168.60.242', () => {
-//   console.log(`Server running on http://192.168.60.242:${PORT}`);
-// });
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {

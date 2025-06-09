@@ -19,13 +19,11 @@ const UserRoutes: React.FC = () => {
             <Route  path="*" element={<>Not Found</>}></Route>
           </Route>
 
-
-
-
         </Route>
       </Route>
     </Routes>
   );
+  
 };
 
 export default UserRoutes;

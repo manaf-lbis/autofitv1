@@ -21,6 +21,8 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ allowedRoles }) => {
     return <Navigate to={defaultRoute} replace />;
   }
 
+  
+
   return <Outlet />;
 };
 

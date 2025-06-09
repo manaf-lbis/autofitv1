@@ -6,6 +6,7 @@ import { Types } from "mongoose";
 import { MechanicProfileDocument } from "../../models/mechanicProfileModel";
 import { ProfileService } from "../../services/mechanic/profileService";
 import { ApiError } from "../../utils/apiError";
+import { getIO, userSocketMap } from "../../sockets/socket";  
 
 
 export class MechanicController {
@@ -55,7 +56,18 @@ export class MechanicController {
             const { status } = req.body
 
             await this.mechanicService.updataUser({ userId, data: { status } })
-            sendSuccess(res, 'updated sucessfully')
+
+            if(status === 'blocked'){
+                const userData  = userSocketMap.get(userId.toString())
+                if (userData && userData.socketIds.size > 0) {
+                    const io = getIO()
+                    userData.socketIds.forEach((socketId)=>{
+                        io.to(socketId).emit('forceLogout',{message:'Your Accout Hasbeen Blocked.'})
+                    })
+                }
+            }
+            
+            sendSuccess(res, 'Status Changed') // block or unblock
 
         } catch (error) {
             next(error)
@@ -96,14 +108,19 @@ export class MechanicController {
     async applicationStatus(req: Request, res: Response, next: NextFunction) {
         try {
 
-            const { status } = req.body
+            const { status, rejectionReason} = req.body
             const profileId = new Types.ObjectId(req.params.id)
 
-            if(status !== 'approved' && status !== 'rejected') throw new ApiError('Invalid Status')
+            if(status === 'approved'){
+               await this.mechanicProfileService.changeStatus({profileId,status}) 
 
-            await this.mechanicProfileService.changeStatus({profileId,status})
-            sendSuccess(res,`Application ${status} `)
-
+            }else if(status === 'rejected'){
+                await this.mechanicProfileService.changeStatus({profileId,status,rejectionReason}) 
+            } else{
+                throw new ApiError('Invalid Status')
+            }
+            
+            sendSuccess(res,`Application ${status}`)
 
         } catch (err) {
             next(err);

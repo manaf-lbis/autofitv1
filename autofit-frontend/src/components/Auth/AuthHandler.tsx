@@ -40,7 +40,8 @@ const AuthHandler: React.FC<AuthHandlerProps> = ({ children }) => {
           role: data.data.role,
           email: data.data.email,
           mobile : data.data.mobile,
-          avatar: data?.data?.avatar
+          avatar: data?.data?.avatar,
+          profileStatus: data?.data?.profileStatus,
         })
       );
       localStorage.setItem("userRole", data.data.role);

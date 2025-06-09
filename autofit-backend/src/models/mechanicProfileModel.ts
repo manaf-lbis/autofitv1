@@ -5,19 +5,25 @@ import { MechanicProfile } from '../types/mechanic';
 export interface MechanicProfileDocument extends MechanicProfile, Document<Types.ObjectId> { }
 
 const mechanicProfileSchema: Schema<MechanicProfileDocument> = new Schema<MechanicProfileDocument>({
-    mechanicId:{
-        type : mongoose.Schema.ObjectId,
-        ref:'Mechanic'
+    mechanicId: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'Mechanic'
     },
-    registration: {
+    registration:{
         status: {
             type: String,
-            enum: ['pending', 'approved','rejected'],
+            enum: ['pending', 'approved', 'rejected'],
             default: 'pending',
         },
-        date: {
-            type: Date,
+        rejectionReason: {
+            type: String
         },
+        approvedOn: {
+            type: Date
+        },
+        rejectedOn: {
+            type: Date
+        }
     },
     education: {
         type: String,

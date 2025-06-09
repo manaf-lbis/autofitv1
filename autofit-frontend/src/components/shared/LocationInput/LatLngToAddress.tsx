@@ -4,9 +4,10 @@ import { useReverseGeocodeQuery } from "@/api/mapsApi";
 interface LatLngToAddressProps {
   lat: number;
   lng: number;
+  className?:string
 }
 
-const LatLngToAddress: React.FC<LatLngToAddressProps> = ({ lat, lng }) => {
+const LatLngToAddress: React.FC<LatLngToAddressProps> = ({ lat, lng ,className }) => {
   const { data, isLoading, isError } = useReverseGeocodeQuery({ lat, lng });
 
   if (isLoading) {
@@ -18,7 +19,7 @@ const LatLngToAddress: React.FC<LatLngToAddressProps> = ({ lat, lng }) => {
   }
 
   return (
-    <p className="text-sm text-muted-foreground mt-1">
+    <p className={`${className ? className : 'text-sm text-muted-foreground mt-1' }`}>
       {data.results[0].formatted_address}
     </p>
   );

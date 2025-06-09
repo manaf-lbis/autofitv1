@@ -3,12 +3,13 @@ import { baseQueryWithRefresh } from "@/utils/baseQuery";
 import { Role } from "../components/Layouts/AuthLayout";
 import { clearUser } from "../slices/authSlice";
 
-interface UserData {
+export interface UserData {
   name : string;
   email : string;
   mobile : string;
   role : Role;
   avatar?: string
+  profileStatus? : 'pending' | 'approved' | 'rejected' | null
 }
 
 export interface LoginRequest {

@@ -33,9 +33,9 @@ const OtpForm = ({role}:{role:Role}) => {
       const response = await verifyOtp({otp,role}).unwrap()
 
       if (response) {
-        const { name, role,email } = response.data
+        const { name, role,email,mobile,avatar } = response.data
         toast.success('OTP Verified Successfully!')
-        dispatch(setUser({ name, role ,email}))
+        dispatch(setUser({ name, role ,email , mobile,avatar}))
         localStorage.setItem('userRole',role)
         navigate(roleConfig[role].defaultRoute, { replace: true })
       }
