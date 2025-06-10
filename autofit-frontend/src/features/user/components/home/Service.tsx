@@ -14,9 +14,11 @@ import {
   Award,
   MapPin,
 } from "lucide-react"
+import { useNavigate } from "react-router-dom"
 
 const Service = () => {
   const [userCount, setUserCount] = useState(0)
+  const navigate = useNavigate()
 
   return (
     <>
@@ -70,6 +72,7 @@ const Service = () => {
                 features: ["Jump start service", "Tire change & repair", "Lockout assistance", "Fuel delivery"],
                 highlight: "< 15 min response",
                 badge: "Most Requested",
+                href : 'roadside-assistance'
               },
               {
                 title: "Video Diagnostics",
@@ -89,6 +92,7 @@ const Service = () => {
                 ],
                 highlight: "Instant connection",
                 badge: "Most Popular",
+                href : 'roadside-assistance'
               },
               {
                 title: "Pre-Trip Inspection",
@@ -107,6 +111,7 @@ const Service = () => {
                 ],
                 highlight: "Prevent issues",
                 badge: "Recommended",
+                href : 'roadside-assistance'
               },
             ].map((service, index) => (
               <motion.div
@@ -166,12 +171,14 @@ const Service = () => {
                     className={`w-full bg-gradient-to-r ${service.gradient} text-white py-4 px-6 rounded-2xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-300 group/btn`}
                     whileHover={{ scale: 1.02, y: -2 }}
                     whileTap={{ scale: 0.98 }}
+                    onClick={()=>navigate(service.href)}
                   >
                     <span className="flex items-center justify-center gap-2">
                       Get Started
                       <ArrowRight className="group-hover/btn:translate-x-1 transition-transform" size={18} />
                     </span>
                   </motion.button>
+
                 </motion.div>
               </motion.div>
             ))}

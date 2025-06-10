@@ -5,6 +5,8 @@ import ProfileLayout from "@/features/user/components/layout/ProfileLayout";
 import ServiceHistory from "@/features/user/pages/profile/ServiceHistory";
 import ProfilePage from "@/features/user/pages/profile/Profile";
 import MyVehicle from "@/features/user/pages/profile/MyVehicle";
+import MechanicBooking from "@/features/user/pages/roadsideAssistance/MechanicBooking";
+
 
 const UserRoutes: React.FC = () => {
   return (
@@ -16,8 +18,11 @@ const UserRoutes: React.FC = () => {
             <Route path="profile" element={<ProfilePage />}/>
             <Route path="my-vehicles" element={<MyVehicle />} />
             <Route path="service-history" element={<ServiceHistory />} />
+
             <Route  path="*" element={<>Not Found</>}></Route>
           </Route>
+
+          <Route path="roadside-assistance/mechanic-booking" element={<MechanicBooking />} />
 
         </Route>
       </Route>
@@ -26,4 +31,4 @@ const UserRoutes: React.FC = () => {
   
 };
 
-export default UserRoutes;
+export default UserRoutes;5
