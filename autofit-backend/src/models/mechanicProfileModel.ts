@@ -1,5 +1,6 @@
 import mongoose, { Schema, Document, Types } from 'mongoose';
 import { MechanicProfile } from '../types/mechanic';
+import { boolean } from 'zod';
 
 
 export interface MechanicProfileDocument extends MechanicProfile, Document<Types.ObjectId> { }
@@ -8,6 +9,10 @@ const mechanicProfileSchema: Schema<MechanicProfileDocument> = new Schema<Mechan
     mechanicId: {
         type: mongoose.Schema.ObjectId,
         ref: 'Mechanic'
+    },
+    isAvailable :{
+        type : Boolean,
+        default:false
     },
     registration:{
         status: {
@@ -75,5 +80,7 @@ const mechanicProfileSchema: Schema<MechanicProfileDocument> = new Schema<Mechan
 }, {
     timestamps: true,
 });
+
+mechanicProfileSchema.index({ location: '2dsphere' });
 
 export const MechanicProfileModel = mongoose.model<MechanicProfileDocument>('MechanicProfile', mechanicProfileSchema);
