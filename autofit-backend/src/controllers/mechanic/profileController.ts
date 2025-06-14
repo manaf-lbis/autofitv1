@@ -57,15 +57,43 @@ export class ProfileController {
     async removeApplication(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const mechanicId = req.user?.id;
-            if(!mechanicId) throw new ApiError('Invalid User') 
+            if (!mechanicId) throw new ApiError('Invalid User')
 
             await this.mechanicProfileService.deleteApplication(mechanicId)
-            sendSuccess(res,'Request Approved');
+            sendSuccess(res, 'Request Approved');
 
         } catch (err) {
             next(err);
         }
     }
+
+    async changeAvailablity(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const mechanicId = req.user?.id;
+            if (!mechanicId) throw new ApiError('Invalid User')
+            
+            const availability = req.body.availability
+            const response = await this.mechanicProfileService.setAvailablity(mechanicId,{availability})
+            sendSuccess(res, 'Success',{availability:response?.availability});
+
+        } catch (err) {
+            next(err);
+        }
+    }
+
+    async setReadNotification(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const userId = req.user?.id
+            if(!userId) throw new ApiError('Invalid User')
+            await this.mechanicProfileService.setNotificationRead(userId)
+
+         
+            sendSuccess(res, 'Success');
+        } catch (err) {
+            next(err);
+        }
+    }
+
 
 }
 

@@ -6,6 +6,7 @@ import ServiceHistory from "@/features/user/pages/profile/ServiceHistory";
 import ProfilePage from "@/features/user/pages/profile/Profile";
 import MyVehicle from "@/features/user/pages/profile/MyVehicle";
 import MechanicBooking from "@/features/user/pages/roadsideAssistance/MechanicBooking";
+import BookingSuccessPage from "@/features/user/pages/roadsideAssistance/Success";
 
 
 const UserRoutes: React.FC = () => {
@@ -23,6 +24,7 @@ const UserRoutes: React.FC = () => {
           </Route>
 
           <Route path="roadside-assistance/mechanic-booking" element={<MechanicBooking />} />
+          <Route path="roadside-assistance/success" element={<BookingSuccessPage/>} />
 
         </Route>
       </Route>
@@ -31,4 +33,4 @@ const UserRoutes: React.FC = () => {
   
 };
 
-export default UserRoutes;5
+export default UserRoutes;

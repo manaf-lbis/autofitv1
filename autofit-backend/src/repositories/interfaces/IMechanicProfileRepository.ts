@@ -1,8 +1,8 @@
-import { MechanicRegisterInput } from '../../types/mechanic';
+import { MechanicRegisterInput } from '../../types/mechanic/mechanic';
 import { IBaseRepository } from '../interfaces/IBaseRepository';
 import { MechanicProfileDocument } from '../../models/mechanicProfileModel';
 import { Types } from 'mongoose';
-import { ProfileStatus } from '../../types/mechanic';
+import { ProfileStatus,MechanicAvailability } from '../../types/mechanic/mechanic';
 
 
 
@@ -30,5 +30,8 @@ export interface IMechanicProfileRepository extends IBaseRepository<MechanicProf
 
   deleteByMechanicId(mechanicId: Types.ObjectId): Promise<void>;
   getProfileStatus(mechanicId: Types.ObjectId): Promise<ProfileStatus | null>;
+  getAvailablity(mechanicId: Types.ObjectId): Promise<MechanicAvailability | null>;
+  findMechnaicWithRadius({radius,lat,lng}:{radius:number,lat:number,lng:number}) :Promise<MechanicProfileDocument[]|[]>
+  
 
 } 

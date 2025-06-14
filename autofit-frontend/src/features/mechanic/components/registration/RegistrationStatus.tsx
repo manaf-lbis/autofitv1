@@ -390,7 +390,7 @@ import {
   AlertTriangle,
 } from "lucide-react";
 
-import { useGetMechanicQuery, useResubmitRequestMutation } from "../../api/registrationApi";
+import { useGetMechanicQuery, useResubmitRequestMutation } from "../../api/mechanicApi";
 import { format } from "date-fns";
 import LogoutButton from "../LogoutButton";
 import toast from "react-hot-toast";

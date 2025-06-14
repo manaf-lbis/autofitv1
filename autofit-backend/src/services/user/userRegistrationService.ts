@@ -4,6 +4,7 @@ import { CreateUserInput } from "../../types/user/userInput";
 
 
 export class UserRegistrationService {
+
     constructor(private userRepository: IUserRepository) {}
 
     async registerUser(userData:CreateUserInput ) {

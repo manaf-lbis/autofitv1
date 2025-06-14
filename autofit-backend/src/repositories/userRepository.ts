@@ -1,4 +1,4 @@
-import { User } from "../types/user";
+import { User } from "../types/user/user";
 import { IUserRepository } from "./interfaces/IUserRepository";
 import { UserModel, UserDocument } from "../models/userModel";
 import { CreateUserInput } from "../types/user/userInput";

@@ -1,5 +1,5 @@
 import { ObjectId } from "bson";
-import { Mechanic } from "../types/mechanic";
+import { Mechanic } from "../types/mechanic/mechanic";
 import { IMechanicRepository } from "./interfaces/IMechanicRepository";
 import { ApiError } from "../utils/apiError";
 import { MechanicModel, MechanicDocument } from "../models/mechanicModel";

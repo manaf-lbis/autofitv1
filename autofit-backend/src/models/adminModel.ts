@@ -42,5 +42,5 @@ const adminSchema: Schema <AdminDocument> = new Schema<AdminDocument>({
 
 
 
-export const AdminModel = mongoose.model<AdminDocument>('Admin', adminSchema)
+export const AdminModel = mongoose.model<AdminDocument>('admin', adminSchema)
 

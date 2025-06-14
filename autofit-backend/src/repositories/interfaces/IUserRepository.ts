@@ -1,5 +1,5 @@
 import { IBaseRepository } from "./IBaseRepository"
-import { User } from "../../types/user"
+import { User } from "../../types/user/user"
 import { CreateUserInput } from "../../types/user/userInput"
 import { Types } from "mongoose"
 import { UserDocument } from "../../models/userModel"

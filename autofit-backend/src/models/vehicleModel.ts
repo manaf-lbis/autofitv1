@@ -34,4 +34,4 @@ const vehicleSchema: Schema<VehicleDocument> = new Schema<VehicleDocument>({
     }
 },{timestamps:true})
 
-export const VehicleModel = mongoose.model<VehicleDocument>('Vehicle',vehicleSchema)
+export const VehicleModel = mongoose.model<VehicleDocument>('vehicle',vehicleSchema)

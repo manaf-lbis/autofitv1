@@ -11,18 +11,22 @@ import {
   ChevronDown,
   Wrench,
   Power,
+  Bell,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store/store";
 import Notification from "../Notification";
 import Logout from "./Logout";
 import { initSocket } from "@/lib/socket";
 import { useLogoutHandler } from "../../../../hooks/useLogoutHandler";
 import toast from "react-hot-toast";
+import { useGetInfoQuery, useSetAvailabilityMutation } from "../../api/mechanicApi";
+import { setAvailability } from "../../slices/mechanicSlice";
+
 
 const navItems = [
   {
@@ -63,15 +67,19 @@ export default function MechanicDashboard() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isNavbarVisible, setIsNavbarVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
-  const [isAvailable, setIsAvailable] = useState(true);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const dropdownRef = useRef<HTMLDivElement>(null);
   const { handleLogout } = useLogoutHandler();
   const socket = initSocket();
+  const dispatch = useDispatch()
+  const mechanic = useSelector((state:RootState)=>state.mechanicSlice)
+  const [setAvailabilityStatus,{isLoading}] = useSetAvailabilityMutation()
+  const {data,isLoading: isFetchingInfo} = useGetInfoQuery()
 
-  useEffect(() => {
+  
+  useEffect(() => { 
     socket.on("forceLogout", (data) => {
       toast.error(data.message);
       handleLogout();
@@ -169,6 +177,21 @@ export default function MechanicDashboard() {
     }
   };
 
+  useEffect(()=>{
+    dispatch(setAvailability(data?.data?.availability))
+  },[data])
+
+
+  const changeAvailability = async () => {
+    try {
+      const result = await setAvailabilityStatus(mechanic.availability === 'available' ? 'notAvailable' : 'available' ).unwrap();
+
+      dispatch(setAvailability(result.data.availability));
+    } catch (error) {
+      console.error("Error updating availability", error);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50 relative overflow-hidden">
       {/* Background Pattern */}
@@ -242,7 +265,7 @@ export default function MechanicDashboard() {
               <Power
                 className={cn(
                   "w-4 h-4",
-                  isAvailable ? "text-green-600" : "text-gray-400"
+                  mechanic.availability === 'available' || mechanic.availability === 'notAvailable'   ? "text-green-600" : "text-gray-400"
                 )}
               />
               <span className="text-sm font-medium text-gray-900">
@@ -253,17 +276,24 @@ export default function MechanicDashboard() {
               <span
                 className={cn(
                   "text-xs font-medium",
-                  isAvailable ? "text-green-600" : "text-gray-500"
+                   mechanic.availability === 'notAvailable'   ? "text-gray-500" : "text-green-600"
                 )}
               >
-                {isAvailable ? "Online" : "Offline"}
+                {mechanic.availability === 'notAvailable' ? "Offline" : 'Online' }
               </span>
-              <Switch
-                checked={isAvailable}
-                onCheckedChange={setIsAvailable}
-                className="data-[state=checked]:bg-green-600"
-                aria-label="Toggle availability"
-              />
+  
+            <Switch
+              checked={mechanic.availability !== 'notAvailable'}
+              onClick={changeAvailability}
+              className={cn(
+                "transition-colors",
+                mechanic.availability === "available" && "data-[state=checked]:bg-green-600",
+                mechanic.availability === "busy" && "data-[state=checked]:bg-orange-500",
+                mechanic.availability === "notAvailable" && "data-[state=unchecked]:bg-gray-500"
+              )}
+              aria-label="Toggle availability"
+            />
+    
             </div>
           </div>
         </div>
@@ -344,18 +374,22 @@ export default function MechanicDashboard() {
                   <div
                     className={cn(
                       "w-2 h-2 rounded-full",
-                      isAvailable ? "bg-green-500" : "bg-gray-400"
+                      mechanic.availability === 'available' ? "bg-green-500" : "bg-gray-400"
                     )}
                   ></div>
                   <span className="text-xs font-medium text-gray-700">
-                    {isAvailable ? "Available" : "Offline"}
+                    {mechanic.availability === 'available' ? "Available" : mechanic.availability === 'busy' ?'Busy' :'Offline'}
                   </span>
                 </div>
               </div>
             </div>
 
             <div className="flex items-center space-x-4">
-              <Notification />
+              {isFetchingInfo ? (
+                <Bell className="h-5 w-5" />
+              ) : (
+                <Notification notifications={data.data.notifications} />
+              )}
 
               <div className="relative" ref={dropdownRef}>
                 <Button

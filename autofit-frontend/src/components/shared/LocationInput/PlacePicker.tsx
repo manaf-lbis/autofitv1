@@ -2,7 +2,7 @@ import React, { useState, useCallback, useEffect } from "react";
 import { APIProvider, Map, AdvancedMarker, MapMouseEvent } from "@vis.gl/react-google-maps";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { LocateFixed, MapPin, Navigation } from "lucide-react";
+import { LocateFixed,  Navigation } from "lucide-react";
 import toast from "react-hot-toast";
 
 const containerStyle = { width: "100%", height: "400px" };
@@ -48,6 +48,8 @@ const PlacePicker: React.FC<PlacePickerProps> = ({ onChange, value ,className}) 
           });
           setHasPermissionBeenDenied(true);
         }
+      },{
+        enableHighAccuracy:true
       }
     );
   };
@@ -80,9 +82,9 @@ const PlacePicker: React.FC<PlacePickerProps> = ({ onChange, value ,className}) 
               defaultZoom={value ? 15 : 5}
               mapId={import.meta.env.VITE_MAP_ID}
               onClick={onMapClick}
-              disableDefaultUI={true}
               zoomControl={true}
               fullscreenControl={true}
+              gestureHandling='greedy'
             >
               {value && <AdvancedMarker position={value} />}
             </Map>

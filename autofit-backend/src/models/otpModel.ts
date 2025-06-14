@@ -37,4 +37,4 @@ const otpSchema : Schema<OtpDocument> =  new Schema<OtpDocument>  ({
 
 otpSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 
-export const OtpModel = mongoose.model<OtpDocument>('Otp', otpSchema);
+export const OtpModel = mongoose.model<OtpDocument>('otp', otpSchema);

@@ -5,6 +5,7 @@ import NavigationGuard from "@/components/Auth/NavigationGuard";
 import AppRoutes from "@/routes/AppRoutes";
 
 const App: React.FC = () => {
+
   return (
     <AnimatePresence>
       <BrowserRouter>

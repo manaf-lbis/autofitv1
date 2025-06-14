@@ -1,5 +1,5 @@
 import mongoose, { Schema, Document,Types } from 'mongoose';
-import { User } from '../types/user';
+import { User } from '../types/user/user';
 
 
 export interface UserDocument extends User,Document<Types.ObjectId> {}
@@ -47,5 +47,5 @@ const userSchema: Schema <UserDocument> = new Schema<UserDocument>({
 
 
 
-export const UserModel = mongoose.model<UserDocument>('User', userSchema)
+export const UserModel = mongoose.model<UserDocument>('user', userSchema)
 

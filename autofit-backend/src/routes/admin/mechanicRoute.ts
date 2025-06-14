@@ -6,11 +6,13 @@ import { MechanicService } from "../../services/admin/mechanicSevice";
 import { MechanicRepository } from "../../repositories/mechanicRepository";
 import { MechanicProfileRepository } from "../../repositories/mechanicProfileRepository";
 import { ProfileService } from "../../services/mechanic/profileService";
+import { NotificationRepository } from "../../repositories/notificationRepository";
 
 const mechanicProfileRepository = new MechanicProfileRepository()
 const mechanicRepository = new MechanicRepository()
 const mechanicService = new MechanicService(mechanicRepository,mechanicProfileRepository)
-const profileService = new ProfileService(mechanicProfileRepository,mechanicRepository)
+const notificationRepository = new NotificationRepository()
+const profileService = new ProfileService(mechanicProfileRepository,mechanicRepository,notificationRepository)
 const mechanicController = new MechanicController(mechanicService,profileService)
 
 

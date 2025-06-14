@@ -2,7 +2,7 @@ import { ObjectId } from "mongodb";
 import { IUserRepository } from "../../repositories/interfaces/IUserRepository";
 import { ApiError } from "../../utils/apiError";
 import { Types } from "mongoose";
-import { User } from "../../types/user";
+import { User } from "../../types/user/user";
 import { IVehicleRepository } from "../../repositories/interfaces/IVehicleRepository";
 
 

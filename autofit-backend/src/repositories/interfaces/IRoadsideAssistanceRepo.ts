@@ -1,0 +1,13 @@
+import { Types } from "mongoose";
+import { RoadsideAssistanceDocument } from "../../models/roadsideAssistanceModel";
+import { IBaseRepository } from "./IBaseRepository";
+import { CreateRoadsideAssistanceDTO } from "../../types/services";
+
+export interface IRoadsideAssistanceRepo extends IBaseRepository<RoadsideAssistanceDocument> {
+
+    findByUserId(userId: Types.ObjectId): Promise<RoadsideAssistanceDocument[] | null>;
+    findByMechanicId(mechanicId: Types.ObjectId): Promise<RoadsideAssistanceDocument[] | null>;
+    create(entity:CreateRoadsideAssistanceDTO) :Promise<RoadsideAssistanceDocument>;
+
+
+} 

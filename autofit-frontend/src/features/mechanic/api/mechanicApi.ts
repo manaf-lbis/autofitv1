@@ -21,7 +21,7 @@ export const mechanicApi = createApi({
         body: formData,
       }),
     }),
-  
+
     resubmitRequest: builder.mutation({
       query: () => ({
         url: `/mechanic/profile/resubmit-request`,
@@ -37,12 +37,39 @@ export const mechanicApi = createApi({
       }),
     }),
 
+
+    //pages
     getDashboard: builder.query<any, void>({
       query: () => ({
-        url: "/mechanic/details",
+        url: "/mechanic/pages/dashboard",
         method: "GET",
       }),
     }),
+
+    getInfo: builder.query<any, void>({
+      query: () => ({
+        url: "/mechanic/pages/info",
+        method: "GET",
+      }),
+    }),
+
+    setAvailability : builder.mutation<any, 'available' | 'notAvailable' | 'busy' >({
+      query: (availability) => ({
+        url: "/mechanic/profile/availability",
+        method: "POST",
+        body : {availability}
+      }),
+    }),
+
+    notificationRead: builder.mutation({
+      query: () => ({
+        url: "/mechanic/profile/updateNotification",
+        method: "POST"
+      }),
+    }),
+
+    
+
 
 
   }),
@@ -51,5 +78,9 @@ export const mechanicApi = createApi({
 export const {
   useRegisterMechanicMutation,
   useGetMechanicQuery,
-  useResubmitRequestMutation
+  useGetInfoQuery,
+  useResubmitRequestMutation,
+  useGetDashboardQuery,
+  useSetAvailabilityMutation,
+  useNotificationReadMutation
 } = mechanicApi;

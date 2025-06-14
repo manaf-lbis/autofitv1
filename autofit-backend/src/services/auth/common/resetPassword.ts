@@ -1,5 +1,5 @@
 import { ApiError } from "../../../utils/apiError";
-import { User } from "../../../types/user";
+import { User } from "../../../types/user/user";
 import { Admin } from "../../../types/admin";
 import { Role } from "../../../types/role";
 import { OtpService } from "../../otp/otpService";

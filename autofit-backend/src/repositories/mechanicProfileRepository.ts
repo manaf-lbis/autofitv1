@@ -1,14 +1,14 @@
 import { ObjectId } from 'mongodb';
 import { MechanicProfileModel, MechanicProfileDocument } from '../models/mechanicProfileModel';
-import { MechanicRegisterInput } from '../types/mechanic';
+import { MechanicRegisterInput } from '../types/mechanic/mechanic';
 import { IMechanicProfileRepository } from './interfaces/IMechanicProfileRepository';
 import { ApiError } from '../utils/apiError';
 import { Types } from 'mongoose';
-import { ProfileStatus } from '../types/mechanic';
+import { ProfileStatus, MechanicAvailability } from '../types/mechanic/mechanic';
 
 
 export class MechanicProfileRepository implements IMechanicProfileRepository {
-  
+
   async findById(id: ObjectId): Promise<MechanicProfileDocument | null> {
     try {
       return await MechanicProfileModel.findById(id).exec();
@@ -34,10 +34,10 @@ export class MechanicProfileRepository implements IMechanicProfileRepository {
     }
   }
 
-  async update(id: Types.ObjectId, update: Partial<MechanicProfileDocument>): Promise<MechanicProfileDocument | null> {
+  async update(mechanicId: Types.ObjectId, update: Partial<MechanicProfileDocument>): Promise<MechanicProfileDocument | null> {
     try {
       return await MechanicProfileModel
-        .findByIdAndUpdate(id, update, { new: true })
+        .findOneAndUpdate({ mechanicId }, update, { new: true })
         .exec();
     } catch (err) {
       throw new ApiError(`Error updating profile: ${(err as Error).message}`, 500);
@@ -114,15 +114,15 @@ export class MechanicProfileRepository implements IMechanicProfileRepository {
     }
   }
 
-  async updateApplicationStatus( profileId: Types.ObjectId,  status: 'approved' | 'rejected',rejectionReason: string): Promise<MechanicProfileDocument | null> {
-    
-    let update ;
+  async updateApplicationStatus(profileId: Types.ObjectId, status: 'approved' | 'rejected', rejectionReason: string): Promise<MechanicProfileDocument | null> {
 
-    if(status === 'approved'){
-      update = {  'registration.status': status, 'registration.approvedOn': new Date()};
+    let update;
 
-    }else{
-      update = {  'registration.status': status, 'registration.rejectedOn': new Date(),'registration.rejectionReason':rejectionReason};
+    if (status === 'approved') {
+      update = { 'registration.status': status, 'registration.approvedOn': new Date() };
+
+    } else {
+      update = { 'registration.status': status, 'registration.rejectedOn': new Date(), 'registration.rejectionReason': rejectionReason };
 
     }
 
@@ -138,9 +138,64 @@ export class MechanicProfileRepository implements IMechanicProfileRepository {
   }
 
   async getProfileStatus(mechanicId: Types.ObjectId): Promise<ProfileStatus | null> {
-    return await MechanicProfileModel.findOne({mechanicId},{'registration.status':1,_id:0})   
+    return await MechanicProfileModel.findOne({ mechanicId }, { 'registration.status': 1, _id: 0 })
   }
 
+  async getAvailablity(mechanicId: Types.ObjectId): Promise<MechanicAvailability | null> {
+    return await MechanicProfileModel.findOne({ mechanicId }, { availability: 1, _id: 0 })
+  }
+
+ async findMechnaicWithRadius({ radius, lat, lng }: { radius: number; lat: number; lng: number; }) {
+  const EARTH_RADIUS_KM = 6371;
+  const radiusInRadians = radius / EARTH_RADIUS_KM;
+
+  const mechanics = await MechanicProfileModel.aggregate([
+    {
+      $match: {
+        availablity: 'avilable',
+        "registration.status": "approved",
+        location: {
+          $geoWithin: {
+            $centerSphere: [[lng, lat], radiusInRadians],
+          },
+        },
+      },
+    },
+    {
+      $lookup: {
+        from: "mechanics", 
+        localField: "mechanicId",
+        foreignField: "_id",
+        as: "mechanic",
+      },
+    },
+    {
+      $unwind: "$mechanic",
+    },
+    {
+      $match: {
+        "mechanic.status": "active",
+      },
+    },
+    {
+      $project: {
+        name: "$mechanic.name",
+        mobile: "$mechanic.mobile",
+        shopName: 1,
+        place: 1,
+        "location.coordinates": 1,
+        specialised: 1,
+        experience: 1,
+        status: "$registration.status",
+        photo: 1,
+        mechanicId : "$mechanic._id",
+        _id:0
+      },
+    },
+  ]);
+
+  return mechanics;
+}
 
 
 }

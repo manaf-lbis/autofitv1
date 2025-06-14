@@ -3,7 +3,6 @@ import http from "http";
 import * as cookie from "cookie";
 import jwt from "jsonwebtoken";
 import { notificationHandler } from "./notificationHandler";
-import { forceLogoutHandler } from "./ForceLogoutHandler";
 
 
 export const userSocketMap = new Map<
@@ -74,7 +73,7 @@ export const initSocket = (server: http.Server): Server => {
 
       
       notificationHandler(socket);
-      forceLogoutHandler(socket);
+
 
 
     } catch (err) {

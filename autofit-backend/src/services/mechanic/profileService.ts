@@ -2,8 +2,10 @@ import { ObjectId } from "mongodb";
 import { IMechanicProfileRepository } from "../../repositories/interfaces/IMechanicProfileRepository";
 import { IMechanicRepository } from "../../repositories/interfaces/IMechanicRepository";
 import { ApiError } from "../../utils/apiError";
-import {  MechanicRegisterInput } from "../../types/mechanic";
+import { MechanicRegisterInput } from "../../types/mechanic/mechanic";
 import { Types } from "mongoose";
+import { MechanicProfileDocument } from "../../models/mechanicProfileModel";
+import { INotificationRepository } from "../../repositories/interfaces/INotificationRepository";
 
 
 type FileWithField = Express.Multer.File;
@@ -19,10 +21,11 @@ interface MechanicRegisterPayload {
 export class ProfileService {
   constructor(
     private mechanicProfileRepository: IMechanicProfileRepository,
-    private mechanicRepository: IMechanicRepository
+    private mechanicRepository: IMechanicRepository,
+    private notificationRepository: INotificationRepository
   ) { }
 
- 
+
   async registerUser(payload: MechanicRegisterPayload): Promise<void> {
     const { data, photo, shopImage, qualification, mechanicId } = payload;
 
@@ -30,11 +33,11 @@ export class ProfileService {
     if (!mech) throw new ApiError('Mechanic not found', 404);
 
     const toCreate = {
-        ...data,
-        photo: photo.path,
-        shopImage: shopImage.path,
-        qualification:qualification.path,
-        mechanicId,
+      ...data,
+      photo: photo.path,
+      shopImage: shopImage.path,
+      qualification: qualification.path,
+      mechanicId,
     };
 
     await this.mechanicRepository.update(mech._id, { avatar: photo.path });
@@ -58,13 +61,29 @@ export class ProfileService {
     }
   }
 
-  async changeStatus ({profileId,status,rejectionReason}:{profileId:Types.ObjectId,status:'approved' | 'rejected',rejectionReason?:string}){
-    await this.mechanicProfileRepository.updateApplicationStatus(profileId,status,rejectionReason)
+  async changeStatus({ profileId, status, rejectionReason }: { profileId: Types.ObjectId, status: 'approved' | 'rejected', rejectionReason?: string }) {
+    await this.mechanicProfileRepository.updateApplicationStatus(profileId, status, rejectionReason)
   }
 
-  async deleteApplication (mechanicId :Types.ObjectId){
+  async deleteApplication(mechanicId: Types.ObjectId) {
     await this.mechanicProfileRepository.deleteByMechanicId(mechanicId)
   }
+
+  async getAvailablity(mechanicId: Types.ObjectId) {
+    const response = await this.mechanicProfileRepository.getAvailablity(mechanicId)
+    const availability = response?.availability ?? 'notAvailable'
+    return availability
+
+  }
+
+  async setAvailablity(mechanicId: Types.ObjectId, updates: Partial<MechanicProfileDocument>) {
+    return await this.mechanicProfileRepository.update(mechanicId, updates)
+  }
+
+  async setNotificationRead(userId: Types.ObjectId) {
+    return await this.notificationRepository.markAsRead(userId)
+  }
+
 
 
 

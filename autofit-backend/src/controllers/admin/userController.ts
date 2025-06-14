@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { UserServices } from "../../services/admin/userServices";
-import { User } from "../../types/user";
+import { User } from "../../types/user/user";
 import { sendSuccess } from "../../utils/apiResponse";
 import { Types } from "mongoose";
 import { getIO, userSocketMap } from "../../sockets/socket";
