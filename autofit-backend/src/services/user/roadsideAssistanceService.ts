@@ -44,7 +44,7 @@ export class RoadsideAssistanceService {
 
     if (!vehicle) throw new ApiError('Invalid Vehicle Vehicle Details')
 
-    await this.roadsideAssistanceRepo.create({
+    const emergencyAssistance = await this.roadsideAssistanceRepo.create({
       mechanicId,
       vehicle: {
         regNo: vehicle.regNo,
@@ -61,14 +61,22 @@ export class RoadsideAssistanceService {
       },
     })
 
-    const response = await this.notificationRepository.create(
+    await this.mechanicProfileRepo.update(mechanicId, { availability: 'busy' })
+
+    const notification = await this.notificationRepository.create(
       {
         message: `Emergency - ${vehicle.regNo.toUpperCase()} Requested For RoadSide Assistance.`,
         recipientId: mechanicId,
         recipientType: 'mechanic',
       })
 
-    return { message: response?.message, recipientId: response.recipientId }
+    return { notification, emergencyAssistance }
+  }
+
+  async onGoingReqByMechanicId(mechanicId:Types.ObjectId){
+
+    return await this.roadsideAssistanceRepo.findByMechanicId(mechanicId);
+
   }
 
 

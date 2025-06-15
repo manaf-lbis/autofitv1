@@ -10,8 +10,10 @@ export class RoadsideAssistanceRepository implements IRoadsideAssistanceRepo {
     }
 
     async create(entity: CreateRoadsideAssistanceDTO): Promise<RoadsideAssistanceDocument> {
-        const model = new RoadsideAssistanceModel(entity);
-        return await model.save()
+        const savedDoc = await new RoadsideAssistanceModel(entity).save();
+
+        return await RoadsideAssistanceModel.findById(savedDoc._id)
+        .populate('userId','name') as RoadsideAssistanceDocument
     }
 
     async findAll(): Promise<RoadsideAssistanceDocument[] | null> {
@@ -41,4 +43,10 @@ export class RoadsideAssistanceRepository implements IRoadsideAssistanceRepo {
             .populate('userId mechanicId quotationId paymentId')
             .exec();
     }
+
+    async ongoingServiceByMechanicId(mechanicId: Types.ObjectId): Promise<RoadsideAssistanceDocument> {
+       return await RoadsideAssistanceModel.findOne({mechanicId}).populate('userId','name') as RoadsideAssistanceDocument
+    }
+
+    
 }

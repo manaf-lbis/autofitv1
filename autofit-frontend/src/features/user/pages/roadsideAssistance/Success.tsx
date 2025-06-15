@@ -553,7 +553,7 @@ export default function BookingSuccessPage() {
                       style={{ border: 0 }}
                       loading="lazy"
                       allowFullScreen
-                      src={`https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${bookingData.mechanic.location.coordinates[1]},${bookingData.mechanic.location.coordinates[0]}&zoom=15`}
+                      src={`https://www.google.com/maps/embed/v1/place?key=AIzaSyBFwQbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${bookingData.mechanic.location.coordinates[1]},${bookingData.mechanic.location.coordinates[0]}&zoom=15`}
                     ></iframe>
                     <motion.div
                       initial={{ y: 10, opacity: 0 }}

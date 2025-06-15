@@ -1,7 +1,7 @@
-import { formatDistanceToNow } from "date-fns";
+import { formatDistanceToNowStrict } from "date-fns";
 
 export const formatTimeToNow = (dateString:string) => {
-   return formatDistanceToNow(new Date(dateString), {
+   return formatDistanceToNowStrict(new Date(dateString), {
         addSuffix: true,
     });
 }

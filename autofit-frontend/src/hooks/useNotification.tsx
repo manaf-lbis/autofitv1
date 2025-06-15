@@ -31,7 +31,7 @@ export const useNotification = () => {
         />
       </div>
     ), {
-      position: "top-right",
+      position: "top-center",
       duration: 3000,
     });
   };

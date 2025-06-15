@@ -279,7 +279,7 @@ export default function MechanicDashboard() {
                    mechanic.availability === 'notAvailable'   ? "text-gray-500" : "text-green-600"
                 )}
               >
-                {mechanic.availability === 'notAvailable' ? "Offline" : 'Online' }
+                {mechanic.availability === 'notAvailable' ? 'Offline' : mechanic.availability === 'busy' ? 'Busy' : 'Online' }
               </span>
   
             <Switch

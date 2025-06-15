@@ -1,11 +1,15 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { EmergencyRequest } from "../components/dashboard/EmergencyTab";
 
 interface InitialState {
-    availability: 'available' | 'notAvailable' | 'busy'
+    availability: 'available' | 'notAvailable' | 'busy',
+    emergencyRequest : EmergencyRequest | null
 }
 
 const initialState: InitialState = {
-    availability: 'available'
+    availability: 'available',
+    emergencyRequest : null
+
 }
 
 
@@ -19,10 +23,15 @@ const mechanicSlice = createSlice({
             state.availability = action.payload;
         },
 
+        setEmergencyRequest(state ,action){
+            state.emergencyRequest = action.payload
+        }
+
+
 
     }
 })
 
-export const { setAvailability } = mechanicSlice.actions;
+export const { setAvailability,setEmergencyRequest } = mechanicSlice.actions;
 
 export default mechanicSlice.reducer
