@@ -52,7 +52,7 @@ const roadsideAssistanceSchema: Schema<RoadsideAssistanceDocument> = new Schema<
     mechanicId: {
         type: Schema.Types.ObjectId,
         required: true,
-        ref: 'Mechanic'
+        ref: 'mechanic'
     },
     status: {
         type: String,
@@ -62,12 +62,12 @@ const roadsideAssistanceSchema: Schema<RoadsideAssistanceDocument> = new Schema<
     },
     quotationId: {
         type: Schema.Types.ObjectId,
-        ref: 'Quotation',
+        ref: 'quotation',
         default: null
     },
     paymentId: {
         type: Schema.Types.ObjectId,
-        ref: 'Payment',
+        ref: 'payment',
         default: null
     },
     startedAt: {

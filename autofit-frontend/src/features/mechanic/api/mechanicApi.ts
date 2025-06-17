@@ -37,7 +37,6 @@ export const mechanicApi = createApi({
       }),
     }),
 
-
     //pages
     getDashboard: builder.query<any, void>({
       query: () => ({
@@ -68,11 +67,10 @@ export const mechanicApi = createApi({
       }),
     }),
 
-    
-
 
 
   }),
+
 });
 
 export const {
@@ -82,5 +80,5 @@ export const {
   useResubmitRequestMutation,
   useGetDashboardQuery,
   useSetAvailabilityMutation,
-  useNotificationReadMutation
+  useNotificationReadMutation,
 } = mechanicApi;

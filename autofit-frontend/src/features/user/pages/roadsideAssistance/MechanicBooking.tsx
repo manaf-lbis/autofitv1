@@ -56,14 +56,14 @@ export default function MechanicBooking() {
 
   const bookMechnaic = async () => {
     try {
-      await book({
+      const {data} = await book({
         mechanicId: selectedMechanic,
         description: issueDescription,
         issue: selectedIssue,
         vehicleId: selectedVehicle,
         coordinates: coords ?? { lat: 0, lng: 0 },
       }).unwrap();
-      navigate('/user/roadside-assistance/success')
+      navigate(`/user/roadside-assistance/${data.id}/details`)
     } catch (error: any) {
       toast.error(error.message);
     }

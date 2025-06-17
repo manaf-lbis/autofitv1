@@ -75,7 +75,7 @@ export default function MechanicDashboard() {
   const socket = initSocket();
   const dispatch = useDispatch()
   const mechanic = useSelector((state:RootState)=>state.mechanicSlice)
-  const [setAvailabilityStatus,{isLoading}] = useSetAvailabilityMutation()
+  const [setAvailabilityStatus] = useSetAvailabilityMutation()
   const {data,isLoading: isFetchingInfo} = useGetInfoQuery()
 
   
@@ -194,13 +194,7 @@ export default function MechanicDashboard() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50 relative overflow-hidden">
-      {/* Background Pattern */}
-      <div className="absolute inset-0 bg-gradient-to-tr from-blue-500/5 via-transparent to-purple-500/5"></div>
 
-      {/* Floating Elements */}
-      <div className="absolute top-20 left-10 w-32 h-32 bg-blue-200/20 rounded-full blur-3xl"></div>
-      <div className="absolute top-40 right-20 w-24 h-24 bg-purple-200/20 rounded-full blur-2xl"></div>
-      <div className="absolute bottom-20 left-1/4 w-40 h-40 bg-indigo-200/20 rounded-full blur-3xl"></div>
 
       {/* Mobile Overlay */}
       {isSidebarOpen && (

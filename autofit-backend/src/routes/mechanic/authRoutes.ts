@@ -39,7 +39,7 @@ router.post('/resent-otp', authenticate, (req, res, next) => authController.rese
 
 
 router.get('/me', authenticate, authorize(['mechanic']), (req, res, next) => authController.getUser(req, res, next))
-router.post("/refresh",authenticate, (req, res, next) => authController.refreshToken(req, res, next));
+router.post("/refresh", (req, res, next) => authController.refreshToken(req, res, next));
 
 
 

@@ -21,7 +21,7 @@ interface NotificationProps {
 
 const Notification: React.FC<NotificationProps> = ({ notifications }) => {
   const [localNotifications, setLocalNotifications] =
-    useState<Notification[]>(notifications);
+  useState<Notification[]>(notifications);
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const socket = initSocket();

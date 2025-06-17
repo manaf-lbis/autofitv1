@@ -13,17 +13,17 @@ import { NotificationRepository } from "../../repositories/notificationRepositor
 const mechProfileRepo = new MechanicProfileRepository()
 const mechRepo = new MechanicRepository()
 const notificationRepository = new NotificationRepository()
-const mechanicProfileService =  new ProfileService(mechProfileRepo,mechRepo,notificationRepository)
+const mechanicProfileService = new ProfileService(mechProfileRepo, mechRepo, notificationRepository)
 const mechProfileController = new ProfileController(mechanicProfileService)
 
 const router = Router();
- 
 
-router.get('/me',authenticate,authorize(['mechanic']),(req,res,next)=>mechProfileController.profile(req,res,next))
-router.post('/register',authenticate,authorize(['mechanic']),fileUploadMiddleware,(req,res,next)=>mechProfileController.register(req,res,next))
-router.post('/resubmit-request',authenticate,authorize(['mechanic']),(req,res,next)=>mechProfileController.removeApplication(req,res,next))
-router.post('/availability',authenticate,authorize(['mechanic']),(req,res,next)=>mechProfileController.changeAvailablity(req,res,next))
-router.post('/updateNotification',authenticate,authorize(['mechanic']),(req,res,next)=>mechProfileController.setReadNotification(req,res,next))
+
+router.get('/me', (req, res, next) => mechProfileController.profile(req, res, next))
+router.post('/register', fileUploadMiddleware, (req, res, next) => mechProfileController.register(req, res, next))
+router.post('/resubmit-request', (req, res, next) => mechProfileController.removeApplication(req, res, next))
+router.post('/availability', (req, res, next) => mechProfileController.changeAvailablity(req, res, next))
+router.post('/updateNotification', (req, res, next) => mechProfileController.setReadNotification(req, res, next))
 
 
 export default router

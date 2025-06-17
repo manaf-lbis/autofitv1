@@ -29,11 +29,12 @@ export interface Quotation {
     _id: Types.ObjectId;
     requestId: Types.ObjectId;
     items: Array<{
-        item: string;
+        name: string;
         qty: number;
         price: number;
     }>;
     total: number;
+    notes:string;
     status: 'pending' | 'approved' | 'rejected';
     createdAt: Date;
     updatedAt: Date;

@@ -2,7 +2,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   AlertTriangle,
-  Car,
   CarFront,
   ChevronRight,
   Clock,
@@ -14,6 +13,7 @@ import {
 import React from "react";
 import LatLngToAddress from "@/components/shared/LocationInput/LatLngToAddress";
 import { formatTimeToNow } from "@/lib/dateFormater";
+import { useNavigate } from "react-router-dom";
 
 
 export interface EmergencyRequest {
@@ -32,6 +32,7 @@ export interface EmergencyTabProps {
 }
 
 const EmergencyTab: React.FC<EmergencyTabProps> = ({ emergencyRequest }) => {
+  const navigate = useNavigate()
 
     if(!emergencyRequest){
        return <>
@@ -107,7 +108,7 @@ const EmergencyTab: React.FC<EmergencyTabProps> = ({ emergencyRequest }) => {
             <Navigation className="w-4 h-4 mr-1 lg:mr-2" />
             Navigate
           </Button>
-          <Button variant="outline" size="sm" className="text-sm lg:text-base">
+          <Button onClick={()=>navigate(`/mechanic/roadside-assistance/${emergencyRequest._id}/details`)} variant="outline" size="sm" className="text-sm lg:text-base">
             Details
             <ChevronRight className="w-4 h-4 ml-1 lg:ml-2" />
           </Button>

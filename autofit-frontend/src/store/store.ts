@@ -8,6 +8,7 @@ import { profileApi } from '@/features/user/api/profileApi'
 import { userManagementApi } from "@/features/admin/api/userManagement";
 import { mechananicManagementApi } from "@/features/admin/api/mechanicManagement";
 import { servicesApi } from "@/features/user/api/servicesApi";
+import { roadsideApi } from "@/features/mechanic/api/roadsideApi";
 
 import authReducer from "../features/auth/slices/authSlice";
 import registrationReducer from '@/features/mechanic/slices/registrationSlice'
@@ -30,7 +31,9 @@ export const store = configureStore({
     [profileApi.reducerPath] : profileApi.reducer,
     [userManagementApi.reducerPath] : userManagementApi.reducer,
     [mechananicManagementApi.reducerPath] : mechananicManagementApi.reducer,
-    [servicesApi.reducerPath] : servicesApi.reducer
+    [servicesApi.reducerPath] : servicesApi.reducer,
+    [roadsideApi.reducerPath] :roadsideApi.reducer
+
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(
@@ -42,7 +45,8 @@ export const store = configureStore({
       profileApi.middleware,
       userManagementApi.middleware,
       mechananicManagementApi.middleware,
-      servicesApi.middleware
+      servicesApi.middleware,
+      roadsideApi.middleware
     ),
 });
 

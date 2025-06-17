@@ -4,14 +4,18 @@ import { authorize } from "../../middlewares/authorize";
 import { ProfileController } from "../../controllers/user/profileController";
 import { ProfileService } from "../../services/user/userProfileService";
 import { UserRepository } from "../../repositories/userRepository";
+import { RoadsideAssistanceRepository } from "../../repositories/roadsideAssistanceRepo";
 
 const userRepository = new UserRepository()
-const profileService = new ProfileService(userRepository)
+const roadsideAssistanceRepo = new RoadsideAssistanceRepository()
+const profileService = new ProfileService(userRepository,roadsideAssistanceRepo)
 const profileController = new ProfileController(profileService)
 
 const router = Router();
 
-router.patch('/update',authenticate, authorize(['user']),(req, res,next) => profileController.updateUser(req,res,next) );
+router.patch('/update', profileController.updateUser.bind(profileController));
+router.get('/service-history', profileController.serviceHistory.bind(profileController));
+
 
 
 

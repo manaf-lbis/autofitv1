@@ -1,27 +1,41 @@
 import { Router } from "express";
-import { authenticate } from "../../middlewares/authenticate";
-import { authorize } from "../../middlewares/authorize";
 import { ServicesController } from "../../controllers/user/servicesController";
-import { RoadsideAssistanceService } from "../../services/user/roadsideAssistanceService";
+import { UserRoadsideService } from "../../services/roadsideAssistance/userRoadsideService";
 import { MechanicProfileRepository } from "../../repositories/mechanicProfileRepository";
 import { GoogleMapRepository } from "../../repositories/GoogleMapRepository";
 import { RoadsideAssistanceRepository } from "../../repositories/roadsideAssistanceRepo";
 import { VehicleRepository } from "../../repositories/vehicleRepository";
 import { NotificationRepository } from "../../repositories/notificationRepository";
+import { RoadsideService } from "../../services/roadsideAssistance/roadsideService";
+import { QuotationRepository } from "../../repositories/quotationRepository";
+import { RazorpayRepository } from "../../repositories/RazorpayRepository";
 
 const mechanicProfileRepo = new MechanicProfileRepository()
 const googleMapRepo = new GoogleMapRepository()
 const roadsideAssistanceRepo = new RoadsideAssistanceRepository()
 const vehicleRepository = new VehicleRepository()
+const quotationRepo = new QuotationRepository()
+const roadsideService = new RoadsideService(roadsideAssistanceRepo, quotationRepo)
 const notificationRepository = new NotificationRepository()
-const roadsideAssistanceService = new RoadsideAssistanceService(mechanicProfileRepo,googleMapRepo,roadsideAssistanceRepo,vehicleRepository,notificationRepository)
-const servicesController = new ServicesController(roadsideAssistanceService)
+const razorpayRepository = new RazorpayRepository()
+const roadsideAssistanceService = new UserRoadsideService(mechanicProfileRepo,
+    googleMapRepo,
+    roadsideAssistanceRepo,
+    vehicleRepository,
+    notificationRepository,
+    razorpayRepository,
+    quotationRepo
+)
+const servicesController = new ServicesController(roadsideAssistanceService, roadsideService)
 
 
 const router = Router();
 
-router.get('/mechanic-near-me',authenticate, authorize(['user']),(req, res,next) => servicesController.getNearbyMechanic(req,res,next));
-router.post('/roadside-assistance',authenticate, authorize(['user']),(req, res,next) => servicesController.roadsideAssistance(req,res,next));
+router.get('/mechanics-nearby', servicesController.getNearbyMechanic.bind(servicesController));
+router.post('/roadside-assistance', servicesController.roadsideAssistance.bind(servicesController));
+router.get('/roadside-assistance/:id/details', servicesController.serviceDetails.bind(servicesController));
+router.post('/roadside-assistance/payment', servicesController.makePayment.bind(servicesController));
+
 
 
 export default router

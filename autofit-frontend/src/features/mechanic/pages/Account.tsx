@@ -8,7 +8,6 @@ import {
   CheckCircle,
   Eye,
   FileText,
-  ArrowLeft,
   X,
   Star,
   Award,
@@ -25,13 +24,13 @@ import { useGetMechanicQuery } from "../api/mechanicApi"
 import { useNavigate } from "react-router-dom"
 import toast from "react-hot-toast"
 import LatLngToAddress from "@/components/shared/LocationInput/LatLngToAddress"
+import AccountShimmer from "../components/shimmer/AccountShimmer"
 
-export default function AccountPage() {
+export default function Account() {
   const [showDocument, setShowDocument] = useState(false)
   const { data, isLoading, isError, error } = useGetMechanicQuery()
   const navigate = useNavigate()
 
-  // Dummy data for additional metrics
   const dummyData = {
     rating: 5.0,
     reviews: 248,
@@ -68,11 +67,7 @@ export default function AccountPage() {
   }
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" aria-label="Loading"></div>
-      </div>
-    )
+    return ( <AccountShimmer />)
   }
 
   if (isError) {

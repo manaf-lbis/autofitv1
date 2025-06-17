@@ -12,11 +12,11 @@ const quotationSchema: Schema<QuotationDocument> = new Schema<QuotationDocument>
         ref: 'RoadsideAssistance'
     },
     items: [{
-        item: {
+        name: {
             type: String,
             required: true
         },
-        qty: {
+        quantity: {
             type: Number,
             required: true,
             min: 1
@@ -32,13 +32,19 @@ const quotationSchema: Schema<QuotationDocument> = new Schema<QuotationDocument>
         required: true,
         min: 0
     },
+    notes: {
+        type: String
+    },
     status: {
         type: String,
         enum: ['pending', 'approved', 'rejected'],
         default: 'pending',
         required: true
     },
-    rejectedAt: { type: Date, default: null }
+    rejectedAt: {
+        type: Date,
+        default: null
+    }
 
 }, { timestamps: true });
 

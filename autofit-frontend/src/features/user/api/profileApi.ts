@@ -19,6 +19,14 @@ export const profileApi = createApi({
             body : data
         })
     }),
+    serviceHistory :builder.query({
+        query :()=>({
+            url : 'user/profile/service-history',
+            method:'GET',
+        })
+    }),
+
+
   }),
 
 
@@ -27,4 +35,5 @@ export const profileApi = createApi({
 
 export const {
     useUpdateProfileMutation,
+    useServiceHistoryQuery
 } = profileApi;

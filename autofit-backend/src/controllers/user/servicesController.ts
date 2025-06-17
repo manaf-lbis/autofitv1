@@ -2,14 +2,16 @@ import { NextFunction, Request, Response } from 'express';
 
 import { sendSuccess } from '../../utils/apiResponse';
 import { ApiError } from '../../utils/apiError';
-import { RoadsideAssistanceService } from '../../services/user/roadsideAssistanceService';
+import { UserRoadsideService } from '../../services/roadsideAssistance/userRoadsideService';
 import { Types } from 'mongoose';
 import { getIO, userSocketMap } from '../../sockets/socket';
+import { RoadsideService } from '../../services/roadsideAssistance/roadsideService';
 
 
 export class ServicesController {
     constructor(
-        private roadsideAssistanceService: RoadsideAssistanceService
+        private userRoadsideService: UserRoadsideService,
+        private roadsideService: RoadsideService
     ) { }
 
 
@@ -21,9 +23,9 @@ export class ServicesController {
             const lat = parseFloat(latitude as string);
             const lng = parseFloat(longitude as string);
 
-            const response = await this.roadsideAssistanceService.getNearByMechanic({ lat, lng })
+            const response = await this.userRoadsideService.getNearByMechanic({ lat, lng })
 
-            sendSuccess(res, 'yes', response)
+            sendSuccess(res, 'Success', response)
 
         } catch (error) {
             next(error)
@@ -43,7 +45,7 @@ export class ServicesController {
             const mechanicId = new Types.ObjectId(mecId)
             const vehicleId = new Types.ObjectId(vehId)
 
-            const { emergencyAssistance, notification } = (await this.roadsideAssistanceService.createAssistanceRequest({ mechanicId, vehicleId, issue, description, serviceLocation }))
+            const { emergencyAssistance, notification } = (await this.userRoadsideService.createAssistanceRequest({ mechanicId, vehicleId, issue, description, serviceLocation }))
 
             const mechData = userSocketMap.get(mechanicId.toString());
             if (mechData && mechData.socketIds.size > 0) {
@@ -68,12 +70,37 @@ export class ServicesController {
                 })
             }
 
-            sendSuccess(res, "Request created successfully",)
+            sendSuccess(res, "Request created successfully", { id: emergencyAssistance._id })
 
         } catch (error) {
             next(error)
         }
     }
 
+    async serviceDetails(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const serviceId = new Types.ObjectId(req.params.id);
+            const serviceDetails = await this.roadsideService.serviceDetails(serviceId)
+            sendSuccess(res, 'Successfully Fetched', serviceDetails);
+        } catch (error) {
+            next(error)
+        }
+    }
+
+    async makePayment(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const { serviceId,quotationId } = req.body;
+            const userId = req.user?.id
+
+            if (!serviceId || !userId) throw new ApiError('Invalid Service Id');
+
+            const response = await this.userRoadsideService.approveQuoteAndPay({ serviceId,quotationId })
+
+            sendSuccess(res,'Order Created Successfully',response)
+
+        } catch (error) {
+            next(error)
+        }
+    }
 
 }

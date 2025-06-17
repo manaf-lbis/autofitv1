@@ -91,16 +91,6 @@ export class VehicleController {
         }
     }
 
-    async addVehicleBrand (req: Request, res: Response,next:NextFunction): Promise<void>{
-        try {
-           const Response = await this.vehicleService.addVehicleBrands()
-
-           sendSuccess(res,'vehicle Fetched Successfully',response)
-            
-        } catch (error) {
-            next(error)
-        }
-    }
 
     
 }

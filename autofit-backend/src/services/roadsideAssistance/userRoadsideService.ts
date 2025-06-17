@@ -5,14 +5,18 @@ import { IRoadsideAssistanceRepo } from "../../repositories/interfaces/IRoadside
 import { IVehicleRepository } from "../../repositories/interfaces/IVehicleRepository";
 import { ApiError } from "../../utils/apiError";
 import { INotificationRepository } from "../../repositories/interfaces/INotificationRepository";
+import { IPaymentRepository } from "../../repositories/interfaces/IPaymentRepository";
+import { IQuotationRepository } from "../../repositories/interfaces/IQuotationRepository";
 
-export class RoadsideAssistanceService {
+export class UserRoadsideService {
   constructor(
     private mechanicProfileRepo: IMechanicProfileRepository,
     private googleMapRepo: IGoogleMapRepository,
     private roadsideAssistanceRepo: IRoadsideAssistanceRepo,
     private vehicleRepository: IVehicleRepository,
-    private notificationRepository: INotificationRepository
+    private notificationRepository: INotificationRepository,
+    private razorpayRepository:IPaymentRepository,
+    private quotaionRepo : IQuotationRepository
   ) { }
 
   async getNearByMechanic({ lat, lng }: { lat: number; lng: number }) {
@@ -73,12 +77,17 @@ export class RoadsideAssistanceService {
     return { notification, emergencyAssistance }
   }
 
-  async onGoingReqByMechanicId(mechanicId:Types.ObjectId){
+  async approveQuoteAndPay({serviceId,quotationId}:{serviceId:Types.ObjectId,quotationId:Types.ObjectId}){
 
-    return await this.roadsideAssistanceRepo.findByMechanicId(mechanicId);
+    const service = await this.roadsideAssistanceRepo.findById(serviceId)
+    const quotation = await this.quotaionRepo.findById(quotationId)
+    if(!quotation) throw new ApiError('Quotation Not Generated')
 
+    if(!service?.quotationId?._id.equals(quotation._id)) throw new ApiError('Quotation Not Match With Service')
+
+    return await this.razorpayRepository.createOrder(quotation.total)
+    
   }
-
 
 
 

@@ -5,28 +5,34 @@ import Registration from "@/features/mechanic/pages/Registration";
 import MechanicLayout from "@/features/mechanic/components/layout/MechanicLayout";
 import Dashboard from "@/features/mechanic/pages/Dashboard";
 import AccountPage from "@/features/mechanic/pages/Account";
+import MechanicSocketContext from "@/context/MechanicSocketContext";
+import EmergencyDetails from "@/features/mechanic/pages/RoadsideAssistanceDetails";
+import NotFound from "@/features/mechanic/pages/NotFound";
 
 
 const MechanicRoutes: React.FC = () => {
   return (
-    <Routes>
-      <Route element={<ProtectedRoute allowedRoles={["mechanic"]} />}>
-        <Route element={<MechanicInitGuard />}>
-          <Route element={<MechanicLayout />}>
-            <Route path="dashboard" element={<Dashboard/>} />
-            <Route path="account" element={<AccountPage />} />
-            
+    <MechanicSocketContext>
+      <Routes>
+        <Route element={<ProtectedRoute allowedRoles={["mechanic"]} />}>
+          <Route element={<MechanicInitGuard />}>
+            <Route element={<MechanicLayout />}>
+              <Route path="dashboard" element={<Dashboard/>} />
+              <Route path="roadside-assistance/:id/details" element={<EmergencyDetails/>} />
 
-            <Route path="/*" element={<h1>Not Found</h1>} />
+              <Route path="account" element={<AccountPage />} />
+              
+              <Route path="/*" element={<NotFound/>} />
+            </Route>
+
           </Route>
 
+          <Route path="registration" element={<Registration />} />
         </Route>
 
-        <Route path="registration" element={<Registration />} />
-      </Route>
-
-      <Route path="*" element={<>Not Found</>} />
-    </Routes>
+        <Route path="*" element={<NotFound/>} />
+      </Routes>
+    </MechanicSocketContext>
   );
 };
 

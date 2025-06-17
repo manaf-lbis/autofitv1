@@ -2,10 +2,11 @@ import { Types } from "mongoose";
 import { RoadsideAssistanceDocument, RoadsideAssistanceModel } from "../models/roadsideAssistanceModel";
 import { IRoadsideAssistanceRepo } from "./interfaces/IRoadsideAssistanceRepo";
 import { CreateRoadsideAssistanceDTO } from "../types/services";
+import { ApiError } from "../utils/apiError";
 
 export class RoadsideAssistanceRepository implements IRoadsideAssistanceRepo {
 
-    async save(entity: RoadsideAssistanceDocument ): Promise<RoadsideAssistanceDocument> {
+    async save(entity: RoadsideAssistanceDocument): Promise<RoadsideAssistanceDocument> {
         return await new RoadsideAssistanceModel(entity).save();
     }
 
@@ -13,15 +14,11 @@ export class RoadsideAssistanceRepository implements IRoadsideAssistanceRepo {
         const savedDoc = await new RoadsideAssistanceModel(entity).save();
 
         return await RoadsideAssistanceModel.findById(savedDoc._id)
-        .populate('userId','name') as RoadsideAssistanceDocument
+            .populate('userId', 'name') as RoadsideAssistanceDocument
     }
 
     async findAll(): Promise<RoadsideAssistanceDocument[] | null> {
         return await RoadsideAssistanceModel.find().populate('userId mechanicId quotationId paymentId').exec();
-    }
-
-    async findById(id: Types.ObjectId): Promise<RoadsideAssistanceDocument | null> {
-        return await RoadsideAssistanceModel.findById(id).populate('userId mechanicId quotationId paymentId').exec();
     }
 
     async update(id: Types.ObjectId, update: Partial<RoadsideAssistanceDocument>): Promise<RoadsideAssistanceDocument | null> {
@@ -32,10 +29,10 @@ export class RoadsideAssistanceRepository implements IRoadsideAssistanceRepo {
         await RoadsideAssistanceModel.findByIdAndDelete(id).exec();
     }
 
-    async findByUserId(userId: Types.ObjectId): Promise<RoadsideAssistanceDocument[] | null> {
-        return await RoadsideAssistanceModel.find({ userId })
-            .populate('userId mechanicId quotationId paymentId')
-            .exec();
+    async findByUserId(userId: Types.ObjectId): Promise<RoadsideAssistanceDocument[] | []> {
+        return await RoadsideAssistanceModel.find({ userId },
+            { issue: 1, description: 1, vehicle: 1, status: 1, startedAt: 1, endedAt: 1 })
+            .sort({ createdAt: -1 })
     }
 
     async findByMechanicId(mechanicId: Types.ObjectId): Promise<RoadsideAssistanceDocument[] | null> {
@@ -45,8 +42,33 @@ export class RoadsideAssistanceRepository implements IRoadsideAssistanceRepo {
     }
 
     async ongoingServiceByMechanicId(mechanicId: Types.ObjectId): Promise<RoadsideAssistanceDocument> {
-       return await RoadsideAssistanceModel.findOne({mechanicId}).populate('userId','name') as RoadsideAssistanceDocument
+        return await RoadsideAssistanceModel.findOne({
+            mechanicId,
+            status: { $nin: ['completed', 'cancelled'] }
+        }).populate('userId', 'name') as RoadsideAssistanceDocument;
     }
 
-    
+    async findById(id: Types.ObjectId): Promise<any> {
+        const result = await RoadsideAssistanceModel
+            .findById(id)
+            .populate('userId', 'name email mobile -_id')
+            .populate('mechanicId', 'name email avatar -_id').populate('quotationId', '-requestId')
+            .lean();
+
+        if (!result) throw new ApiError('No Service Details Found', 404)
+        const { userId, mechanicId, ...rest } = result;
+
+        return {
+            ...rest,
+            user: userId,
+            mechanic: mechanicId
+        };
+    }
+
+
+
+
+
+
+
 }

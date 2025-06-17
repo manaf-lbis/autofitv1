@@ -6,7 +6,7 @@ import { QuotationDocument, QuotationModel } from "../models/quotationModel";
 
 export class QuotationRepository implements IQuotationRepository {
 
-    async save(entity: QuotationDocument): Promise<QuotationDocument> {
+    async save(entity:Partial<QuotationDocument>): Promise<QuotationDocument> {
         return await new QuotationModel(entity).save();
     }
 

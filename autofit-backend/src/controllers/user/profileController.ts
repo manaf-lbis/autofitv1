@@ -35,6 +35,16 @@ export class ProfileController {
         }
     }
 
+    async serviceHistory(req: Request, res: Response, next: NextFunction) {
+         try {
+            const userId = req.user?.id
+            if(!userId) throw new ApiError('Invalid user')
+            const serviceHistory = await this.profileService.serviceHistoryByUserId(userId)
+            sendSuccess(res, 'Profile Updated',serviceHistory);
+        } catch (error: any) {
+            next(error);
+        }
+    }
 
 }
 
