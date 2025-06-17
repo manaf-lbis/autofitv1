@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -27,6 +27,7 @@ import BookingDetailsShimmer from "../components/shimmer/BookingDetailsShimmer";
 import QuotationModal, {
   QuotationData,
 } from "../components/service/QuotationModal";
+import { initSocket } from "@/lib/socket";
 
 type BookingStatus =
   | "assigned"
@@ -56,16 +57,20 @@ export default function BookingDetails() {
   const [updateStatus] = useRoadsideStatusUpdateMutation();
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [generateQuotation] = useGenerateQuotationMutation();
-  // const [completeJob] = useCompleteJobMutation();
+
 
   const handleNavigate = () => {
     console.log("Navigate to customer location");
   };
 
-  const handleStatusChange = async (
-    bookingId: string,
-    status: RoadsideStatusMech
-  ) => {
+    useEffect(()=>{
+      const socket = initSocket();
+      socket.on('roadside_assistance_changed',()=>{
+        refetch()
+      })
+    },[])
+
+  const handleStatusChange = async (bookingId: string,status: RoadsideStatusMech ) => {
     try {
       await updateStatus({ bookingId, status }).unwrap();
       refetch();
@@ -360,7 +365,7 @@ export default function BookingDetails() {
           {/* When status is 'in_progress', show Complete Job button */}
           {booking.status === "in_progress" && (
             <Button
-              // onClick={() => handleCompleteJob(params.id, completeJob, setIsJobCompleted, refetch)}
+              onClick={() => handleStatusChange(booking._id,'completed')}
               className="w-full bg-green-600 hover:bg-green-700 h-10 focus:outline-none"
             >
               <CheckCheck className="h-4 w-4 mr-2" />

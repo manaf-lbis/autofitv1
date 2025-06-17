@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { CreditCard } from "lucide-react";
-
+import { formatDateTime } from "@/lib/dateFormater";
 interface QuotationItem {
   _id: string;
   name: string;
@@ -17,12 +17,14 @@ interface Quotation {
 
 interface PaymentTabContentProps {
   isPaymentComplete: boolean;
+  paymentDetails?: any;
   quotationId?: Quotation;
   onViewQuotation: () => void;
 }
 
 export function PaymentTabContent({
   isPaymentComplete,
+  paymentDetails,
   quotationId,
   onViewQuotation,
 }: PaymentTabContentProps) {
@@ -46,13 +48,23 @@ export function PaymentTabContent({
             </div>
             <div>
               <h4 className="text-sm font-medium text-gray-900">
-                Payment {isPaymentComplete ? "Completed" : "Pending"}
+                Payment {isPaymentComplete ? `Completed  - ${paymentDetails.receipt.toUpperCase()}` : "Pending"}
               </h4>
               <p className="text-xs text-gray-600">
-                {isPaymentComplete
-                  ? "Payment has been processed successfully."
-                  : "Payment will be processed after accepting the quotation."}
+                {!isPaymentComplete && "Payment will be processed after accepting the quotation."}
               </p>
+              {
+                isPaymentComplete && (
+                <>
+                  <div className="mt-2 flex-col ">
+                    <p className="text-xs text-gray-600 mt-2">Method : {paymentDetails.method.toUpperCase()}</p>
+                    <p className="text-xs text-gray-600 mt-2">Paid At : {formatDateTime(paymentDetails.createdAt)}</p>
+                    <p className="text-xs text-gray-600 mt-2">Amount : {paymentDetails.amount/100}</p>
+                  </div>
+                
+                </>)
+
+              }
             </div>
           </div>
           {!isPaymentComplete && quotationId && (

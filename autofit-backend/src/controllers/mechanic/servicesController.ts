@@ -3,37 +3,45 @@ import { sendSuccess } from "../../utils/apiResponse";
 import { RoadsideService } from "../../services/roadsideAssistance/roadsideService";
 import { Types } from "mongoose";
 import { ApiError } from "../../utils/apiError";
+import { getIO, userSocketMap } from "../../sockets/socket";
 
 
 
 export class ServicesController {
     constructor(
-        private roadsideService : RoadsideService
-
+        private roadsideService: RoadsideService
     ) {}
 
     async roadsideAssistanceDetails(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const serviceId = new Types.ObjectId(req.params.id);
             const serviceDetails = await this.roadsideService.serviceDetails(serviceId)
-            
 
-            sendSuccess(res, 'Successfully Fetched',serviceDetails);
+
+            sendSuccess(res, 'Successfully Fetched', serviceDetails);
         } catch (error: any) {
             next(error);
         }
     }
 
-    async  roadsideStatusUpdate(req: Request, res: Response, next: NextFunction): Promise<void> {
+    async roadsideStatusUpdate(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const allowedStatus = ['on_the_way','analysing','quotation_sent','completed' ]
-            const {status,bookingId} = req.body;
+            const allowedStatus = ['on_the_way', 'analysing', 'quotation_sent', 'completed']
+            const { status, bookingId } = req.body;
+            const userId = new Types.ObjectId(req.user?.id)
+            
+            if (!allowedStatus.includes(status)) throw new ApiError('Invalid Status Update')
+            const serviceId = new Types.ObjectId(bookingId);
 
-            if(!allowedStatus.includes(status)) throw new ApiError('Invalid Status Update')
-            const serviceId =  new Types.ObjectId(bookingId);
-            
-            await this.roadsideService.updateStatus(serviceId,{status})            
-            
+            const user = await this.roadsideService.updateStatus(userId, serviceId, { status })
+
+            const userData = userSocketMap.get(user?.userId?.toString() as string)
+            if (userData && userData.socketIds.size > 0) {
+                const io = getIO()
+                userData.socketIds.forEach((id) => {
+                    io.to(id).emit('roadside_assistance_changed', {});
+                })
+            }
 
             sendSuccess(res, 'Successfully Fetched');
         } catch (error: any) {
@@ -43,15 +51,22 @@ export class ServicesController {
 
     async quotation(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-           const {bookingId,items,notes,total} = req.body;
+            const { bookingId, items, notes, total } = req.body;
 
-           if(!bookingId || !total || items.length <= 0) throw new ApiError('Invalid Quotation')
-        
-            const requestId = new Types.ObjectId(bookingId)
+            if (!bookingId || !total || items.length <= 0) throw new ApiError('Invalid Quotation')
 
-            await this.roadsideService.createQuotation({requestId,items,notes,total})
+            const serviceId = new Types.ObjectId(bookingId)
 
-           
+            const response = await this.roadsideService.createQuotation({ serviceId, items, notes, total })
+
+            const userData = userSocketMap.get(response?.userId.toString() as string)
+            if (userData && userData.socketIds.size > 0) {
+                const io = getIO()
+                userData.socketIds.forEach((id) => {
+                    io.to(id).emit('roadside_assistance_changed', {});
+                })
+            }
+
             sendSuccess(res, 'Successfully Fetched');
         } catch (error: any) {
             next(error);

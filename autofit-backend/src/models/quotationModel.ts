@@ -6,7 +6,7 @@ export interface QuotationDocument extends Quotation, Document<Types.ObjectId> {
 
 const quotationSchema: Schema<QuotationDocument> = new Schema<QuotationDocument>({
 
-    requestId: {
+    serviceId: {
         type: Schema.Types.ObjectId,
         required: true,
         ref: 'RoadsideAssistance'

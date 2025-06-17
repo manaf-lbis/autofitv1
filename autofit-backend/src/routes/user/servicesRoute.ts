@@ -9,14 +9,17 @@ import { NotificationRepository } from "../../repositories/notificationRepositor
 import { RoadsideService } from "../../services/roadsideAssistance/roadsideService";
 import { QuotationRepository } from "../../repositories/quotationRepository";
 import { RazorpayRepository } from "../../repositories/RazorpayRepository";
+import { PaymentRepository } from "../../repositories/PaymentRepository";
+import { MechanicRepository } from "../../repositories/mechanicRepository";
 
 const mechanicProfileRepo = new MechanicProfileRepository()
 const googleMapRepo = new GoogleMapRepository()
 const roadsideAssistanceRepo = new RoadsideAssistanceRepository()
 const vehicleRepository = new VehicleRepository()
 const quotationRepo = new QuotationRepository()
-const roadsideService = new RoadsideService(roadsideAssistanceRepo, quotationRepo)
+const roadsideService = new RoadsideService(roadsideAssistanceRepo, quotationRepo,mechanicProfileRepo)
 const notificationRepository = new NotificationRepository()
+const paymentRepo = new PaymentRepository()
 const razorpayRepository = new RazorpayRepository()
 const roadsideAssistanceService = new UserRoadsideService(mechanicProfileRepo,
     googleMapRepo,
@@ -24,7 +27,8 @@ const roadsideAssistanceService = new UserRoadsideService(mechanicProfileRepo,
     vehicleRepository,
     notificationRepository,
     razorpayRepository,
-    quotationRepo
+    quotationRepo,
+    paymentRepo
 )
 const servicesController = new ServicesController(roadsideAssistanceService, roadsideService)
 
@@ -35,6 +39,7 @@ router.get('/mechanics-nearby', servicesController.getNearbyMechanic.bind(servic
 router.post('/roadside-assistance', servicesController.roadsideAssistance.bind(servicesController));
 router.get('/roadside-assistance/:id/details', servicesController.serviceDetails.bind(servicesController));
 router.post('/roadside-assistance/payment', servicesController.makePayment.bind(servicesController));
+router.post('/roadside-assistance/verify-payment', servicesController.verifyPayment.bind(servicesController));
 
 
 

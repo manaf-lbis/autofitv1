@@ -52,7 +52,9 @@ export class RoadsideAssistanceRepository implements IRoadsideAssistanceRepo {
         const result = await RoadsideAssistanceModel
             .findById(id)
             .populate('userId', 'name email mobile -_id')
-            .populate('mechanicId', 'name email avatar -_id').populate('quotationId', '-requestId')
+            .populate('mechanicId', 'name email avatar -_id')
+            .populate('quotationId', '-requestId')
+            .populate('paymentId','-userId')
             .lean();
 
         if (!result) throw new ApiError('No Service Details Found', 404)

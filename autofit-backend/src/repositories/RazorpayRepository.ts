@@ -1,9 +1,9 @@
 import Razorpay from "razorpay";
 import crypto from "crypto";
 import { ApiError } from "../utils/apiError";
-import { IPaymentRepository } from "./interfaces/IPaymentRepository";
+import { IPaymentGateayRepository } from "./interfaces/IPaymentGateayRepository";
 
-export class RazorpayRepository implements IPaymentRepository {
+export class RazorpayRepository implements IPaymentGateayRepository {
     private razorpay: Razorpay;
     private RAZORPAY_KEY: string;
     private RAZORPAY_SECRET: string;
@@ -25,7 +25,7 @@ export class RazorpayRepository implements IPaymentRepository {
         });
     }
 
-    async createOrder(amount: number): Promise<{ orderId: string }> {
+    async createOrder(amount: number, serviceId:string): Promise<{ orderId: string }> {
 
         const receipt = `rcpt_${Date.now().toString(36)}_${Math.random().toString(36).substring(2, 5)}`;
 
@@ -34,6 +34,9 @@ export class RazorpayRepository implements IPaymentRepository {
                 amount: amount * 100,
                 currency: "INR",
                 receipt,
+                notes:{
+                    serviceId
+                }
             });
 
             return { orderId: order.id };
@@ -52,8 +55,15 @@ export class RazorpayRepository implements IPaymentRepository {
 
             return generatedSignature === signature;
         } catch (error) {
-            console.error("Signature verification failed:", error);
-            return false;
+            throw new ApiError("Payment verification failed");
         }
+    }
+
+    async payloadFromOrderId(orderId: string) {
+       return await this.razorpay.orders.fetch(orderId)
+    }
+
+    async payloadFromPaymentId(paymentId: string) {
+        return await this.razorpay.payments.fetch(paymentId);
     }
 }

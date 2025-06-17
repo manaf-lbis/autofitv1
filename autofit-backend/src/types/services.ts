@@ -20,6 +20,7 @@ export interface RoadsideAssistance {
     quotationId?: Types.ObjectId;
     paymentId?: Types.ObjectId;
     startedAt?: Date;
+    arrivedAt?:Date;
     endedAt?: Date;
     createdAt: Date;
     updatedAt: Date;
@@ -27,7 +28,7 @@ export interface RoadsideAssistance {
 
 export interface Quotation {
     _id: Types.ObjectId;
-    requestId: Types.ObjectId;
+    serviceId: Types.ObjectId;
     items: Array<{
         name: string;
         qty: number;

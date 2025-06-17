@@ -74,6 +74,10 @@ const roadsideAssistanceSchema: Schema<RoadsideAssistanceDocument> = new Schema<
         type: Date,
         default: null
     },
+    arrivedAt :{
+        type: Date,
+        default: null
+    },
     endedAt: {
         type: Date,
         default: null

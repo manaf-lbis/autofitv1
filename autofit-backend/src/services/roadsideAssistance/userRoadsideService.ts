@@ -5,8 +5,9 @@ import { IRoadsideAssistanceRepo } from "../../repositories/interfaces/IRoadside
 import { IVehicleRepository } from "../../repositories/interfaces/IVehicleRepository";
 import { ApiError } from "../../utils/apiError";
 import { INotificationRepository } from "../../repositories/interfaces/INotificationRepository";
-import { IPaymentRepository } from "../../repositories/interfaces/IPaymentRepository";
+import { IPaymentGateayRepository } from "../../repositories/interfaces/IPaymentGateayRepository";
 import { IQuotationRepository } from "../../repositories/interfaces/IQuotationRepository";
+import { IPaymentRepository } from "../../repositories/interfaces/IPaymentRepository";
 
 export class UserRoadsideService {
   constructor(
@@ -15,8 +16,9 @@ export class UserRoadsideService {
     private roadsideAssistanceRepo: IRoadsideAssistanceRepo,
     private vehicleRepository: IVehicleRepository,
     private notificationRepository: INotificationRepository,
-    private razorpayRepository:IPaymentRepository,
-    private quotaionRepo : IQuotationRepository
+    private razorpayRepository:IPaymentGateayRepository,
+    private quotaionRepo : IQuotationRepository,
+    private paymentRepo : IPaymentRepository
   ) { }
 
   async getNearByMechanic({ lat, lng }: { lat: number; lng: number }) {
@@ -85,9 +87,36 @@ export class UserRoadsideService {
 
     if(!service?.quotationId?._id.equals(quotation._id)) throw new ApiError('Quotation Not Match With Service')
 
-    return await this.razorpayRepository.createOrder(quotation.total)
+    const {orderId} = await this.razorpayRepository.createOrder(quotation.total,serviceId.toString())
+
+    return {orderId,mechanicId:service.mechanicId}
+  }
+
+  
+  async VerifyAndApprove({ paymentId,orderId,signature,userId }:{ paymentId:string,orderId:string,signature:string ,userId:Types.ObjectId}){
+    await this.razorpayRepository.verifyPayment(paymentId,orderId,signature)
+
+    const order = await this.razorpayRepository.payloadFromOrderId(orderId)
+    const payment = await this.razorpayRepository.payloadFromPaymentId(paymentId)
+
+    const paymentDoc = await this.paymentRepo.createPayment({
+      userId,
+      serviceId:order.notes.serviceId,
+      paymentId:payment.id,
+      amount:payment.amount,
+      method : payment.method,
+      status :"success",
+      receipt :order.receipt
+    });
+    const response = await this.roadsideAssistanceRepo.update(order.notes.serviceId,{status:'in_progress',startedAt:new Date(),paymentId:paymentDoc._id})
+    if(!response?.quotationId) throw new ApiError('Invalid Service')
+    await this.quotaionRepo.update(response.quotationId,{status:'approved'})
+    return {mechanicId:response.mechanicId} 
     
   }
+
+
+
 
 
 

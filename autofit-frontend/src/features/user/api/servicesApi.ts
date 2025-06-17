@@ -50,7 +50,7 @@ export const servicesApi = createApi({
             })
         }),
 
-        cancellBooking: builder.mutation<any,{serviceId:string}>({
+        cancelBooking: builder.mutation<any,{serviceId:string}>({
             query: ({serviceId}) => ({
                 url: `user/services/roadside-assistance/cancel`,
                 method: 'POST',
@@ -78,6 +78,7 @@ export const {
     useBookEmergencyAssistanceMutation,
     useRoadsideDetailsQuery,
     useApproveQuoteAndPayMutation,
-    useCancellBookingMutation,
-    useRejectQuotationMutation
+    useCancelBookingMutation,
+    useRejectQuotationMutation,
+    useVerifyPaymentMutation,
 } = servicesApi;

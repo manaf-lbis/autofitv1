@@ -7,30 +7,32 @@ import ProfilePage from "@/features/user/pages/profile/Profile";
 import MyVehicle from "@/features/user/pages/profile/MyVehicle";
 import MechanicBooking from "@/features/user/pages/roadsideAssistance/MechanicBooking";
 import BookingSuccessPage from "@/features/user/pages/roadsideAssistance/RoadsideDetails";
-
+import PaymentPage from "@/features/user/pages/profile/PaymentPage";
+import PaymentStatusPage from "@/features/user/pages/profile/PaymentStatusPage";
 
 const UserRoutes: React.FC = () => {
   return (
     <Routes>
       <Route element={<ProtectedRoute allowedRoles={["user"]} />}>
         <Route element={<MainLayout />}>
-
           <Route element={<ProfileLayout />}>
-            <Route path="profile" element={<ProfilePage />}/>
+            <Route path="profile" element={<ProfilePage />} />
             <Route path="my-vehicles" element={<MyVehicle />} />
             <Route path="service-history" element={<ServiceHistory />} />
 
-            <Route  path="*" element={<>Not Found</>}></Route>
+            <Route path="*" element={<>Not Found</>}></Route>
           </Route>
 
           <Route path="roadside-assistance/mechanic-booking" element={<MechanicBooking />} />
-          <Route path="roadside-assistance/:id/details" element={<BookingSuccessPage/>} />
-
+          <Route path="roadside-assistance/:id/details" element={<BookingSuccessPage />} />
         </Route>
+
+        <Route path="payment/status/:status" element={<PaymentStatusPage />} />
+        <Route path="payment/:id" element={<PaymentPage />} />
+        
       </Route>
     </Routes>
   );
-  
 };
 
 export default UserRoutes;

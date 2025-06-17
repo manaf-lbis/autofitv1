@@ -1,4 +1,5 @@
+
+import { PaymentDocument } from "../../models/paymentModel"
 export interface IPaymentRepository {
-  createOrder(amount: number): Promise<{ orderId: string }>;
-  verifyPayment(paymentId: string, orderId: string, signature: string): boolean;
+    createPayment(entity:Partial<PaymentDocument>):Promise<PaymentDocument>
 }

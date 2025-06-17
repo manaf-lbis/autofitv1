@@ -197,6 +197,10 @@ export class MechanicProfileRepository implements IMechanicProfileRepository {
     return mechanics;
   }
 
+  async findByMechanicIdAndUpdate(mechanicId: Types.ObjectId,entity:Partial<MechanicProfileDocument>): Promise<MechanicProfileDocument | null> {
+    return await MechanicProfileModel.findOneAndUpdate({mechanicId},entity,{new:true})
+  }
+
 }
 
 

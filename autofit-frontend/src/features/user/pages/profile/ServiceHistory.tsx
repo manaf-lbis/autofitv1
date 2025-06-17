@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useServiceHistoryQuery } from "../../api/profileApi";
 import { useNavigate } from "react-router-dom";
+import ServicesPageShimmer from "../../components/shimmer/profile/ServicePageShimer";
 
 interface ServiceRecord {
   _id: string;
@@ -82,14 +83,16 @@ const getStatusColor = (status: string) => {
 
 export default function ServicesPage() {
   const [activeTab, setActiveTab] = useState("roadside");
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
-  const { data } = useServiceHistoryQuery({});
+  const { data, isLoading } = useServiceHistoryQuery({});
   const roadsideAssistanceData = data?.data || [];
 
   const handleViewDetails = (serviceId: string) => {
-    navigate(`/user/roadside-assistance/${serviceId}/details`)
+    navigate(`/user/roadside-assistance/${serviceId}/details`);
   };
+
+  if (isLoading) return <ServicesPageShimmer />;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 p-3 sm:p-4 lg:p-6">
@@ -143,111 +146,127 @@ export default function ServicesPage() {
           <div className="p-4 sm:p-6">
             {activeTab === "roadside" && (
               <div>
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-0 mb-4 sm:mb-6">
-                  <h2 className="text-lg sm:text-xl font-semibold text-gray-900">Roadside Assistance</h2>
-                  <Badge variant="secondary" className="bg-blue-100 text-blue-700 w-fit">
-                    {roadsideAssistanceData.length} Services
-                  </Badge>
-                </div>
+                {roadsideAssistanceData.length === 0 ? (
+                  <div className="text-center py-8 sm:py-12">
+                    <Wrench className="h-12 w-12 sm:h-16 sm:w-16 text-gray-400 mx-auto mb-3 sm:mb-4" />
+                    <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2">
+                      No Roadside Assistance Services
+                    </h3>
+                    <p className="text-sm sm:text-base text-gray-600 mb-3 sm:mb-4 px-4">
+                      You haven’t booked any roadside assistance services yet.
+                    </p>
+                  </div>
+                ) : (
+                  <>
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-0 mb-4 sm:mb-6">
+                      <h2 className="text-lg sm:text-xl font-semibold text-gray-900">Roadside Assistance</h2>
+                      <Badge variant="secondary" className="bg-blue-100 text-blue-700 w-fit">
+                        {roadsideAssistanceData.length} Services
+                      </Badge>
+                    </div>
 
-                {/* Scrollable Services Container */}
-                <div className="max-h-[500px] sm:max-h-[600px] overflow-y-auto space-y-3 sm:space-y-4">
-                  {roadsideAssistanceData.map((service: ServiceRecord) => (
-                    <div
-                      key={service._id}
-                      className="backdrop-blur-sm bg-white/50 border border-white/30 rounded-xl p-4 sm:p-6"
-                    >
-                      <div className="flex flex-col lg:flex-row lg:items-start gap-4">
-                        <div className="flex-1">
-                          {/* Status and Issue */}
-                          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-4">
-                            <div className="flex items-center gap-2">
-                              {getStatusIcon(service.status)}
-                              <Badge className={`${getStatusColor(service.status)} text-xs sm:text-sm`}>
-                                {service.status.charAt(0).toUpperCase() +
-                                  service.status.slice(1).replace("_", " ")}
-                              </Badge>
-                            </div>
-                            <h3 className="font-semibold text-gray-900 text-base sm:text-lg">{service.issue}</h3>
-                          </div>
-
-                          {/* Service Timeline */}
-                          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 mb-4">
-                            <div className="space-y-2">
-                              <div className="flex items-center gap-2">
-                                <Play className="h-3 w-3 sm:h-4 sm:w-4 text-green-600" />
-                                <span className="text-xs sm:text-sm font-medium text-gray-700">Service Started</span>
+                    {/* Scrollable Services Container */}
+                    <div className="max-h-[500px] sm:max-h-[600px] overflow-y-auto space-y-3 sm:space-y-4">
+                      {roadsideAssistanceData.map((service: ServiceRecord) => (
+                        <div
+                          key={service._id}
+                          className="backdrop-blur-sm bg-white/50 border border-white/30 rounded-xl p-4 sm:p-6"
+                        >
+                          <div className="flex flex-col lg:flex-row lg:items-start gap-4">
+                            <div className="flex-1">
+                              {/* Status and Issue */}
+                              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-4">
+                                <div className="flex items-center gap-2">
+                                  {getStatusIcon(service.status)}
+                                  <Badge className={`${getStatusColor(service.status)} text-xs sm:text-sm`}>
+                                    {service.status.charAt(0).toUpperCase() +
+                                      service.status.slice(1).replace("_", " ")}
+                                  </Badge>
+                                </div>
+                                <h3 className="font-semibold text-gray-900 text-base sm:text-lg">{service.issue}</h3>
                               </div>
-                              <div className="flex items-center gap-2 ml-4 sm:ml-6">
-                                <Calendar className="h-3 w-3 sm:h-4 sm:w-4 text-gray-400" />
-                                <span className="text-xs sm:text-sm text-gray-600">
-                                  {service.startedAt
-                                    ? new Date(service.startedAt).toLocaleString()
-                                    : "Not yet started"}
+
+                              {/* Service Timeline */}
+                              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 mb-4">
+                                <div className="space-y-2">
+                                  <div className="flex items-center gap-2">
+                                    <Play className="h-3 w-3 sm:h-4 sm:w-4 text-green-600" />
+                                    <span className="text-xs sm:text-sm font-medium text-gray-700">
+                                      Service Started
+                                    </span>
+                                  </div>
+                                  <div className="flex items-center gap-2 ml-4 sm:ml-6">
+                                    <Calendar className="h-3 w-3 sm:h-4 sm:w-4 text-gray-400" />
+                                    <span className="text-xs sm:text-sm text-gray-600">
+                                      {service.startedAt
+                                        ? new Date(service.startedAt).toLocaleString()
+                                        : "Not yet started"}
+                                    </span>
+                                  </div>
+                                </div>
+
+                                {service.endedAt && (
+                                  <div className="space-y-2">
+                                    <div className="flex items-center gap-2">
+                                      <Square className="h-3 w-3 sm:h-4 sm:w-4 text-red-600" />
+                                      <span className="text-xs sm:text-sm font-medium text-gray-700">
+                                        Service Ended
+                                      </span>
+                                    </div>
+                                    <div className="flex items-center gap-2 ml-4 sm:ml-6">
+                                      <Calendar className="h-3 w-3 sm:h-4 sm:w-4 text-gray-400" />
+                                      <span className="text-xs sm:text-sm text-gray-600">
+                                        {new Date(service.endedAt).toLocaleString()}
+                                      </span>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+
+                              {/* Vehicle ID */}
+                              <div className="flex items-center gap-2 mb-4">
+                                <Hash className="h-3 w-3 sm:h-4 sm:w-4 text-gray-400" />
+                                <span className="text-sm sm:text-base text-gray-600 font-medium">
+                                  {service.vehicle.regNo}
                                 </span>
                               </div>
-                            </div>
 
-                            {service.endedAt && (
-                              <div className="space-y-2">
-                                <div className="flex items-center gap-2">
-                                  <Square className="h-3 w-3 sm:h-4 sm:w-4 text-red-600" />
-                                  <span className="text-xs sm:text-sm font-medium text-gray-700">
-                                    Service Ended
-                                  </span>
-                                </div>
-                                <div className="flex items-center gap-2 ml-4 sm:ml-6">
-                                  <Calendar className="h-3 w-3 sm:h-4 sm:w-4 text-gray-400" />
-                                  <span className="text-xs sm:text-sm text-gray-600">
-                                    {new Date(service.endedAt).toLocaleString()}
-                                  </span>
-                                </div>
+                              {/* Issue Description */}
+                              <div className="bg-gray-50 rounded-lg p-3 sm:p-4 border border-gray-200">
+                                <p className="text-sm sm:text-base text-gray-700 leading-relaxed">
+                                  {service.description}
+                                </p>
                               </div>
-                            )}
-                          </div>
 
-                          {/* Vehicle ID */}
-                          <div className="flex items-center gap-2 mb-4">
-                            <Hash className="h-3 w-3 sm:h-4 sm:w-4 text-gray-400" />
-                            <span className="text-sm sm:text-base text-gray-600 font-medium">
-                              {service.vehicle.regNo}
-                            </span>
-                          </div>
-
-                          {/* Issue Description */}
-                          <div className="bg-gray-50 rounded-lg p-3 sm:p-4 border border-gray-200">
-                            <p className="text-sm sm:text-base text-gray-700 leading-relaxed">
-                              {service.description}
-                            </p>
-                          </div>
-
-                          {/* Quotation Sent Message */}
-                          {service.status === "quotation_sent" && (
-                            <div className="mt-3 bg-yellow-50 rounded-lg p-3 sm:p-4 border border-yellow-200">
-                              <p className="text-sm sm:text-base text-yellow-700 font-medium">
-                                Approve & Pay to Continue Service
-                              </p>
+                              {/* Quotation Sent Message */}
+                              {service.status === "quotation_sent" && (
+                                <div className="mt-3 bg-yellow-50 rounded-lg p-3 sm:p-4 border border-yellow-200">
+                                  <p className="text-sm sm:text-base text-yellow-700 font-medium">
+                                    Approve & Pay to Continue Service
+                                  </p>
+                                </div>
+                              )}
                             </div>
-                          )}
-                        </div>
 
-                        {/* View Details Button */}
-                        <div className="flex lg:block">
-                          <Button
-                            onClick={() => handleViewDetails(service._id)}
-                            variant="outline"
-                            size="sm"
-                            className="bg-white/80 hover:bg-white border-gray-200 hover:border-gray-300 text-gray-700 hover:text-gray-900 px-3 sm:px-4 py-2 rounded-lg font-medium text-xs sm:text-sm w-full lg:w-auto"
-                          >
-                            <span className="sm:hidden">Details</span>
-                            <span className="hidden sm:inline">View Details</span>
-                            <ChevronRight className="h-3 w-3 sm:h-4 sm:w-4 ml-1" />
-                          </Button>
+                            {/* View Details Button */}
+                            <div className="flex lg:block">
+                              <Button
+                                onClick={() => handleViewDetails(service._id)}
+                                variant="outline"
+                                size="sm"
+                                className="bg-white/80 hover:bg-white border-gray-200 hover:border-gray-300 text-gray-700 hover:text-gray-900 px-3 sm:px-4 py-2 rounded-lg font-medium text-xs sm:text-sm w-full lg:w-auto"
+                              >
+                                <span className="sm:hidden">Details</span>
+                                <span className="hidden sm:inline">View Details</span>
+                                <ChevronRight className="h-3 w-3 sm:h-4 sm:w-4 ml-1" />
+                              </Button>
+                            </div>
+                          </div>
                         </div>
-                      </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
+                  </>
+                )}
               </div>
             )}
 

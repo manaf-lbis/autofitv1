@@ -4,7 +4,8 @@ import { IBaseRepository } from "./IBaseRepository";
 
 export interface IQuotationRepository extends IBaseRepository<QuotationDocument> { 
 
-    findByRequestId(requestId: Types.ObjectId): Promise<QuotationDocument[] | null>;
+    findByServiceId(requestId: Types.ObjectId): Promise<QuotationDocument | null>;
+
 
 
 }

@@ -26,8 +26,8 @@ export class QuotationRepository implements IQuotationRepository {
         await QuotationModel.findByIdAndDelete(id).exec();
     }
 
-    async findByRequestId(requestId: Types.ObjectId): Promise<QuotationDocument[] | null> {
-        return await QuotationModel.find({ requestId }).exec();
+    async findByServiceId(requestId: Types.ObjectId): Promise<QuotationDocument | null> {
+        return await QuotationModel.findOne({ requestId }).exec();
     }
     
    
