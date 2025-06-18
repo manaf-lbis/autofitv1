@@ -21,6 +21,4 @@ router.post('/roadside-assistance/quotation',(req,res,next)=>servicesController.
 router.get('/roadside-assistance/:id/details',(req,res,next)=>servicesController.roadsideAssistanceDetails(req,res,next))
 
 
-
-
 export default router

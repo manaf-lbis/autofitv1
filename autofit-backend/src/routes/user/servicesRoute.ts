@@ -41,6 +41,8 @@ router.get('/roadside-assistance/:id/details', servicesController.serviceDetails
 router.post('/roadside-assistance/payment', servicesController.makePayment.bind(servicesController));
 router.post('/roadside-assistance/verify-payment', servicesController.verifyPayment.bind(servicesController));
 
+router.post('/roadside-assistance/quotation/reject', servicesController.cancelQuotation.bind(servicesController));
+router.post('/roadside-assistance/cancel', servicesController.cancelQuotation.bind(servicesController));
 
 
 export default router

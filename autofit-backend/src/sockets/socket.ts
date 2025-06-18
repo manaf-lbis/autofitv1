@@ -3,6 +3,7 @@ import http from "http";
 import * as cookie from "cookie";
 import jwt from "jsonwebtoken";
 import { notificationHandler } from "./notificationHandler";
+import { chatHandler } from "./chatHandler";
 
 
 export const userSocketMap = new Map<
@@ -73,6 +74,7 @@ export const initSocket = (server: http.Server): Server => {
 
       
       notificationHandler(socket);
+      chatHandler(socket)
 
 
 

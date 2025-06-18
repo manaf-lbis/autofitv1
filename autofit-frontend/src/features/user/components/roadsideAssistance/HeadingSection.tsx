@@ -45,15 +45,7 @@ export function HeadingSection({
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            className="flex items-center justify-center gap-2"
-            onClick={onMessageClick}
-          >
-            <MessageCircle className="w-4 h-4" />
-            Message
-          </Button>
+          
           <Button
             variant="outline"
             size="sm"

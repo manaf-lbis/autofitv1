@@ -44,7 +44,7 @@ export class RoadsideAssistanceRepository implements IRoadsideAssistanceRepo {
     async ongoingServiceByMechanicId(mechanicId: Types.ObjectId): Promise<RoadsideAssistanceDocument> {
         return await RoadsideAssistanceModel.findOne({
             mechanicId,
-            status: { $nin: ['completed', 'cancelled'] }
+            status: { $nin: ['completed', 'canceled'] }
         }).populate('userId', 'name') as RoadsideAssistanceDocument;
     }
 

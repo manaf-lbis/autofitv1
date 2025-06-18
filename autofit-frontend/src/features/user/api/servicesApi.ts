@@ -58,13 +58,15 @@ export const servicesApi = createApi({
             })
         }),
 
-        rejectQuotation: builder.mutation<any,{quotationId:string}>({
+        rejectQuotation: builder.mutation<any,{serviceId:string}>({
             query: (data) => ({
                 url: `user/services/roadside-assistance/quotation/reject`,
                 method: 'POST',
                 body: data
             })
         }),
+        
+        
 
 
     }),

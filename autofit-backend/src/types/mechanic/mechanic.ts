@@ -21,7 +21,7 @@ export interface MechanicProfile {
   _id: Types.ObjectId,
   mechanicId: Types.ObjectId
   education: string,
-  availability: 'avilable'|'notAvailable'|'busy'
+  availability: 'available'|'notAvailable'|'busy'
   specialised: string,
   experience: number,
   shopName: string,

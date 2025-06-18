@@ -7,6 +7,7 @@ import Dashboard from "@/features/mechanic/pages/Dashboard";
 import AccountPage from "@/features/mechanic/pages/Account";
 import MechanicSocketContext from "@/context/MechanicSocketContext";
 import EmergencyDetails from "@/features/mechanic/pages/RoadsideAssistanceDetails";
+import Messages from "@/features/mechanic/pages/Messages";
 import NotFound from "@/features/mechanic/pages/NotFound";
 
 
@@ -20,7 +21,9 @@ const MechanicRoutes: React.FC = () => {
               <Route path="dashboard" element={<Dashboard/>} />
               <Route path="roadside-assistance/:id/details" element={<EmergencyDetails/>} />
 
+
               <Route path="account" element={<AccountPage />} />
+              <Route path="messages" element={<Messages/>} />
               
               <Route path="/*" element={<NotFound/>} />
             </Route>

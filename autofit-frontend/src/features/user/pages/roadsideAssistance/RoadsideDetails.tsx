@@ -15,6 +15,7 @@ import { CancellationModal } from "../../components/roadsideAssistance/Cancellat
 import { motion } from "framer-motion";
 import { formatDateTime } from "@/lib/dateFormater";
 import { initSocket } from "@/lib/socket";
+import ChatBubble from "../../components/ChatBubble";
 
 type ServiceStatus =
   | "assigned"
@@ -70,7 +71,7 @@ export default function RoadsideDetails() {
   const handleRejectQuotation = async () => {
     setIsRejecting(true);
     try {
-      await rejectQuotation({ quotationId: bookingData?.quotationId._id }).unwrap();
+      await rejectQuotation({serviceId: params.id as string}).unwrap();
       setIsCancelled(true);
       setShowQuotationModal(false);
     } catch (error) {
@@ -310,6 +311,7 @@ export default function RoadsideDetails() {
           />
         </div>
       </main>
+      <ChatBubble serviceId={serviceId} />
 
       {showQuotationModal && bookingData?.quotationId && (
         <QuotationModal

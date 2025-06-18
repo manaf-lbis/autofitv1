@@ -9,6 +9,9 @@ import { userManagementApi } from "@/features/admin/api/userManagement";
 import { mechananicManagementApi } from "@/features/admin/api/mechanicManagement";
 import { servicesApi } from "@/features/user/api/servicesApi";
 import { roadsideApi } from "@/features/mechanic/api/roadsideApi";
+import { userChatApi } from "@/features/user/api/userChatApi";
+import { adminChatApi } from "@/features/admin/api/adminChatApi";
+import { mechanicChatApi } from "@/features/mechanic/api/mechanicChatApi";
 
 import authReducer from "../features/auth/slices/authSlice";
 import registrationReducer from '@/features/mechanic/slices/registrationSlice'
@@ -32,7 +35,11 @@ export const store = configureStore({
     [userManagementApi.reducerPath] : userManagementApi.reducer,
     [mechananicManagementApi.reducerPath] : mechananicManagementApi.reducer,
     [servicesApi.reducerPath] : servicesApi.reducer,
-    [roadsideApi.reducerPath] :roadsideApi.reducer
+    [roadsideApi.reducerPath] :roadsideApi.reducer,
+    [userChatApi.reducerPath] : userChatApi.reducer,
+    [mechanicChatApi.reducerPath] : mechanicChatApi.reducer,
+    [adminChatApi.reducerPath] :adminChatApi.reducer
+
 
   },
   middleware: (getDefaultMiddleware) =>
@@ -46,7 +53,10 @@ export const store = configureStore({
       userManagementApi.middleware,
       mechananicManagementApi.middleware,
       servicesApi.middleware,
-      roadsideApi.middleware
+      roadsideApi.middleware,
+      userChatApi.middleware,
+      mechanicChatApi.middleware,
+      adminChatApi.middleware
     ),
 });
 

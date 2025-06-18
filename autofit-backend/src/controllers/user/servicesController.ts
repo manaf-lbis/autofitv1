@@ -89,28 +89,28 @@ export class ServicesController {
 
     async makePayment(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const { serviceId,quotationId } = req.body;
+            const { serviceId, quotationId } = req.body;
             const userId = req.user?.id
 
             if (!serviceId || !userId) throw new ApiError('Invalid Service Id');
 
-            const response = await this.userRoadsideService.approveQuoteAndPay({ serviceId,quotationId })
+            const response = await this.userRoadsideService.approveQuoteAndPay({ serviceId, quotationId })
 
-            sendSuccess(res,'Order Created Successfully',{orderId:response.orderId})
+            sendSuccess(res, 'Order Created Successfully', { orderId: response.orderId })
 
         } catch (error) {
             next(error)
         }
     }
 
-     async verifyPayment(req: Request, res: Response, next: NextFunction): Promise<void> {
+    async verifyPayment(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const { paymentId,orderId,signature } = req.body;
+            const { paymentId, orderId, signature } = req.body;
             const userId = req.user?.id
-            if(!paymentId || !orderId || !signature) throw new ApiError('Payment Verification Failed');
-            if(!userId) throw new ApiError('Invalid User')
+            if (!paymentId || !orderId || !signature) throw new ApiError('Payment Verification Failed');
+            if (!userId) throw new ApiError('Invalid User')
 
-            const {mechanicId} = await this.userRoadsideService.VerifyAndApprove({userId,paymentId,orderId,signature})
+            const { mechanicId } = await this.userRoadsideService.VerifyAndApprove({ userId, paymentId, orderId, signature })
 
             const mechData = userSocketMap.get(mechanicId.toString())
 
@@ -121,11 +121,36 @@ export class ServicesController {
                 })
             }
 
-            sendSuccess(res,'Verified')
+            sendSuccess(res, 'Verified')
 
         } catch (error) {
             next(error)
         }
+    }
+
+    async cancelQuotation(req: Request, res: Response, next: NextFunction): Promise<void> {
+
+        try {
+            const { serviceId } = req.body
+            await this.roadsideService.cancelQuotation({ serviceId })
+            sendSuccess(res, 'Service Cancelled')
+
+        } catch (error) {
+            next(error)
+        }
+
+    }
+
+    async cancelService(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const { serviceId } = req.body
+            await this.roadsideService.cancelService(serviceId)
+            sendSuccess(res, 'Service Cancelled')
+
+        } catch (error) {
+            next(error)
+        }
+
     }
 
 
