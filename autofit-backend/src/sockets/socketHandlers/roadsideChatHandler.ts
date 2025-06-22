@@ -1,0 +1,62 @@
+import { Socket } from "socket.io";
+import { ChatService } from "../../services/chatService";
+import { ChatRepository } from "../../repositories/chatRepository";
+import { verifyJwt } from "../verifyJwt";
+import { RoadsideAssistanceModel } from "../../models/roadsideAssistanceModel";
+import { ApiError } from "../../utils/apiError";
+import { getIO } from "../socket";
+
+export const roadsideChatHandler = (socket: Socket) => {
+  const chatRepository = new ChatRepository();
+  const chatService = new ChatService(chatRepository);
+
+
+  socket.on("roadsideChat", async (data) => {
+    try {
+    
+      let serviceDoc;
+      let receiverId;
+      let receiverRole:'user' | 'mechanic';
+
+      const { serviceId, message } = data;
+      const { id: senderId, role: senderRole } = verifyJwt(socket);
+      serviceDoc = await RoadsideAssistanceModel.findById(serviceId).select('userId _id mechanicId');
+
+      if (!serviceDoc) throw new ApiError('Service not found');
+
+      if (senderRole === 'user') {
+        if (serviceDoc?.userId.toString() !== senderId) throw new ApiError("You are not authorized for this service");
+        receiverId = serviceDoc.mechanicId.toString();
+        receiverRole = 'mechanic'
+
+      } else if (senderRole === 'mechanic') {
+        if (serviceDoc.mechanicId.toString() !== senderId) throw new ApiError("You are not authorized for this service");
+        receiverId = serviceDoc.userId.toString();
+        receiverRole = 'user';
+
+      } else{
+        throw new ApiError('invalid user')
+      }
+
+      const savedMsg = await chatService.saveMessage(serviceId,'roadsideAssistance',senderId,senderRole,receiverId,receiverRole,message)
+      
+      const room = `roadside_${serviceId}`;
+      getIO().to(room).emit('roadsideMessage',{
+        _id: savedMsg._id,
+        serviceId,
+        message,
+        senderId,
+        senderName : (savedMsg.senderId as any).name,
+        senderRole,
+        seen:savedMsg.seen,
+        createdAt: savedMsg.createdAt,
+      })
+      
+
+    } catch (error) {
+      console.log(error);
+      
+      socket.emit("error", { message: "Failed to send message" });
+    }
+  });
+};

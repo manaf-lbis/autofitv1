@@ -52,7 +52,7 @@ export class RoadsideAssistanceRepository implements IRoadsideAssistanceRepo {
         const result = await RoadsideAssistanceModel
             .findById(id)
             .populate('userId', 'name email mobile -_id')
-            .populate('mechanicId', 'name email avatar -_id')
+            .populate('mechanicId', 'name email avatar')
             .populate('quotationId', '-requestId')
             .populate('paymentId','-userId')
             .lean();

@@ -1,117 +1,131 @@
-// import type React from "react"
 
-// import { useState, useRef, useEffect } from "react"
-// import { MessageCircle, X, Send, Minimize2, Maximize2 } from "lucide-react"
-// import { Button } from "@/components/ui/button"
-// import { initSocket } from "@/lib/socket"
-// import { useGetUserChatsQuery } from "../api/userChatApi"
 
-// interface Message {
-//   id: string
-//   content: string
-//   timestamp: string
-//   isFromUser: boolean
+// import type React from "react";
+// import { useState, useRef, useEffect } from "react";
+// import { MessageCircle, X, Send, Minimize2, Maximize2 } from "lucide-react";
+// import { Button } from "@/components/ui/button";
+// import { initSocket } from "@/lib/socket";
+// import { useDispatch, useSelector } from "react-redux";
+// import { RootState } from "@/store/store";
+// import { formatTimeToNow } from "@/lib/dateFormater";
+// import { useGetUserChatsQuery } from "../api/userChatApi";
+// import { setMessages, addMessage } from "../slices/chatSlice";
+// import { Socket } from "socket.io-client";
+
+// interface Props {
+//   serviceId: string;
+//   mechanicId: string;
+//   mechanicName:string;
 // }
 
-// const initialMessages: Message[] = [
-//   {
-//     id: "1",
-//     content: "Hello! I'm here to help you with your vehicle needs. How can I assist you today?",
-//     timestamp: "10:30",
-//     isFromUser: false,
-//   },
-// ]
+// const ChatBubble: React.FC<Props> = ({ serviceId, mechanicId, mechanicName }) => {
+//   const [isOpen, setIsOpen] = useState(false);
+//   const [isMinimized, setIsMinimized] = useState(false);
+//   const [newMessage, setNewMessage] = useState("");
+//   const [hasNewMessage, setHasNewMessage] = useState(false);
+//   const messagesEndRef = useRef<HTMLDivElement>(null);
+//   const dispatch = useDispatch();
+//   const messages = useSelector((state: RootState) => state.chatSlice);
+//   const { data: chatData } = useGetUserChatsQuery({
+//     serviceId,
+//     serviceType: "roadsideAssistance",
+//   });
 
-// const ChatBubble:React.FC<{serviceId:string}> = ({serviceId}) => {
+//   const socketRef = useRef<Socket | null>(null);
 
-//   const [isOpen, setIsOpen] = useState(false)
-//   const [isMinimized, setIsMinimized] = useState(false)
-//   const [messages, setMessages] = useState<Message[]>(initialMessages)
-//   const [newMessage, setNewMessage] = useState("")
-//   const [hasNewMessage, setHasNewMessage] = useState(false)
-//   const messagesEndRef = useRef<HTMLDivElement>(null)
-
-//   const {data} = useGetUserChatsQuery(serviceId)
-
-//   const mechanicName = "Alex Johnson"
 
 //   useEffect(() => {
-//     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
-//   }, [messages])
+//     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+//   }, [messages]);
 
 //   useEffect(() => {
 //     if (!isOpen || isMinimized) {
 //       const timer = setTimeout(() => {
-//         setHasNewMessage(true)
-//       }, 5000)
-//       return () => clearTimeout(timer)
+//         setHasNewMessage(true);
+//       }, 5000);
+//       return () => clearTimeout(timer);
 //     }
-//   }, [isOpen, isMinimized])
+//   }, [isOpen, isMinimized]);
+
+//   useEffect(() => {
+//     const socket = initSocket();
+//     socketRef.current = socket;
+
+//     const room = `roadside_${serviceId}`;
+//     socket.emit("joinRoom", { room });
+
+//     socket.on("roadsideMessage", (data) => {
+//       dispatch(addMessage(data));
+//     });
+
+//     return () => {
+//       socket.off("roadsideMessage");
+//       socket.emit("leaveRoom", { room });
+//     };
+//   }, []);
+
+//   useEffect(() => {
+//     const data = chatData?.data.map((ele) => ({
+//       _id: ele._id,
+//       serviceId: ele.serviceId,
+//       message: ele.message,
+//       senderId: ele.senderId._id,
+//       senderName: ele.senderId.name,
+//       senderRole: ele.senderRole,
+//       seen: ele.seen,
+//       createdAt: ele.createdAt,
+//     }));
+
+//     if (data) {
+//       dispatch(setMessages(data));
+//     }
+//   }, [chatData]);
 
 //   const handleSendMessage = () => {
-//     if (!newMessage.trim()) return
+//     if (!newMessage.trim()) return;
 
-//     const userMessage: Message = {
-//       id: Date.now().toString(),
-//       content: newMessage,
-//       timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-//       isFromUser: true,
-//     }
+//     socketRef.current?.emit("roadsideChat", {
+//       serviceId,
+//       message: newMessage,
+//     });
 
-//     setMessages((prev) => [...prev, userMessage])
-//     setNewMessage("")
+//     setNewMessage('')
 
-//     setTimeout(() => {
-//       const mechanicResponse: Message = {
-//         id: (Date.now() + 1).toString(),
-//         content: "Thanks for your message! I'll help you with that right away.",
-//         timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-//         isFromUser: false,
-//       }
-//       setMessages((prev) => [...prev, mechanicResponse])
-//     }, 1000)
-//   }
-
-//   useEffect(()=>{
-//     const socket = initSocket();
-//     socket.on('you can suggest',(data)=>{
-
-//     })
-//   },[])
+//   };
 
 //   const handleKeyPress = (e: React.KeyboardEvent) => {
 //     if (e.key === "Enter" && !e.shiftKey) {
-//       e.preventDefault()
-//       handleSendMessage()
+//       e.preventDefault();
+//       handleSendMessage();
 //     }
-//   }
+//   };
 
 //   const openChat = () => {
-//     setIsOpen(true)
-//     setIsMinimized(false)
-//     setHasNewMessage(false)
-//   }
+//     setIsOpen(true);
+//     setIsMinimized(false);
+//     setHasNewMessage(false);
+//   };
 
 //   const closeChat = () => {
-//     setIsOpen(false)
-//     setIsMinimized(false)
-//   }
+//     setIsOpen(false);
+//     setIsMinimized(false);
+//   };
 
 //   const toggleMinimize = () => {
-//     setIsMinimized(!isMinimized)
+//     setIsMinimized(!isMinimized);
 //     if (isMinimized) {
-//       setHasNewMessage(false)
+//       setHasNewMessage(false);
 //     }
-//   }
+//   };
 
 //   const restoreChat = () => {
-//     setIsMinimized(false)
-//     setHasNewMessage(false)
-//   }
+//     setIsMinimized(false);
+//     setHasNewMessage(false);
+//   };
 
 //   return (
 //     <>
-
+//       {/* Chat Bubble */}
 //       {!isOpen && (
 //         <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50">
 //           <button
@@ -133,29 +147,39 @@
 //         <div className="fixed inset-4 sm:bottom-6 sm:right-6 sm:inset-auto z-50">
 //           <div
 //             className={`bg-white rounded-lg shadow-2xl border border-gray-200 transition-all duration-300 ${
-//               isMinimized ? "w-full sm:w-96 h-14" : "w-full h-full sm:w-96 sm:h-[500px] max-h-[90vh]"
+//               isMinimized
+//                 ? "w-full sm:w-96 h-14"
+//                 : "w-full h-full sm:w-96 sm:h-[500px] max-h-[90vh]"
 //             }`}
 //           >
 //             {/* Chat Header */}
 //             <div
 //               className={`flex items-center justify-between p-3 sm:p-4 border-b border-gray-200 bg-blue-600 text-white ${
-//                 isMinimized ? "rounded-lg cursor-pointer hover:bg-blue-700" : "rounded-t-lg"
+//                 isMinimized
+//                   ? "rounded-lg cursor-pointer hover:bg-blue-700"
+//                   : "rounded-t-lg"
 //               } transition-colors duration-200`}
 //               onClick={isMinimized ? restoreChat : undefined}
 //             >
 //               <div className="flex items-center gap-2">
 //                 <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-//                 <h3 className="font-medium text-sm sm:text-base">{mechanicName}</h3>
-//                 <span className="text-xs text-blue-100 hidden sm:inline">Online</span>
-//                 {isMinimized && hasNewMessage && <div className="w-2 h-2 bg-red-400 rounded-full animate-pulse ml-2" />}
+//                 <h3 className="font-medium text-sm sm:text-base">
+//                   {mechanicName}
+//                 </h3>
+//                 <span className="text-xs text-blue-100 hidden sm:inline">
+//                   Online
+//                 </span>
+//                 {isMinimized && hasNewMessage && (
+//                   <div className="w-2 h-2 bg-red-400 rounded-full animate-pulse ml-2" />
+//                 )}
 //               </div>
 //               <div className="flex items-center gap-1">
 //                 <Button
 //                   variant="ghost"
 //                   size="sm"
 //                   onClick={(e) => {
-//                     e.stopPropagation()
-//                     toggleMinimize()
+//                     e.stopPropagation();
+//                     toggleMinimize();
 //                   }}
 //                   className="text-white hover:bg-blue-700 p-1 h-auto w-auto"
 //                 >
@@ -169,8 +193,8 @@
 //                   variant="ghost"
 //                   size="sm"
 //                   onClick={(e) => {
-//                     e.stopPropagation()
-//                     closeChat()
+//                     e.stopPropagation();
+//                     closeChat();
 //                   }}
 //                   className="text-white hover:bg-blue-700 p-1 h-auto w-auto"
 //                 >
@@ -179,23 +203,40 @@
 //               </div>
 //             </div>
 
+//             {/* Chat Content - Only show when not minimized */}
 //             {!isMinimized && (
 //               <>
 //                 {/* Messages */}
-//                 <div className="flex-1 overflow-y-auto p-3 sm:p-4 bg-gray-50" style={{ height: "calc(100% - 120px)" }}>
+//                 <div
+//                   className="flex-1 overflow-y-auto p-3 sm:p-4 bg-gray-50"
+//                   style={{ height: "calc(100% - 120px)" }}
+//                 >
 //                   <div className="space-y-3 sm:space-y-4">
 //                     {messages.map((message) => (
-//                       <div key={message.id} className={`flex ${message.isFromUser ? "justify-end" : "justify-start"}`}>
+//                       <div
+//                         key={message._id}
+//                         className={`flex ${
+//                           message.senderId !== mechanicId
+//                             ? "justify-end"
+//                             : "justify-start"
+//                         }`}
+//                       >
 //                         <div
 //                           className={`max-w-[85%] sm:max-w-xs px-3 py-2 rounded-lg text-sm ${
-//                             message.isFromUser
+//                             message.senderId !== mechanicId
 //                               ? "bg-blue-600 text-white rounded-br-sm"
 //                               : "bg-white border border-gray-200 text-gray-900 rounded-bl-sm"
 //                           }`}
 //                         >
-//                           <p className="leading-relaxed">{message.content}</p>
-//                           <div className={`text-xs mt-1 ${message.isFromUser ? "text-blue-100" : "text-gray-500"}`}>
-//                             {message.timestamp}
+//                           <p className="leading-relaxed">{message.message}</p>
+//                           <div
+//                             className={`text-xs mt-1 ${
+//                               message.senderId !== mechanicId
+//                                 ? "text-blue-100"
+//                                 : "text-gray-500"
+//                             }`}
+//                           >
+//                             {formatTimeToNow(message.createdAt)}
 //                           </div>
 //                         </div>
 //                       </div>
@@ -231,11 +272,10 @@
 //         </div>
 //       )}
 //     </>
-//   )
-// }
+//   );
+// };
 
-
-// export default ChatBubble
+// export default ChatBubble;
 
 
 
@@ -244,61 +284,34 @@ import type React from "react";
 import { useState, useRef, useEffect } from "react";
 import { MessageCircle, X, Send, Minimize2, Maximize2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { initSocket, getSocket } from "@/lib/socket";
-import { useGetUserChatsQuery } from "../api/userChatApi";
-import { useSelector } from "react-redux";
+import { initSocket } from "@/lib/socket";
+import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store/store";
+import { formatTimeToNow } from "@/lib/dateFormater";
+import { useGetUserChatsQuery } from "../api/userChatApi";
+import { setMessages, addMessage } from "../slices/chatSlice";
+import { Socket } from "socket.io-client";
 
-
-interface Message {
-  id: string;
-  content: string;
-  timestamp: string;
-  isFromUser: boolean;
+interface Props {
+  serviceId: string;
+  mechanicId: string;
+  mechanicName: string;
 }
 
-const ChatBubble: React.FC<{ serviceId: string }> = ({ serviceId }) => {
+const ChatBubble: React.FC<Props> = ({ serviceId, mechanicId, mechanicName }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
-  const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [hasNewMessage, setHasNewMessage] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const dispatch = useDispatch();
+  const messages = useSelector((state: RootState) => state.chatSlice);
+  const { data: chatData } = useGetUserChatsQuery({
+    serviceId,
+    serviceType: "roadsideAssistance",
+  });
 
-  const { data: initialChats, isLoading, error } = useGetUserChatsQuery(serviceId);
-  const  user  = useSelector((state:RootState)=>state.auth.user)
-  const mechanicName = "Alex Johnson";
-
-  // Initialize WebSocket
-  useEffect(() => {
-    const socket = initSocket();
-    socket.on("newMessage", (message: Message) => {
-      if (!message.isFromUser) {
-        setMessages((prev) => [...prev, message]);
-        setHasNewMessage(true);
-      }
-    });
-
-    return () => {
-      socket.off("newMessage");
-    };
-  }, [serviceId]);
-
-  // Load initial chats
-  useEffect(() => {
-    if (initialChats && !isLoading && !error) {
-      const formattedMessages = initialChats.map((chat) => ({
-        id: chat._id.toString(),
-        content: chat.message,
-        timestamp: new Date(chat.createdAt).toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit",
-        }),
-        isFromUser: chat.senderRole === "user",
-      }));
-      setMessages(formattedMessages);
-    }
-  }, [initialChats, isLoading, error]);
+  const socketRef = useRef<Socket | null>(null);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -313,31 +326,49 @@ const ChatBubble: React.FC<{ serviceId: string }> = ({ serviceId }) => {
     }
   }, [isOpen, isMinimized]);
 
+  useEffect(() => {
+    const socket = initSocket();
+    socketRef.current = socket;
+
+    const room = `roadside_${serviceId}`;
+    socket.emit("joinRoom", { room });
+
+    socket.on("roadsideMessage", (data) => {
+      dispatch(addMessage(data));
+    });
+
+    return () => {
+      socket.off("roadsideMessage");
+      socket.emit("leaveRoom", { room });
+    };
+  }, []);
+
+  useEffect(() => {
+    const data = chatData?.data.map((ele) => ({
+      _id: ele._id,
+      serviceId: ele.serviceId,
+      message: ele.message,
+      senderId: ele.senderId._id,
+      senderName: ele.senderId.name,
+      senderRole: ele.senderRole,
+      seen: ele.seen,
+      createdAt: ele.createdAt,
+    }));
+
+    if (data) {
+      dispatch(setMessages(data));
+    }
+  }, [chatData]);
+
   const handleSendMessage = () => {
     if (!newMessage.trim()) return;
 
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      content: newMessage,
-      timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-      isFromUser: true,
-    };
+    socketRef.current?.emit("roadsideChat", {
+      serviceId,
+      message: newMessage,
+    });
 
-    setMessages((prev) => [...prev, userMessage]);
     setNewMessage("");
-
-    const socket = getSocket();
-    if (socket && user) {
-      const receiverId = "mechanic123"; // Replace with assigned mechanic ID
-      socket.emit("sendMessage", {
-        serviceId,
-        senderId: 'user', //!!!!!!!!!!!!!!!
-        senderRole: "user",
-        receiverId,
-        receiverRole: "mechanic",
-        message: newMessage,
-      });
-    }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -370,11 +401,9 @@ const ChatBubble: React.FC<{ serviceId: string }> = ({ serviceId }) => {
     setHasNewMessage(false);
   };
 
-  if (isLoading) return <div>Loading...</div>;
-//   if (error) return <div>Error: {error.message as any}</div>;
-
   return (
     <>
+      {/* Chat Bubble */}
       {!isOpen && (
         <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50">
           <button
@@ -391,24 +420,28 @@ const ChatBubble: React.FC<{ serviceId: string }> = ({ serviceId }) => {
         </div>
       )}
 
+      {/* Chat Modal */}
       {isOpen && (
-        <div className="fixed inset-4 sm:bottom-6 sm:right-6 sm:inset-auto z-60">
+        <div className="fixed inset-4 sm:bottom-6 sm:right-6 sm:inset-auto z-50">
           <div
             className={`bg-white rounded-lg shadow-2xl border border-gray-200 transition-all duration-300 ${
-              isMinimized ? "w-full sm:w-96 h-14" : "w-full h-full sm:w-96 sm:h-[500px] max-h-[90vh]"
+              isMinimized ? "w-full sm:w-96 h-14" : "w-full h-full sm:w-96 sm:h-[500px] max-h-[calc(90vh-60px)]" // Adjusted max-height to account for footer
             }`}
           >
+            {/* Chat Header */}
             <div
               className={`flex items-center justify-between p-3 sm:p-4 border-b border-gray-200 bg-blue-600 text-white ${
                 isMinimized ? "rounded-lg cursor-pointer hover:bg-blue-700" : "rounded-t-lg"
-              }`}
+              } transition-colors duration-200`}
               onClick={isMinimized ? restoreChat : undefined}
             >
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
                 <h3 className="font-medium text-sm sm:text-base">{mechanicName}</h3>
                 <span className="text-xs text-blue-100 hidden sm:inline">Online</span>
-                {isMinimized && hasNewMessage && <div className="w-2 h-2 bg-red-400 rounded-full animate-pulse ml-2" />}
+                {isMinimized && hasNewMessage && (
+                  <div className="w-2 h-2 bg-red-400 rounded-full animate-pulse ml-2" />
+                )}
               </div>
               <div className="flex items-center gap-1">
                 <Button
@@ -420,7 +453,11 @@ const ChatBubble: React.FC<{ serviceId: string }> = ({ serviceId }) => {
                   }}
                   className="text-white hover:bg-blue-700 p-1 h-auto w-auto"
                 >
-                  {isMinimized ? <Maximize2 className="h-3 w-3 sm:h-4 sm:w-4" /> : <Minimize2 className="h-3 w-3 sm:h-4 sm:w-4" />}
+                  {isMinimized ? (
+                    <Maximize2 className="h-3 w-3 sm:h-4 sm:w-4" />
+                  ) : (
+                    <Minimize2 className="h-3 w-3 sm:h-4 sm:w-4" />
+                  )}
                 </Button>
                 <Button
                   variant="ghost"
@@ -436,20 +473,39 @@ const ChatBubble: React.FC<{ serviceId: string }> = ({ serviceId }) => {
               </div>
             </div>
 
+            {/* Chat Content - Only show when not minimized */}
             {!isMinimized && (
               <>
-                <div className="flex-1 overflow-y-auto p-3 sm:p-4 bg-gray-50" style={{ height: "calc(100% - 120px)" }}>
+                {/* Messages */}
+                <div
+                  className="p-3 sm:p-4 bg-gray-50 overflow-y-auto" // Reintroduced overflow-y-auto
+                  style={{ height: "calc(100% - 120px)" }} // Height adjusted for header and input
+                >
                   <div className="space-y-3 sm:space-y-4">
                     {messages.map((message) => (
-                      <div key={message.id} className={`flex ${message.isFromUser ? "justify-end" : "justify-start"}`}>
+                      <div
+                        key={message._id}
+                        className={`flex ${
+                          message.senderId !== mechanicId ? "justify-end" : "justify-start"
+                        }`}
+                      >
                         <div
                           className={`max-w-[85%] sm:max-w-xs px-3 py-2 rounded-lg text-sm ${
-                            message.isFromUser ? "bg-blue-600 text-white rounded-br-sm" : "bg-white border border-gray-200 text-gray-900 rounded-bl-sm"
+                            message.senderId !== mechanicId
+                              ? "bg-blue-600 text-white rounded-br-sm"
+                              : "bg-white border border-gray-200 text-gray-900 rounded-bl-sm"
                           }`}
+                          style={{ wordBreak: "break-word", whiteSpace: "pre-wrap" }}
                         >
-                          <p className="leading-relaxed">{message.content}</p>
-                          <div className={`text-xs mt-1 ${message.isFromUser ? "text-blue-100" : "text-gray-500"}`}>
-                            {message.timestamp}
+                          <p className="leading-relaxed">{message.message}</p>
+                          <div
+                            className={`text-xs mt-1 ${
+                              message.senderId !== mechanicId
+                                ? "text-blue-100"
+                                : "text-gray-500"
+                            }`}
+                          >
+                            {formatTimeToNow(message.createdAt)}
                           </div>
                         </div>
                       </div>
@@ -458,6 +514,7 @@ const ChatBubble: React.FC<{ serviceId: string }> = ({ serviceId }) => {
                   <div ref={messagesEndRef} />
                 </div>
 
+                {/* Message Input */}
                 <div className="p-3 sm:p-4 border-t border-gray-200 bg-white rounded-b-lg">
                   <div className="flex gap-2">
                     <input

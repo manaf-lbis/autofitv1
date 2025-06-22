@@ -13,9 +13,8 @@ const chatRepository = new ChatRepository();
 const chatService = new ChatService(chatRepository);
 const chatController = new ChatController(chatService);
 
-router.get("/service/:serviceType/:serviceId", authenticate, authorize(["user"]), chatController.getChatsForService);
-router.get("/mechanic", authenticate, authorize(["mechanic"]), chatController.getChatsForMechanic);
-router.post("/send", authenticate, chatController.sendMessage);
-router.put("/message/:chatId/seen", authenticate, chatController.markMessageAsSeen);
+router.get("/service/:serviceType/:serviceId", authenticate, authorize(["user"]), chatController.getChatsForService.bind(chatController));
+router.get("/mechanic", authenticate, authorize(["mechanic"]), chatController.getChatsForMechanic.bind(chatController));
+
 
 export default router;

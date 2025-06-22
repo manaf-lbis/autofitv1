@@ -1,68 +1,38 @@
 import { Socket, Server } from "socket.io";
 import http from "http";
-import * as cookie from "cookie";
-import jwt from "jsonwebtoken";
-import { notificationHandler } from "./notificationHandler";
-import { chatHandler } from "./chatHandler";
+import { notificationHandler } from "./socketHandlers/notificationHandler";
+import { roadsideChatHandler } from "./socketHandlers/roadsideChatHandler";
+import { socketAuthMiddleware } from "./middlewares/socketAuthMiddleware";
 
 
-export const userSocketMap = new Map<
-  string,
-  { role: string; socketIds: Set<string> }
->();
+export const userSocketMap = new Map<string, { role: string; name: string; socketIds: Set<string> }>();
 
 let io: Server;
 
 export const initSocket = (server: http.Server): Server => {
+
   io = new Server(server, {
     cors: {
-      origin: "http://localhost:5173",
+      origin: process.env.FRONTEND_ORIGIN!,
       methods: ["GET", "POST"],
       credentials: true,
     },
   });
 
-  io.on("connection", (socket: Socket) => {
-    console.log("conected");
-
-    const stringCookie = socket.handshake.headers?.cookie;
-    if (!stringCookie) {
-      socket.disconnect();
-      return;
-    }
-
-    let parsedCookies;
-    try {
-      parsedCookies = cookie.parse(stringCookie);
-    } catch (err) {
-      socket.disconnect();
-      return;
-    }
-
-    const token = parsedCookies.jwt;
-    if (!token) {
-      socket.disconnect();
-      return;
-    }
+  io.on("connection", async (socket: Socket) => {
+    console.log("connected");
 
     try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
-        id: string;
-        role: string;
-      };
-
-      const userId = decoded.id;
-      const userRole = decoded.role;
+      const { id: userId, role: userRole, name } = await socketAuthMiddleware(socket);
 
       if (!userSocketMap.has(userId)) {
-        userSocketMap.set(userId, { role: userRole, socketIds: new Set() });
+        userSocketMap.set(userId, { role: userRole, name, socketIds: new Set() });
       }
+
       userSocketMap.get(userId)!.socketIds.add(socket.id);
 
-
       socket.on("disconnect", () => {
-        console.log('disconnected');
-        
+        console.log("disconnected");
         const userData = userSocketMap.get(userId);
         if (userData) {
           userData.socketIds.delete(socket.id);
@@ -72,13 +42,25 @@ export const initSocket = (server: http.Server): Server => {
         }
       });
 
-      
-      notificationHandler(socket);
-      chatHandler(socket)
+      socket.on('joinRoom', ({ room }) => {
+        socket.join(room);
+        console.log(`${socket.id} joined room ${room}`);
+      });
 
+      socket.on("leaveRoom", ({ room }) => {
+        socket.leave(room);
+        console.log(`${socket.id} left room ${room}`);
+      });
+
+
+
+      notificationHandler(socket);
+      roadsideChatHandler(socket);
 
 
     } catch (err) {
+      console.log(err);
+      
       socket.disconnect();
     }
   });

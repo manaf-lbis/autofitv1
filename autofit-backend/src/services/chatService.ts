@@ -4,19 +4,27 @@ import { ApiError } from "../utils/apiError";
 
 export class ChatService {
 
-  constructor(private chatRepository: IChatRepository) {}
+  constructor(
+    private chatRepository: IChatRepository
+  ) {}
 
   async getChatsForService(serviceId: string, serviceType: string, userId: string): Promise<ChatDocument[]> {
     if (!serviceId || !serviceType || !userId) throw new ApiError("Service ID, Service Type, and User ID are required", 400);
-    return this.chatRepository.getChatsForService(serviceId, serviceType, userId);
+    return await this.chatRepository.getChatsForService(serviceId, serviceType, userId);
   }
 
-  async getChatsForMechanic(mechanicId: string): Promise<ChatDocument[]> {
+
+  async getChatsForMechanic(mechanicId: string): Promise<any> {
     if (!mechanicId) throw new ApiError("Mechanic ID is required", 400);
-    return this.chatRepository.getChatsForMechanic(mechanicId);
+
+    const chats =  await this.chatRepository.getChatsForMechanic(mechanicId);
+
+
+
+    return chats
   }
 
-  async sendMessage(
+  async saveMessage(
     serviceId: string,
     serviceType: string,
     senderId: string,
@@ -25,14 +33,14 @@ export class ChatService {
     receiverRole: "user" | "mechanic",
     message: string
   ): Promise<ChatDocument> {
+
+
     if (!serviceId || !serviceType || !senderId || !receiverId || !message) {
       throw new ApiError("All message fields are required", 400);
     }
-    return this.chatRepository.sendMessage(serviceId, serviceType, senderId, senderRole, receiverId, receiverRole, message);
+    const res =  await this.chatRepository.sendMessage(serviceId, serviceType, senderId, senderRole, receiverId, receiverRole, message);
+    return res
+    
   }
-
-  async markMessageAsSeen(chatId: string, userId: string): Promise<ChatDocument> {
-    if (!chatId || !userId) throw new ApiError("Chat ID and User ID are required", 400);
-    return this.chatRepository.markMessageAsSeen(chatId, userId);
-  }
+  
 }

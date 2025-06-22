@@ -1,41 +1,57 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { createApi } from "@reduxjs/toolkit/query/react";
 import { baseQueryWithRefresh } from "@/utils/baseQuery";
-import { ChatData } from "@/types/chatdata";
+// import { ChatData } from "@/types/chatdata";
+
+
+interface SenderInfo {
+  _id: string
+  name: string
+}
+
+interface Message {
+  _id: string
+  serviceId: string
+  serviceType: string
+  senderId: string
+  senderRole: "user" | "mechanic"
+  receiverId: string
+  receiverRole: "user" | "mechanic"
+  message: string
+  seen: boolean
+  createdAt: string
+  updatedAt: string
+  senderInfo: SenderInfo
+}
+
+interface ChatData {
+  _id: string
+  name: string
+  messages: Message[]
+}
+
+export interface ApiResponse {
+  status: string
+  message: string
+  data: ChatData[]
+}
 
 
 
 export const mechanicChatApi = createApi({
     reducerPath: "mechanicChatApi",
     baseQuery: baseQueryWithRefresh,
-
     endpoints: (builder) => ({
-
-        getMechanicChats: builder.query<ChatData[], void>({
+        
+        getMechanicChats: builder.query<ApiResponse, void>({
             query: () => ({
-                url: "mechanic/chats",
+                url: "chat/mechanic",
                 method: "GET",
             }),
-        }),
-
-        sendMessage: builder.mutation<ChatData, { receiverId: string; receiverRole: string; message: string }>({
-            query: (body) => ({
-                url: "send",
-                method: "POST",
-                body,
-            }),
-        }),
-
-        markMessageAsSeen: builder.mutation<void, string>({
-            query: (chatId) => ({
-                url: `message/${chatId}/seen`,
-                method: "PUT",
-            }),
-        }),
+        })
+      
     }),
 });
 
 export const {
-    useGetMechanicChatsQuery,
-    useSendMessageMutation,
-    useMarkMessageAsSeenMutation
+    useGetMechanicChatsQuery
 } = mechanicChatApi;

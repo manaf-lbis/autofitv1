@@ -5,9 +5,6 @@ import { IQuotationRepository } from "../../repositories/interfaces/IQuotationRe
 import { QuotationDocument } from "../../models/quotationModel";
 import { IMechanicProfileRepository } from "../../repositories/interfaces/IMechanicProfileRepository";
 
-
-
-
 export class RoadsideService {
   constructor(
     private roadsideAssistanceRepo: IRoadsideAssistanceRepo,

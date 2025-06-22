@@ -1,12 +1,23 @@
-export interface ChatData {
-  _id: string; 
+export interface ChatMessage {
+  _id: string;
   serviceId: string;
-  senderId: string;
-  senderRole: "user" | "mechanic" | "admin";
+  serviceType: "roadside" | "pretrip" | "live";
+  senderId: {
+    _id:string;
+    name:string;
+  }
+  senderRole: "user" | "mechanic";
   receiverId: string;
-  receiverRole: "user" | "mechanic" | "admin";
+  receiverRole: "user" | "mechanic";
   message: string;
   seen: boolean;
-  createdAt: string; 
-  updatedAt: string; 
+  createdAt: string;
+  updatedAt: string;
+}
+
+
+export interface ChatData {
+  status: string;
+  message: string;
+  data: ChatMessage[]; 
 }

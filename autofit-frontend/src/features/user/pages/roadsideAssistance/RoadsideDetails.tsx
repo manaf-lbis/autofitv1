@@ -311,7 +311,7 @@ export default function RoadsideDetails() {
           />
         </div>
       </main>
-      <ChatBubble serviceId={serviceId} />
+      <ChatBubble serviceId={serviceId} mechanicId={bookingData.mechanic._id} mechanicName={bookingData.mechanic.name} />
 
       {showQuotationModal && bookingData?.quotationId && (
         <QuotationModal
