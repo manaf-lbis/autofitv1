@@ -28,7 +28,6 @@ const mechanicSlice = createSlice({
         }
 
 
-
     }
 })
 

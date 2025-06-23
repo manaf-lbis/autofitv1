@@ -14,9 +14,17 @@ export const userChatApi = createApi({
                 method: "GET",
             }),
         }),
+
+        availableRooms: builder.query({
+            query: () => ({
+                url: `chat/avilable-rooms`,
+                method: "GET",
+            }),
+        }),
     }),
 });
 
 export const {
     useGetUserChatsQuery,
+    useAvailableRoomsQuery
 } = userChatApi;

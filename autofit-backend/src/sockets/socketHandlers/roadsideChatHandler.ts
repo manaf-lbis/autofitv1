@@ -5,10 +5,12 @@ import { verifyJwt } from "../verifyJwt";
 import { RoadsideAssistanceModel } from "../../models/roadsideAssistanceModel";
 import { ApiError } from "../../utils/apiError";
 import { getIO } from "../socket";
+import { RoadsideAssistanceRepository } from "../../repositories/roadsideAssistanceRepo";
 
 export const roadsideChatHandler = (socket: Socket) => {
   const chatRepository = new ChatRepository();
-  const chatService = new ChatService(chatRepository);
+  const roadsideAssistanceRepo = new RoadsideAssistanceRepository()
+  const chatService = new ChatService(chatRepository,roadsideAssistanceRepo);
 
 
   socket.on("roadsideChat", async (data) => {
@@ -46,8 +48,10 @@ export const roadsideChatHandler = (socket: Socket) => {
         serviceId,
         message,
         senderId,
+        receiverRole,
         senderName : (savedMsg.senderId as any).name,
         senderRole,
+        servicetype:savedMsg.serviceType,
         seen:savedMsg.seen,
         createdAt: savedMsg.createdAt,
       })

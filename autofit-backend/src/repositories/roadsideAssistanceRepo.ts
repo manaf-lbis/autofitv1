@@ -67,6 +67,11 @@ export class RoadsideAssistanceRepository implements IRoadsideAssistanceRepo {
         };
     }
 
+    async getActiveServiceId(userId: Types.ObjectId): Promise<Types.ObjectId[]> {
+       const services = await RoadsideAssistanceModel.find({$or:[{mechanicId : userId}, {userId:userId}]}).select('_id').lean()
+       return services.map(service => service._id);
+    }
+
 
 
 

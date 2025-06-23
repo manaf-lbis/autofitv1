@@ -9,5 +9,5 @@ export interface IRoadsideAssistanceRepo extends IBaseRepository<RoadsideAssista
     findByMechanicId(mechanicId: Types.ObjectId): Promise<RoadsideAssistanceDocument[] | null>;
     create(entity:CreateRoadsideAssistanceDTO) :Promise<RoadsideAssistanceDocument>;
     ongoingServiceByMechanicId(mechanicId:Types.ObjectId) : Promise<RoadsideAssistanceDocument | null>;
-    
+    getActiveServiceId(userId: Types.ObjectId): Promise<Types.ObjectId[]>;
 }
