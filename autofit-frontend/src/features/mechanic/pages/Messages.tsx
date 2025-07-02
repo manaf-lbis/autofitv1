@@ -1,86 +1,88 @@
-import { useState, useRef, useEffect } from "react"
-import { Send, CheckCheck, Menu, X, Clock, MessageSquare, Circle } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import MessagesShimmer from "../components/shimmer/MessagesShimmer"
-import { useGetMechanicChatsQuery } from "../api/mechanicChatApi"
-import { formatTimeToNow } from "@/lib/dateFormater"
-import { useDispatch, useSelector } from "react-redux"
-import { RootState } from "@/store/store"
-import { setMessages } from "../slices/mechanicChatSlice"
-import { Socket } from "socket.io-client"
-import { initSocket } from "@/lib/socket"
-
+import { useState, useRef, useEffect } from "react";
+import { Send, Check, CheckCheck, Menu, X, Clock, MessageSquare, Circle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import MessagesShimmer from "../components/shimmer/MessagesShimmer";
+import { useGetMechanicChatsQuery } from "../api/mechanicChatApi";
+import { formatTimeToNow } from "@/lib/dateFormater";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "@/store/store";
+import { setMessages } from "../slices/mechanicChatSlice";
+import { Socket } from "socket.io-client";
+import { initSocket } from "@/lib/socket";
 
 export default function MessagesPage() {
-
-  const [activeServiceId, setActiveServiceId] = useState<string>("")
-  const [newMessage, setNewMessage] = useState("")
-  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false)
-  const [isSending, setIsSending] = useState(false)
-  const messagesEndRef = useRef<HTMLDivElement>(null)
-  const {data ,isLoading:chatLoading} = useGetMechanicChatsQuery()
-  const chats =  useSelector((state:RootState)=>state.mechanicChatSlice);
-  const socketRef = useRef<Socket|null>(null)
+  const [activeServiceId, setActiveServiceId] = useState<string>("");
+  const [newMessage, setNewMessage] = useState("");
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  const [isSending, setIsSending] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const { data, isLoading: chatLoading } = useGetMechanicChatsQuery();
+  const chats = useSelector((state: RootState) => state.mechanicChatSlice);
+  const socketRef = useRef<Socket | null>(null);
   const dispatch = useDispatch();
 
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [activeServiceId]);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
-  }, [activeServiceId])
+    socketRef.current = initSocket();
+  }, []);
 
-    useEffect(()=>{
-      socketRef.current = initSocket()
-    },[])
-
-  useEffect(()=>{
-    if(data?.data && chats.length === 0){
-      dispatch(setMessages(data.data))
+  useEffect(() => {
+    if (data?.data && chats.length === 0) {
+      dispatch(setMessages(data.data));
     }
-  },[data])
-
+  }, [data]);
 
   const sendMessage = async (serviceId: string, message: string) => {
-    if (!message.trim()) return
+    if (!message.trim()) return;
 
     try {
-       socketRef.current?.emit("roadsideChat", {
+      socketRef.current?.emit("roadsideChat", {
         serviceId,
         message: newMessage,
       });
 
-
-      setNewMessage("")
+      setNewMessage("");
     } catch (error) {
-      console.error("Error sending message:", error)
+      console.error("Error sending message:", error);
     } finally {
-      setIsSending(false)
+      setIsSending(false);
     }
-  }
+  };
 
+  const getUnreadCount = (messages: any[]) => {
+    return messages.filter((msg: any) => !msg.seen && msg.senderRole === "user").length;
+  };
 
-  const getUnreadCount = (messages:any) => {
-    return messages.filter((msg:any) => !msg.seen && msg.senderRole === "user").length
-  }
-
-  const getLastMessage = (messages:any) => {
-    if (messages.length === 0) return "No messages"
-    const lastMsg = messages[messages.length - 1]
-    // Truncate long messages in sidebar
-    return lastMsg.message.length > 50 ? lastMsg.message.substring(0, 50) + "..." : lastMsg.message
-  }
+  const getLastMessage = (messages: any[]) => {
+    if (messages.length === 0) return "No messages";
+    const lastMsg = messages[messages.length - 1];
+    return lastMsg.message.length > 50 ? lastMsg.message.substring(0, 50) + "..." : lastMsg.message;
+  };
 
   const getServiceTypeLabel = (serviceType: string) => {
     switch (serviceType) {
       case "roadsideAssistance":
-        return "Roadside Assistance"
+        return "Roadside Assistance";
       case "pretrip":
-        return "Pre-trip Inspection"
+        return "Pre-trip Inspection";
       case "live":
-        return "Live Support"
+        return "Live Support";
       default:
-        return "Service"
+        return "Service";
     }
-  }
+  };
+
+  const setActiveChat = (serviceId: string) => {
+    setActiveServiceId(serviceId);
+    setIsMobileSidebarOpen(false);
+
+    socketRef.current?.emit("markAsSeen", {
+      serviceId,
+    });
+  };
 
   const getInitials = (name: string) => {
     return name
@@ -88,14 +90,14 @@ export default function MessagesPage() {
       .map((n) => n[0])
       .join("")
       .toUpperCase()
-      .slice(0, 2)
-  }
+      .slice(0, 2);
+  };
 
-  const activeChat = chats.find((chat) => chat._id === activeServiceId)
-  const activeMessages = activeChat?.messages || []
+  const activeChat = chats.find((chat) => chat._id === activeServiceId);
+  const activeMessages = activeChat?.messages || [];
 
   if (chatLoading) {
-    return <MessagesShimmer />
+    return <MessagesShimmer />;
   }
 
   return (
@@ -134,19 +136,16 @@ export default function MessagesPage() {
           ) : (
             <div className="p-4">
               {chats.map((chat) => {
-                const unreadCount = getUnreadCount(chat.messages)
-                const lastMessage = getLastMessage(chat.messages)
+                const unreadCount = getUnreadCount(chat.messages);
+                const lastMessage = getLastMessage(chat.messages);
                 const lastMessageTime =
-                  chat.messages.length > 0 ? formatTimeToNow(chat.messages[chat.messages.length - 1].createdAt) : ""
-                const serviceType = chat.messages[0]?.serviceType || ""
+                  chat.messages.length > 0 ? formatTimeToNow(chat.messages[chat.messages.length - 1].createdAt) : "";
+                const serviceType = chat.messages[0]?.serviceType || "";
 
                 return (
                   <div
                     key={chat._id}
-                    onClick={() => {
-                      setActiveServiceId(chat._id)
-                      setIsMobileSidebarOpen(false)
-                    }}
+                    onClick={() => setActiveChat(chat._id)}
                     className={`p-4 mb-2 cursor-pointer transition-all duration-150 rounded-lg border ${
                       activeServiceId === chat._id
                         ? "bg-blue-50 border-blue-200"
@@ -177,7 +176,7 @@ export default function MessagesPage() {
                       </div>
                     </div>
                   </div>
-                )
+                );
               })}
             </div>
           )}
@@ -220,7 +219,7 @@ export default function MessagesPage() {
             <div className="flex-1 overflow-y-auto p-6">
               <div className="space-y-6">
                 {activeMessages.map((message) => {
-                  const isFromMechanic = message.senderRole === "mechanic"
+                  const isFromMechanic = message.senderRole === "mechanic";
 
                   return (
                     <div key={message._id} className={`flex ${isFromMechanic ? "justify-end" : "justify-start"}`}>
@@ -247,15 +246,19 @@ export default function MessagesPage() {
                           >
                             <span>{formatTimeToNow(message.createdAt)}</span>
                             {isFromMechanic && (
-                              <CheckCheck
-                                className={`h-3 w-3 ml-2 ${message.seen ? "text-blue-200" : "text-blue-300"}`}
-                              />
+                              <span className="ml-2">
+                                {message.seen ? (
+                                  <CheckCheck className="h-3 w-3 text-blue-200" />
+                                ) : (
+                                  <Check className="h-3 w-3 text-blue-300" />
+                                )}
+                              </span>
                             )}
                           </div>
                         </div>
                       </div>
                     </div>
-                  )
+                  );
                 })}
               </div>
               <div ref={messagesEndRef} />
@@ -270,8 +273,8 @@ export default function MessagesPage() {
                     onChange={(e) => setNewMessage(e.target.value)}
                     onKeyPress={(e) => {
                       if (e.key === "Enter" && !e.shiftKey) {
-                        e.preventDefault()
-                        sendMessage(activeServiceId, newMessage)
+                        e.preventDefault();
+                        sendMessage(activeServiceId, newMessage);
                       }
                     }}
                     placeholder="Type a message..."
@@ -283,9 +286,9 @@ export default function MessagesPage() {
                       minHeight: "48px",
                     }}
                     onInput={(e) => {
-                      const target = e.target as HTMLTextAreaElement
-                      target.style.height = "auto"
-                      target.style.height = Math.min(target.scrollHeight, 128) + "px"
+                      const target = e.target as HTMLTextAreaElement;
+                      target.style.height = "auto";
+                      target.style.height = Math.min(target.scrollHeight, 128) + "px";
                     }}
                   />
                 </div>
@@ -312,5 +315,5 @@ export default function MessagesPage() {
         )}
       </div>
     </div>
-  )
+  );
 }

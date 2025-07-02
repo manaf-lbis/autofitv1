@@ -48,6 +48,15 @@ const mechanicChatSlice = createSlice({
       return action.payload;
     },
 
+    markAsSeen: (state, action: PayloadAction<{ serviceId: string }>) => {
+        const chat = state.find((ele) => ele._id === action.payload.serviceId);
+        if (chat) {
+          chat.messages.forEach((msg) => {
+            msg.seen = true;
+          });
+        }
+    },
+
     setNewMessage: (state, action: PayloadAction<NewMessage>) => {
 
       const { serviceType, serviceId, createdAt, message, _id, receiverRole, seen, senderId, senderName, senderRole } = action.payload;
@@ -97,6 +106,6 @@ const mechanicChatSlice = createSlice({
   },
 });
 
-export const { setMessages, setNewMessage } = mechanicChatSlice.actions;
+export const { setMessages, setNewMessage ,markAsSeen} = mechanicChatSlice.actions;
 
 export default mechanicChatSlice.reducer;

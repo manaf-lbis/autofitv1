@@ -10,15 +10,26 @@ import { RoadsideAssistanceRepository } from "../../repositories/roadsideAssista
 export const roadsideChatHandler = (socket: Socket) => {
   const chatRepository = new ChatRepository();
   const roadsideAssistanceRepo = new RoadsideAssistanceRepository()
-  const chatService = new ChatService(chatRepository,roadsideAssistanceRepo);
+  const chatService = new ChatService(chatRepository, roadsideAssistanceRepo);
+
+  try {
+
+    socket.on("markAsSeen", async (data) => {
+      const { serviceId } = data;
+      const { id: userId } = verifyJwt(socket);
+      await chatService.markAsSeen(serviceId, userId);
+
+      const room = `roadside_${serviceId}`;
+      getIO().to(room).emit('seen', { serviceId })
+
+    })
 
 
-  socket.on("roadsideChat", async (data) => {
-    try {
-    
+    socket.on("roadsideChat", async (data) => {
+
       let serviceDoc;
       let receiverId;
-      let receiverRole:'user' | 'mechanic';
+      let receiverRole: 'user' | 'mechanic';
 
       const { serviceId, message } = data;
       const { id: senderId, role: senderRole } = verifyJwt(socket);
@@ -36,31 +47,32 @@ export const roadsideChatHandler = (socket: Socket) => {
         receiverId = serviceDoc.userId.toString();
         receiverRole = 'user';
 
-      } else{
+      } else {
         throw new ApiError('invalid user')
       }
 
-      const savedMsg = await chatService.saveMessage(serviceId,'roadsideAssistance',senderId,senderRole,receiverId,receiverRole,message)
-      
+      const savedMsg = await chatService.saveMessage(serviceId, 'roadsideAssistance', senderId, senderRole, receiverId, receiverRole, message)
+
       const room = `roadside_${serviceId}`;
-      getIO().to(room).emit('roadsideMessage',{
+      getIO().to(room).emit('roadsideMessage', {
         _id: savedMsg._id,
         serviceId,
         message,
         senderId,
         receiverRole,
-        senderName : (savedMsg.senderId as any).name,
+        senderName: (savedMsg.senderId as any).name,
         senderRole,
-        servicetype:savedMsg.serviceType,
-        seen:savedMsg.seen,
+        servicetype: savedMsg.serviceType,
+        seen: savedMsg.seen,
         createdAt: savedMsg.createdAt,
       })
-      
 
-    } catch (error) {
-      console.log(error);
-      
-      socket.emit("error", { message: "Failed to send message" });
-    }
-  });
+
+    });
+    
+  } catch (error) {
+    console.log(error);
+
+    socket.emit("error", { message: "Failed to send message" });
+  }
 };

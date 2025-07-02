@@ -69,23 +69,7 @@ export class ChatRepository implements IChatRepository {
         return populatedChat;
     }
 
-    async markMessageAsSeen(chatId: string, userId: string): Promise<ChatDocument> {
-
-        const chat = await ChatMessageModel.findById(chatId);
-        if (!chat) throw new ApiError("Chat message not found", 404);
-
-        const ServiceModel = this.getServiceModel(chat.serviceType);
-        const service = await ServiceModel.findById(chat.serviceId);
-        if (service) {
-            if (
-                (chat.receiverRole === "user" && service.userId.toString() !== userId) ||
-                (chat.receiverRole === "mechanic" && service.mechanicId?.toString() !== userId)
-            ) {
-                throw new ApiError("Unauthorized to mark this message as seen", 403);
-            }
-        }
-
-        chat.seen = true;
-        return await chat.save();
+    async markMessageAsSeen(serviceId: string,userId:string): Promise<void> {
+        await ChatMessageModel.updateMany({serviceId,receiverId:userId},{seen:true})
     }
 }

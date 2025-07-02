@@ -38,6 +38,10 @@ export class ChatService {
     return await this.roadsideAssistanceRepo.getActiveServiceId(userId)
   }
 
+  async markAsSeen(serviceId:string,userId:string){
+    return await this.chatRepository.markMessageAsSeen(serviceId,userId)
+  }
+
 
 
   

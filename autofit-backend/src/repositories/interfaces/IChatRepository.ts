@@ -12,5 +12,5 @@ export interface IChatRepository {
     receiverRole: "user" | "mechanic",
     message: string
   ): Promise<ChatDocument>;
-  markMessageAsSeen(chatId: string, userId: string): Promise<ChatDocument>;
+  markMessageAsSeen(serviceId: string,userId:string): Promise<void>;
 }

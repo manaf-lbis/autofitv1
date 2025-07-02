@@ -18,7 +18,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
 import VehicleModal from "../../components/profile/modal/VehicleModal";
 import { useGetMyVehiclesQuery } from "../../api/vehicleApi";
 import PlacePicker from "@/components/shared/LocationInput/PlacePicker";

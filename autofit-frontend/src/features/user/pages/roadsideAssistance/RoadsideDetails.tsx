@@ -291,6 +291,7 @@ export default function RoadsideDetails() {
               <MapTabContent
                 serviceLocation={bookingData?.serviceLocation || { coordinates: [0, 0] }}
                 mechanic={bookingData?.mechanic || { name: "", avatar: "" }}
+                bookingId={bookingData?._id}
               />
             )}
             {activeTab === "payment" && (

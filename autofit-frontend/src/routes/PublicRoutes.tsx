@@ -8,6 +8,7 @@ import RoleForgotPassword from "../features/auth/Pages/RoleForgotPassword";
 import HomePage from "@/features/user/pages/Home";
 import Services from "@/features/user/pages/Services";
 import RoadsideAssistance from "@/features/user/pages/roadsideAssistance/RoadsideAssistance";
+import PreTripCheckupPlans from "@/features/user/pages/PreTripCheckup/PreTripCheckupPlans";
 
 
 const PublicRoutes: React.FC = () => {
@@ -18,6 +19,7 @@ const PublicRoutes: React.FC = () => {
         <Route path="/services" element={<Services/>} />
 
         <Route path="roadside-assistance" element={<RoadsideAssistance />} />
+        <Route path="pretrip-checkup/plans" element={<PreTripCheckupPlans />} />
       </Route>
 
       <Route element={<PublicRoute />}>
