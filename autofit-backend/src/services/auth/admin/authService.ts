@@ -7,26 +7,26 @@ import { Types } from "mongoose";
 export class AdminAuthService {
 
   constructor(
-    private adminRepository: IAdminRepository,
-    private hashService: HashService,
-    private tokenService: TokenService
+    private _adminRepository: IAdminRepository,
+    private _hashService: HashService,
+    private _tokenService: TokenService
   ) {}
 
   async login(email: string, password: string) {
 
-    const admin = await this.adminRepository.findByEmail(email);
+    const admin = await this._adminRepository.findByEmail(email);
     if (!admin) throw new ApiError("Invalid email or password", 404);
 
     if (admin.lockUntil && admin.lockUntil > new Date()) {
       throw new ApiError(`Account locked until ${admin.lockUntil.toLocaleTimeString()}`, 423);
     }
 
-    const isMatch = await this.hashService.compare(password, admin.password);
+    const isMatch = await this._hashService.compare(password, admin.password);
     if (!isMatch) {
       const attempts = (admin.failedLoginAttempts || 0) + 1;
       const lockUntil = attempts >= 3 ? new Date(Date.now() + 5 * 60 * 1000) : undefined;
 
-      await this.adminRepository.update(admin._id, {
+      await this._adminRepository.update(admin._id, {
         failedLoginAttempts: attempts,
         ...(lockUntil && { lockUntil }),
       });
@@ -39,16 +39,16 @@ export class AdminAuthService {
       );
     }
 
-    await this.adminRepository.update(admin._id, {
+    await this._adminRepository.update(admin._id, {
       failedLoginAttempts: 0,
       lockUntil: null,
     });
 
     const payload = { id: admin._id, role: admin.role };
-    const accessToken = this.tokenService.generateToken(payload);
-    const refreshToken = this.tokenService.generateRefreshToken(payload);
+    const accessToken = this._tokenService.generateToken(payload);
+    const refreshToken = this._tokenService.generateRefreshToken(payload);
 
-    await this.adminRepository.storeRefreshToken(admin._id, refreshToken);
+    await this._adminRepository.storeRefreshToken(admin._id, refreshToken);
     return { token: accessToken, user: { name: admin.name, role: admin.role } };
 
   }
@@ -56,8 +56,8 @@ export class AdminAuthService {
 
   async validateRefreshToken(token: string): Promise<string> {
     try {
-      const payload = this.tokenService.verifyToken(token);
-      const storedToken = await this.adminRepository.getRefreshToken(payload.id);
+      const payload = this._tokenService.verifyToken(token);
+      const storedToken = await this._adminRepository.getRefreshToken(payload.id);
       if (storedToken !== token) {
         throw new ApiError("Invalid refresh token", 401);
       }
@@ -69,29 +69,29 @@ export class AdminAuthService {
   }
 
   async refreshAccessToken(userId: string): Promise<{ accessToken: string }> {
-    const admin = await this.adminRepository.findById(new Types.ObjectId(userId));
+    const admin = await this._adminRepository.findById(new Types.ObjectId(userId));
     if (!admin) throw new ApiError("Admin not found", 404);
 
     const storedRefreshToken = admin.refreshToken;
     if (!storedRefreshToken) throw new ApiError("No refresh token available", 401);
 
     try {
-      this.tokenService.verifyToken(storedRefreshToken);
+      this._tokenService.verifyToken(storedRefreshToken);
     } catch (error) {
       throw new ApiError("Invalid refresh token", 401);
     }
     
     const payload = { id: userId, role: admin.role };
-    const newAccessToken = this.tokenService.generateToken(payload);
-    const newRefreshToken = this.tokenService.generateRefreshToken(payload);
+    const newAccessToken = this._tokenService.generateToken(payload);
+    const newRefreshToken = this._tokenService.generateRefreshToken(payload);
 
-    await this.adminRepository.storeRefreshToken(new Types.ObjectId(userId), newRefreshToken);
+    await this._adminRepository.storeRefreshToken(new Types.ObjectId(userId), newRefreshToken);
     return { accessToken: newAccessToken };
   }
 
 
   async getUser(id: Types.ObjectId) {
-    const admin = await this.adminRepository.findById(id);
+    const admin = await this._adminRepository.findById(id);
     if (!admin) {
       throw new ApiError("Admin not found", 404);
     }

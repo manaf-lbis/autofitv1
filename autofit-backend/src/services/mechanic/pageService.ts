@@ -8,17 +8,17 @@ import { IRoadsideAssistanceRepo } from "../../repositories/interfaces/IRoadside
 
 export class PageService {
   constructor(
-    private mechanicProfileRepository: IMechanicProfileRepository,
-    private notificationRepository: INotificationRepository,
-    private roadsideAssistanceRepo: IRoadsideAssistanceRepo
+    private _mechanicProfileRepository: IMechanicProfileRepository,
+    private _notificationRepository: INotificationRepository,
+    private _roadsideAssistanceRepo: IRoadsideAssistanceRepo
   ) { }
 
   async primaryInfo(mechanicId: Types.ObjectId) {
 
-    const response = await this.mechanicProfileRepository.getAvailablity(mechanicId)
+    const response = await this._mechanicProfileRepository.getAvailablity(mechanicId)
     const availability = response?.availability ?? 'notAvailable'
 
-    const notifications = await this.notificationRepository.findByRecipientId(mechanicId)
+    const notifications = await this._notificationRepository.findByRecipientId(mechanicId)
 
     return { availability, notifications, messages: 0 }
   }
@@ -28,7 +28,7 @@ export class PageService {
   async dashboard(mechanicId: Types.ObjectId) {
     const recentActivities = [{ id: 1, name: "Saraaah Johnson", action: "Engine overheating resolved", time: "2h ago" }];
 
-    const response = await this.roadsideAssistanceRepo.ongoingServiceByMechanicId(mechanicId);
+    const response = await this._roadsideAssistanceRepo.ongoingServiceByMechanicId(mechanicId);
     let emergencyRequest = null;
     if (response) {
       const { _id, issue, vehicle, serviceLocation, status, createdAt, description } = response;

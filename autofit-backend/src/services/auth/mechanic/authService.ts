@@ -9,18 +9,18 @@ import { Types } from "mongoose";
 
 export class AuthService {
     constructor(
-        private hashService: HashService,
-        private tokenService: TokenService,
-        private mechanicRepository: IMechanicRepository,
-        private otpService: OtpService,
-        private mechanicProfileRepo: IMechanicProfileRepository
+        private _hashService: HashService,
+        private _tokenService: TokenService,
+        private _mechanicRepository: IMechanicRepository,
+        private _otpService: OtpService,
+        private _mechanicProfileRepo: IMechanicProfileRepository
 
     ) { }
 
 
     async login(email: string, password: string) {
 
-        const mechanic = await this.mechanicRepository.findByEmail(email);
+        const mechanic = await this._mechanicRepository.findByEmail(email);
         if (!mechanic) throw new ApiError("Invalid email or password", 404);
 
         if (mechanic.status === 'blocked') throw new ApiError('User Blocked - Contact Admin', 401);
@@ -29,12 +29,12 @@ export class AuthService {
             throw new ApiError(`Account locked until ${mechanic.lockUntil.toLocaleTimeString()}`, 423);
         }
 
-        const isMatch = await this.hashService.compare(password, mechanic.password);
+        const isMatch = await this._hashService.compare(password, mechanic.password);
         if (!isMatch) {
             const attempts = (mechanic.failedLoginAttempts || 0) + 1;
             const lockUntil = attempts >= 3 ? new Date(Date.now() + 5 * 60 * 1000) : undefined;
 
-            await this.mechanicRepository.update(mechanic._id, {
+            await this._mechanicRepository.update(mechanic._id, {
                 failedLoginAttempts: attempts,
                 ...(lockUntil && { lockUntil }),
             });
@@ -47,29 +47,29 @@ export class AuthService {
             );
         }
 
-        await this.mechanicRepository.update(mechanic._id, {
+        await this._mechanicRepository.update(mechanic._id, {
             failedLoginAttempts: 0,
             lockUntil: null,
         });
 
         const payload = { id: mechanic._id, role: mechanic.role };
-        const accessToken = this.tokenService.generateToken(payload);
-        const refreshToken = this.tokenService.generateRefreshToken(payload);
+        const accessToken = this._tokenService.generateToken(payload);
+        const refreshToken = this._tokenService.generateRefreshToken(payload);
 
-        await this.mechanicRepository.storeRefreshToken(mechanic._id, refreshToken);
+        await this._mechanicRepository.storeRefreshToken(mechanic._id, refreshToken);
         return { token: accessToken, user: { name: mechanic.name, role: mechanic.role } };
 
     }
 
     async signup(name: string, email: string, password: string, mobile: string) {
 
-        const isExist = await this.mechanicRepository.findByEmail(email)
+        const isExist = await this._mechanicRepository.findByEmail(email)
         if (isExist) throw new ApiError('User With Email Already Exists!', 400)
 
-        const passwordHash = await this.hashService.hash(password)
+        const passwordHash = await this._hashService.hash(password)
 
-        await this.otpService.saveAndSentOtp(email, 'mechanic')
-        const token = this.tokenService.generateToken({
+        await this._otpService.saveAndSentOtp(email, 'mechanic')
+        const token = this._tokenService.generateToken({
             name,
             password: passwordHash,
             email,
@@ -81,23 +81,23 @@ export class AuthService {
 
     async refreshAccessToken(userId: string): Promise<{ accessToken: string }> {
 
-        const user = await this.mechanicRepository.findById(new Types.ObjectId(userId));
+        const user = await this._mechanicRepository.findById(new Types.ObjectId(userId));
         if (!user) throw new ApiError("User not found", 404);
 
         const storedRefreshToken = user.refreshToken;
         if (!storedRefreshToken) throw new ApiError("No refresh token available", 401);
 
         try {
-            this.tokenService.verifyToken(storedRefreshToken);
+            this._tokenService.verifyToken(storedRefreshToken);
         } catch (error) {
             throw new ApiError("Invalid refresh token", 401);
         }
 
         const payload = { id: userId, role: user.role };
-        const newAccessToken = this.tokenService.generateAccessToken(payload);
-        const newRefreshToken = this.tokenService.generateRefreshToken(payload);
+        const newAccessToken = this._tokenService.generateAccessToken(payload);
+        const newRefreshToken = this._tokenService.generateRefreshToken(payload);
 
-        await this.mechanicRepository.storeRefreshToken(new Types.ObjectId(userId), newRefreshToken);
+        await this._mechanicRepository.storeRefreshToken(new Types.ObjectId(userId), newRefreshToken);
         return { accessToken: newAccessToken };
     }
 
@@ -105,12 +105,12 @@ export class AuthService {
 
 
     async getUser(_id: ObjectId) {
-        const mechanic = await this.mechanicRepository.findById(_id)
+        const mechanic = await this._mechanicRepository.findById(_id)
 
         if (mechanic?.status !== 'active') {
             throw new ApiError('user blocked')
         }
-        const res = await this.mechanicProfileRepo.getProfileStatus(mechanic._id)
+        const res = await this._mechanicProfileRepo.getProfileStatus(mechanic._id)
 
         const profileStatus = res ? res.registration.status : null
 

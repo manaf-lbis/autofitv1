@@ -8,37 +8,37 @@ import { Vehicle } from "../../types/vehicle";
 export class VehicleService {
 
     constructor(
-        private vehicleRepository : VehicleRepository,
-        private vehicleBrandRepository :VehicleBrandRepository
+        private _vehicleRepository : VehicleRepository,
+        private _vehicleBrandRepository :VehicleBrandRepository
     ){}
 
     async addVehicle(vehicle:Vehicle){
-       return await this.vehicleRepository.save(vehicle);
+       return await this._vehicleRepository.save(vehicle);
         
     }
 
     async getVehicle(userId:Types.ObjectId){
-        return await this.vehicleRepository.findWithUserId(userId)
+        return await this._vehicleRepository.findWithUserId(userId)
     }
 
     async updateVehicle( data : Vehicle){
       if(!data._id) throw new ApiError('user not found',404)
 
-      await this.vehicleRepository.updateByUserId(data)
+      await this._vehicleRepository.updateByUserId(data)
     }
 
     async deleteVehicle(userId:Types.ObjectId,id:Types.ObjectId){
-      this.vehicleRepository.blockVehicle(userId,id)
+      this._vehicleRepository.blockVehicle(userId,id)
 
     }
 
     async getVehicleBrands (){
-      return await this.vehicleBrandRepository.findAll()
+      return await this._vehicleBrandRepository.findAll()
     }
 
 
     async addVehicleBrands (){
-      return await this.vehicleBrandRepository.save({brand:'test',models:['1'],isBlocked:false})//testing
+      return await this._vehicleBrandRepository.save({brand:'test',models:['1'],isBlocked:false})
     }
 
     

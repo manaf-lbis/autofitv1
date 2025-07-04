@@ -11,8 +11,8 @@ import { getIO, userSocketMap } from "../../sockets/socket";
 
 export class MechanicController {
     constructor(
-        private mechanicService: MechanicService,
-        private mechanicProfileService : ProfileService
+        private _mechanicService: MechanicService,
+        private _mechanicProfileService : ProfileService
 
 
     ) { }
@@ -21,7 +21,7 @@ export class MechanicController {
         try {
             const { page = '1', limit = '10', search, sortField = 'createdAt', sortOrder = 'desc' } = req.query;
 
-            const result = await this.mechanicService.allUsers({
+            const result = await this._mechanicService.allUsers({
                 page: parseInt(page as string),
                 limit: parseInt(limit as string),
                 search: search as string,
@@ -40,7 +40,7 @@ export class MechanicController {
     async getMechanicById(req: Request, res: Response, next: NextFunction) {
         try {
             const userId = new Types.ObjectId(req.params.id);
-            const result = await this.mechanicService.mechanicDetails({ userId })
+            const result = await this._mechanicService.mechanicDetails({ userId })
 
             sendSuccess(res, 'Fetched Successfully', result)
 
@@ -55,7 +55,7 @@ export class MechanicController {
             const userId = new Types.ObjectId(req.params.id);
             const { status } = req.body
 
-            await this.mechanicService.updataUser({ userId, data: { status } })
+            await this._mechanicService.updataUser({ userId, data: { status } })
 
             if(status === 'blocked'){
                 const userData  = userSocketMap.get(userId.toString())
@@ -80,7 +80,7 @@ export class MechanicController {
         try {
             const { page = '1', limit = '10', search, sortField, sortOrder } = req.query;
 
-            const result = await this.mechanicService.mechanicApplications({
+            const result = await this._mechanicService.mechanicApplications({
                 page: parseInt(page as string),
                 limit: parseInt(limit as string),
                 search: search as string,
@@ -112,10 +112,10 @@ export class MechanicController {
             const profileId = new Types.ObjectId(req.params.id)
 
             if(status === 'approved'){
-               await this.mechanicProfileService.changeStatus({profileId,status}) 
+               await this._mechanicProfileService.changeStatus({profileId,status}) 
 
             }else if(status === 'rejected'){
-                await this.mechanicProfileService.changeStatus({profileId,status,rejectionReason}) 
+                await this._mechanicProfileService.changeStatus({profileId,status,rejectionReason}) 
             } else{
                 throw new ApiError('Invalid Status')
             }

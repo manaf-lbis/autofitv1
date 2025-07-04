@@ -8,8 +8,8 @@ import { AdminGoogleAuthService } from "../../services/auth/admin/googleAuthServ
 
 export class AdminAuthController {
   constructor(
-    private adminAuthService: AdminAuthService,
-    private googleAuthService: AdminGoogleAuthService
+    private _adminAuthService: AdminAuthService,
+    private _googleAuthService: AdminGoogleAuthService
   ) {}
 
   async login(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -17,7 +17,7 @@ export class AdminAuthController {
       const { email, password } = req.body;
       loginValidation.parse({ email, password });
 
-      const result = await this.adminAuthService.login(email, password);
+      const result = await this._adminAuthService.login(email, password);
 
       res.cookie("jwt", result.token, {
         httpOnly: true,
@@ -41,7 +41,7 @@ export class AdminAuthController {
         throw new ApiError("Authorization code is required",400)
       }
 
-      const { token, user } = await this.googleAuthService.loginWithGoogle({ code });
+      const { token, user } = await this._googleAuthService.loginWithGoogle({ code });
 
       res.cookie('jwt',token, {
         httpOnly: true,
@@ -57,7 +57,6 @@ export class AdminAuthController {
       next(error);
     }
   }
-
 
 
   async logout(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -84,7 +83,7 @@ export class AdminAuthController {
         throw new ApiError("Forbidden: Insufficient permissions", 403);
       }
 
-      const data = await this.adminAuthService.getUser(req.user.id);
+      const data = await this._adminAuthService.getUser(req.user.id);
       sendSuccess(res, "Admin details retrieved", data);
     } catch (error) {
       next(error);
@@ -96,8 +95,8 @@ export class AdminAuthController {
       const token = req.cookies.jwt || req.headers.authorization?.split(" ")[1];
       if (!token) throw new ApiError("No token provided", 401);
 
-      const userId = await this.adminAuthService.validateRefreshToken(token);
-      const result = await this.adminAuthService.refreshAccessToken(userId);
+      const userId = await this._adminAuthService.validateRefreshToken(token);
+      const result = await this._adminAuthService.refreshAccessToken(userId);
 
       res.cookie("jwt", result.accessToken, {
         httpOnly: true,
@@ -113,7 +112,6 @@ export class AdminAuthController {
       next(error);
     }
   }
-
 
 
 

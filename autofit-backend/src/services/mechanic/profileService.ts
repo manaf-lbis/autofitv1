@@ -20,16 +20,16 @@ interface MechanicRegisterPayload {
 
 export class ProfileService {
   constructor(
-    private mechanicProfileRepository: IMechanicProfileRepository,
-    private mechanicRepository: IMechanicRepository,
-    private notificationRepository: INotificationRepository
+    private _mechanicProfileRepository: IMechanicProfileRepository,
+    private _mechanicRepository: IMechanicRepository,
+    private _notificationRepository: INotificationRepository
   ) { }
 
 
   async registerUser(payload: MechanicRegisterPayload): Promise<void> {
     const { data, photo, shopImage, qualification, mechanicId } = payload;
 
-    const mech = await this.mechanicRepository.findById(mechanicId);
+    const mech = await this._mechanicRepository.findById(mechanicId);
     if (!mech) throw new ApiError('Mechanic not found', 404);
 
     const toCreate = {
@@ -40,15 +40,15 @@ export class ProfileService {
       mechanicId,
     };
 
-    await this.mechanicRepository.update(mech._id, { avatar: photo.path });
-    await this.mechanicProfileRepository.create(toCreate);
+    await this._mechanicRepository.update(mech._id, { avatar: photo.path });
+    await this._mechanicProfileRepository.create(toCreate);
   }
 
 
   async getProfile(mechanicId: ObjectId) {
     try {
 
-      const profile = await this.mechanicProfileRepository.findByMechanicId(mechanicId);
+      const profile = await this._mechanicProfileRepository.findByMechanicId(mechanicId);
       if (!profile) return null;
 
       const { _id, mechanicId: mid, updatedAt, ...filteredProfile } = profile
@@ -62,26 +62,26 @@ export class ProfileService {
   }
 
   async changeStatus({ profileId, status, rejectionReason }: { profileId: Types.ObjectId, status: 'approved' | 'rejected', rejectionReason?: string }) {
-    await this.mechanicProfileRepository.updateApplicationStatus(profileId, status, rejectionReason)
+    await this._mechanicProfileRepository.updateApplicationStatus(profileId, status, rejectionReason)
   }
 
   async deleteApplication(mechanicId: Types.ObjectId) {
-    await this.mechanicProfileRepository.deleteByMechanicId(mechanicId)
+    await this._mechanicProfileRepository.deleteByMechanicId(mechanicId)
   }
 
   async getAvailablity(mechanicId: Types.ObjectId) {
-    const response = await this.mechanicProfileRepository.getAvailablity(mechanicId)
+    const response = await this._mechanicProfileRepository.getAvailablity(mechanicId)
     const availability = response?.availability ?? 'notAvailable'
     return availability
 
   }
 
   async setAvailablity(mechanicId: Types.ObjectId, updates: Partial<MechanicProfileDocument>) {
-    return await this.mechanicProfileRepository.update(mechanicId, updates)
+    return await this._mechanicProfileRepository.update(mechanicId, updates)
   }
 
   async setNotificationRead(userId: Types.ObjectId) {
-    return await this.notificationRepository.markAsRead(userId)
+    return await this._notificationRepository.markAsRead(userId)
   }
 
 

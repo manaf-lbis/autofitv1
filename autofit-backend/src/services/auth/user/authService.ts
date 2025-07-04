@@ -12,15 +12,15 @@ import { Types } from "mongoose";
 export class AuthService {
 
   constructor(
-    private userRepository: IUserRepository,
-    private otpService: OtpService,
-    private tokenService: TokenService,
-    private hashService: HashService,
+    private _userRepository: IUserRepository,
+    private _otpService: OtpService,
+    private _tokenService: TokenService,
+    private _hashService: HashService,
   ) { }
 
   async login(email: string, password: string) {
 
-    const user = await this.userRepository.findByEmail(email);
+    const user = await this._userRepository.findByEmail(email);
     if (!user) throw new ApiError('Invalid email or password', 404);
     if(user.status === 'blocked') throw new ApiError('User Blocked Contact Admin', 401);
 
@@ -30,7 +30,7 @@ export class AuthService {
       );
     }
 
-    const isMatch = await this.hashService.compare(password, user.password);
+    const isMatch = await this._hashService.compare(password, user.password);
     if (!isMatch) {
 
       const attempts = (user.failedLoginAttempts || 0) + 1;
@@ -38,7 +38,7 @@ export class AuthService {
         ? new Date(Date.now() + 5 * 60 * 1000)
         : undefined;
 
-      await this.userRepository.update(user._id, {
+      await this._userRepository.update(user._id, {
         failedLoginAttempts: attempts,
         ...(lockUntil && { lockUntil }),
       });
@@ -52,30 +52,30 @@ export class AuthService {
     }
 
 
-    await this.userRepository.update(user._id, {
+    await this._userRepository.update(user._id, {
       failedLoginAttempts: 0,
       lockUntil: null,
     });
 
 
     const payload = { id: user._id, role: user.role };
-    const accessToken = this.tokenService.generateToken(payload);
-    const refreshToken = this.tokenService.generateRefreshToken(payload);
+    const accessToken = this._tokenService.generateToken(payload);
+    const refreshToken = this._tokenService.generateRefreshToken(payload);
 
-    await this.userRepository.storeRefreshToken(user._id, refreshToken);
+    await this._userRepository.storeRefreshToken(user._id, refreshToken);
     return { token: accessToken, user: { name: user.name, role: user.role } };
   }
 
 
   async signup(name: string, email: string, password: string, mobile: string) {
 
-    const isExist = await this.userRepository.findByEmail(email)
+    const isExist = await this._userRepository.findByEmail(email)
     if (isExist) throw new ApiError('User With Email Already Exists!', 400)
 
-    const passwordHash = await this.hashService.hash(password)
+    const passwordHash = await this._hashService.hash(password)
 
-    await this.otpService.saveAndSentOtp(email, 'user')
-    const token = this.tokenService.generateToken({
+    await this._otpService.saveAndSentOtp(email, 'user')
+    const token = this._tokenService.generateToken({
       name,
       password: passwordHash,
       email,
@@ -87,7 +87,7 @@ export class AuthService {
 
 
   async getUser(_id: ObjectId) {
-    const user = await this.userRepository.findById(_id)
+    const user = await this._userRepository.findById(_id)
 
     if (user?.status !== 'active') {
       throw new ApiError('user blocked')
@@ -100,8 +100,8 @@ export class AuthService {
   async validateRefreshToken(token: string): Promise<string> {
     try {
 
-      const payload = this.tokenService.verifyToken(token);
-      const storedToken = await this.userRepository.getRefreshToken(payload.id);
+      const payload = this._tokenService.verifyToken(token);
+      const storedToken = await this._userRepository.getRefreshToken(payload.id);
       if (storedToken !== token) {
         throw new ApiError("Invalid refresh token", 401);
       }
@@ -113,23 +113,23 @@ export class AuthService {
 
   async refreshAccessToken(userId: string): Promise<{ accessToken: string }> {
 
-    const user = await this.userRepository.findById(new Types.ObjectId(userId));
+    const user = await this._userRepository.findById(new Types.ObjectId(userId));
     if (!user) throw new ApiError("User not found", 404);
 
     const storedRefreshToken = user.refreshToken;
     if (!storedRefreshToken) throw new ApiError("No refresh token available", 401);
 
     try {
-      this.tokenService.verifyToken(storedRefreshToken);
+      this._tokenService.verifyToken(storedRefreshToken);
     } catch (error) {
       throw new ApiError("Invalid refresh token", 401);
     }
 
     const payload = { id: userId, role: user.role };
-    const newAccessToken = this.tokenService.generateAccessToken(payload);
-    const newRefreshToken = this.tokenService.generateRefreshToken(payload);
+    const newAccessToken = this._tokenService.generateAccessToken(payload);
+    const newRefreshToken = this._tokenService.generateRefreshToken(payload);
     
-    await this.userRepository.storeRefreshToken(new Types.ObjectId(userId), newRefreshToken);
+    await this._userRepository.storeRefreshToken(new Types.ObjectId(userId), newRefreshToken);
     return { accessToken: newAccessToken };
   }
 

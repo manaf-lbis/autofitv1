@@ -6,7 +6,7 @@ import { ApiError } from "../../utils/apiError";
 
 export class PageController {
     constructor(
-        private pageService: PageService
+        private _pageService: PageService
     ) { }
 
     async dashboard(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -15,7 +15,7 @@ export class PageController {
 
             if (!id) throw new ApiError('Invalid User')
 
-            const dashboard = await this.pageService.dashboard(id);
+            const dashboard = await this._pageService.dashboard(id);
 
             sendSuccess(res, 'Successfully Fetched', dashboard);
 
@@ -30,7 +30,7 @@ export class PageController {
             const id = req.user?.id;
             if (!id) throw new ApiError('Invalid User')
 
-            const primaryInfo = await this.pageService.primaryInfo(id);
+            const primaryInfo = await this._pageService.primaryInfo(id);
 
             sendSuccess(res, 'Successfully Fetched', primaryInfo);
 
@@ -38,14 +38,6 @@ export class PageController {
             next(error);
         }
     }
-
-
-
-
-
-
-
-
 
 }
 

@@ -11,10 +11,10 @@ import { Types } from "mongoose";
 
 class ResetPassword {
     constructor(
-        private userRepository: IUserRepository,
-        private adminRepository: IAdminRepository,
-        private otpService: OtpService,
-        private hashService: HashService
+        private _userRepository: IUserRepository,
+        private _adminRepository: IAdminRepository,
+        private _otpService: OtpService,
+        private _hashService: HashService
     ) { }
 
     async verifyEmail(email: string, role: Role) {
@@ -23,11 +23,11 @@ class ResetPassword {
 
         switch (role) {
             case 'user':
-                user = await this.userRepository.findByEmail(email)
+                user = await this._userRepository.findByEmail(email)
                 break;
 
             case 'admin':
-                user = await this.adminRepository.findByEmail(email)
+                user = await this._adminRepository.findByEmail(email)
                 break;
 
             default:
@@ -41,7 +41,7 @@ class ResetPassword {
     }
 
     async saveAndSentOtp(email: string, role: Role) {
-        await this.otpService.saveAndSentOtp(email,role)
+        await this._otpService.saveAndSentOtp(email,role)
         return true
     };
 
@@ -49,15 +49,15 @@ class ResetPassword {
 
         let user: User | Admin | null
 
-        const hash = await this.hashService.hash(password)
+        const hash = await this._hashService.hash(password)
 
         switch (role) {
             case 'user':
-                user = await this.userRepository.update(_id,{password:hash})
+                user = await this._userRepository.update(_id,{password:hash})
                 break;
 
             case 'admin':
-                user = await this.adminRepository.update(_id,{password:hash})
+                user = await this._adminRepository.update(_id,{password:hash})
                 break;
 
             default:

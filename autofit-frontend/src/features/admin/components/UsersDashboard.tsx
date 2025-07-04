@@ -57,7 +57,7 @@ const UserTableShimmer: React.FC = () => (
 );
 
 const UserDashboard: React.FC = () => {
-  // State management
+
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [page, setPage] = useState(1);
@@ -75,12 +75,10 @@ const UserDashboard: React.FC = () => {
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
   const [updateUserStatus, { isLoading: isUpdatingStatus }] = useUpdateUserStatusMutation();
 
-  // Set breadcrumbs
   useEffect(() => {
     dispatch(setBreadcrumbs([{ page: "User", href: "/users" }, { page: "User Management", href: "/users" }]));
   }, [dispatch]);
 
-  // Fetch users
   const { data: response, isLoading, isFetching } = useGetAllUsersQuery({
     page,
     limit,
@@ -89,7 +87,6 @@ const UserDashboard: React.FC = () => {
     sortOrder,
   });
 
-  // Accumulate users for infinite scrolling
   useEffect(() => {
     if (response?.data.users) {
       setAllUsers((prev) => [

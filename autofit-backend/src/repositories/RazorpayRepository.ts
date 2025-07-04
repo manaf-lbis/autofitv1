@@ -4,9 +4,9 @@ import { ApiError } from "../utils/apiError";
 import { IPaymentGateayRepository } from "./interfaces/IPaymentGateayRepository";
 
 export class RazorpayRepository implements IPaymentGateayRepository {
-    private razorpay: Razorpay;
-    private RAZORPAY_KEY: string;
-    private RAZORPAY_SECRET: string;
+    private _razorpay: Razorpay;
+    private _RAZORPAY_KEY: string;
+    private _RAZORPAY_SECRET: string;
 
     constructor(
         key = process.env.RAZORPAY_KEY_ID,
@@ -16,12 +16,12 @@ export class RazorpayRepository implements IPaymentGateayRepository {
             throw new ApiError("Razorpay credentials are missing");
         }
 
-        this.RAZORPAY_KEY = key;
-        this.RAZORPAY_SECRET = secret;
+        this._RAZORPAY_KEY = key;
+        this._RAZORPAY_SECRET = secret;
 
-        this.razorpay = new Razorpay({
-            key_id: this.RAZORPAY_KEY,
-            key_secret: this.RAZORPAY_SECRET,
+        this._razorpay = new Razorpay({
+            key_id: this._RAZORPAY_KEY,
+            key_secret: this._RAZORPAY_SECRET,
         });
     }
 
@@ -30,7 +30,7 @@ export class RazorpayRepository implements IPaymentGateayRepository {
         const receipt = `rcpt_${Date.now().toString(36)}_${Math.random().toString(36).substring(2, 5)}`;
 
         try {
-            const order = await this.razorpay.orders.create({
+            const order = await this._razorpay.orders.create({
                 amount: amount * 100,
                 currency: "INR",
                 receipt,
@@ -49,7 +49,7 @@ export class RazorpayRepository implements IPaymentGateayRepository {
     verifyPayment(paymentId: string, orderId: string, signature: string): boolean {
         try {
             const generatedSignature = crypto
-                .createHmac("sha256", this.RAZORPAY_SECRET)
+                .createHmac("sha256", this._RAZORPAY_SECRET)
                 .update(orderId + "|" + paymentId)
                 .digest("hex");
 
@@ -60,10 +60,10 @@ export class RazorpayRepository implements IPaymentGateayRepository {
     }
 
     async payloadFromOrderId(orderId: string) {
-       return await this.razorpay.orders.fetch(orderId)
+       return await this._razorpay.orders.fetch(orderId)
     }
 
     async payloadFromPaymentId(paymentId: string) {
-        return await this.razorpay.payments.fetch(paymentId);
+        return await this._razorpay.payments.fetch(paymentId);
     }
 }

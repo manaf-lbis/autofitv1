@@ -10,8 +10,8 @@ import { RoadsideService } from '../../services/roadsideAssistance/roadsideServi
 
 export class ServicesController {
     constructor(
-        private userRoadsideService: UserRoadsideService,
-        private roadsideService: RoadsideService
+        private _userRoadsideService: UserRoadsideService,
+        private _roadsideService: RoadsideService
     ) { }
 
 
@@ -23,7 +23,7 @@ export class ServicesController {
             const lat = parseFloat(latitude as string);
             const lng = parseFloat(longitude as string);
 
-            const response = await this.userRoadsideService.getNearByMechanic({ lat, lng })
+            const response = await this._userRoadsideService.getNearByMechanic({ lat, lng })
 
             sendSuccess(res, 'Success', response)
 
@@ -45,7 +45,7 @@ export class ServicesController {
             const mechanicId = new Types.ObjectId(mecId)
             const vehicleId = new Types.ObjectId(vehId)
 
-            const { emergencyAssistance, notification } = (await this.userRoadsideService.createAssistanceRequest({ mechanicId, vehicleId, issue, description, serviceLocation }))
+            const { emergencyAssistance, notification } = (await this._userRoadsideService.createAssistanceRequest({ mechanicId, vehicleId, issue, description, serviceLocation }))
 
             const mechData = userSocketMap.get(mechanicId.toString());
             if (mechData && mechData.socketIds.size > 0) {
@@ -80,7 +80,7 @@ export class ServicesController {
     async serviceDetails(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const serviceId = new Types.ObjectId(req.params.id);
-            const serviceDetails = await this.roadsideService.serviceDetails(serviceId)
+            const serviceDetails = await this._roadsideService.serviceDetails(serviceId)
             sendSuccess(res, 'Successfully Fetched', serviceDetails);
         } catch (error) {
             next(error)
@@ -94,7 +94,7 @@ export class ServicesController {
 
             if (!serviceId || !userId) throw new ApiError('Invalid Service Id');
 
-            const response = await this.userRoadsideService.approveQuoteAndPay({ serviceId, quotationId })
+            const response = await this._userRoadsideService.approveQuoteAndPay({ serviceId, quotationId })
 
             sendSuccess(res, 'Order Created Successfully', { orderId: response.orderId })
 
@@ -110,7 +110,7 @@ export class ServicesController {
             if (!paymentId || !orderId || !signature) throw new ApiError('Payment Verification Failed');
             if (!userId) throw new ApiError('Invalid User')
 
-            const { mechanicId } = await this.userRoadsideService.VerifyAndApprove({ userId, paymentId, orderId, signature })
+            const { mechanicId } = await this._userRoadsideService.VerifyAndApprove({ userId, paymentId, orderId, signature })
 
             const mechData = userSocketMap.get(mechanicId.toString())
 
@@ -132,7 +132,7 @@ export class ServicesController {
 
         try {
             const { serviceId } = req.body
-            await this.roadsideService.cancelQuotation({ serviceId })
+            await this._roadsideService.cancelQuotation({ serviceId })
             sendSuccess(res, 'Service Cancelled')
 
         } catch (error) {
@@ -144,7 +144,7 @@ export class ServicesController {
     async cancelService(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const { serviceId } = req.body
-            await this.roadsideService.cancelService(serviceId)
+            await this._roadsideService.cancelService(serviceId)
             sendSuccess(res, 'Service Cancelled')
 
         } catch (error) {

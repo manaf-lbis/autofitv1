@@ -10,8 +10,8 @@ const authClient = new OAuth2Client(
 
 export class GoogleAuthService {
   constructor(
-    private mechanicRepository: IMechanicRepository,
-    private tokenService: TokenService
+    private _mechanicRepository: IMechanicRepository,
+    private _tokenService: TokenService
   ) {}
 
   async googleAuth({ code }: { code: string }) {
@@ -36,10 +36,10 @@ export class GoogleAuthService {
     const { sub, email, name } = payload;
 
 
-    let user = await this.mechanicRepository.findByEmail(email);
+    let user = await this._mechanicRepository.findByEmail(email);
 
     if (!user) {
-      user = await this.mechanicRepository.create({
+      user = await this._mechanicRepository.create({
         email,
         role: "mechanic",
         googleId: sub,
@@ -53,9 +53,9 @@ export class GoogleAuthService {
 
     const tokenPayload = { id: user._id, role: user.role };
 
-    const token = this.tokenService.generateToken(tokenPayload);
-    const refreshToken = this.tokenService.generateRefreshToken(tokenPayload);
-    await this.mechanicRepository.storeRefreshToken(user._id, refreshToken);
+    const token = this._tokenService.generateToken(tokenPayload);
+    const refreshToken = this._tokenService.generateRefreshToken(tokenPayload);
+    await this._mechanicRepository.storeRefreshToken(user._id, refreshToken);
 
     return {
       token,

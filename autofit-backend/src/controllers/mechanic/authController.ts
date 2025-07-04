@@ -12,11 +12,11 @@ import { GoogleAuthService } from "../../services/auth/mechanic/googleAuthServic
 
 export class AuthController {
     constructor(
-        private authService: AuthService,
-        private otpService: OtpService,
-        private tokenService: TokenService,
-        private mechanicRegistrationService: MechanicRegistrationService,
-        private googleAuthService: GoogleAuthService
+        private _authService: AuthService,
+        private _otpService: OtpService,
+        private _tokenService: TokenService,
+        private _mechanicRegistrationService: MechanicRegistrationService,
+        private _googleAuthService: GoogleAuthService
 
     ) { }
 
@@ -25,7 +25,7 @@ export class AuthController {
             const { email, password } = req.body;
             loginValidation.parse({ email, password });
 
-            const result = await this.authService.login(email, password);
+            const result = await this._authService.login(email, password);
 
             res.cookie('jwt', result.token, {
                 httpOnly: true,
@@ -50,10 +50,10 @@ export class AuthController {
                 throw new ApiError("No token provided", 401);
             }
 
-            const decoded = this.tokenService.verifyToken(token, true);
+            const decoded = this._tokenService.verifyToken(token, true);
             const userId = decoded.id;
 
-            const result = await this.authService.refreshAccessToken(userId);
+            const result = await this._authService.refreshAccessToken(userId);
 
             console.log('token refreshed');
 
@@ -78,7 +78,7 @@ export class AuthController {
             const { name, email, password, mobile } = req.body;
             signupValidation.parse({ name, mobile, password, email });
 
-            const result = await this.authService.signup(name, email, password, mobile);
+            const result = await this._authService.signup(name, email, password, mobile);
 
             res.cookie('jwt', result.token, {
                 httpOnly: true,
@@ -113,16 +113,16 @@ export class AuthController {
                 throw new Error('Missing required user data in token');
             }
 
-            await this.otpService.verifyOtp(otp, email)
+            await this._otpService.verifyOtp(otp, email)
 
-            const { _id } = await this.mechanicRegistrationService.registerUser({
+            const { _id } = await this._mechanicRegistrationService.registerUser({
                 name,
                 email,
                 password,
                 mobile,
                 role: role || 'mechanic'
             });
-            const token = this.tokenService.generateToken({ id: _id, role })
+            const token = this._tokenService.generateToken({ id: _id, role })
 
             res.cookie('jwt', token, {
                 httpOnly: true,
@@ -146,7 +146,7 @@ export class AuthController {
                 throw new ApiError("Not authenticated!", 401)
             }
 
-            const data = await this.authService.getUser(req.user.id)
+            const data = await this._authService.getUser(req.user.id)
 
             sendSuccess(res, 'user Active', data)
 
@@ -169,7 +169,7 @@ export class AuthController {
                 throw new Error('Missing required user data in token');
             }
 
-            await this.otpService.saveAndResentOtp(email, role as Role)
+            await this._otpService.saveAndResentOtp(email, role as Role)
 
             sendSuccess(res, 'Resent Success')
 
@@ -198,7 +198,7 @@ export class AuthController {
         try {
 
             const { code } = req.body;
-            const result = await this.googleAuthService.googleAuth({ code })
+            const result = await this._googleAuthService.googleAuth({ code })
 
             res.cookie('jwt', result.token, {
                 httpOnly: true,

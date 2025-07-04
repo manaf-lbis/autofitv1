@@ -7,7 +7,7 @@ import { mechanicRegisterValidation } from "../../validation/mechanicValidation"
 
 export class ProfileController {
     constructor(
-        private mechanicProfileService: ProfileService,
+        private _mechanicProfileService: ProfileService,
     ) { }
 
     async profile(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -15,7 +15,7 @@ export class ProfileController {
             const id = req.user?.id
             if (!id) throw new ApiError('Invalid User');
 
-            const result = await this.mechanicProfileService.getProfile(id);
+            const result = await this._mechanicProfileService.getProfile(id);
             sendSuccess(res, 'Successfully Fetched', result);
         } catch (error: any) {
             next(error);
@@ -39,7 +39,7 @@ export class ProfileController {
             const validated = mechanicRegisterValidation.parse(req.body);
             const { education, specialised, experience, shopName, place, landmark, location } = validated;
 
-            await this.mechanicProfileService.registerUser({
+            await this._mechanicProfileService.registerUser({
                 data: { education, specialised, experience, shopName, place, landmark, location },
                 photo,
                 shopImage,
@@ -59,7 +59,7 @@ export class ProfileController {
             const mechanicId = req.user?.id;
             if (!mechanicId) throw new ApiError('Invalid User')
 
-            await this.mechanicProfileService.deleteApplication(mechanicId)
+            await this._mechanicProfileService.deleteApplication(mechanicId)
             sendSuccess(res, 'Request Approved');
 
         } catch (err) {
@@ -73,7 +73,7 @@ export class ProfileController {
             if (!mechanicId) throw new ApiError('Invalid User')
             
             const availability = req.body.availability
-            const response = await this.mechanicProfileService.setAvailablity(mechanicId,{availability})
+            const response = await this._mechanicProfileService.setAvailablity(mechanicId,{availability})
             sendSuccess(res, 'Success',{availability:response?.availability});
 
         } catch (err) {
@@ -85,7 +85,7 @@ export class ProfileController {
         try {
             const userId = req.user?.id
             if(!userId) throw new ApiError('Invalid User')
-            await this.mechanicProfileService.setNotificationRead(userId)
+            await this._mechanicProfileService.setNotificationRead(userId)
 
          
             sendSuccess(res, 'Success');

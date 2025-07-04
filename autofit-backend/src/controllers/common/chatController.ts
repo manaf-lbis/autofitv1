@@ -4,7 +4,9 @@ import { ApiError } from "../../utils/apiError";
 import { sendSuccess } from "../../utils/apiResponse";
 
 export class ChatController {
-  constructor(private chatService: ChatService) { }
+  constructor(
+    private _chatService: ChatService
+  ) { }
 
   async getChatsForService(req: Request, res: Response, next: NextFunction) {
     try {
@@ -12,7 +14,7 @@ export class ChatController {
       const userId = req.user?.id
       if (!userId) throw new ApiError('Invalid User id')
 
-      const chats = await this.chatService.getChatsForService(serviceId, serviceType, userId.toString());
+      const chats = await this._chatService.getChatsForService(serviceId, serviceType, userId.toString());
 
       sendSuccess(res, "Chats fetched successfully", chats);
     } catch (error) {
@@ -25,7 +27,7 @@ export class ChatController {
       const mechanicId = req.user?.id
       if (!mechanicId) throw new ApiError('Invalid User id');
 
-      const chats = await this.chatService.getChatsForMechanic(mechanicId.toString());
+      const chats = await this._chatService.getChatsForMechanic(mechanicId.toString());
       sendSuccess(res, "Mechanic chats fetched successfully", chats);
     } catch (error) {
       next(error);
@@ -39,7 +41,7 @@ export class ChatController {
 
       if(!userId) throw new ApiError('Invalid user')
 
-      const response = await this.chatService.avilableRooms(userId)
+      const response = await this._chatService.avilableRooms(userId)
         
 
       sendSuccess(res, "Mechanic chats fetched successfully",response);

@@ -2,15 +2,12 @@ import { Request, Response, NextFunction } from "express";
 import { profileValidation } from "../../validation/authValidation";
 import { ProfileService } from "../../services/user/userProfileService";
 import { ApiError } from "../../utils/apiError";
-import { Types } from "mongoose";
-import { string } from "zod";
 import { sendSuccess } from "../../utils/apiResponse";
-
 
 export class ProfileController {
 
     constructor (
-        private profileService : ProfileService
+        private _profileService : ProfileService
 
     ) {}
 
@@ -24,7 +21,7 @@ export class ProfileController {
             const userId = req.user?.id 
             if(!userId) throw new ApiError("Invalid User",400)
 
-            const user =  await this.profileService.updateUser({...req.body,userId})
+            const user =  await this._profileService.updateUser({...req.body,userId})
             if(!user) throw new ApiError('Invalid User')
             const {name,email,mobile} = user
 
@@ -39,7 +36,7 @@ export class ProfileController {
          try {
             const userId = req.user?.id
             if(!userId) throw new ApiError('Invalid user')
-            const serviceHistory = await this.profileService.serviceHistoryByUserId(userId)
+            const serviceHistory = await this._profileService.serviceHistoryByUserId(userId)
             sendSuccess(res, 'Profile Updated',serviceHistory);
         } catch (error: any) {
             next(error);

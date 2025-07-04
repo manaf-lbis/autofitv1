@@ -22,31 +22,31 @@ interface PaginationResponse {
 
 export class MechanicService {
     constructor(
-        private mechanicRepository: IMechanicRepository,
-        private mechanicprofileRepository: IMechanicProfileRepository
+        private _mechanicRepository: IMechanicRepository,
+        private _mechanicprofileRepository: IMechanicProfileRepository
 
     ) { }
 
 
     async allUsers(data: { page: number; limit: number; search?: string; sortField?: keyof MechanicDocument; sortOrder?: "asc" | "desc"; }) {
 
-        return await this.mechanicRepository.findMechanicWithPagination(data)
+        return await this._mechanicRepository.findMechanicWithPagination(data)
     }
 
     async updataUser({ userId, data  }: { userId: Types.ObjectId, data: Partial<MechanicDocument> }) {
-        await this.mechanicRepository.update(userId, data)
+        await this._mechanicRepository.update(userId, data)
     }
 
 
     async mechanicDetails({ userId }: { userId: Types.ObjectId }) {
-       const mechanic = await this.mechanicRepository.getBasicUserById(userId)
-       const mechanicProfile = await this.mechanicprofileRepository.findByMechanicId(userId)
+       const mechanic = await this._mechanicRepository.getBasicUserById(userId)
+       const mechanicProfile = await this._mechanicprofileRepository.findByMechanicId(userId)
 
        return {mechanic,mechanicProfile}
     }
 
     async mechanicApplications(params: PaginationParams): Promise<PaginationResponse> {
-        const result = await this.mechanicprofileRepository.findMechanicWithPagination(params);
+        const result = await this._mechanicprofileRepository.findMechanicWithPagination(params);
         return result;
     }
 

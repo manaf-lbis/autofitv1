@@ -1,13 +1,5 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
-import { 
-  MoreHorizontal, 
-  ArrowUpDown, 
-  Eye, 
-  Ban, 
-  CheckCircle,
-  Search,
-  Circle,
-} from "lucide-react";
+import { MoreHorizontal,  ArrowUpDown, Eye,  Ban, CheckCircle,Search,Circle} from "lucide-react";
 import { useDispatch } from "react-redux";
 import { setBreadcrumbs } from "../../slices/adminSlice"; 
 import { useNavigate } from "react-router-dom";
@@ -29,7 +21,6 @@ interface StatusStyle {
   label: string;
 }
 
-// Shimmer component for loading placeholder rows
 const UserTableShimmer: React.FC = () => (
   <>
     {Array.from({ length: 5 }).map((_, index) => (
@@ -58,7 +49,6 @@ const UserTableShimmer: React.FC = () => (
 );
 
 const MechanicDashboard: React.FC = () => {
-  // State management
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [page, setPage] = useState(1);
@@ -69,19 +59,16 @@ const MechanicDashboard: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const limit = 10;
 
-  // Hooks
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const observerRef = useRef<IntersectionObserver | null>(null);
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
   const [updateUserStatus, { isLoading: isUpdatingStatus }] = useUpdateMechanicStatusMutation();
 
-  // Set breadcrumbs
   useEffect(() => {
     dispatch(setBreadcrumbs([{ page: "User", href: "/users" }, { page: "User Management", href: "/users" }]));
   }, [dispatch]);
 
-  // Fetch users
   const { data: response, isLoading, isFetching } = useGetAllMechanicQuery({
     page,
     limit,
@@ -107,7 +94,6 @@ const MechanicDashboard: React.FC = () => {
     }
   }, [response]);
 
-  // Set up Intersection Observer for infinite scrolling
   useEffect(() => {
     if (observerRef.current) {
       observerRef.current.disconnect();
@@ -130,7 +116,6 @@ const MechanicDashboard: React.FC = () => {
     };
   }, [hasMore, isFetching]);
 
-  // Handle search input
   const handleSearch = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
     setPage(1);
@@ -138,7 +123,7 @@ const MechanicDashboard: React.FC = () => {
     setErrorMessage(null);
   }, []);
 
-  // Handle column sorting
+
   const handleSort = useCallback((field: string) => {
     if (sortField === field) {
       setSortOrder(sortOrder === "asc" ? "desc" : "asc");
@@ -151,16 +136,15 @@ const MechanicDashboard: React.FC = () => {
     setErrorMessage(null);
   }, [sortField, sortOrder]);
 
-  // Toggle dropdown menu
+
   const toggleDropdown = useCallback((userId: string) => {
     setOpenDropdown(openDropdown === userId ? null : userId);
   }, [openDropdown]);
 
-  // Handle user status update (block/unblock)
   const handleStatusUpdate = useCallback(async (userId: string, newStatus: 'active' | 'blocked') => {
     try {
       await updateUserStatus({ id: userId, status: newStatus }).unwrap();
-      // Optimistic update
+
       setAllUsers((prev) =>
         prev.map((user) =>
           user.id === userId ? { ...user, status: newStatus } : user

@@ -9,7 +9,7 @@ import { getIO, userSocketMap } from "../../sockets/socket";
 
 export class UserController {
     constructor(
-        private userServices: UserServices
+        private _userServices: UserServices
 
     ) { }
 
@@ -19,7 +19,7 @@ export class UserController {
         try {
             const { page = '1', limit = '10', search, sortField = 'createdAt', sortOrder = 'desc' } = req.query;
 
-            const result = await this.userServices.allUsers({
+            const result = await this._userServices.allUsers({
                 page: parseInt(page as string),
                 limit: parseInt(limit as string),
                 search: search as string,
@@ -36,7 +36,7 @@ export class UserController {
     async getUserById(req: Request, res: Response, next: NextFunction) {
         try {
             const userId = new Types.ObjectId(req.params.id);
-            const result = await this.userServices.userDetails({ userId })
+            const result = await this._userServices.userDetails({ userId })
 
             sendSuccess(res, 'Fetched Successfully', result)
 
@@ -45,13 +45,12 @@ export class UserController {
         }
     }
 
-
     async changeStatus(req: Request, res: Response, next: NextFunction) {
         try {
             const userId = new Types.ObjectId(req.params.id);
             const { status } = req.body
 
-            await this.userServices.updataUser({ userId, data: { status } })
+            await this._userServices.updataUser({ userId, data: { status } })
 
             if (status === 'blocked') {
                 const userData = userSocketMap.get(userId.toString())
@@ -62,7 +61,7 @@ export class UserController {
                     })
                 }
             }
-            
+
             sendSuccess(res, 'updated sucessfully')
 
         } catch (error) {
@@ -70,10 +69,6 @@ export class UserController {
         }
 
     }
-
-
-
-
 
 
 }

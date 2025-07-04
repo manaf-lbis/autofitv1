@@ -9,25 +9,25 @@ import { IVehicleRepository } from "../../repositories/interfaces/IVehicleReposi
 
 export class UserServices {
     constructor(
-        private userRepository: IUserRepository,
-        private vehicleRepository : IVehicleRepository
+        private _userRepository: IUserRepository,
+        private _vehicleRepository : IVehicleRepository
     ) { }
 
     async allUsers(data:{page: number; limit: number;search?: string;sortField?: keyof User;sortOrder?: "asc" | "desc";}) {
       
-       return await this.userRepository.findUsersWithPagination(data)
+       return await this._userRepository.findUsersWithPagination(data)
     }
 
     async updataUser({userId,data}:{userId:Types.ObjectId,data:Partial<User>}) {
-        await this.userRepository.update(userId,data)
+        await this._userRepository.update(userId,data)
     }
 
     async userDetails({ userId }: { userId: Types.ObjectId }) {
 
     
         const [vehicles, user] = await Promise.all([
-            this.vehicleRepository.findWithUserId(userId),
-            this.userRepository.findById(userId)
+            this._vehicleRepository.findWithUserId(userId),
+            this._userRepository.findById(userId)
         ]);
 
         

@@ -4,7 +4,7 @@ import { CreateUserInput } from "../../types/user/userInput";
 
 
 export class MechanicRegistrationService {
-    constructor(private mechanicRepository: IMechanicRepository) {}
+    constructor(private _mechanicRepository: IMechanicRepository) {}
 
     async registerUser(userData:CreateUserInput ) {
         const { email, password, name, mobile } = userData;
@@ -13,13 +13,13 @@ export class MechanicRegistrationService {
             throw new ApiError("Incomplete user data", 400);
         }
 
-        const existingUser = await this.mechanicRepository.findByEmail(email);
+        const existingUser = await this._mechanicRepository.findByEmail(email);
         
         if (existingUser) {
             throw new ApiError("User already exists", 400);
         }
 
-        const {role,_id} = await this.mechanicRepository.create({email,password,mobile,name,role:'mechanic'});
+        const {role,_id} = await this._mechanicRepository.create({email,password,mobile,name,role:'mechanic'});
         return {_id,name,role}
           
     }

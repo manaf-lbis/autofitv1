@@ -8,7 +8,7 @@ import { ApiError } from '../../utils/apiError';
 
 export class VehicleController {
     constructor(
-        private vehicleService : VehicleService
+        private _vehicleService : VehicleService
     ){}
 
     
@@ -19,7 +19,7 @@ export class VehicleController {
             const userId = req.user?.id
             if(!userId) throw new ApiError('User UnAuthorised',401)
 
-            const newVehicle = await this.vehicleService.addVehicle({regNo,brand,modelName,fuelType,owner,userId})
+            const newVehicle = await this._vehicleService.addVehicle({regNo,brand,modelName,fuelType,owner,userId})
           
             sendSuccess(res,'New Vehicle Added',newVehicle,201)
             
@@ -35,7 +35,7 @@ export class VehicleController {
             const userId = new Types.ObjectId(req.user?.id);
             if(!userId) throw new ApiError('user Unauthenticated', 401);
 
-            const response = await this.vehicleService.getVehicle(userId)
+            const response = await this._vehicleService.getVehicle(userId)
             sendSuccess(res,'vehicle Fetch Success',response)
 
             
@@ -52,7 +52,7 @@ export class VehicleController {
             const userId = new Types.ObjectId(req.user?.id);
             if(!userId) throw new ApiError('user Unauthenticated', 401);
 
-            const response = await this.vehicleService.updateVehicle({regNo,brand,modelName,fuelType,owner,userId,_id})
+            const response = await this._vehicleService.updateVehicle({regNo,brand,modelName,fuelType,owner,userId,_id})
         
             sendSuccess(res,'update Success',response);
 
@@ -72,7 +72,7 @@ export class VehicleController {
           const _id = new Types.ObjectId(id as string);
 
 
-          const response = this.vehicleService.deleteVehicle(userId,_id);
+          const response = this._vehicleService.deleteVehicle(userId,_id);
           sendSuccess(res,'Vehicle Removed',response)
 
 
@@ -82,7 +82,7 @@ export class VehicleController {
     }
     async vehicleBrands (req: Request, res: Response,next:NextFunction): Promise<void>{
         try {
-           const response = await this.vehicleService.getVehicleBrands()
+           const response = await this._vehicleService.getVehicleBrands()
 
            sendSuccess(res,'vehicle Fetched Successfully',response)
             

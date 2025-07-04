@@ -8,14 +8,14 @@ import { sendMail } from "../mail/mailService";
 export class OtpService {
 
   constructor(
-    private otpRepository: IOtpRepository,
-    private hashService: HashService,
+    private _otpRepository: IOtpRepository,
+    private _hashService: HashService,
   ) { }
 
   async verifyOtp(otp: string, email: string): Promise<void> {
 
 
-    const data = await this.otpRepository.findByEmail(email);
+    const data = await this._otpRepository.findByEmail(email);
 
     const now = new Date();
     if (!data || data.expiresAt < now) {
@@ -33,22 +33,22 @@ export class OtpService {
       );
     }
 
-    const isCorrect = await this.hashService.compare(otp, data.otp);
+    const isCorrect = await this._hashService.compare(otp, data.otp);
 
     if (!isCorrect && data._id) {
-      await this.otpRepository.incrementAttemptCount(data._id);
+      await this._otpRepository.incrementAttemptCount(data._id);
       throw new ApiError(`Invalid OTP you have ${3 - data.attempt} attempt left`, 400);
     }
 
     if (data._id) {
-      await this.otpRepository.markAsVerified(data._id);
+      await this._otpRepository.markAsVerified(data._id);
     }
   }
 
 
   async saveAndSentOtp(email: string, role: Role) {
 
-    const otpDoc = await this.otpRepository.findByEmail(email);
+    const otpDoc = await this._otpRepository.findByEmail(email);
 
     const now = new Date();
 
@@ -65,9 +65,9 @@ export class OtpService {
     const newOtp = this.generate();
     console.log(`Your OTP is: ${newOtp}`);
 
-    const otpHash = await this.hashService.hash(newOtp);
+    const otpHash = await this._hashService.hash(newOtp);
 
-    await this.otpRepository.save({
+    await this._otpRepository.save({
       email,
       otp: otpHash,
       attempt: 0,
@@ -85,9 +85,9 @@ export class OtpService {
     const newOtp = this.generate();
     console.log(`Resent OTP is: ${newOtp}`);
 
-    const otpHash = await this.hashService.hash(newOtp);
+    const otpHash = await this._hashService.hash(newOtp);
 
-    await this.otpRepository.save({
+    await this._otpRepository.save({
       email,
       otp: otpHash,
       attempt: 0,

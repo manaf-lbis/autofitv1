@@ -3,10 +3,10 @@ import { IGoogleMapRepository } from "./interfaces/IGoogleMapRepository";
 import { ApiError } from "../utils/apiError";
 
 export class GoogleMapRepository implements IGoogleMapRepository {
-  private apiKey: string;
+  private _apiKey: string;
 
   constructor() {
-    this.apiKey = process.env.GOOGLE_MAPS_API_KEY!;
+    this._apiKey = process.env.GOOGLE_MAPS_API_KEY!;
   }
 
   async getDistanceMatrix( origin: { lat: number; lng: number }, destinations: { lat: number; lng: number }[]): Promise<{ distances: number[]; durations: number[] }> {
@@ -19,7 +19,7 @@ export class GoogleMapRepository implements IGoogleMapRepository {
         params: {
           origins,
           destinations: destinationStr,
-          key: this.apiKey,
+          key: this._apiKey,
         },
       });
 

@@ -10,8 +10,8 @@ const authClient = new OAuth2Client(
 
 export class AdminGoogleAuthService {
   constructor(
-    private adminRepository: IAdminRepository,
-    private tokenService: TokenService
+    private _adminRepository: IAdminRepository,
+    private _tokenService: TokenService
   ) {}
 
   async loginWithGoogle({ code }: { code: string }) {
@@ -35,7 +35,7 @@ export class AdminGoogleAuthService {
 
     const { sub, email } = payload;
 
-    const admin = await this.adminRepository.findByEmail(email);
+    const admin = await this._adminRepository.findByEmail(email);
 
     if (!admin || admin.role !== "admin") {
       throw new ApiError("Access Denied. Not an Admin", 403);
@@ -47,9 +47,9 @@ export class AdminGoogleAuthService {
 
     const tokenPayload = { id: admin._id, role: admin.role };
 
-    const token = this.tokenService.generateToken(tokenPayload);
-    const refreshToken = this.tokenService.generateRefreshToken(tokenPayload);
-    await this.adminRepository.storeRefreshToken(admin._id, refreshToken);
+    const token = this._tokenService.generateToken(tokenPayload);
+    const refreshToken = this._tokenService.generateRefreshToken(tokenPayload);
+    await this._adminRepository.storeRefreshToken(admin._id, refreshToken);
 
     return {
       token,

@@ -11,9 +11,9 @@ import { CustomJwtPayload } from "../../types/express";
 
 class ResetPassword {
     constructor(
-        private resetPasswordService: ResetPasswordService,
-        private otpService: OtpService,
-        private tokenService: TokenService
+        private _resetPasswordService: ResetPasswordService,
+        private _otpService: OtpService,
+        private _tokenService: TokenService
     ) { }
 
     async verifyEmailandSentOtp(req: Request, res: Response, next: NextFunction) {
@@ -26,10 +26,10 @@ class ResetPassword {
             }
 
             emailValidation.parse({ email })
-            const user = await this.resetPasswordService.verifyEmail(email, role as Role);
-            await this.resetPasswordService.saveAndSentOtp(email, role as Role)
+            const user = await this._resetPasswordService.verifyEmail(email, role as Role);
+            await this._resetPasswordService.saveAndSentOtp(email, role as Role)
 
-            const token = this.tokenService.generateToken({ email, role, otpResent : 0, _id:user._id })
+            const token = this._tokenService.generateToken({ email, role, otpResent : 0, _id:user._id })
 
             res.cookie('resetToken', token, {
                 httpOnly: true,
@@ -51,14 +51,14 @@ class ResetPassword {
             const token = req.cookies.resetToken;
 
             if (!token) throw new ApiError('Invalid Token, Verify Email Again');
-            const validToken = this.tokenService.verifyToken(token);
+            const validToken = this._tokenService.verifyToken(token);
             if (!validToken) throw new ApiError('Invalid Token, Verify Email Again');
 
             const { otp } = req.body;
 
             if (otp.length !== 6) throw new ApiError('Invalid Otp')
 
-            await this.otpService.verifyOtp(otp, validToken.email);
+            await this._otpService.verifyOtp(otp, validToken.email);
 
             sendSuccess(res, 'OTP Verified', null)
 
@@ -73,7 +73,7 @@ class ResetPassword {
             const resetToken = req.cookies.resetToken;
 
             if (!resetToken) throw new ApiError('Invalid Token, Verify Email Again');
-            const validToken = this.tokenService.verifyToken(resetToken);
+            const validToken = this._tokenService.verifyToken(resetToken);
           
             const { role } = req.params
 
@@ -90,11 +90,11 @@ class ResetPassword {
 
             emailValidation.parse({ email })
             
-            const user = await this.resetPasswordService.verifyEmail(email, role as Role);
+            const user = await this._resetPasswordService.verifyEmail(email, role as Role);
 
-            await this.resetPasswordService.saveAndSentOtp(email, role as Role)
+            await this._resetPasswordService.saveAndSentOtp(email, role as Role)
 
-            const token = this.tokenService.generateToken({ email, role, otpResent:otpResent+1 })
+            const token = this._tokenService.generateToken({ email, role, otpResent:otpResent+1 })
 
             res.cookie('resetToken', token, {
                 httpOnly: true,
@@ -122,7 +122,7 @@ class ResetPassword {
             const resetToken = req.cookies.resetToken;
 
             if (!resetToken) throw new ApiError('Invalid Token, Verify Email Again');
-            const validToken = this.tokenService.verifyToken(resetToken);
+            const validToken = this._tokenService.verifyToken(resetToken);
           
             const { role } = req.params
 
@@ -132,7 +132,7 @@ class ResetPassword {
 
             const {_id,email,} = validToken
 
-           await this.resetPasswordService.updatePassword(email,password,role as Role,_id)
+           await this._resetPasswordService.updatePassword(email,password,role as Role,_id)
 
            sendSuccess(res,'Password Updated Successfully')
 

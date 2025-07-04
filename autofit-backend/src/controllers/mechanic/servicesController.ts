@@ -9,13 +9,13 @@ import { getIO, userSocketMap } from "../../sockets/socket";
 
 export class ServicesController {
     constructor(
-        private roadsideService: RoadsideService
+        private _roadsideService: RoadsideService
     ) {}
 
     async roadsideAssistanceDetails(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const serviceId = new Types.ObjectId(req.params.id);
-            const serviceDetails = await this.roadsideService.serviceDetails(serviceId)
+            const serviceDetails = await this._roadsideService.serviceDetails(serviceId)
 
 
             sendSuccess(res, 'Successfully Fetched', serviceDetails);
@@ -33,7 +33,7 @@ export class ServicesController {
             if (!allowedStatus.includes(status)) throw new ApiError('Invalid Status Update')
             const serviceId = new Types.ObjectId(bookingId);
 
-            const user = await this.roadsideService.updateStatus(userId, serviceId, { status })
+            const user = await this._roadsideService.updateStatus(userId, serviceId, { status })
 
             const userData = userSocketMap.get(user?.userId?.toString() as string)
             if (userData && userData.socketIds.size > 0) {
@@ -57,7 +57,7 @@ export class ServicesController {
 
             const serviceId = new Types.ObjectId(bookingId)
 
-            const response = await this.roadsideService.createQuotation({ serviceId, items, notes, total })
+            const response = await this._roadsideService.createQuotation({ serviceId, items, notes, total })
 
             const userData = userSocketMap.get(response?.userId.toString() as string)
             if (userData && userData.socketIds.size > 0) {
