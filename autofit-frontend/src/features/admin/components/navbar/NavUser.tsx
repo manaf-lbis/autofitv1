@@ -6,7 +6,7 @@ import {SidebarMenu,SidebarMenuButton,SidebarMenuItem,useSidebar} from "@/compon
 import toast from "react-hot-toast";
 
 import { clearUser } from "@/features/auth/slices/authSlice";
-import { useLogoutMutation } from "@/features/auth/api/authApi";
+import { useLogoutMutation } from "@/services/authServices/authApi";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 

@@ -1,4 +1,4 @@
-import { NextFunction, Request, response, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import { VehicleService } from '../../services/vehicle/vehicleService';
 import { Types } from 'mongoose';
 import { sendSuccess } from '../../utils/apiResponse';
@@ -29,7 +29,7 @@ export class VehicleController {
         }
     }
 
-    async getVehicles(req: Request, res: Response,next:NextFunction):Promise<void> {
+    async getVehicles(req: Request, res: Response):Promise<void> {
         try {
 
             const userId = new Types.ObjectId(req.user?.id);

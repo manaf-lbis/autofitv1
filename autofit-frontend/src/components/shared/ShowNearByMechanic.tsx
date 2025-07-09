@@ -226,7 +226,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { CheckCircle, Clock, MapPin, Phone, Star, Wrench } from "lucide-react";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
-import { useGetNearByMechanicQuery } from "@/features/user/api/servicesApi";
+import { useGetNearByMechanicQuery } from "@/services/userServices/servicesApi";
 
 interface Mechanic {
   mechanicId: string;

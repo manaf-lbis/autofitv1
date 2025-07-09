@@ -19,11 +19,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import VehicleModal from "../../components/profile/modal/VehicleModal";
-import { useGetMyVehiclesQuery } from "../../api/vehicleApi";
+import { useGetMyVehiclesQuery } from "../../../../services/userServices/vehicleApi";
 import PlacePicker from "@/components/shared/LocationInput/PlacePicker";
 import LatLngToAddress from "@/components/shared/LocationInput/LatLngToAddress";
 import ShowNearByMechanic from "@/components/shared/ShowNearByMechanic";
-import { useBookEmergencyAssistanceMutation } from "../../api/servicesApi";
+import { useBookEmergencyAssistanceMutation } from "../../../../services/userServices/servicesApi";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 

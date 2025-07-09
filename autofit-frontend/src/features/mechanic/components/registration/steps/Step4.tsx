@@ -7,7 +7,7 @@ import { steps } from "../../../utils/RegistrationStepsInfo";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RootState } from "@/store/store";
-import { useRegisterMechanicMutation } from "../../../api/mechanicApi";
+import { useRegisterMechanicMutation } from "../../../../../services/mechanicServices/mechanicApi";
 import { useNavigate } from "react-router-dom";
 
 

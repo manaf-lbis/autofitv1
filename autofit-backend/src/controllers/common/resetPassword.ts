@@ -90,7 +90,7 @@ class ResetPassword {
 
             emailValidation.parse({ email })
             
-            const user = await this._resetPasswordService.verifyEmail(email, role as Role);
+            await this._resetPasswordService.verifyEmail(email, role as Role);
 
             await this._resetPasswordService.saveAndSentOtp(email, role as Role)
 

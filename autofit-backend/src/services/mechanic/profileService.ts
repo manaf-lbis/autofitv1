@@ -50,11 +50,8 @@ export class ProfileService {
 
       const profile = await this._mechanicProfileRepository.findByMechanicId(mechanicId);
       if (!profile) return null;
-
-      const { _id, mechanicId: mid, updatedAt, ...filteredProfile } = profile
-
-      return filteredProfile;
-
+      return profile;
+      
     } catch (err) {
       if (err instanceof ApiError) throw err;
       throw new ApiError(`Error retrieving profile: ${(err as Error).message}`, 500);

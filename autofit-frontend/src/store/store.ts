@@ -1,17 +1,17 @@
 import { configureStore } from "@reduxjs/toolkit";
-import { authApi } from "../features/auth/api/authApi";
-import { vehicleApi } from "@/features/user/api/vehicleApi";
-import { passwordResetApi } from "@/features/auth/api/passwordResetApi";
-import { mechanicApi } from "@/features/mechanic/api/mechanicApi";
-import { mapsApi } from "@/api/mapsApi";
-import { profileApi } from '@/features/user/api/profileApi'
-import { userManagementApi } from "@/features/admin/api/userManagement";
-import { mechananicManagementApi } from "@/features/admin/api/mechanicManagement";
-import { servicesApi } from "@/features/user/api/servicesApi";
-import { roadsideApi } from "@/features/mechanic/api/roadsideApi";
-import { userChatApi } from "@/features/user/api/userChatApi";
-import { adminChatApi } from "@/features/admin/api/adminChatApi";
-import { mechanicChatApi } from "@/features/mechanic/api/mechanicChatApi";
+import { authApi } from "../services/authServices/authApi";
+import { vehicleApi } from "@/services/userServices/vehicleApi";
+import { passwordResetApi } from "@/services/authServices/passwordResetApi";
+import { mechanicApi } from "@/services/mechanicServices/mechanicApi";
+import { mapsApi } from "@/services/commonServices/mapsApi";
+import { profileApi } from '@/services/userServices/profileApi'
+import { userManagementApi } from "@/services/adminServices/userManagement";
+import { mechananicManagementApi } from "@/services/adminServices/mechanicManagement";
+import { servicesApi } from "@/services/userServices/servicesApi";
+import { roadsideApi } from "@/services/mechanicServices/roadsideApi";
+import { userChatApi } from "@/services/userServices/userChatApi";
+import { adminChatApi } from "@/services/adminServices/adminChatApi";
+import { mechanicChatApi } from "@/services/mechanicServices/mechanicChatApi";
 
 import authReducer from "../features/auth/slices/authSlice";
 import registrationReducer from '@/features/mechanic/slices/registrationSlice'
@@ -43,7 +43,6 @@ export const store = configureStore({
     [userChatApi.reducerPath]: userChatApi.reducer,
     [mechanicChatApi.reducerPath]: mechanicChatApi.reducer,
     [adminChatApi.reducerPath]: adminChatApi.reducer
-
 
   },
   

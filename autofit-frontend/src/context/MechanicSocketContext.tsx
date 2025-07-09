@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import { useDispatch } from "react-redux";
 import { setEmergencyRequest } from "@/features/mechanic/slices/mechanicSlice";
 import { initSocket } from "@/lib/socket";
-import { useAvailableRoomsQuery } from "@/features/user/api/userChatApi";
+import { useAvailableRoomsQuery } from "@/services/userServices/userChatApi";
 import { formatTimeToNow } from "@/lib/dateFormater";
 import { useNotification } from "@/hooks/useNotification";
 import {

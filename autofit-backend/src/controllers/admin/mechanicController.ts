@@ -100,9 +100,6 @@ export class MechanicController {
     }
 
 
-    async getApplication(req: Request, res: Response, next: NextFunction) {
-
-    }
 
 
     async applicationStatus(req: Request, res: Response, next: NextFunction) {

@@ -280,7 +280,7 @@ import { initSocket } from "@/lib/socket";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store/store";
 import { formatTimeToNow } from "@/lib/dateFormater";
-import { useGetUserChatsQuery } from "../api/userChatApi";
+import { useGetUserChatsQuery } from "../../../services/userServices/userChatApi";
 import { setMessages, addMessage } from "../slices/chatSlice";
 import { Socket } from "socket.io-client";
 

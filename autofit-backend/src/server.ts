@@ -1,4 +1,3 @@
-import { Socket , Server } from "socket.io";
 import http from "http";
 import app from "./app";
 import { initSocket } from "./sockets/socket";

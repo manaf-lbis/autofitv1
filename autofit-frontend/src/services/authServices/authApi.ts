@@ -1,7 +1,7 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { baseQueryWithRefresh } from "@/utils/baseQuery";
-import { Role } from "../components/Layouts/AuthLayout";
-import { clearUser } from "../slices/authSlice";
+import { Role } from "../../features/auth/components/Layouts/AuthLayout";
+import { clearUser } from "../../features/auth/slices/authSlice";
 
 export interface UserData {
   name : string;

@@ -757,7 +757,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { useNavigate, useParams } from "react-router-dom";
-import { useGetMechanicDetailsQuery, useUpdateMechanicStatusMutation, useApplicationStatusMutation } from "../../api/mechanicManagement";
+import { useGetMechanicDetailsQuery, useUpdateMechanicStatusMutation, useApplicationStatusMutation } from "../../../../services/adminServices/mechanicManagement";
 import toast from "react-hot-toast";
 import { GoogleMap, Marker, useLoadScript } from "@react-google-maps/api";
 import { useForm } from "react-hook-form";

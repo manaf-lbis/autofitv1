@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate, useParams } from "react-router-dom";
-import { useGetUserDetailsQuery, useUpdateUserStatusMutation } from "../../api/userManagement";
+import { useGetUserDetailsQuery, useUpdateUserStatusMutation } from "../../../../services/adminServices/userManagement";
 import { format } from "date-fns";
 import { useState } from "react";
 
@@ -26,14 +26,6 @@ interface Vehicle {
   isBlocked: boolean;
 }
 
-interface ApiResponse {
-  status: string;
-  message: string;
-  data: {
-    userData: UserData;
-    vehicles: Vehicle[];
-  };
-}
 
 const UserInfoCard: React.FC<{ user: UserData; joinDate: string }> = ({ user, joinDate }) => {
   const getStatusConfig = (status: string) => {
@@ -164,7 +156,7 @@ const VehiclesCard: React.FC<{ vehicles: Vehicle[] }> = ({ vehicles }) => (
           <p className="text-xs text-gray-500">User has not added any vehicles yet.</p>
         </div>
       ) : (
-        vehicles.map((vehicle, index) => (
+        vehicles.map((vehicle) => (
           <div key={vehicle._id} className="p-5 rounded-xl bg-gradient-to-br from-white to-gray-50 border border-gray-200 hover:shadow-md hover:border-gray-300 transition-all duration-200 group">
             <div className="space-y-4">
               <div className="flex items-center justify-between">

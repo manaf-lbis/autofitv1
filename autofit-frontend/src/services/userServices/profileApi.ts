@@ -25,11 +25,8 @@ export const profileApi = createApi({
             method:'GET',
         })
     }),
-
-
-  }),
-
-
+    
+  })
 
 });
 

@@ -1,5 +1,5 @@
 import React from "react";
-import { useReverseGeocodeQuery } from "@/api/mapsApi"; 
+import { useReverseGeocodeQuery } from "@/services/commonServices/mapsApi"; 
 
 interface LatLngToAddressProps {
   lat: number;

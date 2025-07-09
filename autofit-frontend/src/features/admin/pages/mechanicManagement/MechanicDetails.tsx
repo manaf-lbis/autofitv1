@@ -617,7 +617,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useNavigate, useParams } from "react-router-dom";
-import { useGetMechanicDetailsQuery, useUpdateMechanicStatusMutation } from "../../api/mechanicManagement";
+import { useGetMechanicDetailsQuery, useUpdateMechanicStatusMutation } from "../../../../services/adminServices/mechanicManagement";
 import toast from "react-hot-toast";
 import GoogleMapForLocation from "@/components/shared/googleMap/GoogleMapForLocation";
 

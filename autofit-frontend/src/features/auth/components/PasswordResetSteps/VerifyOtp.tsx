@@ -4,7 +4,7 @@ import { KeyRound, ArrowLeft, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import OtpInput from '@/components/Auth/OtpInput';
 import { Role } from '@/utils/roleConfig';
-import { useResentOtpMutation, useVerifyOtpMutation } from '../../api/passwordResetApi';
+import { useResentOtpMutation, useVerifyOtpMutation } from '../../../../services/authServices/passwordResetApi';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import CountdownTimer from '@/components/shared/CoundDownTimer';
 import toast from 'react-hot-toast';

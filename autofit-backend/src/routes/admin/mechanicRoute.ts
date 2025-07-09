@@ -20,7 +20,6 @@ const router = Router()
 
 
 router.get("/applications", authenticate, authorize(['admin']),(req,res,next)=>mechanicController.listApplications(req,res,next))
-router.get("/application/:id", authenticate, authorize(['admin']), (req,res,next)=>mechanicController.getApplication(req,res,next))
 router.patch("/application/:id/status", authenticate, authorize(['admin']), (req,res,next)=>mechanicController.applicationStatus(req,res,next))
 
 router.get("/",authenticate, authorize(['admin']), (req,res,next)=>mechanicController.getAllMechanic(req,res,next))

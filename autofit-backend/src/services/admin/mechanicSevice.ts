@@ -1,7 +1,6 @@
 import { Types } from "mongoose";
 import { MechanicDocument } from "../../models/mechanicModel";
 import { MechanicProfileDocument } from "../../models/mechanicProfileModel";
-import { ApiError } from "../../utils/apiError";
 import { IMechanicRepository } from "../../repositories/interfaces/IMechanicRepository";
 import { IMechanicProfileRepository } from "../../repositories/interfaces/IMechanicProfileRepository";
 

@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { Send, Check, CheckCheck, Menu, X, Clock, MessageSquare, Circle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import MessagesShimmer from "../components/shimmer/MessagesShimmer";
-import { useGetMechanicChatsQuery } from "../api/mechanicChatApi";
+import { useGetMechanicChatsQuery } from "../../../services/mechanicServices/mechanicChatApi";
 import { formatTimeToNow } from "@/lib/dateFormater";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store/store";

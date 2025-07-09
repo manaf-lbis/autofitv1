@@ -1,4 +1,4 @@
-import { useLogoutMutation } from "@/features/auth/api/authApi";
+import { useLogoutMutation } from "@/services/authServices/authApi";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 

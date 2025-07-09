@@ -1,6 +1,5 @@
 import { Socket } from "socket.io";
 import { getIO } from "../socket";
-import { userSocketMap } from "../socket";
 
 
 interface NotificationData {

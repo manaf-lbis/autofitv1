@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useRazorpayPayment } from "@/hooks/payment/useRazorpayPayment";
-import { useVerifyPaymentMutation } from "../../api/servicesApi";
+import { useVerifyPaymentMutation } from "../../../../services/userServices/servicesApi";
 
 interface OrderDetails {
     orderId: string;

@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
+import { useDebounce } from "@/hooks/useDebounce";
 import { 
   MoreHorizontal, 
   ArrowUpDown, 
@@ -11,7 +12,7 @@ import {
 import { useDispatch } from "react-redux";
 import { setBreadcrumbs } from "../slices/adminSlice";
 import { useNavigate } from "react-router-dom";
-import { useGetAllUsersQuery, useUpdateUserStatusMutation } from "../api/userManagement";
+import { useGetAllUsersQuery, useUpdateUserStatusMutation } from "../../../services/adminServices/userManagement";
 
 type Status = "active" | "inactive" | "blocked";
 
@@ -28,37 +29,23 @@ interface StatusStyle {
   label: string;
 }
 
-// Shimmer component for loading placeholder rows
 const UserTableShimmer: React.FC = () => (
   <>
     {Array.from({ length: 5 }).map((_, index) => (
       <tr key={index} className="animate-pulse">
-        <td className="px-4 sm:px-6 py-3 sm:py-4">
-          <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-        </td>
-        <td className="px-4 sm:px-6 py-3 sm:py-4">
-          <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-        </td>
-        <td className="px-4 sm:px-6 py-3 sm:py-4">
-          <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-        </td>
-        <td className="px-4 sm:px-6 py-3 sm:py-4">
-          <div className="flex items-center gap-2">
-            <div className="h-3 w-3 bg-gray-200 rounded-full"></div>
-            <div className="h-4 bg-gray-200 rounded w-16"></div>
-          </div>
-        </td>
-        <td className="px-4 sm:px-6 py-3 sm:py-4">
-          <div className="h-7 w-7 bg-gray-200 rounded-full mx-auto"></div>
-        </td>
+        <td className="px-4 sm:px-6 py-3 sm:py-4"><div className="h-4 bg-gray-200 rounded w-3/4"></div></td>
+        <td className="px-4 sm:px-6 py-3 sm:py-4"><div className="h-4 bg-gray-200 rounded w-3/4"></div></td>
+        <td className="px-4 sm:px-6 py-3 sm:py-4"><div className="h-4 bg-gray-200 rounded w-1/2"></div></td>
+        <td className="px-4 sm:px-6 py-3 sm:py-4"><div className="flex items-center gap-2"><div className="h-3 w-3 bg-gray-200 rounded-full"></div><div className="h-4 bg-gray-200 rounded w-16"></div></div></td>
+        <td className="px-4 sm:px-6 py-3 sm:py-4"><div className="h-7 w-7 bg-gray-200 rounded-full mx-auto"></div></td>
       </tr>
     ))}
   </>
 );
 
 const UserDashboard: React.FC = () => {
-
   const [searchTerm, setSearchTerm] = useState<string>("");
+  const debouncedSearchTerm = useDebounce(searchTerm, 300);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const [allUsers, setAllUsers] = useState<User[]>([]);
@@ -68,7 +55,6 @@ const UserDashboard: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const limit = 10;
 
-  // Hooks
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const observerRef = useRef<IntersectionObserver | null>(null);
@@ -79,10 +65,10 @@ const UserDashboard: React.FC = () => {
     dispatch(setBreadcrumbs([{ page: "User", href: "/users" }, { page: "User Management", href: "/users" }]));
   }, [dispatch]);
 
-  const { data: response, isLoading, isFetching } = useGetAllUsersQuery({
+  const { data: response, isFetching } = useGetAllUsersQuery({
     page,
     limit,
-    search: searchTerm,
+    search: debouncedSearchTerm,
     sortField,
     sortOrder,
   });
@@ -103,30 +89,17 @@ const UserDashboard: React.FC = () => {
     }
   }, [response]);
 
-  // Set up Intersection Observer for infinite scrolling
   useEffect(() => {
-    if (observerRef.current) {
-      observerRef.current.disconnect();
-    }
-
+    if (observerRef.current) observerRef.current.disconnect();
     observerRef.current = new IntersectionObserver((entries) => {
       if (entries[0].isIntersecting && hasMore && !isFetching) {
         setPage((prev) => prev + 1);
       }
     });
-
-    if (loadMoreRef.current) {
-      observerRef.current.observe(loadMoreRef.current);
-    }
-
-    return () => {
-      if (observerRef.current) {
-        observerRef.current.disconnect();
-      }
-    };
+    if (loadMoreRef.current) observerRef.current.observe(loadMoreRef.current);
+    return () => observerRef.current?.disconnect();
   }, [hasMore, isFetching]);
 
-  // Handle search input
   const handleSearch = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
     setPage(1);
@@ -134,29 +107,21 @@ const UserDashboard: React.FC = () => {
     setErrorMessage(null);
   }, []);
 
-  // Handle column sorting
   const handleSort = useCallback((field: string) => {
-    if (sortField === field) {
-      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
-    } else {
-      setSortField(field);
-      setSortOrder("asc");
-    }
+    setSortField(field);
+    setSortOrder(sortField === field && sortOrder === "asc" ? "desc" : "asc");
     setPage(1);
     setAllUsers([]);
     setErrorMessage(null);
   }, [sortField, sortOrder]);
 
-  // Toggle dropdown menu
   const toggleDropdown = useCallback((userId: string) => {
     setOpenDropdown(openDropdown === userId ? null : userId);
   }, [openDropdown]);
 
-  // Handle user status update (block/unblock)
   const handleStatusUpdate = useCallback(async (userId: string, newStatus: 'active' | 'blocked') => {
     try {
       await updateUserStatus({ id: userId, status: newStatus }).unwrap();
-      // Optimistic update
       setAllUsers((prev) =>
         prev.map((user) =>
           user.id === userId ? { ...user, status: newStatus } : user
@@ -168,14 +133,12 @@ const UserDashboard: React.FC = () => {
     }
   }, [updateUserStatus]);
 
-  // Get status icon
   const getStatusIcon = (status: Status) => {
     const statusStyles: Record<Status, StatusStyle> = {
       active: { color: "text-green-500", label: "Active" },
       inactive: { color: "text-yellow-500", label: "Inactive" },
       blocked: { color: "text-red-500", label: "Blocked" },
     };
-
     const { color, label } = statusStyles[status];
     return (
       <div className="flex items-center gap-2">
@@ -185,7 +148,6 @@ const UserDashboard: React.FC = () => {
     );
   };
 
-  // Render table row for a user
   const renderUserRow = (user: User) => (
     <tr key={user.id} className="hover:bg-gray-50 transition-all duration-200">
       <td className="px-4 sm:px-6 py-3 sm:py-4 min-w-[150px] sm:min-w-[200px]">
@@ -205,10 +167,7 @@ const UserDashboard: React.FC = () => {
         </button>
         {openDropdown === user.id && (
           <>
-            <div
-              className="fixed inset-0 z-10"
-              onClick={() => setOpenDropdown(null)}
-            />
+            <div className="fixed inset-0 z-10" onClick={() => setOpenDropdown(null)} />
             <div className="absolute right-2 sm:right-4 top-8 sm:top-10 z-20 w-40 sm:w-48 bg-white rounded-lg shadow-lg border border-gray-100 py-1">
               <button
                 onClick={() => navigate(`/admin/user-details/${user.id}`)}
@@ -246,7 +205,6 @@ const UserDashboard: React.FC = () => {
 
   return (
     <div className="w-full space-y-6 p-4 sm:p-6 bg-gray-100 min-h-screen font-sans rounded-lg">
-      {/* Header Section */}
       <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
         <div>
           <h1 className="text-xl sm:text-2xl font-semibold text-gray-800">User Management</h1>
@@ -263,21 +221,14 @@ const UserDashboard: React.FC = () => {
           />
         </div>
       </div>
-
-      {/* Error Message */}
       {errorMessage && (
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
           <span className="block sm:inline">{errorMessage}</span>
-          <button
-            className="absolute top-0 right-0 px-4 py-3"
-            onClick={() => setErrorMessage(null)}
-          >
+          <button className="absolute top-0 right-0 px-4 py-3" onClick={() => setErrorMessage(null)}>
             <span className="text-red-700">×</span>
           </button>
         </div>
       )}
-
-      {/* Table Section */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col h-[calc(100vh-150px)] sm:h-[calc(100vh-180px)]">
         <div className="flex-1 overflow-y-auto overflow-x-auto min-h-0 hide-scrollbar">
           <table className="w-full border-collapse">
@@ -345,8 +296,6 @@ const UserDashboard: React.FC = () => {
             </tbody>
           </table>
         </div>
-
-        {/* Footer Section */}
         {allUsers.length > 0 && (
           <div className="px-4 sm:px-6 py-3 sm:py-4 border-t border-gray-100 bg-gray-50 shrink-0">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between text-xs sm:text-sm text-gray-600 gap-2">

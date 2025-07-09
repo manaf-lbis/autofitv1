@@ -62,7 +62,7 @@ export class AdminAuthService {
         throw new ApiError("Invalid refresh token", 401);
       }
       return payload.id;
-    } catch (error) {
+    } catch {
       throw new ApiError("Invalid refresh token", 401);
     }
 
@@ -77,7 +77,7 @@ export class AdminAuthService {
 
     try {
       this._tokenService.verifyToken(storedRefreshToken);
-    } catch (error) {
+    } catch {
       throw new ApiError("Invalid refresh token", 401);
     }
     

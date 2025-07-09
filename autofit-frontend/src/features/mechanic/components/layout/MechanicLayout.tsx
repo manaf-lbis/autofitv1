@@ -522,7 +522,7 @@ import Logout from "./Logout";
 import { initSocket } from "@/lib/socket";
 import { useLogoutHandler } from "../../../../hooks/useLogoutHandler";
 import toast from "react-hot-toast";
-import { useGetInfoQuery, useSetAvailabilityMutation } from "../../api/mechanicApi";
+import { useGetInfoQuery, useSetAvailabilityMutation } from "../../../../services/mechanicServices/mechanicApi";
 import { setAvailability } from "../../slices/mechanicSlice";
 
 const navItems = [

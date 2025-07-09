@@ -54,7 +54,7 @@ export class RazorpayRepository implements IPaymentGateayRepository {
                 .digest("hex");
 
             return generatedSignature === signature;
-        } catch (error) {
+        } catch {
             throw new ApiError("Payment verification failed");
         }
     }

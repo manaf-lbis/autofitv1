@@ -1,6 +1,5 @@
 import { IUserRepository } from "../../../repositories/interfaces/IUserRepository";
 import { OtpService } from "../../otp/otpService";
-import { IOtpRepository } from "../../../repositories/interfaces/IOtpRepository";
 import { HashService } from "../../hash/hashService";
 import { TokenService } from "../../token/tokenService";
 import { ApiError } from "../../../utils/apiError";
@@ -106,7 +105,7 @@ export class AuthService {
         throw new ApiError("Invalid refresh token", 401);
       }
       return payload.id;
-    } catch (error) {
+    } catch {
       throw new ApiError("Invalid refresh token", 401);
     }
   }
@@ -121,7 +120,8 @@ export class AuthService {
 
     try {
       this._tokenService.verifyToken(storedRefreshToken);
-    } catch (error) {
+      
+    } catch {
       throw new ApiError("Invalid refresh token", 401);
     }
 

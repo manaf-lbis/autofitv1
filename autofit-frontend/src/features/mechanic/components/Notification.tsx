@@ -4,7 +4,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { initSocket } from "@/lib/socket";
 import { useNotification } from "@/hooks/useNotification";
 import { formatTimeToNow } from "@/lib/dateFormater";
-import { useNotificationReadMutation } from "../api/mechanicApi";
+import { useNotificationReadMutation } from "../../../services/mechanicServices/mechanicApi";
 import toast from "react-hot-toast";
 
 interface Notification {

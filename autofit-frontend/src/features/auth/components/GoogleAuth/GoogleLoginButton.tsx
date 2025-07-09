@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import googleLogo from "@/assets/common/googleLogo.webp";
 import { useGoogleLogin } from "@react-oauth/google";
-import { useGoogleLoginMutation } from "@/features/auth/api/authApi";
+import { useGoogleLoginMutation } from "@/services/authServices/authApi";
 import { setUser, setError } from "@/features/auth/slices/authSlice";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";

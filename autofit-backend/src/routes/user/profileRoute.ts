@@ -1,6 +1,4 @@
 import { Router } from "express";
-import { authenticate } from "../../middlewares/authenticate";
-import { authorize } from "../../middlewares/authorize";
 import { ProfileController } from "../../controllers/user/profileController";
 import { ProfileService } from "../../services/user/userProfileService";
 import { UserRepository } from "../../repositories/userRepository";

@@ -1,4 +1,3 @@
-import { ObjectId } from "mongodb";
 import { IUserRepository } from "../../repositories/interfaces/IUserRepository";
 import { ApiError } from "../../utils/apiError";
 import { Types } from "mongoose";

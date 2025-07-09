@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { useLogoutMutation } from "@/features/auth/api/authApi";
+import { useLogoutMutation } from "@/services/authServices/authApi";
 import { LogOut } from "lucide-react";
 import React, { useState } from "react";
 import toast from "react-hot-toast";

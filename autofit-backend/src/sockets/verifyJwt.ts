@@ -25,7 +25,8 @@ export const verifyJwt = (socket: Socket): DecodedToken => {
 
     try {
         return jwt.verify(token, process.env.JWT_SECRET!) as DecodedToken;
-    } catch (err) {
+
+    } catch {
         throw new ApiError("Invalid or expired token", 401); 
     }
 };

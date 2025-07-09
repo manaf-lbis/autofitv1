@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useGetCurrentUserQuery } from "@/features/auth/api/authApi";
+import { useGetCurrentUserQuery } from "@/services/authServices/authApi";
 import { setUser, clearUser } from "@/features/auth/slices/authSlice";
 import { RootState } from "../../store/store";
 import PageLoading from "../Animations/PageLoading";

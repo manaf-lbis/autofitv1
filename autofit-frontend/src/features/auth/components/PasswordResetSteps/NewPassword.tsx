@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import FormInput from '@/components/shared/formInput/FormInput';
 import { useForm } from 'react-hook-form';
 import { Role } from '@/utils/roleConfig';
-import { useSetNewPasswordMutation } from '../../api/passwordResetApi';
+import { useSetNewPasswordMutation } from '../../../../services/authServices/passwordResetApi';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface NewPasswordProps {

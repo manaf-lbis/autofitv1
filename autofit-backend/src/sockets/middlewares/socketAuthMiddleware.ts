@@ -34,7 +34,7 @@ export const socketAuthMiddleware = async (socket: Socket): Promise<User> => {
 
     return {...user,name}
 
-  } catch (err) {
+  } catch {
     throw new ApiError("Invalid or expired token", 401);
   }
   

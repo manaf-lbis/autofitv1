@@ -10,7 +10,6 @@ import { RoadsideService } from "../../services/roadsideAssistance/roadsideServi
 import { QuotationRepository } from "../../repositories/quotationRepository";
 import { RazorpayRepository } from "../../repositories/RazorpayRepository";
 import { PaymentRepository } from "../../repositories/PaymentRepository";
-import { MechanicRepository } from "../../repositories/mechanicRepository";
 
 const mechanicProfileRepo = new MechanicProfileRepository()
 const googleMapRepo = new GoogleMapRepository()

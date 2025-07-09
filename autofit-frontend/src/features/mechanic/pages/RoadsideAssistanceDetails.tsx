@@ -18,7 +18,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { useParams, useNavigate } from "react-router-dom";
-import { RoadsideStatusMech,useGenerateQuotationMutation,useRoadsideServiceDetailsQuery,useRoadsideStatusUpdateMutation } from "../api/roadsideApi";
+import { RoadsideStatusMech,useGenerateQuotationMutation,useRoadsideServiceDetailsQuery,useRoadsideStatusUpdateMutation } from "../../../services/mechanicServices/roadsideApi";
 import BookingDetailsShimmer from "../components/shimmer/BookingDetailsShimmer";
 import QuotationModal, { QuotationData } from "../components/service/QuotationModal";
 import { initSocket } from "@/lib/socket";

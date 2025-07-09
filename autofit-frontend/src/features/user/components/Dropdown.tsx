@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { User, Settings, LogOut, ChevronDown, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useLogoutMutation } from "@/features/auth/api/authApi";
+import { useLogoutMutation } from "@/services/authServices/authApi";
 import { clearUser } from "@/features/auth/slices/authSlice";
 import toast from "react-hot-toast";
 import { useDispatch } from "react-redux";

@@ -5,7 +5,7 @@ import PickupTab from "../components/dashboard/PickupTab";
 import OnProgressTab from "../components/dashboard/OnProgressTab";
 import CompletedTab from "../components/dashboard/CompletedTab";
 import { AlertTriangle, CheckCircle, Wrench, Calendar } from "lucide-react";
-import { useGetDashboardQuery } from "../api/mechanicApi";
+import { useGetDashboardQuery } from "../../../services/mechanicServices/mechanicApi";
 import RecentActivity from "../components/dashboard/RecentActivity";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/store/store";

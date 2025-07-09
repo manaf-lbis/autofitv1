@@ -6,7 +6,7 @@ import { RootState } from "@/store/store";
 import { useSelector, useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import AnimatedLogo from "./AnimatedLogo";
-import { useLogoutMutation } from "@/features/auth/api/authApi";
+import { useLogoutMutation } from "@/services/authServices/authApi";
 import { clearUser } from "@/features/auth/slices/authSlice";
 import toast from "react-hot-toast";
 

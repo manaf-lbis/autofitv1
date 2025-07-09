@@ -1,6 +1,4 @@
 import { Router } from "express";
-import { authenticate } from "../../middlewares/authenticate";
-import { authorize } from "../../middlewares/authorize";
 import { PageController } from "../../controllers/mechanic/pageController";
 import { PageService } from "../../services/mechanic/pageService";
 import { MechanicProfileRepository } from "../../repositories/mechanicProfileRepository";

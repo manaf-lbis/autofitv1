@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import FormInput from "@/components/shared/formInput/FormInput";
 import SelectInput from "@/components/shared/selectInput/SelectInput";
 import { useForm } from "react-hook-form";
-import { useNewVehicleMutation, useUpdateVehicleMutation, useGetVehicleBrandQuery } from "../../../api/vehicleApi";
+import { useNewVehicleMutation, useUpdateVehicleMutation, useGetVehicleBrandQuery } from "../../../../../services/userServices/vehicleApi";
 import { Vehicle } from "@/types/vehicle";
 import { LoaderCircle } from "lucide-react";
 

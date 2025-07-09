@@ -5,7 +5,7 @@ import { Separator } from "@/components/ui/separator";
 import GoogleLoginButton from "@/features/auth/components/GoogleAuth/GoogleLoginButton";
 import FormInput from "@/components/shared/formInput/FormInput";
 import { useForm } from "react-hook-form";
-import { useLoginMutation } from "@/features/auth/api/authApi";
+import { useLoginMutation } from "@/services/authServices/authApi";
 import { Loader2, X } from "lucide-react";
 import { useDispatch } from "react-redux";
 import { setUser, setError } from "@/features/auth/slices/authSlice";

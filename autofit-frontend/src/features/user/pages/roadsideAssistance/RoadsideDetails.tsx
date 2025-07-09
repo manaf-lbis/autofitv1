@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, CheckCircle, CheckSquare, Car, Shield, FileText, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {useApproveQuoteAndPayMutation,useCancelBookingMutation,useRejectQuotationMutation,useRoadsideDetailsQuery} from "../../api/servicesApi";
+import {useApproveQuoteAndPayMutation,useCancelBookingMutation,useRejectQuotationMutation,useRoadsideDetailsQuery} from "../../../../services/userServices/servicesApi";
 import RoadsideDetailsShimmer from "../../components/shimmer/RoadsideDetailsShimmer";
 import { HeadingSection } from "../../components/roadsideAssistance/HeadingSection";
 import { TabsSection } from "../../components/roadsideAssistance/TabsSection";

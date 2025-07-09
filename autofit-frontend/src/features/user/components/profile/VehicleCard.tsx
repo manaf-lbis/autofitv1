@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import VehicleModal from "./modal/VehicleModal";
-import { useDeleteVehicleMutation, useGetMyVehiclesQuery } from "../../api/vehicleApi";
+import { useDeleteVehicleMutation, useGetMyVehiclesQuery } from "../../../../services/userServices/vehicleApi";
 import { Vehicle } from "@/types/vehicle";
 import ConfirmationAlert from "@/components/shared/ConfirmationAlert";
 import { motion } from "framer-motion";

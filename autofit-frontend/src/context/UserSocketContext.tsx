@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { useDispatch } from "react-redux";
 import { initSocket } from "@/lib/socket";
-import { useAvailableRoomsQuery } from "@/features/user/api/userChatApi";
+import { useAvailableRoomsQuery } from "@/services/userServices/userChatApi";
 import { addMessage, markAsSeen } from "@/features/user/slices/chatSlice";
 import { useNotification } from "@/hooks/useNotification";
 import { formatTimeToNow } from "@/lib/dateFormater";

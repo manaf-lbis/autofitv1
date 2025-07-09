@@ -47,17 +47,15 @@ class ResetPassword {
 
     async updatePassword(email:string,password:string,role:Role,_id:Types.ObjectId){
 
-        let user: User | Admin | null
-
         const hash = await this._hashService.hash(password)
 
         switch (role) {
             case 'user':
-                user = await this._userRepository.update(_id,{password:hash})
+                 await this._userRepository.update(_id,{password:hash})
                 break;
 
             case 'admin':
-                user = await this._adminRepository.update(_id,{password:hash})
+                 await this._adminRepository.update(_id,{password:hash})
                 break;
 
             default:

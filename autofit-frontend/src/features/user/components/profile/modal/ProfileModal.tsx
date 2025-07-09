@@ -1,7 +1,7 @@
 import React, { SetStateAction, useEffect } from "react";
 import { X,Loader2 } from "lucide-react";
 import FormInput from "@/components/shared/formInput/FormInput";
-import { useUpdateProfileMutation,ProfileData } from "@/features/user/api/profileApi";
+import { useUpdateProfileMutation,ProfileData } from "@/services/userServices/profileApi";
 import { AnimatePresence, motion } from "framer-motion";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store/store";

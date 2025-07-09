@@ -89,7 +89,7 @@ export class AuthService {
 
         try {
             this._tokenService.verifyToken(storedRefreshToken);
-        } catch (error) {
+        } catch {
             throw new ApiError("Invalid refresh token", 401);
         }
 

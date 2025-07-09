@@ -1,6 +1,6 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { baseQueryWithRefresh } from "@/utils/baseQuery";
-import { Role } from "../components/Layouts/AuthLayout";
+import { Role } from "../../features/auth/components/Layouts/AuthLayout";
 
 
 export interface VerifyEmail {

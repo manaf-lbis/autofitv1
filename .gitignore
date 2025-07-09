@@ -9,3 +9,6 @@ build/
 
 # Logs
 *.log
+
+eslint.config.mjs
+eslint.config.js

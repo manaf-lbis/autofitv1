@@ -1,5 +1,4 @@
 import { IBaseRepository } from "./IBaseRepository"
-import { Admin } from "../../types/admin"
 import { Types } from "mongoose"
 import { AdminDocument } from "../../models/adminModel"
 
