@@ -10,9 +10,8 @@ const tokenService = new TokenService();
 export const authenticate = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   const token = req.cookies.jwt || req.headers.authorization?.split(" ")[1];
 
-  if (!token) throw new ApiError('Access Denied. No Token Found',401)
-
   try {
+    if (!token) throw new ApiError('Access Denied. No Token Found',401)
     const decoded: CustomJwtPayload = tokenService.verifyToken(token);
     req.user = decoded; 
 
@@ -20,7 +19,6 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
     if (decoded.password || decoded.role === 'admin') {
       return next();
     }
-
     
     let userDoc;
     if (decoded.role === 'user') {

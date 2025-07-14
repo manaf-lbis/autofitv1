@@ -8,14 +8,26 @@ import { MechanicProfileDocument } from "../../models/mechanicProfileModel";
 import { INotificationRepository } from "../../repositories/interfaces/INotificationRepository";
 
 
-type FileWithField = Express.Multer.File;
+// type FileWithField = Express.Multer.File;
+
+// interface MechanicRegisterPayload {
+//   data: MechanicRegisterInput;
+//   photo: FileWithField;
+//   shopImage: FileWithField;
+//   qualification: FileWithField;
+//   mechanicId: ObjectId
+// }
+
+interface CloudinaryFile extends Express.Multer.File {
+  public_id: string;
+}
 
 interface MechanicRegisterPayload {
   data: MechanicRegisterInput;
-  photo: FileWithField;
-  shopImage: FileWithField;
-  qualification: FileWithField;
-  mechanicId: ObjectId
+  photo: CloudinaryFile;
+  shopImage: CloudinaryFile;
+  qualification: CloudinaryFile;
+  mechanicId: ObjectId;
 }
 
 export class ProfileService {
@@ -26,21 +38,45 @@ export class ProfileService {
   ) { }
 
 
-  async registerUser(payload: MechanicRegisterPayload): Promise<void> {
+  // async registerUser(payload: MechanicRegisterPayload): Promise<void> {
+  //   const { data, photo, shopImage, qualification, mechanicId } = payload;
+
+  //   const mech = await this._mechanicRepository.findById(mechanicId);
+  //   if (!mech) throw new ApiError('Mechanic not found', 404);
+
+  //   const toCreate = {
+  //     ...data,
+  //     photo: photo.path,
+  //     shopImage: shopImage.path,
+  //     qualification: qualification.path,
+  //     mechanicId,
+  //   };
+
+  //   await this._mechanicRepository.update(mech._id, { avatar: photo.path });
+  //   await this._mechanicProfileRepository.create(toCreate);
+  // }
+
+   async registerUser(payload: MechanicRegisterPayload): Promise<void> {
     const { data, photo, shopImage, qualification, mechanicId } = payload;
 
     const mech = await this._mechanicRepository.findById(mechanicId);
     if (!mech) throw new ApiError('Mechanic not found', 404);
 
+    const photoId = photo.public_id || photo.filename;
+    const shopImageId = shopImage.public_id || shopImage.filename;
+    const qualificationId = qualification.public_id || qualification.filename;
+
     const toCreate = {
       ...data,
-      photo: photo.path,
-      shopImage: shopImage.path,
-      qualification: qualification.path,
+      photo: photoId,
+      shopImage: shopImageId,
+      qualification: qualificationId, 
       mechanicId,
     };
 
-    await this._mechanicRepository.update(mech._id, { avatar: photo.path });
+    console.log('Service File IDs:', { photoId, shopImageId, qualificationId });
+
+    await this._mechanicRepository.update(mech._id, { avatar: photoId });
     await this._mechanicProfileRepository.create(toCreate);
   }
 

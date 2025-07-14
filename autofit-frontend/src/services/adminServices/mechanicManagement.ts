@@ -44,11 +44,11 @@ export const mechananicManagementApi = createApi({
                 }),
             }),
 
-        getMechanicDetails: builder.query<undefined, string>({
+        getMechanicDetails: builder.query<any, string>({
             query: (id) => `admin/mechanic/${id}`,
         }),
 
-        updateMechanicStatus: builder.mutation<undefined, { id: string; status: 'active' | 'blocked' }>({
+        updateMechanicStatus: builder.mutation<any, { id: string; status: 'active' | 'blocked' }>({
             query: ({ id, status }) => ({
                 url: `admin/mechanic/${id}/status`,
                 method: "PATCH",
@@ -56,7 +56,7 @@ export const mechananicManagementApi = createApi({
             }),
         }),
 
-        getMechanicApplications: builder.query<undefined, PaginationParams>({
+        getMechanicApplications: builder.query<any, PaginationParams>({
             query: ({ page, limit, search, sortField, sortOrder }) => ({
                 url: 'admin/mechanic/applications',
                 methord: 'GET',
@@ -64,7 +64,7 @@ export const mechananicManagementApi = createApi({
             }),
         }),
 
-        applicationStatus: builder.mutation<undefined, { id: string; status: 'approved' | 'rejected', rejectionReason?: string  }>({
+        applicationStatus: builder.mutation<any, { id: string; status: 'approved' | 'rejected', rejectionReason?: string  }>({
             query: ({ id, status, rejectionReason }) => ({
                 url: `admin/mechanic/application/${id}/status`,
                 method: "PATCH",

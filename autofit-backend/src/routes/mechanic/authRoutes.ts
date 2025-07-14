@@ -37,7 +37,6 @@ router.post('/logout', (req, res, next) => authController.logout(req, res, next)
 router.post('/resent-otp', authenticate, (req, res, next) => authController.resentOtp(req, res, next));
 
 
-
 router.get('/me', authenticate, authorize(['mechanic']), (req, res, next) => authController.getUser(req, res, next))
 router.post("/refresh", (req, res, next) => authController.refreshToken(req, res, next));
 

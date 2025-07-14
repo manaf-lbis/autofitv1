@@ -4,6 +4,7 @@ import { MechanicProfileDocument } from "../../models/mechanicProfileModel";
 import { IMechanicRepository } from "../../repositories/interfaces/IMechanicRepository";
 import { IMechanicProfileRepository } from "../../repositories/interfaces/IMechanicProfileRepository";
 
+
 interface PaginationParams {
   page: number;
   limit: number;
@@ -36,12 +37,10 @@ export class MechanicService {
         await this._mechanicRepository.update(userId, data)
     }
 
-
     async mechanicDetails({ userId }: { userId: Types.ObjectId }) {
-       const mechanic = await this._mechanicRepository.getBasicUserById(userId)
-       const mechanicProfile = await this._mechanicprofileRepository.findByMechanicId(userId)
-
-       return {mechanic,mechanicProfile}
+        const mechanic = await this._mechanicRepository.getBasicUserById(userId);
+        let mechanicProfile = await this._mechanicprofileRepository.findByMechanicId(userId);
+        return { mechanic, mechanicProfile };
     }
 
     async mechanicApplications(params: PaginationParams): Promise<PaginationResponse> {

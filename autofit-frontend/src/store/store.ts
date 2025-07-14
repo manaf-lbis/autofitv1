@@ -13,6 +13,7 @@ import { userChatApi } from "@/services/userServices/userChatApi";
 import { adminChatApi } from "@/services/adminServices/adminChatApi";
 import { mechanicChatApi } from "@/services/mechanicServices/mechanicChatApi";
 
+
 import authReducer from "../features/auth/slices/authSlice";
 import registrationReducer from '@/features/mechanic/slices/registrationSlice'
 import adminReducer from "@/features/admin/slices/adminSlice";
@@ -42,7 +43,7 @@ export const store = configureStore({
     [roadsideApi.reducerPath]: roadsideApi.reducer,
     [userChatApi.reducerPath]: userChatApi.reducer,
     [mechanicChatApi.reducerPath]: mechanicChatApi.reducer,
-    [adminChatApi.reducerPath]: adminChatApi.reducer
+    [adminChatApi.reducerPath]: adminChatApi.reducer,
 
   },
   
@@ -60,7 +61,7 @@ export const store = configureStore({
       roadsideApi.middleware,
       userChatApi.middleware,
       mechanicChatApi.middleware,
-      adminChatApi.middleware
+      adminChatApi.middleware,
     ),
 });
 

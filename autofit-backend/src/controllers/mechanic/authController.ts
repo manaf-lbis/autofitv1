@@ -36,7 +36,9 @@ export class AuthController {
             });
 
             sendSuccess(res, 'Login Successful', result.user);
+
         } catch (error: any) {
+            console.log('here');
             next(error);
         }
     }

@@ -37,7 +37,7 @@ const UserTableShimmer: React.FC = () => (
 
 const MechanicDashboard: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState<string>("");
-  const debouncedSearchTerm = useDebounce(searchTerm, 300); // Debounce 300ms
+  const debouncedSearchTerm = useDebounce(searchTerm, 300);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const [allUsers, setAllUsers] = useState<User[]>([]);
