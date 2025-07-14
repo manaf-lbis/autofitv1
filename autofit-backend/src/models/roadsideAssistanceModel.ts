@@ -90,6 +90,6 @@ roadsideAssistanceSchema.index({ userId: 1 });
 roadsideAssistanceSchema.index({ mechanicId: 1 });
 
 
-export const RoadsideAssistanceModel = mongoose.model<RoadsideAssistance>('roadsideAssistance', roadsideAssistanceSchema);
+export const RoadsideAssistanceModel = mongoose.model<RoadsideAssistanceDocument>('roadsideAssistance', roadsideAssistanceSchema);
 
 

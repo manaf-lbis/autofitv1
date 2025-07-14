@@ -39,7 +39,7 @@ export class GoogleAuthService {
     let user = await this._mechanicRepository.findByEmail(email);
 
     if (!user) {
-      user = await this._mechanicRepository.create({
+      user = await this._mechanicRepository.save({
         email,
         role: "mechanic",
         googleId: sub,

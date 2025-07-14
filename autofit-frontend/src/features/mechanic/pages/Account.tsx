@@ -1,21 +1,5 @@
 import { useState } from "react"
-import {
-  MapPin,
-  Briefcase,
-  GraduationCap,
-  Store,
-  Calendar,
-  CheckCircle,
-  Eye,
-  FileText,
-  X,
-  Star,
-  Award,
-  Clock,
-  Users,
-  Download,
-  ExternalLink,
-} from "lucide-react"
+import {MapPin,Briefcase, GraduationCap, Store, Calendar, CheckCircle, Eye, FileText, X, Star, Award, Clock, Users, Download,ExternalLink } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { format } from "date-fns"
@@ -25,6 +9,8 @@ import { useNavigate } from "react-router-dom"
 import toast from "react-hot-toast"
 import LatLngToAddress from "@/components/shared/LocationInput/LatLngToAddress"
 import AccountShimmer from "../components/shimmer/AccountShimmer"
+import LazyImage from "@/components/shared/LazyImage"
+import { getAssetURL } from "@/utils/utilityFunctions.ts/getAssetURL"
 
 export default function Account() {
   const [showDocument, setShowDocument] = useState(false)
@@ -48,7 +34,7 @@ export default function Account() {
         link.download = "qualification-certificate.pdf"
         link.click()
         toast.success("Download started")
-      } catch (err) {
+      } catch  {
         toast.error("Failed to download document")
       }
     } else {
@@ -125,19 +111,13 @@ export default function Account() {
               <div className="flex items-center gap-6">
                 <div className="relative">
                   <div className="w-24 h-24 rounded-full border-4 border-white shadow-xl overflow-hidden bg-white">
-                    <img
-                      src={mechanic.photo || "/placeholder.svg"}
-                      alt="Profile"
-                      width={96}
-                      height={96}
-                      className="w-full h-full object-cover"
-                      onError={(e) => (e.currentTarget.src = "/placeholder.svg")}
-                    />
+                    <LazyImage publicId={mechanic.photo} resourceType={'image'} alt="Profile" />
+
                   </div>
                   <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 rounded-full border-2 border-white"></div>
                 </div>
                 <div className="text-white">
-                  <h1 className="text-3xl font-bold">{dummyData.name}</h1>
+                  <h1 className="text-3xl font-bold uppercase">{mechanic.mechanicId.name}</h1>
                   <p className="text-gray-300 text-lg">{mechanic.specialised}</p>
                   <div className="flex items-center gap-2 mt-2">
                     <Badge className="bg-green-500/90 text-white border-0 hover:bg-green-500/90">
@@ -329,12 +309,7 @@ export default function Account() {
                   </div>
 
                   <div className="mt-6">
-                    <img
-                      src={mechanic.shopImage || "/placeholder.svg"}
-                      alt="Shop"
-                      className="w-full h-64 object-contain rounded-lg border border-gray-200"
-                      onError={(e) => (e.currentTarget.src = "/placeholder.svg")}
-                    />
+                    <LazyImage publicId={mechanic.shopImage} resourceType={'image'} alt="Shop" />
                   </div>
                 </div>
               </div>
@@ -360,7 +335,7 @@ export default function Account() {
                 <div className="p-6">
                   <div className="bg-gray-50/80 rounded-xl p-4">
                     <iframe
-                      src={mechanic.qualification}
+                      src={getAssetURL(mechanic.qualification,'raw')}
                       className="w-full h-[600px] rounded-lg border border-gray-200 shadow-inner"
                       title="Qualification Document"
                       onError={() => toast.error("Failed to load document")}

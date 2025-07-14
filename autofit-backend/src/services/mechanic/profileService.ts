@@ -8,16 +8,6 @@ import { MechanicProfileDocument } from "../../models/mechanicProfileModel";
 import { INotificationRepository } from "../../repositories/interfaces/INotificationRepository";
 
 
-// type FileWithField = Express.Multer.File;
-
-// interface MechanicRegisterPayload {
-//   data: MechanicRegisterInput;
-//   photo: FileWithField;
-//   shopImage: FileWithField;
-//   qualification: FileWithField;
-//   mechanicId: ObjectId
-// }
-
 interface CloudinaryFile extends Express.Multer.File {
   public_id: string;
 }
@@ -37,24 +27,6 @@ export class ProfileService {
     private _notificationRepository: INotificationRepository
   ) { }
 
-
-  // async registerUser(payload: MechanicRegisterPayload): Promise<void> {
-  //   const { data, photo, shopImage, qualification, mechanicId } = payload;
-
-  //   const mech = await this._mechanicRepository.findById(mechanicId);
-  //   if (!mech) throw new ApiError('Mechanic not found', 404);
-
-  //   const toCreate = {
-  //     ...data,
-  //     photo: photo.path,
-  //     shopImage: shopImage.path,
-  //     qualification: qualification.path,
-  //     mechanicId,
-  //   };
-
-  //   await this._mechanicRepository.update(mech._id, { avatar: photo.path });
-  //   await this._mechanicProfileRepository.create(toCreate);
-  // }
 
    async registerUser(payload: MechanicRegisterPayload): Promise<void> {
     const { data, photo, shopImage, qualification, mechanicId } = payload;
@@ -77,7 +49,7 @@ export class ProfileService {
     console.log('Service File IDs:', { photoId, shopImageId, qualificationId });
 
     await this._mechanicRepository.update(mech._id, { avatar: photoId });
-    await this._mechanicProfileRepository.create(toCreate);
+    await this._mechanicProfileRepository.save(toCreate);
   }
 
 
@@ -116,9 +88,6 @@ export class ProfileService {
   async setNotificationRead(userId: Types.ObjectId) {
     return await this._notificationRepository.markAsRead(userId)
   }
-
-
-
 
 
 }

@@ -1,7 +1,8 @@
 import { IVehicleBrandRepository } from "./interfaces/IvehicleBrandRepository";
-import { vehicleBrandModel } from "../models/vehicleBrandModel";
+import { vehicleBrandModel} from "../models/vehicleBrandModel";
 import { IVehicleBrand } from "../types/vehicle";
 import { ObjectId } from "bson";
+;
 
 export class VehicleBrandRepository implements IVehicleBrandRepository {
 

@@ -19,7 +19,7 @@ export class MechanicRegistrationService {
             throw new ApiError("User already exists", 400);
         }
 
-        const {role,_id} = await this._mechanicRepository.create({email,password,mobile,name,role:'mechanic'});
+        const {role,_id} = await this._mechanicRepository.save({email,password,mobile,name,role:'mechanic'});
         return {_id,name,role}
           
     }

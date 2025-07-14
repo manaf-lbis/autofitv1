@@ -26,37 +26,6 @@ export class ProfileController {
         }
     }
 
-
-    // async register(req: Request, res: Response, next: NextFunction): Promise<void> {
-    //     try {
-    //         const files = req.files as Record<string, Express.Multer.File[]>;
-    //         const photo = files.photo?.[0];
-    //         const shopImage = files.shopImage?.[0];
-    //         const qualification = files.qualification?.[0];
-    //         if (!photo || !shopImage || !qualification) {
-    //             throw new ApiError('All files are required', 400);
-    //         }
-
-    //         const mechanicId = req.user?.id;
-    //         if (!mechanicId) throw new ApiError('Unauthorized', 401);
-
-    //         const validated = mechanicRegisterValidation.parse(req.body);
-    //         const { education, specialised, experience, shopName, place, landmark, location } = validated;
-
-    //         await this._mechanicProfileService.registerUser({
-    //             data: { education, specialised, experience, shopName, place, landmark, location },
-    //             photo,
-    //             shopImage,
-    //             qualification,
-    //             mechanicId,
-    //         });
-
-    //         sendSuccess(res, 'Submitted Successfully');
-    //     } catch (err) {
-    //         next(err);
-    //     }
-    // }
-
     async register(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
              

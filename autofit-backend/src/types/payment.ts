@@ -7,7 +7,7 @@ export interface Payment {
   paymentId?: string;
   amount: number;
   method?: string;
-  status:  'success' | 'failed' | 'cancelled';
+  status:  'success' | 'failed' | 'cancelled' | 'pending';
   receipt?: string;
   createdAt?: Date;
   updatedAt?: Date;

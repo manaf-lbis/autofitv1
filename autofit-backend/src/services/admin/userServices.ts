@@ -3,10 +3,11 @@ import { ApiError } from "../../utils/apiError";
 import { Types } from "mongoose";
 import { User } from "../../types/user/user";
 import { IVehicleRepository } from "../../repositories/interfaces/IVehicleRepository";
+import { IUserService } from "./interface/IUserServices";
 
 
 
-export class UserServices {
+export class UserServices implements IUserService {
     constructor(
         private _userRepository: IUserRepository,
         private _vehicleRepository : IVehicleRepository
@@ -23,13 +24,10 @@ export class UserServices {
 
     async userDetails({ userId }: { userId: Types.ObjectId }) {
 
-    
         const [vehicles, user] = await Promise.all([
             this._vehicleRepository.findWithUserId(userId),
             this._userRepository.findById(userId)
         ]);
-
-        
 
         if(!user || !vehicles ) throw new ApiError('Invalid User');
 
@@ -37,8 +35,5 @@ export class UserServices {
 
         return { userData:{email,mobile,name,status,createdAt,_id}, vehicles };
     }
-
-
-
     
 }

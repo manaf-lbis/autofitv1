@@ -19,7 +19,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
   const [loaded, setLoaded] = useState(false);
 
   return (
-    <div className={cn("relative w-full", className)}>
+    <div className={cn("relative w-full")}>
       {!loaded && (
         <div className="absolute inset-0 flex items-center justify-center z-10">
           <Loader2 className="h-6 w-6 text-gray-500 animate-spin" />
@@ -29,10 +29,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
         src={getAssetURL(publicId, resourceType)}
         alt={alt}
         onLoad={() => setLoaded(true)}
-        className={cn(
-          "w-full h-auto object-contain max-h-96 transition-opacity",
-          loaded ? "opacity-100" : "opacity-0"
-        )}
+        className={cn("w-full h-auto object-contain max-h-96 transition-opacity", loaded ? "opacity-100" : "opacity-0" , className)}
       />
     </div>
   );

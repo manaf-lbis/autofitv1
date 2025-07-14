@@ -46,6 +46,7 @@ export class RazorpayRepository implements IPaymentGateayRepository {
         }
     }
 
+
     verifyPayment(paymentId: string, orderId: string, signature: string): boolean {
         try {
             const generatedSignature = crypto
@@ -60,7 +61,7 @@ export class RazorpayRepository implements IPaymentGateayRepository {
     }
 
     async payloadFromOrderId(orderId: string) {
-       return await this._razorpay.orders.fetch(orderId)
+        return await this._razorpay.orders.fetch(orderId)
     }
 
     async payloadFromPaymentId(paymentId: string) {

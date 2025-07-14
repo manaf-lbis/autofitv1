@@ -25,8 +25,9 @@ const paymentSchema = new Schema<PaymentDocument>({
     },
     status: {
       type: String,
-      enum: ["success", "failed", "cancelled"],
+      enum: ["success", "failed", "cancelled", "pending"],
       required: true,
+      default: "pending",
     },
     receipt: {
       type: String,

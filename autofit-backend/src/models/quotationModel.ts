@@ -2,9 +2,9 @@ import mongoose, { Schema, Types, Document } from "mongoose";
 import { Quotation } from "../types/services";
 
 
-export interface QuotationDocument extends Quotation, Document<Types.ObjectId> { }
+export interface QuotationDocument extends Quotation, Document<Types.ObjectId> {}
 
-const quotationSchema: Schema<QuotationDocument> = new Schema<QuotationDocument>({
+const quotationSchema: Schema<QuotationDocument> = new Schema({
 
     serviceId: {
         type: Schema.Types.ObjectId,
@@ -51,6 +51,6 @@ const quotationSchema: Schema<QuotationDocument> = new Schema<QuotationDocument>
 
 quotationSchema.index({ requestId: 1 });
 
-export const QuotationModel = mongoose.model<Quotation>('quotation', quotationSchema);
+export const QuotationModel = mongoose.model<QuotationDocument>('quotation', quotationSchema);
 
 

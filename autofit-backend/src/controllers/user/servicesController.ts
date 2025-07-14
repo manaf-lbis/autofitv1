@@ -94,7 +94,7 @@ export class ServicesController {
 
             if (!serviceId || !userId) throw new ApiError('Invalid Service Id');
 
-            const response = await this._userRoadsideService.approveQuoteAndPay({ serviceId, quotationId })
+            const response = await this._userRoadsideService.approveQuoteAndPay({ serviceId, quotationId ,userId})
 
             sendSuccess(res, 'Order Created Successfully', { orderId: response.orderId })
 
@@ -110,7 +110,7 @@ export class ServicesController {
             if (!paymentId || !orderId || !signature) throw new ApiError('Payment Verification Failed');
             if (!userId) throw new ApiError('Invalid User')
 
-            const { mechanicId } = await this._userRoadsideService.VerifyAndApprove({ userId, paymentId, orderId, signature })
+            const { mechanicId } = await this._userRoadsideService.VerifyPaymentAndApprove({ userId, paymentId, orderId, signature })
 
             const mechData = userSocketMap.get(mechanicId.toString())
 

@@ -3,6 +3,7 @@ import { MechanicDocument } from "../../models/mechanicModel";
 import { MechanicProfileDocument } from "../../models/mechanicProfileModel";
 import { IMechanicRepository } from "../../repositories/interfaces/IMechanicRepository";
 import { IMechanicProfileRepository } from "../../repositories/interfaces/IMechanicProfileRepository";
+import { IMechanicService } from "./interface/IMechanicServices";
 
 
 interface PaginationParams {
@@ -20,13 +21,12 @@ interface PaginationResponse {
   totalPages: number;
 }
 
-export class MechanicService {
+export class MechanicService implements IMechanicService {
     constructor(
         private _mechanicRepository: IMechanicRepository,
         private _mechanicprofileRepository: IMechanicProfileRepository
 
     ) { }
-
 
     async allUsers(data: { page: number; limit: number; search?: string; sortField?: keyof MechanicDocument; sortOrder?: "asc" | "desc"; }) {
 

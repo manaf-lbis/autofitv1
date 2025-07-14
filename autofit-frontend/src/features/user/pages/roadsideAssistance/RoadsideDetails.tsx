@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, CheckCircle, CheckSquare, Car, Shield, FileText, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {useApproveQuoteAndPayMutation,useCancelBookingMutation,useRejectQuotationMutation,useRoadsideDetailsQuery} from "../../../../services/userServices/servicesApi";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { useApproveQuoteAndPayMutation, useCancelBookingMutation, useRejectQuotationMutation, useRoadsideDetailsQuery } from "../../../../services/userServices/servicesApi";
 import RoadsideDetailsShimmer from "../../components/shimmer/RoadsideDetailsShimmer";
 import { HeadingSection } from "../../components/roadsideAssistance/HeadingSection";
 import { TabsSection } from "../../components/roadsideAssistance/TabsSection";
@@ -17,61 +18,54 @@ import { formatDateTime } from "@/lib/dateFormater";
 import { initSocket } from "@/lib/socket";
 import ChatBubble from "../../components/ChatBubble";
 
-type ServiceStatus =
-  | "assigned"
-  | "on_the_way"
-  | "analysing"
-  | "quotation_sent"
-  | "in_progress"
-  | "completed"
-  | "canceled";
+type ServiceStatus = "assigned" | "on_the_way" | "analysing" | "quotation_sent" | "in_progress" | "completed" | "canceled";
 
-const queryOptions = {
-  refetchOnMountOrArgChange: true, 
-};
+const queryOptions = { refetchOnMountOrArgChange: true };
 
 export default function RoadsideDetails() {
   const [activeTab, setActiveTab] = useState("details");
   const [showQuotationModal, setShowQuotationModal] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const [isPaymentComplete, setIsPaymentComplete] = useState(false);
   const [isCancelling, setIsCancelling] = useState(false);
   const [isCancelled, setIsCancelled] = useState(false);
   const [isRejecting, setIsRejecting] = useState(false);
-
   const navigate = useNavigate();
   const params = useParams<{ id: string }>();
   const serviceId = params.id as string;
 
-  const {
-    data,
-    isLoading,
-    isError,
-    refetch,
-  } = useRoadsideDetailsQuery(serviceId, queryOptions);
-
-  useEffect(()=>{
-    const socket = initSocket();
-    socket.on('roadside_assistance_changed',()=>{
-      refetch()
-    })
-  },[])
-
-  const [approveAndPay, { isLoading: isPaymentLoading }] = useApproveQuoteAndPayMutation();
+  const { data, isLoading, isError, refetch } = useRoadsideDetailsQuery(serviceId, queryOptions);
+  const [approveAndPay, { isLoading: isPaymentLoading, isError: isPaymentError, error: paymentError }] = useApproveQuoteAndPayMutation();
   const [cancelBooking] = useCancelBookingMutation();
   const [rejectQuotation] = useRejectQuotationMutation();
 
   const bookingData = data?.data;
 
   useEffect(() => {
+    const socket = initSocket();
+    socket.on('roadside_assistance_changed', () => refetch());
+    return () => { socket.off('roadside_assistance_changed'); };
+  }, [refetch]);
+
+  useEffect(() => {
     if (bookingData?.paymentId) setIsPaymentComplete(true);
     if (bookingData?.status === "canceled") setIsCancelled(true);
   }, [bookingData]);
 
+  useEffect(() => {
+    if (isPaymentError && paymentError && 'data' in paymentError) {
+      const errorData = paymentError.data as { message?: string };
+      setErrorMessage(errorData.message || "An unexpected error occurred");
+      setShowErrorModal(true);
+    }
+  }, [isPaymentError, paymentError]);
+
   const handleRejectQuotation = async () => {
     setIsRejecting(true);
     try {
-      await rejectQuotation({serviceId: params.id as string}).unwrap();
+      await rejectQuotation({ serviceId: params.id as string }).unwrap();
       setIsCancelled(true);
       setShowQuotationModal(false);
     } catch (error) {
@@ -114,34 +108,19 @@ export default function RoadsideDetails() {
 
   const getStatusTitle = (status: string) => {
     switch (status) {
-      case "assigned":
-        return "Booking Confirmed";
-      case "on_the_way":
-        return "Mechanic En Route";
-      case "analysing":
-        return "Analysing Issue";
-      case "quotation_sent":
-        return "Quotation Sent";
-      case "in_progress":
-        return "Service In Progress";
-      case "completed":
-        return "Service Completed";
-      case "canceled":
-        return "Service Cancelled";
-      default:
-        return "Processing";
+      case "assigned": return "Booking Confirmed";
+      case "on_the_way": return "Mechanic En Route";
+      case "analysing": return "Analysing Issue";
+      case "quotation_sent": return "Quotation Sent";
+      case "in_progress": return "Service In Progress";
+      case "completed": return "Service Completed";
+      case "canceled": return "Service Cancelled";
+      default: return "Processing";
     }
   };
 
   const isStageCompleted = (currentStage: ServiceStatus, bookingStatus: ServiceStatus) => {
-    const stagesOrder: ServiceStatus[] = [
-      "assigned",
-      "on_the_way",
-      "analysing",
-      "quotation_sent",
-      "in_progress",
-      "completed",
-    ];
+    const stagesOrder: ServiceStatus[] = ["assigned", "on_the_way", "analysing", "quotation_sent", "in_progress", "completed"];
     const currentIndex = stagesOrder.indexOf(currentStage);
     const bookingIndex = stagesOrder.indexOf(bookingStatus);
     if (bookingStatus === "canceled") return false;
@@ -153,60 +132,12 @@ export default function RoadsideDetails() {
   };
 
   const timeline = [
-    {
-      id: 1,
-      title: "Booking Confirmed",
-      time: bookingData?.createdAt,
-      status: bookingData?.status === "canceled" ? "pending" : "completed",
-      icon: CheckCircle,
-    },
-    {
-      id: 2,
-      title: "Mechanic Assigned",
-      time: bookingData?.createdAt,
-      status: isStageCompleted("assigned", bookingData?.status) || bookingData?.status === "assigned" ? "completed" : "pending",
-      icon: CheckSquare,
-    },
-    {
-      id: 3,
-      title: "Mechanic Arrived",
-      time: bookingData?.arrivedAt,
-      status: isStageCompleted("on_the_way", bookingData?.status)
-        ? "completed"
-        : isStageActive("on_the_way", bookingData?.status)
-        ? "active"
-        : "pending",
-      icon: Car,
-    },
-    {
-      id: 4,
-      title: "Quotation Sent",
-      time: bookingData?.quotationId?.createdAt,
-      status: isStageCompleted("quotation_sent", bookingData?.status)
-        ? "completed"
-        : isStageActive("quotation_sent", bookingData?.status)
-        ? "active"
-        : "pending",
-      icon: FileText,
-    },
-    {
-      id: 5,
-      title: "Service Started",
-      time: bookingData?.startedAt,
-      status: isStageCompleted("in_progress", bookingData?.status)
-        ? "completed"
-        : isStageActive("in_progress", bookingData?.status)
-        ? "active"
-        : "pending",
-      icon: Car,
-    },
-    {
-      id: 6,
-      title: "Service Completed",
-      time: bookingData?.endedAt,
-      status: bookingData?.status === "completed" ? "completed" : "pending",
-      icon: Shield,
-    },
+    { id: 1, title: "Booking Confirmed", time: bookingData?.createdAt, status: bookingData?.status === "canceled" ? "pending" : "completed", icon: CheckCircle },
+    { id: 2, title: "Mechanic Assigned", time: bookingData?.createdAt, status: isStageCompleted("assigned", bookingData?.status) || bookingData?.status === "assigned" ? "completed" : "pending", icon: CheckSquare },
+    { id: 3, title: "Mechanic Arrived", time: bookingData?.arrivedAt, status: isStageCompleted("on_the_way", bookingData?.status) ? "completed" : isStageActive("on_the_way", bookingData?.status) ? "active" : "pending", icon: Car },
+    { id: 4, title: "Quotation Sent", time: bookingData?.quotationId?.createdAt, status: isStageCompleted("quotation_sent", bookingData?.status) ? "completed" : isStageActive("quotation_sent", bookingData?.status) ? "active" : "pending", icon: FileText },
+    { id: 5, title: "Service Started", time: bookingData?.startedAt, status: isStageCompleted("in_progress", bookingData?.status) ? "completed" : isStageActive("in_progress", bookingData?.status) ? "active" : "pending", icon: Car },
+    { id: 6, title: "Service Completed", time: bookingData?.endedAt, status: bookingData?.status === "completed" ? "completed" : "pending", icon: Shield },
   ];
 
   if (isError) {
@@ -217,20 +148,8 @@ export default function RoadsideDetails() {
           <h1 className="text-2xl font-bold text-gray-900 mb-2">Failed to Load Service Details</h1>
           <p className="text-gray-600 mb-6">An error occurred while fetching the service details. Please try again.</p>
           <div className="space-y-3">
-            <Button
-              onClick={refetch}
-              className="bg-blue-600 hover:bg-blue-700 text-white"
-            >
-              Retry
-            </Button>
-            <Button
-              onClick={() => navigate(-1)}
-              variant="outline"
-              className="border-gray-300"
-            >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Go Back
-            </Button>
+            <Button onClick={refetch} className="bg-blue-600 hover:bg-blue-700 text-white">Retry</Button>
+            <Button onClick={() => navigate(-1)} variant="outline" className="border-gray-300"><ArrowLeft className="h-4 w-4 mr-2" />Go Back</Button>
           </div>
         </div>
       </div>
@@ -332,6 +251,24 @@ export default function RoadsideDetails() {
           isProcessing={isCancelling}
         />
       )}
+
+      <Dialog open={showErrorModal} onOpenChange={setShowErrorModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="h-6 w-6 text-red-500" />
+              Payment Error
+            </DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <p className="text-sm text-gray-600">{errorMessage}</p>
+          </div>
+          <DialogFooter>
+            <Button onClick={() => setShowErrorModal(false)} variant="outline">Close</Button>
+            <Button onClick={refetch} className="bg-blue-600 hover:bg-blue-700 text-white">Retry</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

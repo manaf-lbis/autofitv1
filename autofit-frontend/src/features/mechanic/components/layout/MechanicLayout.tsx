@@ -75,7 +75,7 @@ export default function MechanicDashboard() {
     return () => {
       socket.off("forceLogout");
     };
-  }, []);
+  }, [handleLogout,socket]);
 
   const user = useSelector((state: RootState) => state.auth.user);
   const name = user?.name || "User";
@@ -165,7 +165,7 @@ export default function MechanicDashboard() {
 
   useEffect(() => {
     dispatch(setAvailability(data?.data?.availability));
-  }, [data]);
+  }, [data,dispatch]);
 
   const changeAvailability = async () => {
     try {

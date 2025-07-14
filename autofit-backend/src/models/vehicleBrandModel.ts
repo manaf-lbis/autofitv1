@@ -3,7 +3,7 @@ import mongoose, { Schema, Document,Types } from 'mongoose';
 import { IVehicleBrand } from '../types/vehicle';
 
 
-interface VehicleBrandDocument extends Omit<IVehicleBrand,"_id">,Document<Types.ObjectId> {}
+export interface VehicleBrandDocument extends Omit<IVehicleBrand,"_id">,Document<Types.ObjectId> {}
 
 const VehicleBrandSchema:Schema<VehicleBrandDocument> = new mongoose.Schema<VehicleBrandDocument>({
   brand: {

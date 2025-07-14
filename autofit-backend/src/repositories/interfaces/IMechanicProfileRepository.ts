@@ -1,4 +1,3 @@
-import { MechanicRegisterInput } from '../../types/mechanic/mechanic';
 import { IBaseRepository } from '../interfaces/IBaseRepository';
 import { MechanicProfileDocument } from '../../models/mechanicProfileModel';
 import { Types } from 'mongoose';
@@ -8,7 +7,6 @@ import { ProfileStatus,MechanicAvailability } from '../../types/mechanic/mechani
 
 export interface IMechanicProfileRepository extends IBaseRepository<MechanicProfileDocument> {
   findByMechanicId(mechanicId: Types.ObjectId): Promise<MechanicProfileDocument | null>;
-  create(payload: MechanicRegisterInput): Promise<MechanicProfileDocument>
   findMechanicWithPagination(params: {
     page: number;
     limit: number;

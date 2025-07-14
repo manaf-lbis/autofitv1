@@ -16,9 +16,9 @@ export class UserRoadsideService {
     private _roadsideAssistanceRepo: IRoadsideAssistanceRepo,
     private _vehicleRepository: IVehicleRepository,
     private _notificationRepository: INotificationRepository,
-    private _razorpayRepository:IPaymentGateayRepository,
-    private _quotaionRepo : IQuotationRepository,
-    private _paymentRepo : IPaymentRepository
+    private _razorpayRepository: IPaymentGateayRepository,
+    private _quotaionRepo: IQuotationRepository,
+    private _paymentRepo: IPaymentRepository
   ) { }
 
   async getNearByMechanic({ lat, lng }: { lat: number; lng: number }) {
@@ -69,7 +69,7 @@ export class UserRoadsideService {
 
     await this._mechanicProfileRepo.update(mechanicId, { availability: 'busy' })
 
-    const notification = await this._notificationRepository.create(
+    const notification = await this._notificationRepository.save(
       {
         message: `Emergency - ${vehicle.regNo.toUpperCase()} Requested For RoadSide Assistance.`,
         recipientId: mechanicId,
@@ -79,40 +79,70 @@ export class UserRoadsideService {
     return { notification, emergencyAssistance }
   }
 
-  async approveQuoteAndPay({serviceId,quotationId}:{serviceId:Types.ObjectId,quotationId:Types.ObjectId}){
+  async approveQuoteAndPay({ serviceId, quotationId ,userId }: { serviceId: Types.ObjectId, quotationId: Types.ObjectId,userId:Types.ObjectId }) {
 
-    const service = await this._roadsideAssistanceRepo.findById(serviceId)
-    const quotation = await this._quotaionRepo.findById(quotationId)
-    if(!quotation) throw new ApiError('Quotation Not Generated')
+    const service = await this._roadsideAssistanceRepo.findById(serviceId);
+    const quotation = await this._quotaionRepo.findById(quotationId);
+    const payment = await this._paymentRepo.veryfyPaymentStatus(serviceId.toString());
 
-    if(!service?.quotationId?._id.equals(quotation._id)) throw new ApiError('Quotation Not Match With Service')
+    if(payment?.status === 'success') throw new ApiError('Payment Already Done')
 
-    const {orderId} = await this._razorpayRepository.createOrder(quotation.total,serviceId.toString())
+    if (payment?.createdAt) {
+      const createdAt = new Date(payment.createdAt).getTime();
+      const expiry = createdAt + 10 * 60 * 1000;
+      const now = Date.now();
 
-    return {orderId,mechanicId:service.mechanicId}
+      if (now < expiry) {
+        throw new ApiError(`Previous payment is still processing. Try after 10 Minutes`);
+      }else{
+        await this._paymentRepo.deletePayment(serviceId.toString())
+      }
+    }
+
+    if (!quotation) throw new ApiError('Quotation Not Generated')
+
+    if (!service?.quotationId?._id.equals(quotation._id)) throw new ApiError('Quotation Not Match With Service')
+
+    const { orderId } = await this._razorpayRepository.createOrder(quotation.total, serviceId.toString());
+
+    await this._paymentRepo.createPayment({
+      userId : userId,
+      serviceId,
+      paymentId: '',
+      amount: quotation.total,
+      method: 'razorpay',
+      status: 'pending',
+      receipt: orderId
+    })
+
+    
+
+    return { orderId, mechanicId: service.mechanicId }
   }
 
-  
-  async VerifyAndApprove({ paymentId,orderId,signature,userId }:{ paymentId:string,orderId:string,signature:string ,userId:Types.ObjectId}){
-    await this._razorpayRepository.verifyPayment(paymentId,orderId,signature)
+
+  async VerifyPaymentAndApprove({ paymentId, orderId, signature, userId }: { paymentId: string, orderId: string, signature: string, userId: Types.ObjectId }) {
+    await this._razorpayRepository.verifyPayment(paymentId, orderId, signature)
 
     const order = await this._razorpayRepository.payloadFromOrderId(orderId)
     const payment = await this._razorpayRepository.payloadFromPaymentId(paymentId)
 
-    const paymentDoc = await this._paymentRepo.createPayment({
+    const paymentDoc = await this._paymentRepo.updatePayemtStatus({
       userId,
-      serviceId:order.notes.serviceId,
-      paymentId:payment.id,
-      amount:payment.amount,
-      method : payment.method,
-      status :"success",
-      receipt :order.receipt
+      serviceId: order.notes.serviceId,
+      paymentId: payment.id,
+      method: payment.method,
+      status: "success",
+      receipt: order.receipt
     });
-    const response = await this._roadsideAssistanceRepo.update(order.notes.serviceId,{status:'in_progress',startedAt:new Date(),paymentId:paymentDoc._id})
-    if(!response?.quotationId) throw new ApiError('Invalid Service')
-    await this._quotaionRepo.update(response.quotationId,{status:'approved'})
-    return {mechanicId:response.mechanicId} 
-    
+
+    if(!paymentDoc) throw new ApiError('Invalid Payment')
+
+    const response = await this._roadsideAssistanceRepo.update(order.notes.serviceId, { status: 'in_progress', startedAt: new Date(), paymentId: paymentDoc._id })
+    if (!response?.quotationId) throw new ApiError('Invalid Service')
+    await this._quotaionRepo.update(response.quotationId, { status: 'approved' })
+    return { mechanicId: response.mechanicId }
+
   }
 
 
