@@ -2,7 +2,7 @@ import express from "express";
 import { authenticate } from "../../middlewares/authenticate";
 import { authorize } from "../../middlewares/authorize";
 import { ChatController } from "../../controllers/common/chatController";
-import { ChatService } from "../../services/chatService";
+import { ChatService } from "../../services/chat/chatService"; 
 import { ChatRepository } from "../../repositories/chatRepository";
 import { RoadsideAssistanceRepository } from "../../repositories/roadsideAssistanceRepo";
 

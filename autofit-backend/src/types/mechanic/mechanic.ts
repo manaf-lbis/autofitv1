@@ -68,3 +68,21 @@ export type ProfileStatus = {
 export interface MechanicAvailability {
   availability: 'available' | 'notAvailable' | 'busy'
 }
+
+
+export interface MechanicNearbyDto {
+  _id: Types.ObjectId;
+  mechanicId: Types.ObjectId;
+  availability: 'available' | 'notAvailable' | 'busy';
+  location: {
+    type: 'Point';
+    coordinates: [number, number];
+  };
+  education?: string;
+  specialised?: string;
+  experience?: number;
+  photo?: string;
+  [key: string]: any;
+  distanceInMeters: number;
+  durationInSeconds: number;
+}

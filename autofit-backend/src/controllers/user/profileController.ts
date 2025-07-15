@@ -1,13 +1,13 @@
 import { Request, Response, NextFunction } from "express";
 import { profileValidation } from "../../validation/authValidation";
-import { ProfileService } from "../../services/user/userProfileService";
+import { UserProfileService } from "../../services/user/userProfileService";
 import { ApiError } from "../../utils/apiError";
 import { sendSuccess } from "../../utils/apiResponse";
 
 export class ProfileController {
 
     constructor (
-        private _profileService : ProfileService
+        private _profileService : UserProfileService
 
     ) {}
 

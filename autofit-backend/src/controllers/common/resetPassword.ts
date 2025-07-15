@@ -1,4 +1,4 @@
-import ResetPasswordService from "../../services/auth/common/resetPassword";
+import ResetPasswordService from "../../services/auth/common/resetPasswordService";
 import { Request, Response, NextFunction } from "express";
 import { Role } from "../../types/role";
 import { ApiError } from "../../utils/apiError";
@@ -29,14 +29,15 @@ class ResetPassword {
             const user = await this._resetPasswordService.verifyEmail(email, role as Role);
             await this._resetPasswordService.saveAndSentOtp(email, role as Role)
 
-            const token = this._tokenService.generateToken({ email, role, otpResent : 0, _id:user._id })
+            const token = this._tokenService.generateAccessToken({ email, role, otpResent : 0, _id:user._id })
+
 
             res.cookie('resetToken', token, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === 'production',
                 sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
                 path: '/',
-                maxAge: 5 * 60 * 1000 
+                maxAge: Number(process.env.RESET_COOKIE_MAX_AGE)
             });
 
             sendSuccess(res, 'OTP Sent Successfully', { email })
@@ -94,14 +95,14 @@ class ResetPassword {
 
             await this._resetPasswordService.saveAndSentOtp(email, role as Role)
 
-            const token = this._tokenService.generateToken({ email, role, otpResent:otpResent+1 })
+            const token = this._tokenService.generateAccessToken({ email, role, otpResent:otpResent+1 })
 
             res.cookie('resetToken', token, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === 'production',
                 sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
                 path: '/',
-                maxAge: 5 * 60 * 1000 
+                maxAge: Number(process.env.RESET_COOKIE_MAX_AGE)
             });
             
 

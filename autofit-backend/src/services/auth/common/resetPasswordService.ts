@@ -4,12 +4,12 @@ import { Admin } from "../../../types/admin";
 import { Role } from "../../../types/role";
 import { OtpService } from "../../otp/otpService";
 import { HashService } from "../../hash/hashService";
-
 import { IUserRepository } from "../../../repositories/interfaces/IUserRepository";
 import { IAdminRepository } from "../../../repositories/interfaces/IAdminRepository";
 import { Types } from "mongoose";
+import { IResetPasswordService } from "./interface/IResetPasswordService";
 
-class ResetPassword {
+class ResetPassword implements IResetPasswordService {
     constructor(
         private _userRepository: IUserRepository,
         private _adminRepository: IAdminRepository,

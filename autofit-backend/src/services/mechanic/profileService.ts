@@ -2,25 +2,14 @@ import { ObjectId } from "mongodb";
 import { IMechanicProfileRepository } from "../../repositories/interfaces/IMechanicProfileRepository";
 import { IMechanicRepository } from "../../repositories/interfaces/IMechanicRepository";
 import { ApiError } from "../../utils/apiError";
-import { MechanicRegisterInput } from "../../types/mechanic/mechanic";
 import { Types } from "mongoose";
 import { MechanicProfileDocument } from "../../models/mechanicProfileModel";
 import { INotificationRepository } from "../../repositories/interfaces/INotificationRepository";
+import { IProfileService } from "./interface/IProfileService";
+import { MechanicRegisterPayload } from "./interface/IProfileService";
 
 
-interface CloudinaryFile extends Express.Multer.File {
-  public_id: string;
-}
-
-interface MechanicRegisterPayload {
-  data: MechanicRegisterInput;
-  photo: CloudinaryFile;
-  shopImage: CloudinaryFile;
-  qualification: CloudinaryFile;
-  mechanicId: ObjectId;
-}
-
-export class ProfileService {
+export class ProfileService implements IProfileService {
   constructor(
     private _mechanicProfileRepository: IMechanicProfileRepository,
     private _mechanicRepository: IMechanicRepository,

@@ -4,8 +4,9 @@ import { Role } from "../../types/role";
 import { ApiError } from "../../utils/apiError";
 import { HashService } from "../hash/hashService";
 import { sendMail } from "../mail/mailService";
+import { IOtpService } from "./IOtpService";
 
-export class OtpService {
+export class OtpService implements IOtpService {
 
   constructor(
     private _otpRepository: IOtpRepository,
@@ -22,7 +23,7 @@ export class OtpService {
       throw new ApiError("Please request a new OTP.", 400);
     }
 
-    if (data.attempt >= 3) {
+    if (data.attempt >= Number(process.env.OTP_ATTEMPT_LIMIT)) {
       const timeLeftMs = data.expiresAt.getTime() - now.getTime();
       const remainingSeconds = Math.floor(timeLeftMs / 1000);
 
@@ -37,7 +38,7 @@ export class OtpService {
 
     if (!isCorrect && data._id) {
       await this._otpRepository.incrementAttemptCount(data._id);
-      throw new ApiError(`Invalid OTP you have ${3 - data.attempt} attempt left`, 400);
+      throw new ApiError(`Invalid OTP you have ${Number(process.env.OTP_ATTEMPT_LIMIT) - data.attempt} attempt left`, 400);
     }
 
     if (data._id) {
@@ -52,7 +53,7 @@ export class OtpService {
 
     const now = new Date();
 
-    if (otpDoc && otpDoc.attempt >= 3) {
+    if (otpDoc && otpDoc.attempt >= Number(process.env.OTP_ATTEMPT_LIMIT)) {
       const timeLeftMs = otpDoc.expiresAt.getTime() - now.getTime();
       const remainingSeconds = Math.floor(timeLeftMs / 1000);
      
@@ -73,7 +74,7 @@ export class OtpService {
       attempt: 0,
       role: role,
       createdAt: new Date(),
-      expiresAt: new Date(Date.now() + 5 * 60 * 1000),
+      expiresAt: new Date(Date.now() + Number(process.env.OTP_EXPIRE_IN)),
       verified: false
     });
 
@@ -93,13 +94,12 @@ export class OtpService {
       attempt: 0,
       role: role,
       createdAt: new Date(),
-      expiresAt: new Date(Date.now() + 5 * 60 * 1000),
+      expiresAt: new Date(Date.now() + Number(process.env.OTP_EXPIRE_IN)),
       verified: false
     });
 
     await sendMail(email, newOtp);
   }
-
 
 
   generate(length: number = 6): string {

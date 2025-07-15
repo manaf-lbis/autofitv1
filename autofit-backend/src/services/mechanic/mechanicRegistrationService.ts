@@ -1,9 +1,11 @@
 import { IMechanicRepository } from "../../repositories/interfaces/IMechanicRepository";
 import { ApiError } from "../../utils/apiError";
 import { CreateUserInput } from "../../types/user/userInput";
+import { IMechanicRegistrationService } from "./interface/IMechanicRegistrationService";
 
 
-export class MechanicRegistrationService {
+export class MechanicRegistrationService implements IMechanicRegistrationService {
+
     constructor(private _mechanicRepository: IMechanicRepository) {}
 
     async registerUser(userData:CreateUserInput ) {
@@ -20,7 +22,7 @@ export class MechanicRegistrationService {
         }
 
         const {role,_id} = await this._mechanicRepository.save({email,password,mobile,name,role:'mechanic'});
-        return {_id,name,role}
+        return {_id:_id.toString(),name,role}
           
     }
 }

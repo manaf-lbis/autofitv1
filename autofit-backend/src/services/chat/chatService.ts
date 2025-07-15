@@ -1,10 +1,11 @@
-import { IChatRepository } from "../repositories/interfaces/IChatRepository";
-import { ChatDocument } from "../models/chatModel";
-import { ApiError } from "../utils/apiError";
+import { IChatRepository } from "../../repositories/interfaces/IChatRepository";
+import { ChatDocument } from "../../models/chatModel";
+import { ApiError } from "../../utils/apiError";
 import { Types } from "mongoose";
-import { IRoadsideAssistanceRepo } from "../repositories/interfaces/IRoadsideAssistanceRepo";
+import { IRoadsideAssistanceRepo } from "../../repositories/interfaces/IRoadsideAssistanceRepo";
+import { IChatService } from "./IChatService";
 
-export class ChatService {
+export class ChatService implements IChatService{
 
   constructor(
     private _chatRepository: IChatRepository,

@@ -8,8 +8,9 @@ import { INotificationRepository } from "../../repositories/interfaces/INotifica
 import { IPaymentGateayRepository } from "../../repositories/interfaces/IPaymentGateayRepository";
 import { IQuotationRepository } from "../../repositories/interfaces/IQuotationRepository";
 import { IPaymentRepository } from "../../repositories/interfaces/IPaymentRepository";
+import { IUserRoadsideService } from "./interface/IUserRoadsideService";
 
-export class UserRoadsideService {
+export class UserRoadsideService implements IUserRoadsideService {
   constructor(
     private _mechanicProfileRepo: IMechanicProfileRepository,
     private _googleMapRepo: IGoogleMapRepository,
@@ -144,10 +145,5 @@ export class UserRoadsideService {
     return { mechanicId: response.mechanicId }
 
   }
-
-
-
-
-
 
 }

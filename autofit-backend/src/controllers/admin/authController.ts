@@ -17,14 +17,14 @@ export class AdminAuthController {
       const { email, password } = req.body;
       loginValidation.parse({ email, password });
 
-      const result = await this._adminAuthService.login(email, password);
+      const result = await this._adminAuthService.login(email.toLowerCase(), password);
 
       res.cookie("jwt", result.token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
         path: "/",
-        maxAge: 7*24*60*60*1000, 
+        maxAge: Number(process.env.JWT_COOKIE_MAX_AGE), 
       });
 
       sendSuccess(res, "Login Successful", result.user);
@@ -48,7 +48,7 @@ export class AdminAuthController {
         secure: process.env.NODE_ENV === 'production',
         sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
         path: '/',       
-        maxAge: 7*24*60*60*1000 
+        maxAge: Number(process.env.JWT_COOKIE_MAX_AGE) 
       });
 
       sendSuccess(res,'Login Success',user)
@@ -103,7 +103,7 @@ export class AdminAuthController {
         secure: process.env.NODE_ENV === "production",
         sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
         path: "/",
-        maxAge: 7 * 24 * 60 * 60 * 1000,
+        maxAge: Number(process.env.JWT_COOKIE_MAX_AGE),
       });
 
       sendSuccess(res, "Token refreshed");

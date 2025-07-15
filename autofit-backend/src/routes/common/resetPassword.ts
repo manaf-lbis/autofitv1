@@ -1,6 +1,6 @@
 import { Router } from "express";
 import ResetPasswordController from "../../controllers/common/resetPassword";
-import ResetPasswordService from "../../services/auth/common/resetPassword";
+import ResetPasswordService from "../../services/auth/common/resetPasswordService";
 import { OtpService } from "../../services/otp/otpService";
 import { UserRepository } from "../../repositories/userRepository";
 import { AdminRepository } from "../../repositories/adminRepository";

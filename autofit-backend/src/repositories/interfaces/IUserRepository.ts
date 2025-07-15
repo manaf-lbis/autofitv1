@@ -1,14 +1,12 @@
 import { IBaseRepository } from "./IBaseRepository"
 import { User } from "../../types/user/user"
-import { CreateUserInput } from "../../types/user/userInput"
 import { Types } from "mongoose"
 import { UserDocument } from "../../models/userModel"
 
 
-export interface IUserRepository extends IBaseRepository<User> {
+export interface IUserRepository extends IBaseRepository<UserDocument> {
 
     findByEmail(email: string): Promise<UserDocument | null>
-    create(user: CreateUserInput): Promise<UserDocument>
     getRefreshToken(userId: Types.ObjectId): Promise<string | null>
     storeRefreshToken(userId: Types.ObjectId, token: string): Promise<void>
     findUsersWithPagination(params: {

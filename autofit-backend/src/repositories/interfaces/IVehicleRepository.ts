@@ -6,7 +6,7 @@ import { VehicleDocument } from "../../models/vehicleModel"
 
 export interface IVehicleRepository extends IBaseRepository <VehicleDocument> {
 
-    findWithUserId(id:ObjectId) : Promise <VehicleDocument[] | null>  
+    findWithUserId(id:ObjectId) : Promise <VehicleDocument[]>  
     updateByUserId(data:Vehicle) : Promise <VehicleDocument | null>  
     blockVehicle(userId:ObjectId ,id:ObjectId) : Promise<null>
 }

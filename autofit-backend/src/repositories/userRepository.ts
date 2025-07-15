@@ -1,7 +1,7 @@
 import { User } from "../types/user/user";
 import { IUserRepository } from "./interfaces/IUserRepository";
 import { UserModel, UserDocument } from "../models/userModel";
-import { CreateUserInput } from "../types/user/userInput";
+
 import { ObjectId } from "mongodb";
 import { ApiError } from "../utils/apiError";
 import { Types } from "mongoose";
@@ -11,16 +11,6 @@ export class UserRepository extends BaseRepository<UserDocument> implements IUse
 
     constructor() {
         super(UserModel);
-    }
-
-    async create(user: CreateUserInput): Promise<UserDocument> {
-        try {
-            const newUser = new UserModel({ ...user });
-            const savedUser = await newUser.save();
-            return savedUser.toObject()
-        } catch (error) {
-            throw new ApiError(`Error creating user: ${(error as Error).message}`, 500);
-        }
     }
 
     async findByEmail(email: string): Promise<UserDocument | null> {

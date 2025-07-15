@@ -10,8 +10,7 @@ import { getIO, userSocketMap } from "../../sockets/socket";
 export class UserController {
     constructor(
         private _userServices: UserServices
-
-    ) { }
+    ) {}
 
 
     async getAllUsers(req: Request, res: Response, next: NextFunction) {

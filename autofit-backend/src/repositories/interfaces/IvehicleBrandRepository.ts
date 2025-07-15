@@ -1,11 +1,9 @@
-import { IBaseRerpository } from "./IBaseRepository"
-import { IVehicleBrand } from "../../types/vehicle"
+import { IBaseRepository } from "./IBaseRepository"
+import { VehicleBrandDocument } from "../../models/vehicleBrandModel"
 
 
-
-export interface IVehicleBrandRepository extends IBaseRerpository <IVehicleBrand> {
+export interface IVehicleBrandRepository extends IBaseRepository<VehicleBrandDocument> {
 
 
 
 }
-

@@ -2,11 +2,11 @@ import { IMechanicProfileRepository } from "../../repositories/interfaces/IMecha
 import { Types } from "mongoose";
 import { INotificationRepository } from "../../repositories/interfaces/INotificationRepository";
 import { IRoadsideAssistanceRepo } from "../../repositories/interfaces/IRoadsideAssistanceRepo";
+import { IPageService } from "./interface/IPageService";
 
 
 
-
-export class PageService {
+export class PageService implements IPageService {
   constructor(
     private _mechanicProfileRepository: IMechanicProfileRepository,
     private _notificationRepository: INotificationRepository,

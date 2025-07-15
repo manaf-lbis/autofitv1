@@ -1,9 +1,10 @@
 import { IUserRepository } from "../../repositories/interfaces/IUserRepository";
 import { ApiError } from "../../utils/apiError";
 import { CreateUserInput } from "../../types/user/userInput";
+import { IUserRegistrationService } from "./Interface/IUserRegistrationService";
 
 
-export class UserRegistrationService {
+export class UserRegistrationService implements IUserRegistrationService {
 
     constructor(private _userRepository: IUserRepository) {}
 
@@ -20,8 +21,8 @@ export class UserRegistrationService {
             throw new ApiError("User already exists", 400);
         }
 
-        const {role,_id} = await this._userRepository.create({email,password,mobile,name,role:'user'});
-        return {_id,name,role}
+        const {role,_id} = await this._userRepository.save({email,password,mobile,name,role:'user'});
+        return {_id:_id.toString(),name,role}
           
     }
 

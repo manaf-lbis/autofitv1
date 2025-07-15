@@ -3,8 +3,9 @@ import { HashService } from "../../hash/hashService";
 import { TokenService } from "../../token/tokenService";
 import { ApiError } from "../../../utils/apiError";
 import { Types } from "mongoose";
+import { IAdminAuthService } from "./interface/IAdminAuthService";
 
-export class AdminAuthService {
+export class AdminAuthService implements IAdminAuthService {
 
   constructor(
     private _adminRepository: IAdminRepository,
@@ -17,6 +18,8 @@ export class AdminAuthService {
     const admin = await this._adminRepository.findByEmail(email);
     if (!admin) throw new ApiError("Invalid email or password", 404);
 
+    const INVALID_ATTEMPTS = Number(process.env.MAX_INVALID_PASSWORD_ATTEMPT);
+
     if (admin.lockUntil && admin.lockUntil > new Date()) {
       throw new ApiError(`Account locked until ${admin.lockUntil.toLocaleTimeString()}`, 423);
     }
@@ -24,7 +27,7 @@ export class AdminAuthService {
     const isMatch = await this._hashService.compare(password, admin.password);
     if (!isMatch) {
       const attempts = (admin.failedLoginAttempts || 0) + 1;
-      const lockUntil = attempts >= 3 ? new Date(Date.now() + 5 * 60 * 1000) : undefined;
+      const lockUntil = attempts >= INVALID_ATTEMPTS ? new Date(Date.now() + 5 * 60 * 1000) : undefined;
 
       await this._adminRepository.update(admin._id, {
         failedLoginAttempts: attempts,
@@ -32,9 +35,9 @@ export class AdminAuthService {
       });
 
       throw new ApiError(
-        attempts >= 3
+        attempts >= INVALID_ATTEMPTS
           ? "Account locked due to too many failed attempts"
-          : `Invalid credentials. ${3 - attempts} tries left.`,
+          : `Invalid credentials. ${INVALID_ATTEMPTS - attempts} tries left.`,
         401
       );
     }
@@ -45,7 +48,7 @@ export class AdminAuthService {
     });
 
     const payload = { id: admin._id, role: admin.role };
-    const accessToken = this._tokenService.generateToken(payload);
+    const accessToken = this._tokenService.generateAccessToken(payload);
     const refreshToken = this._tokenService.generateRefreshToken(payload);
 
     await this._adminRepository.storeRefreshToken(admin._id, refreshToken);
@@ -82,7 +85,7 @@ export class AdminAuthService {
     }
     
     const payload = { id: userId, role: admin.role };
-    const newAccessToken = this._tokenService.generateToken(payload);
+    const newAccessToken = this._tokenService.generateAccessToken(payload);
     const newRefreshToken = this._tokenService.generateRefreshToken(payload);
 
     await this._adminRepository.storeRefreshToken(new Types.ObjectId(userId), newRefreshToken);

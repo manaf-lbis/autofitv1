@@ -17,7 +17,7 @@ export class VehicleRepository extends BaseRepository<VehicleDocument> implement
         await VehicleModel.findByIdAndUpdate({_id:id},{isBlocked:true}); 
       }
 
-      async findWithUserId(userId: Types.ObjectId): Promise<VehicleDocument[] | null> {
+      async findWithUserId(userId: Types.ObjectId): Promise<VehicleDocument[]> {
         return await VehicleModel.find({ userId,isBlocked:false },{userId:0});
       }
 

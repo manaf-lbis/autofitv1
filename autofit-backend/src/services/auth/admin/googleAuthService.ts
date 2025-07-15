@@ -2,13 +2,14 @@ import { IAdminRepository } from "../../../repositories/interfaces/IAdminReposit
 import { OAuth2Client } from "google-auth-library";
 import { ApiError } from "../../../utils/apiError";
 import { TokenService } from "../../token/tokenService";
+import { IAdminGoogleAuthService } from "./interface/IAdminGoogleAuthService";
 
 const authClient = new OAuth2Client(
   process.env.GOOGLE_CLIENT_ID,
   process.env.GOOGLE_CLIENT_SECRET
 );
 
-export class AdminGoogleAuthService {
+export class AdminGoogleAuthService implements IAdminGoogleAuthService {
   constructor(
     private _adminRepository: IAdminRepository,
     private _tokenService: TokenService
@@ -47,7 +48,7 @@ export class AdminGoogleAuthService {
 
     const tokenPayload = { id: admin._id, role: admin.role };
 
-    const token = this._tokenService.generateToken(tokenPayload);
+    const token = this._tokenService.generateAccessToken(tokenPayload);
     const refreshToken = this._tokenService.generateRefreshToken(tokenPayload);
     await this._adminRepository.storeRefreshToken(admin._id, refreshToken);
 

@@ -32,7 +32,7 @@ export class AuthController {
                 secure: process.env.NODE_ENV === 'production',
                 sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
                 path: '/',
-                maxAge: 7 * 24 * 60 * 60 * 1000
+                maxAge: Number(process.env.JWT_COOKIE_MAX_AGE)
             });
 
             sendSuccess(res, 'Login Successful', result.user);
@@ -64,7 +64,7 @@ export class AuthController {
                 secure: process.env.NODE_ENV === "production",
                 sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
                 path: '/',
-                maxAge: 7 * 24 * 60 * 60 * 1000
+                maxAge: Number(process.env.JWT_COOKIE_MAX_AGE)
             });
 
             sendSuccess(res, "Token refreshed");
@@ -80,14 +80,14 @@ export class AuthController {
             const { name, email, password, mobile } = req.body;
             signupValidation.parse({ name, mobile, password, email });
 
-            const result = await this._authService.signup(name, email, password, mobile);
+            const result = await this._authService.signup(name.toLowerCase(), email, password, mobile);
 
             res.cookie('jwt', result.token, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === 'production',
                 sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
                 path: '/',
-                maxAge: 60 * 60 * 1000
+                maxAge: Number(process.env.SIGNUP_COOKIE_MAX_AGE)
             });
             sendSuccess(res, result.message)
 
@@ -124,14 +124,14 @@ export class AuthController {
                 mobile,
                 role: role || 'mechanic'
             });
-            const token = this._tokenService.generateToken({ id: _id, role })
+            const token = this._tokenService.generateAccessToken({ id: _id, role })
 
             res.cookie('jwt', token, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === 'production',
                 sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
                 path: '/',
-                maxAge: 7 * 24 * 60 * 60 * 1000
+                maxAge: Number(process.env.JWT_COOKIE_MAX_AGE)
             });
 
             sendSuccess(res, 'OTP verified successfully', { name, role }, 200)
@@ -207,7 +207,7 @@ export class AuthController {
                 secure: process.env.NODE_ENV === 'production',
                 sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
                 path: '/',
-                maxAge: 7 * 24 * 60 * 60 * 1000
+                maxAge: Number(process.env.JWT_COOKIE_MAX_AGE)
             });
 
             sendSuccess(res, 'Login Success', result.user)

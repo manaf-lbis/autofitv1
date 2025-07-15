@@ -4,8 +4,9 @@ import { RoadsideAssistanceDocument } from "../../models/roadsideAssistanceModel
 import { IQuotationRepository } from "../../repositories/interfaces/IQuotationRepository";
 import { QuotationDocument } from "../../models/quotationModel";
 import { IMechanicProfileRepository } from "../../repositories/interfaces/IMechanicProfileRepository";
+import { IRoadsideService } from "./interface/IRoadsideService";
 
-export class RoadsideService {
+export class RoadsideService implements IRoadsideService {
   constructor(
     private _roadsideAssistanceRepo: IRoadsideAssistanceRepo,
     private _quotationRepo : IQuotationRepository,
@@ -25,7 +26,6 @@ export class RoadsideService {
       entity.endedAt = new Date()
       await this._mechanicProfileRepo.findByMechanicIdAndUpdate(userId,{availability:'available'})
     }
-
     return await this._roadsideAssistanceRepo.update(serviceId, entity)
   }
 
@@ -52,11 +52,7 @@ export class RoadsideService {
     if(response){
       await this._mechanicProfileRepo.findByMechanicIdAndUpdate(response?.mechanicId,{availability:'available'})
     }
-   
   }
-
-
-
 
 
 }

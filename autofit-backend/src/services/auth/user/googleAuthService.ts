@@ -2,13 +2,14 @@ import { IUserRepository } from "../../../repositories/interfaces/IUserRepositor
 import { OAuth2Client } from "google-auth-library";
 import { ApiError } from "../../../utils/apiError";
 import { TokenService } from "../../token/tokenService";
+import { IGoogleAuthService } from "./interface/IGoogleAuthService";
 
 const authClient = new OAuth2Client(
   process.env.GOOGLE_CLIENT_ID,
   process.env.GOOGLE_CLIENT_SECRET
 );
 
-export class GoogleAuthService {
+export class GoogleAuthService implements IGoogleAuthService{
   constructor(
     private _userRepository: IUserRepository,
     private _tokenService: TokenService
@@ -39,7 +40,7 @@ export class GoogleAuthService {
     let user = await this._userRepository.findByEmail(email);
 
     if (!user) {
-      user = await this._userRepository.create({
+      user = await this._userRepository.save({
         email,
         role: "user",
         googleId: sub,
@@ -53,7 +54,7 @@ export class GoogleAuthService {
 
     const tokenPayload = { id: user._id, role: user.role };
 
-    const token = this._tokenService.generateToken(tokenPayload);
+    const token = this._tokenService.generateAccessToken(tokenPayload);
     const refreshToken = this._tokenService.generateRefreshToken(tokenPayload);
     await this._userRepository.storeRefreshToken(user._id, refreshToken);
 

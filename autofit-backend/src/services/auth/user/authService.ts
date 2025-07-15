@@ -5,10 +5,11 @@ import { TokenService } from "../../token/tokenService";
 import { ApiError } from "../../../utils/apiError";
 import { ObjectId } from "mongodb";
 import { Types } from "mongoose";
+import { IAuthService } from "./interface/IAuthService";
 
 
 
-export class AuthService {
+export class AuthService implements IAuthService {
 
   constructor(
     private _userRepository: IUserRepository,
@@ -23,6 +24,8 @@ export class AuthService {
     if (!user) throw new ApiError('Invalid email or password', 404);
     if(user.status === 'blocked') throw new ApiError('User Blocked Contact Admin', 401);
 
+    const INVALID_ATTEMPTS = Number(process.env.MAX_INVALID_PASSWORD_ATTEMPT);
+
     if (user.lockUntil && user.lockUntil > new Date()) {
       throw new ApiError(
         `Account locked until ${user.lockUntil.toLocaleTimeString()}`, 423
@@ -33,7 +36,7 @@ export class AuthService {
     if (!isMatch) {
 
       const attempts = (user.failedLoginAttempts || 0) + 1;
-      const lockUntil = attempts >= 3
+      const lockUntil = attempts >= INVALID_ATTEMPTS
         ? new Date(Date.now() + 5 * 60 * 1000)
         : undefined;
 
@@ -43,9 +46,9 @@ export class AuthService {
       });
 
       throw new ApiError(
-        attempts >= 3
+        attempts >= INVALID_ATTEMPTS
           ? 'Account locked due to too many failed attempts'
-          : `Invalid credentials. ${3 - attempts} tries left.`,
+          : `Invalid credentials. ${INVALID_ATTEMPTS - attempts} tries left.`,
         401
       );
     }
@@ -58,7 +61,7 @@ export class AuthService {
 
 
     const payload = { id: user._id, role: user.role };
-    const accessToken = this._tokenService.generateToken(payload);
+    const accessToken = this._tokenService.generateAccessToken(payload);
     const refreshToken = this._tokenService.generateRefreshToken(payload);
 
     await this._userRepository.storeRefreshToken(user._id, refreshToken);
@@ -74,7 +77,7 @@ export class AuthService {
     const passwordHash = await this._hashService.hash(password)
 
     await this._otpService.saveAndSentOtp(email, 'user')
-    const token = this._tokenService.generateToken({
+    const token = this._tokenService.generateAccessToken({
       name,
       password: passwordHash,
       email,

@@ -3,9 +3,10 @@ import { VehicleRepository } from "../../repositories/vehicleRepository";
 import { VehicleBrandRepository } from "../../repositories/vehicleBrandRepository";
 import { ApiError } from "../../utils/apiError";
 import { Vehicle } from "../../types/vehicle";
+import { IVehicleService } from "./IVehicleService";
 
 
-export class VehicleService {
+export class VehicleService implements IVehicleService {
 
     constructor(
         private _vehicleRepository : VehicleRepository,

@@ -1,5 +1,5 @@
 import { Socket } from "socket.io";
-import { ChatService } from "../../services/chatService";
+import { ChatService } from "../../services/chat/chatService"; 
 import { ChatRepository } from "../../repositories/chatRepository";
 import { verifyJwt } from "../verifyJwt";
 import { RoadsideAssistanceModel } from "../../models/roadsideAssistanceModel";
