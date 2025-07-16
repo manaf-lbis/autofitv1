@@ -1,6 +1,4 @@
 import { Router } from "express";
-import { authenticate } from "../../middlewares/authenticate";
-import { authorize } from "../../middlewares/authorize";
 import { MechanicController } from "../../controllers/admin/mechanicController";
 import { MechanicService } from "../../services/admin/mechanicSevice";
 import { MechanicRepository } from "../../repositories/mechanicRepository";
@@ -10,21 +8,21 @@ import { NotificationRepository } from "../../repositories/notificationRepositor
 
 const mechanicProfileRepository = new MechanicProfileRepository()
 const mechanicRepository = new MechanicRepository()
-const mechanicService = new MechanicService(mechanicRepository,mechanicProfileRepository)
+const mechanicService = new MechanicService(mechanicRepository, mechanicProfileRepository)
 const notificationRepository = new NotificationRepository()
-const profileService = new ProfileService(mechanicProfileRepository,mechanicRepository,notificationRepository)
-const mechanicController = new MechanicController(mechanicService,profileService)
+const profileService = new ProfileService(mechanicProfileRepository, mechanicRepository, notificationRepository)
+const mechanicController = new MechanicController(mechanicService, profileService)
 
 
 const router = Router()
 
 
-router.get("/applications", authenticate, authorize(['admin']),(req,res,next)=>mechanicController.listApplications(req,res,next))
-router.patch("/application/:id/status", authenticate, authorize(['admin']), (req,res,next)=>mechanicController.applicationStatus(req,res,next))
+router.get("/applications", (req, res, next) => mechanicController.listApplications(req, res, next))
+router.patch("/application/:id/status", (req, res, next) => mechanicController.applicationStatus(req, res, next))
 
-router.get("/",authenticate, authorize(['admin']), (req,res,next)=>mechanicController.getAllMechanic(req,res,next))
-router.get("/:id", authenticate, authorize(['admin']), (req,res,next)=>mechanicController.getMechanicById(req,res,next))
-router.patch("/:id/status", authenticate, authorize(['admin']), (req,res,next)=>mechanicController.changeStatus(req,res,next))
+router.get("/", (req, res, next) => mechanicController.getAllMechanic(req, res, next))
+router.get("/:id", (req, res, next) => mechanicController.getMechanicById(req, res, next))
+router.patch("/:id/status", (req, res, next) => mechanicController.changeStatus(req, res, next))
 
 
 

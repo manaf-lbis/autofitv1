@@ -4,6 +4,7 @@ import { TokenService } from "../../token/tokenService";
 import { IMechanicRepository } from "../../../repositories/interfaces/IMechanicRepository";
 import { IGoogleAuthService } from "./interface/IGoogleAuthService";
 import { HttpStatus } from "../../../types/responseCode";
+import { Role } from "../../../types/role";
 
 const authClient = new OAuth2Client(
   process.env.GOOGLE_CLIENT_ID,
@@ -43,9 +44,9 @@ export class GoogleAuthService implements IGoogleAuthService {
     if (!user) {
       user = await this._mechanicRepository.save({
         email,
-        role: "mechanic",
+        role: Role.MECHANIC,
         googleId: sub,
-        name: name || "mechanic",
+        name: name || Role.MECHANIC,
       });
     }
 

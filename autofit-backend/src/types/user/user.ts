@@ -6,7 +6,7 @@ export interface User {
     email: string,
     mobile:string,
     password: string,
-    role: 'user' | 'admin' | 'mechanic',
+    role: 'user' ,
     status: 'active' | 'blocked',
     refreshToken:string
     failedLoginAttempts:number

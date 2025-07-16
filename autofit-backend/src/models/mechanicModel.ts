@@ -1,5 +1,6 @@
 import mongoose, { Schema, Document,Types } from 'mongoose';
 import { Mechanic } from '../types/mechanic/mechanic';
+import { Role } from '../types/role';
 
 
 export interface MechanicDocument extends Mechanic,Document<Types.ObjectId> {}
@@ -24,7 +25,7 @@ const mechanicSchema: Schema <MechanicDocument> = new Schema<MechanicDocument>({
     },
     role: {
         type: String,
-        enum: ['user', 'admin', 'mechanic']
+        enum: Object.values(Role),
     },
     googleId:{
         type:String

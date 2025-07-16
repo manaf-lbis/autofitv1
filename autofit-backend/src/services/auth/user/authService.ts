@@ -7,6 +7,7 @@ import { ObjectId } from "mongodb";
 import { Types } from "mongoose";
 import { IAuthService } from "./interface/IAuthService";
 import { HttpStatus } from "../../../types/responseCode";
+import { Role } from "../../../types/role";
 
 
 
@@ -77,13 +78,13 @@ export class AuthService implements IAuthService {
 
     const passwordHash = await this._hashService.hash(password)
 
-    await this._otpService.saveAndSentOtp(email, 'user')
+    await this._otpService.saveAndSentOtp(email, Role.USER)
     const token = this._tokenService.generateAccessToken({
       name,
       password: passwordHash,
       email,
       mobile,
-      role: 'user'
+      role: Role.USER
     })
     return { token, message: 'OTP sent successfully' }
   }
@@ -135,6 +136,10 @@ export class AuthService implements IAuthService {
     
     await this._userRepository.storeRefreshToken(new Types.ObjectId(userId), newRefreshToken);
     return { accessToken: newAccessToken };
+  }
+
+  async logout(userId: Types.ObjectId): Promise<void> {
+    await this._userRepository.update(userId,{ refreshToken: '' });
   }
 
 }

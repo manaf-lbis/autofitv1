@@ -3,6 +3,7 @@ import { ApiError } from "../../utils/apiError";
 import { CreateUserInput } from "../../types/user/userInput";
 import { IUserRegistrationService } from "./Interface/IUserRegistrationService";
 import { HttpStatus } from "../../types/responseCode";
+import { Role } from "../../types/role";
 
 
 export class UserRegistrationService implements IUserRegistrationService {
@@ -22,7 +23,7 @@ export class UserRegistrationService implements IUserRegistrationService {
             throw new ApiError("User already exists", HttpStatus.BAD_REQUEST);
         }
 
-        const {role,_id} = await this._userRepository.save({email,password,mobile,name,role:'user'});
+    const {role,_id} = await this._userRepository.save({email,password,mobile,name,role:Role.USER});
         return {_id:_id.toString(),name,role}
           
     }

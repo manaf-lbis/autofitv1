@@ -16,9 +16,9 @@ const router = Router();
  
 
 
-router.post('/roadside-assistance/status',(req,res,next)=>servicesController.roadsideStatusUpdate(req,res,next))
-router.post('/roadside-assistance/quotation',(req,res,next)=>servicesController.quotation(req,res,next))
-router.get('/roadside-assistance/:id/details',(req,res,next)=>servicesController.roadsideAssistanceDetails(req,res,next))
+router.post('/roadside-assistance/status',servicesController.roadsideStatusUpdate.bind(servicesController))
+router.post('/roadside-assistance/quotation',servicesController.quotation.bind(servicesController))
+router.get('/roadside-assistance/:id/details',servicesController.roadsideAssistanceDetails.bind(servicesController))
 
 
 export default router

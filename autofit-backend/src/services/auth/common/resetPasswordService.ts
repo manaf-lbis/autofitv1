@@ -22,11 +22,11 @@ class ResetPassword implements IResetPasswordService {
         let user: User | Admin | null
 
         switch (role) {
-            case 'user':
+            case Role.USER:
                 user = await this._userRepository.findByEmail(email)
                 break;
 
-            case 'admin':
+            case Role.ADMIN:
                 user = await this._adminRepository.findByEmail(email)
                 break;
 
@@ -50,11 +50,11 @@ class ResetPassword implements IResetPasswordService {
         const hash = await this._hashService.hash(password)
 
         switch (role) {
-            case 'user':
+            case Role.USER:
                  await this._userRepository.update(_id,{password:hash})
                 break;
 
-            case 'admin':
+            case Role.ADMIN:
                  await this._adminRepository.update(_id,{password:hash})
                 break;
 

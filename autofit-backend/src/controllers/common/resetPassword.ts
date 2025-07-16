@@ -22,8 +22,12 @@ class ResetPassword {
             const { email } = req.body
             const { role } = req.params
 
-            if (!['user', 'admin', 'mechanic'].includes(role)) {
-                throw new ApiError('Invalid Role', HttpStatus.BAD_REQUEST)
+            // if (!['user', 'admin', 'mechanic'].includes(role)) {
+            //     throw new ApiError('Invalid Role', HttpStatus.BAD_REQUEST)
+            // }
+
+            if (!Object.values(Role).includes(role as Role)) {
+                throw new ApiError('Invalid Role', HttpStatus.BAD_REQUEST);
             }
 
             emailValidation.parse({ email })
@@ -79,8 +83,11 @@ class ResetPassword {
           
             const { role } = req.params
 
-            if (!['user', 'admin', 'mechanic'].includes(role)) {
-                throw new ApiError('Invalid Role', HttpStatus.BAD_REQUEST)
+            // if (!['user', 'admin', 'mechanic'].includes(role)) {
+            //     throw new ApiError('Invalid Role', HttpStatus.BAD_REQUEST)
+            // }
+            if (!Object.values(Role).includes(role as Role)) {
+                throw new ApiError('Invalid Role', HttpStatus.BAD_REQUEST);
             }
 
             const {email,otpResent}:CustomJwtPayload = validToken
@@ -128,8 +135,12 @@ class ResetPassword {
           
             const { role } = req.params
 
-            if (!['user', 'admin', 'mechanic'].includes(role)) {
-                throw new ApiError('Invalid Role', HttpStatus.BAD_REQUEST)
+            // if (!['user', 'admin', 'mechanic'].includes(role)) {
+            //     throw new ApiError('Invalid Role', HttpStatus.BAD_REQUEST)
+            // }
+
+            if (!Object.values(Role).includes(role as Role)) {
+                throw new ApiError('Invalid Role', HttpStatus.BAD_REQUEST);
             }
 
             const {_id,email,} = validToken

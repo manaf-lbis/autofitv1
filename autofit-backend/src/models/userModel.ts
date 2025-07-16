@@ -1,5 +1,6 @@
 import mongoose, { Schema, Document ,Types} from 'mongoose';
 import { User } from '../types/user/user';
+import { Role } from '../types/role';
 
 export interface UserDocument extends Document<Types.ObjectId>, User  {}
 
@@ -12,7 +13,7 @@ const userSchema: Schema<UserDocument> = new Schema(
     mobile: { type: String },
     role: {
       type: String,
-      enum: ['user', 'admin', 'mechanic'],
+      enum: Object.values(Role),
       required: true
     },
     googleId: { type: String },

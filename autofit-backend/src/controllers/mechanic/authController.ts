@@ -123,7 +123,7 @@ export class AuthController {
                 email,
                 password,
                 mobile,
-                role: role || 'mechanic'
+                role: role || Role.MECHANIC
             });
             const token = this._tokenService.generateAccessToken({ id: _id, role })
 
@@ -183,6 +183,11 @@ export class AuthController {
 
     async logout(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
+
+            const userId = req.user?.id;
+            if (!userId) throw new ApiError("Not authenticated!", HttpStatus.BAD_REQUEST);
+
+            await this._authService.logout(userId);
             res.clearCookie('jwt', {
                 httpOnly: true,
                 sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',

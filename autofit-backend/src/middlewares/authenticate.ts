@@ -5,6 +5,7 @@ import { UserModel } from '../models/userModel';
 import { MechanicModel } from '../models/mechanicModel';
 import { ApiError } from '../utils/apiError';
 import { HttpStatus } from '../types/responseCode';
+import { Role } from '../types/role';
 
 const tokenService = new TokenService();
 
@@ -17,14 +18,14 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
     req.user = decoded; 
 
 
-    if (decoded.password || decoded.role === 'admin') {
+    if (decoded.password || decoded.role === Role.ADMIN) {
       return next();
     }
     
     let userDoc;
-    if (decoded.role === 'user') {
+    if (decoded.role === Role.USER) {
       userDoc = await UserModel.findById(decoded.id).select('status');
-    } else if (decoded.role === 'mechanic') {
+    } else if (decoded.role === Role.MECHANIC) {
       userDoc = await MechanicModel.findById(decoded.id).select('status');
     }
 

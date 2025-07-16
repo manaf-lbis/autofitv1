@@ -9,6 +9,8 @@ import { IPaymentGateayRepository } from "../../repositories/interfaces/IPayment
 import { IQuotationRepository } from "../../repositories/interfaces/IQuotationRepository";
 import { IPaymentRepository } from "../../repositories/interfaces/IPaymentRepository";
 import { IUserRoadsideService } from "./interface/IUserRoadsideService";
+import { Role } from "../../types/role";
+import logger from "../../utils/logger";
 
 export class UserRoadsideService implements IUserRoadsideService {
   constructor(
@@ -70,23 +72,27 @@ export class UserRoadsideService implements IUserRoadsideService {
 
     await this._mechanicProfileRepo.update(mechanicId, { availability: 'busy' })
 
-    const notification = await this._notificationRepository.save(
-      {
-        message: `Emergency - ${vehicle.regNo.toUpperCase()} Requested For RoadSide Assistance.`,
-        recipientId: mechanicId,
-        recipientType: 'mechanic',
-      })
+    const notification = await this._notificationRepository.save({
+      message: `Emergency - ${vehicle.regNo.toUpperCase()} Requested For RoadSide Assistance.`,
+      recipientId: mechanicId,
+      recipientType: Role.MECHANIC,
+    })
+
+    logger.info(`Emergency - ${vehicle.regNo.toUpperCase()} Requested For RoadSide Assistance.`)
 
     return { notification, emergencyAssistance }
   }
 
-  async approveQuoteAndPay({ serviceId, quotationId ,userId }: { serviceId: Types.ObjectId, quotationId: Types.ObjectId,userId:Types.ObjectId }) {
+  async approveQuoteAndPay({ serviceId, quotationId, userId }: { serviceId: Types.ObjectId, quotationId: Types.ObjectId, userId: Types.ObjectId }) {
 
     const service = await this._roadsideAssistanceRepo.findById(serviceId);
     const quotation = await this._quotaionRepo.findById(quotationId);
     const payment = await this._paymentRepo.veryfyPaymentStatus(serviceId.toString());
 
-    if(payment?.status === 'success') throw new ApiError('Payment Already Done')
+    if (payment?.status === 'success'){
+      logger.info('Payment Already Done')
+      throw new ApiError('Payment Already Done')
+    } 
 
     if (payment?.createdAt) {
       const createdAt = new Date(payment.createdAt).getTime();
@@ -95,7 +101,7 @@ export class UserRoadsideService implements IUserRoadsideService {
 
       if (now < expiry) {
         throw new ApiError(`Previous payment is still processing. Try after 10 Minutes`);
-      }else{
+      } else {
         await this._paymentRepo.deletePayment(serviceId.toString())
       }
     }
@@ -107,7 +113,7 @@ export class UserRoadsideService implements IUserRoadsideService {
     const { orderId } = await this._razorpayRepository.createOrder(quotation.total, serviceId.toString());
 
     await this._paymentRepo.createPayment({
-      userId : userId,
+      userId: userId,
       serviceId,
       paymentId: '',
       amount: quotation.total,
@@ -116,7 +122,7 @@ export class UserRoadsideService implements IUserRoadsideService {
       receipt: orderId
     })
 
-    
+    logger.info(`payment created for ${serviceId}`)
 
     return { orderId, mechanicId: service.mechanicId }
   }
@@ -137,11 +143,16 @@ export class UserRoadsideService implements IUserRoadsideService {
       receipt: order.receipt
     });
 
-    if(!paymentDoc) throw new ApiError('Invalid Payment')
+    if (!paymentDoc){
+      logger.info('Invalid Payment Details')
+      throw new ApiError('Invalid Payment')
+    } 
 
     const response = await this._roadsideAssistanceRepo.update(order.notes.serviceId, { status: 'in_progress', startedAt: new Date(), paymentId: paymentDoc._id })
     if (!response?.quotationId) throw new ApiError('Invalid Service')
     await this._quotaionRepo.update(response.quotationId, { status: 'approved' })
+
+    logger.info(`payment verified for ${response._id}`)
     return { mechanicId: response.mechanicId }
 
   }

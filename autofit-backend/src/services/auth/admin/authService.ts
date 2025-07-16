@@ -18,7 +18,10 @@ export class AdminAuthService implements IAdminAuthService {
   async login(email: string, password: string) {
 
     const admin = await this._adminRepository.findByEmail(email);
-    if (!admin) throw new ApiError("Invalid email or password", HttpStatus.NOT_FOUND);
+    if (!admin){
+      logger.error(`Admin ${email} not found`);
+      throw new ApiError("Invalid email or password", HttpStatus.NOT_FOUND);
+    } 
 
     const INVALID_ATTEMPTS = Number(process.env.MAX_INVALID_PASSWORD_ATTEMPT);
 
@@ -57,6 +60,10 @@ export class AdminAuthService implements IAdminAuthService {
     await this._adminRepository.storeRefreshToken(admin._id, refreshToken);
     return { token: accessToken, user: { name: admin.name, role: admin.role } };
 
+  }
+
+  async logout(userId: Types.ObjectId): Promise<void> {
+    await this._adminRepository.update(userId, { refreshToken: '' });
   }
 
 

@@ -13,6 +13,9 @@ import mechanicRoute from './routes/mechanic/mechanicRoutes'
 import adminRoute from './routes/admin/adminRoute'
 import chatRoute from './routes/common/chatRoutes'
 import assetRoute from './routes/common/assetsRoute'
+import httpLogger from "./utils/httpLogger";
+import morgan from 'morgan'
+
 
 dotenv.config();
 
@@ -34,6 +37,16 @@ app.use((req, res, next) => {
   const delay = 1500; 
   setTimeout(() => next(), delay);
 });
+
+app.use(
+  morgan(':method :url :status :res[content-length] - :response-time ms', {
+    stream: {
+      write: (message) => httpLogger.info(message.trim()),
+    },
+  })
+);
+
+
 
 app.use("/auth/:role/reset-password",resetPassword)
 app.use("/auth/user", userAuth);

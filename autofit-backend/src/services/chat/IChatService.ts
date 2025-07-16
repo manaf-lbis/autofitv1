@@ -1,5 +1,6 @@
 import { Types } from "mongoose";
 import { ChatDocument } from "../../models/chatModel";
+import { Role } from "../../types/role";
 
 export interface IChatService {
   getChatsForService(
@@ -14,9 +15,9 @@ export interface IChatService {
     serviceId: string,
     serviceType: string,
     senderId: string,
-    senderRole: "user" | "mechanic",
+    senderRole: Role.USER | Role.MECHANIC,
     receiverId: string,
-    receiverRole: "user" | "mechanic",
+    receiverRole: Role.USER | Role.MECHANIC,
     message: string
   ): Promise<ChatDocument>;
 

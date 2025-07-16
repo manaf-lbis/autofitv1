@@ -5,6 +5,7 @@ import { Types } from "mongoose";
 import { IRoadsideAssistanceRepo } from "../../repositories/interfaces/IRoadsideAssistanceRepo";
 import { IChatService } from "./IChatService";
 import { HttpStatus } from "../../types/responseCode";
+import { Role } from "../../types/role";
 
 export class ChatService implements IChatService{
 
@@ -26,7 +27,7 @@ export class ChatService implements IChatService{
     return chats
   }
 
-  async saveMessage(serviceId: string,serviceType: string,senderId: string,senderRole: "user" | "mechanic",receiverId: string,receiverRole: "user" | "mechanic",message: string): Promise<ChatDocument> {
+  async saveMessage(serviceId: string,serviceType: string,senderId: string,senderRole: Role.USER | Role.MECHANIC,receiverId: string,receiverRole: Role.USER | Role.MECHANIC,message: string): Promise<ChatDocument> {
 
     if (!serviceId || !serviceType || !senderId || !receiverId || !message) {
       throw new ApiError("All message fields are required", HttpStatus.BAD_REQUEST);

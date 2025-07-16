@@ -28,17 +28,24 @@ const authController = new AuthController(authService, otpService, tokenService,
 
 
 
-router.post('/login', (req, res, next) => authController.login(req, res, next));
-router.post('/signup', (req, res, next) => authController.signup(req, res, next));
-router.post('/verify-otp', authenticate, (req, res, next) => authController.verifyOtp(req, res, next));
-router.post('/google/callback', (req, res, next) => authController.googleCallback(req, res, next));
+// router.post('/login', (req, res, next) => authController.login(req, res, next));
+// router.post('/signup', (req, res, next) => authController.signup(req, res, next));
+// router.post('/verify-otp', authenticate, (req, res, next) => authController.verifyOtp(req, res, next));
+// router.post('/google/callback', (req, res, next) => authController.googleCallback(req, res, next));
+// router.post('/logout', (req, res, next) => authController.logout(req, res, next));
+// router.post('/resent-otp', authenticate, (req, res, next) => authController.resentOtp(req, res, next));
+// router.get('/me', authenticate, authorize(['mechanic']), (req, res, next) => authController.getUser(req, res, next))
+// router.post("/refresh", (req, res, next) => authController.refreshToken(req, res, next));
 
-router.post('/logout', (req, res, next) => authController.logout(req, res, next));
-router.post('/resent-otp', authenticate, (req, res, next) => authController.resentOtp(req, res, next));
 
-
-router.get('/me', authenticate, authorize(['mechanic']), (req, res, next) => authController.getUser(req, res, next))
-router.post("/refresh", (req, res, next) => authController.refreshToken(req, res, next));
+router.post('/login', authController.login.bind(authController));
+router.post('/signup', authController.signup.bind(authController));
+router.post('/verify-otp', authenticate, authController.verifyOtp.bind(authController));
+router.post('/google/callback', authController.googleCallback.bind(authController));
+router.post('/logout', authController.logout.bind(authController));
+router.post('/resent-otp', authenticate, authController.resentOtp.bind(authController));
+router.get('/me', authenticate, authorize(['mechanic']), authController.getUser.bind(authController));
+router.post("/refresh", authController.refreshToken.bind(authController));
 
 
 

@@ -4,6 +4,7 @@ import { RoadsideAssistanceModel } from "../models/roadsideAssistanceModel";
 import { ApiError } from "../utils/apiError";
 import { IChatRepository } from "./interfaces/IChatRepository";
 import { HttpStatus } from "../types/responseCode";
+import { Role } from "../types/role";
 
 
 
@@ -53,7 +54,7 @@ export class ChatRepository implements IChatRepository {
         ]);
     }
 
-    async sendMessage(serviceId: string, serviceType: string, senderId: string, senderRole: "user" | "mechanic", receiverId: string, receiverRole: "user" | "mechanic", message: string): Promise<ChatDocument> {
+    async sendMessage(serviceId: string, serviceType: string, senderId: string, senderRole: Role.USER | Role.MECHANIC, receiverId: string, receiverRole: Role.USER | Role.MECHANIC, message: string): Promise<ChatDocument> {
 
         const chat: ChatDocument = new ChatMessageModel({
             serviceId: new Types.ObjectId(serviceId),

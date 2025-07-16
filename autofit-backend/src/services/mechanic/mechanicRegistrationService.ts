@@ -3,6 +3,7 @@ import { ApiError } from "../../utils/apiError";
 import { CreateUserInput } from "../../types/user/userInput";
 import { IMechanicRegistrationService } from "./interface/IMechanicRegistrationService";
 import { HttpStatus } from "../../types/responseCode";
+import { Role } from "../../types/role";
 
 
 export class MechanicRegistrationService implements IMechanicRegistrationService {
@@ -22,7 +23,7 @@ export class MechanicRegistrationService implements IMechanicRegistrationService
             throw new ApiError("User already exists", HttpStatus.BAD_REQUEST);
         }
 
-        const {role,_id} = await this._mechanicRepository.save({email,password,mobile,name,role:'mechanic'});
+        const {role,_id} = await this._mechanicRepository.save({email,password,mobile,name,role:Role.MECHANIC});
         return {_id:_id.toString(),name,role}
           
     }

@@ -1,4 +1,5 @@
 import { Types } from "mongoose"
+import { Role } from "../role"
 
 export interface Mechanic {
   _id: Types.ObjectId,
@@ -7,7 +8,7 @@ export interface Mechanic {
   mobile: string,
   avatar: string,
   password: string,
-  role: 'user' | 'admin' | 'mechanic',
+  role: Role,
   status: 'active' | 'blocked',
   refreshToken: string
   failedLoginAttempts: number

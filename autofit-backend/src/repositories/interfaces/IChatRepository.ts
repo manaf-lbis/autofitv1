@@ -1,4 +1,5 @@
 import { ChatDocument } from "../../models/chatModel";
+import { Role } from "../../types/role";
 
 export interface IChatRepository {
   getChatsForService(serviceId: string, serviceType: string, userId: string): Promise<ChatDocument[]>;
@@ -7,9 +8,9 @@ export interface IChatRepository {
     serviceId: string,
     serviceType: string,
     senderId: string,
-    senderRole: "user" | "mechanic",
+    senderRole:Exclude<Role, Role.ADMIN>,
     receiverId: string,
-    receiverRole: "user" | "mechanic",
+    receiverRole: Exclude<Role, Role.ADMIN>,
     message: string
   ): Promise<ChatDocument>;
   markMessageAsSeen(serviceId: string,userId:string): Promise<void>;

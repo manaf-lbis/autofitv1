@@ -21,8 +21,4 @@ export class PaymentRepository implements IPaymentRepository {
         return await PaymentModel.findOneAndUpdate({ serviceId: entity.serviceId }, {...entity },{new: true});
     }
 
-
-
-
-
 }

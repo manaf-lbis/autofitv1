@@ -16,8 +16,8 @@ const pageController = new PageController(pageService)
 
 const router = Router();
 
-router.get('/dashboard',(req,res,next)=>pageController.dashboard(req,res,next));
-router.get('/info',(req,res,next)=>pageController.primaryInfo(req,res,next));
+router.get('/dashboard',pageController.dashboard.bind(pageController));
+router.get('/info',pageController.primaryInfo.bind(pageController));
 
 
 

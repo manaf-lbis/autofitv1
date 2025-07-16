@@ -6,6 +6,7 @@ import { loginValidation } from "../../validation/authValidation";
 import { AdminGoogleAuthService } from "../../services/auth/admin/googleAuthService";
 import logger from "../../utils/logger";
 import { HttpStatus } from "../../types/responseCode";
+import { Role } from "../../types/role";
 
 
 export class AdminAuthController {
@@ -64,6 +65,10 @@ export class AdminAuthController {
 
   async logout(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
+      const userId = req.user?.id;
+      if(!userId) throw new ApiError("Not authenticated!", HttpStatus.BAD_REQUEST);
+
+      await this._adminAuthService.logout(userId);
       res.clearCookie("jwt", {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
@@ -82,7 +87,7 @@ export class AdminAuthController {
         throw new ApiError("Not authenticated!", HttpStatus.UNAUTHORIZED);
       }
 
-      if (req.user.role !== 'admin') {
+      if (req.user.role !== Role.ADMIN) {
         throw new ApiError("Forbidden: Insufficient permissions", HttpStatus.FORBIDDEN);
       }
 

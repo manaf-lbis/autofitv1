@@ -8,6 +8,7 @@ import { IMechanicProfileRepository } from "../../../repositories/interfaces/IMe
 import { Types } from "mongoose";
 import { IAuthService } from "./interface/IAuthService";
 import { HttpStatus } from "../../../types/responseCode";
+import { Role } from "../../../types/role";
 
 export class AuthService implements IAuthService {
     constructor(
@@ -64,6 +65,9 @@ export class AuthService implements IAuthService {
         return { token: accessToken, user: { name: mechanic.name, role: mechanic.role } };
 
     }
+    async logout(userId: Types.ObjectId): Promise<void> {
+        await this._mechanicRepository.update(userId, { refreshToken: '' });
+    }
 
     async signup(name: string, email: string, password: string, mobile: string) {
 
@@ -72,13 +76,13 @@ export class AuthService implements IAuthService {
 
         const passwordHash = await this._hashService.hash(password)
 
-        await this._otpService.saveAndSentOtp(email, 'mechanic')
+        await this._otpService.saveAndSentOtp(email, Role.MECHANIC)
         const token = this._tokenService.generateAccessToken({
             name,
             password: passwordHash,
             email,
             mobile,
-            role: 'mechanic'
+            role: Role.MECHANIC
         })
         return { token, message: 'OTP sent successfully' }
     }

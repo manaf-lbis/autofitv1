@@ -10,6 +10,7 @@ import { TokenService } from "../../services/token/tokenService";
 import { OtpService } from "../../services/otp/otpService";
 import { Role } from "../../types/role";
 import { HttpStatus } from "../../types/responseCode";
+import logger from "../../utils/logger";
 
 export class AuthController {
 
@@ -35,6 +36,7 @@ export class AuthController {
                 path: '/',
                 maxAge: Number(process.env.JWT_COOKIE_MAX_AGE)
             });
+            logger.info(`${email} logined`);
 
             sendSuccess(res, 'Login Successful', result.user);
         } catch (error: any) {
@@ -81,13 +83,12 @@ export class AuthController {
 
             await this._otpService.verifyOtp(otp, email)
 
-
             const { _id } = await this._userRegistrationService.registerUser({
                 name,
                 email,
                 password,
                 mobile,
-                role: role || 'user'
+                role: role || Role.USER
             });
             const token = this._tokenService.generateAccessToken({ id: _id, role })
 
@@ -145,6 +146,13 @@ export class AuthController {
 
     async logout(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
+
+            const userId = req.user?.id
+            console.log(userId);
+            
+            if(!userId) throw new ApiError("Not authenticated!", HttpStatus.BAD_REQUEST);
+            
+            await this._authService.logout(userId)
             res.clearCookie('jwt', {
                 httpOnly: true,
                 sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',

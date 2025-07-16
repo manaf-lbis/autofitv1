@@ -4,6 +4,7 @@ import { ApiError } from "../../../utils/apiError";
 import { TokenService } from "../../token/tokenService";
 import { IAdminGoogleAuthService } from "./interface/IAdminGoogleAuthService";
 import { HttpStatus } from "../../../types/responseCode";
+import { Role } from "../../../types/role";
 
 const authClient = new OAuth2Client(
   process.env.GOOGLE_CLIENT_ID,
@@ -39,7 +40,7 @@ export class AdminGoogleAuthService implements IAdminGoogleAuthService {
 
     const admin = await this._adminRepository.findByEmail(email);
 
-    if (!admin || admin.role !== "admin") {
+    if (!admin || admin.role !== Role.ADMIN) {
       throw new ApiError("Access Denied. Not an Admin", HttpStatus.FORBIDDEN);
     }
 

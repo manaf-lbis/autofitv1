@@ -1,5 +1,6 @@
 import mongoose, { Schema, Document,Types } from 'mongoose';
 import { Admin } from '../types/admin';
+import { Role } from '../types/role';
 
 
 export interface AdminDocument extends Admin,Document<Types.ObjectId> {}
@@ -23,7 +24,8 @@ const adminSchema: Schema <AdminDocument> = new Schema<AdminDocument>({
     },
     role: {
         type: String,
-        enum: ['user', 'admin', 'mechanic']
+        enum: Object.values(Role),
+        default:'admin'
     },
     googleId:{
         type:String

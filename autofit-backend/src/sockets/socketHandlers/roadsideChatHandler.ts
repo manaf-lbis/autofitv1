@@ -6,6 +6,7 @@ import { RoadsideAssistanceModel } from "../../models/roadsideAssistanceModel";
 import { ApiError } from "../../utils/apiError";
 import { getIO } from "../socket";
 import { RoadsideAssistanceRepository } from "../../repositories/roadsideAssistanceRepo";
+import { Role } from "../../types/role";
 
 export const roadsideChatHandler = (socket: Socket) => {
   const chatRepository = new ChatRepository();
@@ -29,7 +30,7 @@ export const roadsideChatHandler = (socket: Socket) => {
 
       let serviceDoc;
       let receiverId;
-      let receiverRole: 'user' | 'mechanic';
+      let receiverRole: Role.USER | Role.MECHANIC;
 
       const { serviceId, message } = data;
       const { id: senderId, role: senderRole } = verifyJwt(socket);
@@ -37,15 +38,15 @@ export const roadsideChatHandler = (socket: Socket) => {
 
       if (!serviceDoc) throw new ApiError('Service not found');
 
-      if (senderRole === 'user') {
+      if (senderRole === Role.USER) {
         if (serviceDoc?.userId.toString() !== senderId) throw new ApiError("You are not authorized for this service");
         receiverId = serviceDoc.mechanicId.toString();
-        receiverRole = 'mechanic'
+        receiverRole = Role.MECHANIC
 
-      } else if (senderRole === 'mechanic') {
+      } else if (senderRole === Role.MECHANIC) {
         if (serviceDoc.mechanicId.toString() !== senderId) throw new ApiError("You are not authorized for this service");
         receiverId = serviceDoc.userId.toString();
-        receiverRole = 'user';
+        receiverRole = Role.USER;
 
       } else {
         throw new ApiError('invalid user')

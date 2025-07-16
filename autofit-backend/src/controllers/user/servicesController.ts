@@ -6,6 +6,7 @@ import { UserRoadsideService } from '../../services/roadsideAssistance/userRoads
 import { Types } from 'mongoose';
 import { getIO, userSocketMap } from '../../sockets/socket';
 import { RoadsideService } from '../../services/roadsideAssistance/roadsideService';
+import logger from '../../utils/logger';
 
 
 export class ServicesController {
@@ -145,6 +146,7 @@ export class ServicesController {
         try {
             const { serviceId } = req.body
             await this._roadsideService.cancelService(serviceId)
+            logger.info('Service Cancelled by User')
             sendSuccess(res, 'Service Cancelled')
 
         } catch (error) {

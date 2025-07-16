@@ -4,6 +4,7 @@ import { ApiError } from "../../../utils/apiError";
 import { TokenService } from "../../token/tokenService";
 import { IGoogleAuthService } from "./interface/IGoogleAuthService";
 import { HttpStatus } from "../../../types/responseCode";
+import { Role } from "../../../types/role";
 
 const authClient = new OAuth2Client(
   process.env.GOOGLE_CLIENT_ID,
@@ -43,9 +44,9 @@ export class GoogleAuthService implements IGoogleAuthService{
     if (!user) {
       user = await this._userRepository.save({
         email,
-        role: "user",
+        role: Role.USER,
         googleId: sub,
-        name: name || "User",
+        name: name || Role.USER,
       });
     }
 

@@ -21,9 +21,14 @@ const resetPasswordController = new  ResetPasswordController(resetPasswordServic
 
 const router = Router({ mergeParams: true })
 
-router.post('/verify-email',(req,res,next)=>resetPasswordController.verifyEmailandSentOtp(req,res,next))
-router.post('/verify-otp',(req,res,next)=>resetPasswordController.verifyOtp(req,res,next))
-router.post('/resent-otp',(req,res,next)=>resetPasswordController.resentOtp(req,res,next))
-router.post('/updatePassword',(req,res,next)=>resetPasswordController.updatePassword(req,res,next))
+// router.post('/verify-email',(req,res,next)=>resetPasswordController.verifyEmailandSentOtp(req,res,next))
+// router.post('/verify-otp',(req,res,next)=>resetPasswordController.verifyOtp(req,res,next))
+// router.post('/resent-otp',(req,res,next)=>resetPasswordController.resentOtp(req,res,next))
+// router.post('/updatePassword',(req,res,next)=>resetPasswordController.updatePassword(req,res,next))
+
+router.post('/verify-email',resetPasswordController.verifyEmailandSentOtp.bind(resetPasswordController))
+router.post('/verify-otp',resetPasswordController.verifyOtp.bind(resetPasswordController))
+router.post('/resent-otp',resetPasswordController.resentOtp.bind(resetPasswordController))
+router.post('/updatePassword',resetPasswordController.updatePassword.bind(resetPasswordController))
 
 export default router
