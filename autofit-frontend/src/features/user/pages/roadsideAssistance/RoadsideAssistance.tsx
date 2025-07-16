@@ -12,8 +12,7 @@ import {
   Shield,
   Star,
   MessageCircle,
-  MapPin,
-} from "lucide-react"
+  MapPin } from "lucide-react"
 import { Link } from "react-router-dom"
 
 export default function RoadsideAssistance() {
@@ -65,7 +64,7 @@ export default function RoadsideAssistance() {
 
         {/* Services Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-16">
-          {services.map((service, index) => (
+          {services.map((service) => (
             <Link to={`/user/roadside-assistance/mechanic-booking`} key={service.id} className="group">
               <div className="bg-white/25 backdrop-blur-md border border-white/30 rounded-3xl p-8 shadow-xl hover:shadow-2xl hover:bg-white/35 transition-all duration-500 hover:-translate-y-2 h-full flex flex-col">
                 {/* Icon */}

@@ -46,7 +46,7 @@ export default function RoadsideDetails() {
   useEffect(() => {
     const socket = initSocket();
     socket.on('roadside_assistance_changed', () => refetch());
-    return () => { socket.off('roadside_assistance_changed'); };
+    return () => { socket.off('roadside_assistance_changed')};
   }, [refetch]);
 
   useEffect(() => {
