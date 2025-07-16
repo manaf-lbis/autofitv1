@@ -47,7 +47,6 @@ app.use(
 );
 
 
-
 app.use("/auth/:role/reset-password",resetPassword)
 app.use("/auth/user", userAuth);
 app.use("/auth/admin", adminAuth);
@@ -61,10 +60,6 @@ app.use("/chat",chatRoute)
 app.use("/assets",assetRoute)
 
 
-
 app.use(errorHandler);
-
-
-
 
 export default app

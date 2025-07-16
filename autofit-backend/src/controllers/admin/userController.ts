@@ -1,15 +1,15 @@
 import { Request, Response, NextFunction } from "express";
-import { UserServices } from "../../services/admin/userServices";
 import { User } from "../../types/user/user";
 import { sendSuccess } from "../../utils/apiResponse";
 import { Types } from "mongoose";
 import { getIO, userSocketMap } from "../../sockets/socket";
+import { IUserService } from "../../services/admin/interface/IUserServices";
 
 
 
 export class UserController {
     constructor(
-        private _userServices: UserServices
+        private _userServices: IUserService
     ) {}
 
 

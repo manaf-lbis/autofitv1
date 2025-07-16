@@ -1,4 +1,5 @@
 import { ObjectId } from "mongodb";
+import { Types } from "mongoose";
 
 export interface IAuthService {
     login(email: string, password: string): Promise<{
@@ -29,6 +30,7 @@ export interface IAuthService {
     }>;
 
     validateRefreshToken(token: string): Promise<string>;
+    logout(userId: Types.ObjectId): Promise<void>;
 
     refreshAccessToken(
         userId: string

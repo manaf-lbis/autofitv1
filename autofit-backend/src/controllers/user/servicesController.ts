@@ -2,17 +2,17 @@ import { NextFunction, Request, Response } from 'express';
 
 import { sendSuccess } from '../../utils/apiResponse';
 import { ApiError } from '../../utils/apiError';
-import { UserRoadsideService } from '../../services/roadsideAssistance/userRoadsideService';
 import { Types } from 'mongoose';
 import { getIO, userSocketMap } from '../../sockets/socket';
-import { RoadsideService } from '../../services/roadsideAssistance/roadsideService';
 import logger from '../../utils/logger';
+import { IUserRoadsideService } from '../../services/roadsideAssistance/interface/IUserRoadsideService';
+import { IRoadsideService } from '../../services/roadsideAssistance/interface/IRoadsideService';
 
 
 export class ServicesController {
     constructor(
-        private _userRoadsideService: UserRoadsideService,
-        private _roadsideService: RoadsideService
+        private _userRoadsideService: IUserRoadsideService,
+        private _roadsideService: IRoadsideService
     ) { }
 
 

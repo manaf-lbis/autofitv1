@@ -1,18 +1,17 @@
 import { Request, Response, NextFunction } from "express";
-import { AdminAuthService } from "../../services/auth/admin/authService"; 
 import { sendSuccess } from "../../utils/apiResponse";
 import { ApiError } from "../../utils/apiError";
 import { loginValidation } from "../../validation/authValidation";
-import { AdminGoogleAuthService } from "../../services/auth/admin/googleAuthService";
 import logger from "../../utils/logger";
 import { HttpStatus } from "../../types/responseCode";
 import { Role } from "../../types/role";
-
+import { IAdminAuthService } from "../../services/auth/admin/interface/IAdminAuthService";
+import { IAdminGoogleAuthService } from "../../services/auth/admin/interface/IAdminGoogleAuthService";
 
 export class AdminAuthController {
   constructor(
-    private _adminAuthService: AdminAuthService,
-    private _googleAuthService: AdminGoogleAuthService
+    private _adminAuthService: IAdminAuthService,
+    private _googleAuthService: IAdminGoogleAuthService
   ) {}
 
   async login(req: Request, res: Response, next: NextFunction): Promise<void> {

@@ -1,30 +1,26 @@
-import ResetPasswordService from "../../services/auth/common/resetPasswordService";
 import { Request, Response, NextFunction } from "express";
 import { Role } from "../../types/role";
 import { ApiError } from "../../utils/apiError";
-import { OtpService } from "../../services/otp/otpService";
 import { emailValidation } from "../../validation/authValidation";
 import { sendSuccess } from "../../utils/apiResponse";
-import { TokenService } from "../../services/token/tokenService";
 import { CustomJwtPayload } from "../../types/express";
 import { HttpStatus } from "../../types/responseCode";
+import { IResetPasswordService } from "../../services/auth/common/interface/IResetPasswordService";
+import { IOtpService } from "../../services/otp/IOtpService";
+import { ITokenService } from "../../services/token/ITokenService";
 
 
 class ResetPassword {
     constructor(
-        private _resetPasswordService: ResetPasswordService,
-        private _otpService: OtpService,
-        private _tokenService: TokenService
+        private _resetPasswordService: IResetPasswordService,
+        private _otpService: IOtpService,
+        private _tokenService: ITokenService
     ) { }
 
     async verifyEmailandSentOtp(req: Request, res: Response, next: NextFunction) {
         try {
             const { email } = req.body
             const { role } = req.params
-
-            // if (!['user', 'admin', 'mechanic'].includes(role)) {
-            //     throw new ApiError('Invalid Role', HttpStatus.BAD_REQUEST)
-            // }
 
             if (!Object.values(Role).includes(role as Role)) {
                 throw new ApiError('Invalid Role', HttpStatus.BAD_REQUEST);
@@ -83,9 +79,6 @@ class ResetPassword {
           
             const { role } = req.params
 
-            // if (!['user', 'admin', 'mechanic'].includes(role)) {
-            //     throw new ApiError('Invalid Role', HttpStatus.BAD_REQUEST)
-            // }
             if (!Object.values(Role).includes(role as Role)) {
                 throw new ApiError('Invalid Role', HttpStatus.BAD_REQUEST);
             }
@@ -135,9 +128,6 @@ class ResetPassword {
           
             const { role } = req.params
 
-            // if (!['user', 'admin', 'mechanic'].includes(role)) {
-            //     throw new ApiError('Invalid Role', HttpStatus.BAD_REQUEST)
-            // }
 
             if (!Object.values(Role).includes(role as Role)) {
                 throw new ApiError('Invalid Role', HttpStatus.BAD_REQUEST);

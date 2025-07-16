@@ -1,15 +1,15 @@
 import { NextFunction, Request, Response } from 'express';
-import { VehicleService } from '../../services/vehicle/vehicleService';
 import { Types } from 'mongoose';
 import { sendSuccess } from '../../utils/apiResponse';
 import { ApiError } from '../../utils/apiError';
 import { HttpStatus } from '../../types/responseCode';
+import { IVehicleService } from '../../services/vehicle/IVehicleService';
 
 
 
 export class VehicleController {
     constructor(
-        private _vehicleService : VehicleService
+        private _vehicleService : IVehicleService
     ){}
 
     
@@ -91,7 +91,6 @@ export class VehicleController {
             next(error)
         }
     }
-
 
     
 }

@@ -1,9 +1,9 @@
 import { NextFunction, Request, Response } from "express";
 import { sendSuccess } from "../../utils/apiResponse";
 import { ApiError } from "../../utils/apiError";
-import { ProfileService } from "../../services/mechanic/profileService";
 import { mechanicRegisterValidation } from "../../validation/mechanicValidation";
 import { HttpStatus } from "../../types/responseCode";
+import { IProfileService } from "../../services/mechanic/interface/IProfileService";
 
 
 interface CloudinaryFile extends Express.Multer.File {
@@ -12,7 +12,7 @@ interface CloudinaryFile extends Express.Multer.File {
 
 export class ProfileController {
     constructor(
-        private _mechanicProfileService: ProfileService,
+        private _mechanicProfileService: IProfileService,
     ) { }
 
     async profile(req: Request, res: Response, next: NextFunction): Promise<void> {

@@ -1,23 +1,23 @@
 import { Request, Response, NextFunction } from "express";
 import { loginValidation, signupValidation } from "../../validation/authValidation";
 import { sendSuccess } from "../../utils/apiResponse";
-import { AuthService } from "../../services/auth/mechanic/authService";
 import { ApiError } from "../../utils/apiError";
 import { CustomJwtPayload } from "../../types/express";
-import { OtpService } from "../../services/otp/otpService";
-import { TokenService } from "../../services/token/tokenService";
-import { MechanicRegistrationService } from "../../services/mechanic/mechanicRegistrationService";
 import { Role } from "../../types/role";
-import { GoogleAuthService } from "../../services/auth/mechanic/googleAuthService";
 import { HttpStatus } from "../../types/responseCode";
+import { IAuthService } from "../../services/auth/mechanic/interface/IAuthService";
+import { IOtpService } from "../../services/otp/IOtpService";
+import { ITokenService } from "../../services/token/ITokenService";
+import { IMechanicRegistrationService } from "../../services/mechanic/interface/IMechanicRegistrationService";
+import { IGoogleAuthService } from "../../services/auth/mechanic/interface/IGoogleAuthService";
 
 export class AuthController {
     constructor(
-        private _authService: AuthService,
-        private _otpService: OtpService,
-        private _tokenService: TokenService,
-        private _mechanicRegistrationService: MechanicRegistrationService,
-        private _googleAuthService: GoogleAuthService
+        private _authService: IAuthService,
+        private _otpService: IOtpService,
+        private _tokenService: ITokenService,
+        private _mechanicRegistrationService: IMechanicRegistrationService,
+        private _googleAuthService: IGoogleAuthService
 
     ) { }
 

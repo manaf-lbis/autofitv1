@@ -1,25 +1,25 @@
 import { Request, Response, NextFunction } from "express";
-import { AuthService } from "../../services/auth/user/authService";
 import { loginValidation, signupValidation } from "../../validation/authValidation";
-import { UserRegistrationService } from "../../services/user/userRegistrationService";
 import { CustomJwtPayload } from "../../types/express/index";
 import { sendSuccess } from "../../utils/apiResponse";
 import { ApiError } from "../../utils/apiError";
-import { GoogleAuthService } from "../../services/auth/user/googleAuthService";
-import { TokenService } from "../../services/token/tokenService";
-import { OtpService } from "../../services/otp/otpService";
 import { Role } from "../../types/role";
 import { HttpStatus } from "../../types/responseCode";
 import logger from "../../utils/logger";
+import { IAuthService } from "../../services/auth/user/interface/IAuthService";
+import { IUserRegistrationService } from "../../services/user/Interface/IUserRegistrationService";
+import { IGoogleAuthService } from "../../services/auth/user/interface/IGoogleAuthService";
+import { ITokenService } from "../../services/token/ITokenService";
+import { IOtpService } from "../../services/otp/IOtpService";
 
 export class AuthController {
 
     constructor(
-        private _authService: AuthService,
-        private _userRegistrationService: UserRegistrationService,
-        private _googleAuthService: GoogleAuthService,
-        private _tokenService: TokenService,
-        private _otpService: OtpService,
+        private _authService: IAuthService,
+        private _userRegistrationService: IUserRegistrationService,
+        private _googleAuthService: IGoogleAuthService,
+        private _tokenService: ITokenService,
+        private _otpService: IOtpService,
     ) { }
 
     async login(req: Request, res: Response, next: NextFunction): Promise<void> {

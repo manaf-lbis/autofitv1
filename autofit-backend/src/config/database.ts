@@ -1,4 +1,5 @@
-import mongoose from "mongoose";;
+import mongoose from "mongoose";import logger from "../utils/logger";
+;
 
 export const connectDB = async ()=>{
     try {
@@ -7,6 +8,7 @@ export const connectDB = async ()=>{
        console.log('Databse Connected successfully');
         
     } catch (error) {
+        logger.error('Database connection failed',error);
         console.log(error);
         process.exit(1) 
     }

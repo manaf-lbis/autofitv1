@@ -1,11 +1,11 @@
 import { Request, Response, NextFunction } from "express";
-import { ChatService } from "../../services/chat/chatService"; 
 import { ApiError } from "../../utils/apiError";
 import { sendSuccess } from "../../utils/apiResponse";
+import { IChatService } from "../../services/chat/IChatService";
 
 export class ChatController {
   constructor(
-    private _chatService: ChatService
+    private _chatService: IChatService
   ) { }
 
   async getChatsForService(req: Request, res: Response, next: NextFunction) {

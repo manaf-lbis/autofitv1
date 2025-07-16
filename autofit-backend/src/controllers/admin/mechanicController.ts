@@ -1,19 +1,19 @@
 import { NextFunction, Request, Response } from "express";
-import { MechanicService } from "../../services/admin/mechanicSevice";
 import { MechanicDocument } from "../../models/mechanicModel";
 import { sendSuccess } from "../../utils/apiResponse";
 import { Types } from "mongoose";
 import { MechanicProfileDocument } from "../../models/mechanicProfileModel";
-import { ProfileService } from "../../services/mechanic/profileService";
 import { ApiError } from "../../utils/apiError";
 import { getIO, userSocketMap } from "../../sockets/socket";  
 import { HttpStatus } from "../../types/responseCode";
+import { IMechanicService } from "../../services/admin/interface/IMechanicServices";
+import { IProfileService } from "../../services/mechanic/interface/IProfileService";
 
 
 export class MechanicController {
     constructor(
-        private _mechanicService: MechanicService,
-        private _mechanicProfileService : ProfileService
+        private _mechanicService: IMechanicService,
+        private _mechanicProfileService : IProfileService
 
 
     ) { }
@@ -68,7 +68,7 @@ export class MechanicController {
                 }
             }
             
-            sendSuccess(res, 'Status Changed') // block or unblock
+            sendSuccess(res, 'Status Changed') 
 
         } catch (error) {
             next(error)

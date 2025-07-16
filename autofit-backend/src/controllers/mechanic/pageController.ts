@@ -1,12 +1,12 @@
 import { NextFunction, Request, Response } from "express";
 import { sendSuccess } from "../../utils/apiResponse";
-import { PageService } from "../../services/mechanic/pageService";
 import { ApiError } from "../../utils/apiError";
+import { IPageService } from "../../services/mechanic/interface/IPageService";
 
 
 export class PageController {
     constructor(
-        private _pageService: PageService
+        private _pageService: IPageService
     ) { }
 
     async dashboard(req: Request, res: Response, next: NextFunction): Promise<void> {

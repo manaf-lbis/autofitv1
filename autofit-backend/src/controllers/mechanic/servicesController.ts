@@ -1,15 +1,15 @@
 import { NextFunction, Request, Response } from "express";
 import { sendSuccess } from "../../utils/apiResponse";
-import { RoadsideService } from "../../services/roadsideAssistance/roadsideService";
 import { Types } from "mongoose";
 import { ApiError } from "../../utils/apiError";
 import { getIO, userSocketMap } from "../../sockets/socket";
+import { IRoadsideService } from "../../services/roadsideAssistance/interface/IRoadsideService";
 
 
 
 export class ServicesController {
     constructor(
-        private _roadsideService: RoadsideService
+        private _roadsideService: IRoadsideService
     ) {}
 
     async roadsideAssistanceDetails(req: Request, res: Response, next: NextFunction): Promise<void> {

@@ -8,4 +8,6 @@ export interface IAdminAuthService {
   refreshAccessToken(userId: string): Promise<{ accessToken: string }>;
 
   getUser(id: Types.ObjectId): Promise<{ name: string; role: string; email: string }>;
+
+  logout(userId: Types.ObjectId): Promise<void>;
 }

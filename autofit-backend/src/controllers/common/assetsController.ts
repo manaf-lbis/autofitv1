@@ -1,10 +1,12 @@
 import { NextFunction, Request, Response } from "express";
-import { AssetsService } from "../../services/assets/assetsService";
 import { ApiError } from "../../utils/apiError";
 import { HttpStatus } from "../../types/responseCode";
+import { IAssetsService } from "../../services/assets/IAssetService";
 
 export class AssetsController {
-  constructor(private _assetService: AssetsService) {}
+  constructor(
+    private _assetService: IAssetsService
+  ) {}
 
   async getAsset(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
