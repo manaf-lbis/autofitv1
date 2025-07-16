@@ -3,12 +3,13 @@ import { AuthService } from "../../services/auth/user/authService";
 import { loginValidation, signupValidation } from "../../validation/authValidation";
 import { UserRegistrationService } from "../../services/user/userRegistrationService";
 import { CustomJwtPayload } from "../../types/express/index";
-import { sendSuccess, StatusCode } from "../../utils/apiResponse";
+import { sendSuccess } from "../../utils/apiResponse";
 import { ApiError } from "../../utils/apiError";
 import { GoogleAuthService } from "../../services/auth/user/googleAuthService";
 import { TokenService } from "../../services/token/tokenService";
 import { OtpService } from "../../services/otp/otpService";
 import { Role } from "../../types/role";
+import { HttpStatus } from "../../types/responseCode";
 
 export class AuthController {
 
@@ -68,7 +69,7 @@ export class AuthController {
             const { otp } = req.body;
 
             if (!req.user) {
-                res.status(401).json({ message: "Unauthorized No token" });
+                res.status(HttpStatus.UNAUTHORIZED).json({ message: "Unauthorized No token" });
                 return;
             }
 
@@ -98,7 +99,7 @@ export class AuthController {
                 maxAge: Number(process.env.JWT_COOKIE_MAX_AGE)
             });
 
-            sendSuccess(res, 'OTP verified successfully', { name, role, email, mobile }, StatusCode.CREATED)
+            sendSuccess(res, 'OTP verified successfully', { name, role, email, mobile }, HttpStatus.CREATED)
 
         } catch (error: any) {
             next(error);
@@ -109,7 +110,7 @@ export class AuthController {
         try {
 
             if (!req?.user?.id) {
-                throw new ApiError("Not authenticated!", 401)
+                throw new ApiError("Not authenticated!", HttpStatus.UNAUTHORIZED);
             }
 
             const data = await this._authService.getUser(req.user.id)
@@ -162,7 +163,7 @@ export class AuthController {
         try {
 
             if (!req.user) {
-                res.status(401).json({ message: "Unauthorized No token" });
+                res.status(HttpStatus.UNAUTHORIZED).json({ message: "Unauthorized No token" });
                 return;
             }
 
@@ -187,7 +188,7 @@ export class AuthController {
             const token = req.cookies.jwt || req.headers.authorization?.split(" ")[1];
 
             if (!token) {
-                throw new ApiError("No token provided", 401);
+                throw new ApiError("No token provided", HttpStatus.UNAUTHORIZED);
             }
 
             const decoded = this._tokenService.verifyToken(token, true);

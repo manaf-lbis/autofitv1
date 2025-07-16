@@ -42,14 +42,6 @@ class ErrorBoundary extends Component<{ children: React.ReactNode }, { hasError:
     this.state = { hasError: false };
   }
 
-  // static getDerivedStateFromError(_: Error): { hasError: boolean } { 
-  //   return { hasError: true };
-  // }
-
-  // componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-  //   console.error("Error caught in ErrorBoundary:", error, errorInfo);
-  // }
-
   render() {
     if (this.state.hasError) {
       return <p className="text-red-600">Something went wrong. Please try again.</p>;

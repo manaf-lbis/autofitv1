@@ -4,6 +4,8 @@ import { sendSuccess } from "../../utils/apiResponse";
 import { ApiError } from "../../utils/apiError";
 import { loginValidation } from "../../validation/authValidation";
 import { AdminGoogleAuthService } from "../../services/auth/admin/googleAuthService";
+import logger from "../../utils/logger";
+import { HttpStatus } from "../../types/responseCode";
 
 
 export class AdminAuthController {
@@ -14,6 +16,7 @@ export class AdminAuthController {
 
   async login(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
+      logger.info("Admin logined");
       const { email, password } = req.body;
       loginValidation.parse({ email, password });
 
@@ -38,7 +41,7 @@ export class AdminAuthController {
       const { code } = req.body;
 
       if (!code) {
-        throw new ApiError("Authorization code is required",400)
+        throw new ApiError("Authorization code is required", HttpStatus.BAD_REQUEST)
       }
 
       const { token, user } = await this._googleAuthService.loginWithGoogle({ code });
@@ -51,7 +54,7 @@ export class AdminAuthController {
         maxAge: Number(process.env.JWT_COOKIE_MAX_AGE) 
       });
 
-      sendSuccess(res,'Login Success',user)
+      sendSuccess(res,'Login Success', user)
 
     } catch (error) {
       next(error);
@@ -76,11 +79,11 @@ export class AdminAuthController {
   async getUser(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       if (!req.user?.id) {
-        throw new ApiError("Not authenticated!", 401);
+        throw new ApiError("Not authenticated!", HttpStatus.UNAUTHORIZED);
       }
 
       if (req.user.role !== 'admin') {
-        throw new ApiError("Forbidden: Insufficient permissions", 403);
+        throw new ApiError("Forbidden: Insufficient permissions", HttpStatus.FORBIDDEN);
       }
 
       const data = await this._adminAuthService.getUser(req.user.id);
@@ -93,7 +96,7 @@ export class AdminAuthController {
   async refreshToken(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const token = req.cookies.jwt || req.headers.authorization?.split(" ")[1];
-      if (!token) throw new ApiError("No token provided", 401);
+      if (!token) throw new ApiError("No token provided", HttpStatus.UNAUTHORIZED);
 
       const userId = await this._adminAuthService.validateRefreshToken(token);
       const result = await this._adminAuthService.refreshAccessToken(userId);
@@ -112,7 +115,6 @@ export class AdminAuthController {
       next(error);
     }
   }
-
 
 
 }

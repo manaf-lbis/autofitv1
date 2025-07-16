@@ -3,6 +3,7 @@ import { VehicleService } from '../../services/vehicle/vehicleService';
 import { Types } from 'mongoose';
 import { sendSuccess } from '../../utils/apiResponse';
 import { ApiError } from '../../utils/apiError';
+import { HttpStatus } from '../../types/responseCode';
 
 
 
@@ -17,11 +18,11 @@ export class VehicleController {
             const {regNo,brand,modelName,fuelType,owner} = req.body
 
             const userId = req.user?.id
-            if(!userId) throw new ApiError('User UnAuthorised',401)
+            if(!userId) throw new ApiError('User UnAuthorised',HttpStatus.UNAUTHORIZED)
 
             const newVehicle = await this._vehicleService.addVehicle({regNo,brand,modelName,fuelType,owner,userId})
           
-            sendSuccess(res,'New Vehicle Added',newVehicle,201)
+            sendSuccess(res,'New Vehicle Added',newVehicle,HttpStatus.CREATED)
             
         } catch (error) {
             next(error)
@@ -33,7 +34,7 @@ export class VehicleController {
         try {
 
             const userId = new Types.ObjectId(req.user?.id);
-            if(!userId) throw new ApiError('user Unauthenticated', 401);
+            if(!userId) throw new ApiError('user Unauthenticated', HttpStatus.UNAUTHORIZED);
 
             const response = await this._vehicleService.getVehicle(userId)
             sendSuccess(res,'vehicle Fetch Success',response)
@@ -50,7 +51,7 @@ export class VehicleController {
             const {regNo,brand,modelName,fuelType,owner,id:_id} = req.body;
 
             const userId = new Types.ObjectId(req.user?.id);
-            if(!userId) throw new ApiError('user Unauthenticated', 401);
+            if(!userId) throw new ApiError('user Unauthenticated', HttpStatus.UNAUTHORIZED);
 
             const response = await this._vehicleService.updateVehicle({regNo,brand,modelName,fuelType,owner,userId,_id})
         
@@ -65,8 +66,8 @@ export class VehicleController {
         try {
           const id = req.query.id
 
-          if(!req.user?.id) throw new ApiError('user Unauthenticated', 401);
-          if(!id) throw new ApiError('Invalid Parameters', 401);
+          if(!req.user?.id) throw new ApiError('user Unauthenticated', HttpStatus.UNAUTHORIZED);
+          if(!id) throw new ApiError('Invalid Parameters', HttpStatus.BAD_REQUEST);
 
           const userId = new Types.ObjectId(req.user?.id);
           const _id = new Types.ObjectId(id as string);

@@ -4,6 +4,7 @@ import { VehicleBrandRepository } from "../../repositories/vehicleBrandRepositor
 import { ApiError } from "../../utils/apiError";
 import { Vehicle } from "../../types/vehicle";
 import { IVehicleService } from "./IVehicleService";
+import { HttpStatus } from "../../types/responseCode";
 
 
 export class VehicleService implements IVehicleService {
@@ -23,7 +24,7 @@ export class VehicleService implements IVehicleService {
     }
 
     async updateVehicle( data : Vehicle){
-      if(!data._id) throw new ApiError('user not found',404)
+      if(!data._id) throw new ApiError('user not found',HttpStatus.NOT_FOUND)
 
       await this._vehicleRepository.updateByUserId(data)
     }

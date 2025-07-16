@@ -3,6 +3,7 @@ import { ApiError } from "../../../utils/apiError";
 import { TokenService } from "../../token/tokenService";
 import { IMechanicRepository } from "../../../repositories/interfaces/IMechanicRepository";
 import { IGoogleAuthService } from "./interface/IGoogleAuthService";
+import { HttpStatus } from "../../../types/responseCode";
 
 const authClient = new OAuth2Client(
   process.env.GOOGLE_CLIENT_ID,
@@ -49,7 +50,7 @@ export class GoogleAuthService implements IGoogleAuthService {
     }
 
     if (user.googleId !== sub) {
-      throw new ApiError("Google ID does not match our records", 401);
+      throw new ApiError("Google ID does not match our records", HttpStatus.FORBIDDEN);
     }
 
     const tokenPayload = { id: user._id, role: user.role };

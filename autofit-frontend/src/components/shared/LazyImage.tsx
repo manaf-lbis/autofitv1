@@ -19,7 +19,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
   const [loaded, setLoaded] = useState(false);
 
   return (
-    <div className={cn("relative w-full")}>
+    <div className={cn("relative")}>
       {!loaded && (
         <div className="absolute inset-0 flex items-center justify-center z-10">
           <Loader2 className="h-6 w-6 text-gray-500 animate-spin" />

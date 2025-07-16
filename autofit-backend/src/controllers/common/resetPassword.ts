@@ -7,6 +7,7 @@ import { emailValidation } from "../../validation/authValidation";
 import { sendSuccess } from "../../utils/apiResponse";
 import { TokenService } from "../../services/token/tokenService";
 import { CustomJwtPayload } from "../../types/express";
+import { HttpStatus } from "../../types/responseCode";
 
 
 class ResetPassword {
@@ -22,7 +23,7 @@ class ResetPassword {
             const { role } = req.params
 
             if (!['user', 'admin', 'mechanic'].includes(role)) {
-                throw new ApiError('Invalid Role', 404)
+                throw new ApiError('Invalid Role', HttpStatus.BAD_REQUEST)
             }
 
             emailValidation.parse({ email })
@@ -79,7 +80,7 @@ class ResetPassword {
             const { role } = req.params
 
             if (!['user', 'admin', 'mechanic'].includes(role)) {
-                throw new ApiError('Invalid Role', 404)
+                throw new ApiError('Invalid Role', HttpStatus.BAD_REQUEST)
             }
 
             const {email,otpResent}:CustomJwtPayload = validToken
@@ -128,7 +129,7 @@ class ResetPassword {
             const { role } = req.params
 
             if (!['user', 'admin', 'mechanic'].includes(role)) {
-                throw new ApiError('Invalid Role', 404)
+                throw new ApiError('Invalid Role', HttpStatus.BAD_REQUEST)
             }
 
             const {_id,email,} = validToken

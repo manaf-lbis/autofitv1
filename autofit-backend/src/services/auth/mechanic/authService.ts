@@ -7,6 +7,7 @@ import { IMechanicRepository } from "../../../repositories/interfaces/IMechanicR
 import { IMechanicProfileRepository } from "../../../repositories/interfaces/IMechanicProfileRepository";
 import { Types } from "mongoose";
 import { IAuthService } from "./interface/IAuthService";
+import { HttpStatus } from "../../../types/responseCode";
 
 export class AuthService implements IAuthService {
     constructor(
@@ -22,14 +23,14 @@ export class AuthService implements IAuthService {
     async login(email: string, password: string) {
 
         const mechanic = await this._mechanicRepository.findByEmail(email);
-        if (!mechanic) throw new ApiError("Invalid email or password", 404);
+        if (!mechanic) throw new ApiError("Invalid email or password", HttpStatus.NOT_FOUND);
 
         const INVALID_ATTEMPTS = Number(process.env.MAX_INVALID_PASSWORD_ATTEMPT);
 
-        if (mechanic.status === 'blocked') throw new ApiError('User Blocked - Contact Admin', 401);
+        if (mechanic.status === 'blocked') throw new ApiError('User Blocked - Contact Admin', HttpStatus.FORBIDDEN);
 
         if (mechanic.lockUntil && mechanic.lockUntil > new Date()) {
-            throw new ApiError(`Account locked until ${mechanic.lockUntil.toLocaleTimeString()}`, 423);
+            throw new ApiError(`Account locked until ${mechanic.lockUntil.toLocaleTimeString()}`, HttpStatus.FORBIDDEN);
         }
 
         const isMatch = await this._hashService.compare(password, mechanic.password);
@@ -46,7 +47,7 @@ export class AuthService implements IAuthService {
                 attempts >= INVALID_ATTEMPTS
                     ? "Account locked due to too many failed attempts"
                     : `Invalid credentials. ${INVALID_ATTEMPTS - attempts} tries left.`,
-                401
+                HttpStatus.UNAUTHORIZED
             );
         }
 
@@ -67,7 +68,7 @@ export class AuthService implements IAuthService {
     async signup(name: string, email: string, password: string, mobile: string) {
 
         const isExist = await this._mechanicRepository.findByEmail(email)
-        if (isExist) throw new ApiError('User With Email Already Exists!', 400)
+        if (isExist) throw new ApiError('User With Email Already Exists!', HttpStatus.BAD_REQUEST)
 
         const passwordHash = await this._hashService.hash(password)
 
@@ -85,15 +86,15 @@ export class AuthService implements IAuthService {
     async refreshAccessToken(userId: string): Promise<{ accessToken: string }> {
 
         const user = await this._mechanicRepository.findById(new Types.ObjectId(userId));
-        if (!user) throw new ApiError("User not found", 404);
+        if (!user) throw new ApiError("User not found", HttpStatus.NOT_FOUND);
 
         const storedRefreshToken = user.refreshToken;
-        if (!storedRefreshToken) throw new ApiError("No refresh token available", 401);
+        if (!storedRefreshToken) throw new ApiError("No refresh token available", HttpStatus.UNAUTHORIZED);
 
         try {
             this._tokenService.verifyToken(storedRefreshToken);
         } catch {
-            throw new ApiError("Invalid refresh token", 401);
+            throw new ApiError("Invalid refresh token", HttpStatus.UNAUTHORIZED);
         }
 
         const payload = { id: userId, role: user.role };

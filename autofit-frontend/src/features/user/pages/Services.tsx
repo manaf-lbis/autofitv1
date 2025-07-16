@@ -47,7 +47,7 @@ const services = [
     borderColor: "border-purple-200/50",
     href : '/pretrip-checkup/plans'
   },
-]
+];
 
 export default function ServicesPage() {
   const navigate = useNavigate()

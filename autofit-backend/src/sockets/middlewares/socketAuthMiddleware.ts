@@ -3,6 +3,7 @@ import { ApiError } from "../../utils/apiError";
 import { UserModel } from "../../models/userModel";
 import { MechanicModel } from "../../models/mechanicModel";
 import { verifyJwt } from "../verifyJwt";
+import { HttpStatus } from "../../types/responseCode";
 
 export interface User {
   id: string;
@@ -19,23 +20,23 @@ export const socketAuthMiddleware = async (socket: Socket): Promise<User> => {
     if (user.role === 'user') {
 
       const userDoc = await UserModel.findById(user.id).select('name')
-      if (!userDoc) throw new ApiError("User not found", 404);
+      if (!userDoc) throw new ApiError("User not found", HttpStatus.NOT_FOUND);
       name = userDoc.name
 
     } else if (user.role === "mechanic") {
 
       const mechanic = await MechanicModel.findById(user.id).select("name");
-      if (!mechanic) throw new ApiError("Mechanic not found", 404);
+      if (!mechanic) throw new ApiError("Mechanic not found", HttpStatus.NOT_FOUND);
       name = mechanic.name;
 
     } else {
-      throw new ApiError("Invalid role", 403);
+      throw new ApiError("Invalid role", HttpStatus.UNAUTHORIZED);
     }
 
     return {...user,name}
 
   } catch {
-    throw new ApiError("Invalid or expired token", 401);
+    throw new ApiError("Invalid or expired token", HttpStatus.UNAUTHORIZED);
   }
   
 };

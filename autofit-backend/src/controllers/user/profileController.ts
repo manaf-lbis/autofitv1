@@ -3,6 +3,7 @@ import { profileValidation } from "../../validation/authValidation";
 import { UserProfileService } from "../../services/user/userProfileService";
 import { ApiError } from "../../utils/apiError";
 import { sendSuccess } from "../../utils/apiResponse";
+import { HttpStatus } from "../../types/responseCode";
 
 export class ProfileController {
 
@@ -15,11 +16,11 @@ export class ProfileController {
     async updateUser(req: Request, res: Response, next: NextFunction) {
          try {
             
-            if(!req.body) throw new ApiError('Invalid Field',400)
+            if(!req.body) throw new ApiError('Invalid Field',HttpStatus.BAD_REQUEST)
             profileValidation.parse(req.body)
 
             const userId = req.user?.id 
-            if(!userId) throw new ApiError("Invalid User",400)
+            if(!userId) throw new ApiError("Invalid User",HttpStatus.UNAUTHORIZED)
 
             const user =  await this._profileService.updateUser({...req.body,userId})
             if(!user) throw new ApiError('Invalid User')

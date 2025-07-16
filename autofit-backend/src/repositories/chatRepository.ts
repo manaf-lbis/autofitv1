@@ -3,6 +3,7 @@ import { ChatDocument, ChatMessageModel } from "../models/chatModel";
 import { RoadsideAssistanceModel } from "../models/roadsideAssistanceModel";
 import { ApiError } from "../utils/apiError";
 import { IChatRepository } from "./interfaces/IChatRepository";
+import { HttpStatus } from "../types/responseCode";
 
 
 
@@ -18,7 +19,7 @@ export class ChatRepository implements IChatRepository {
             case "live":
                 return RoadsideAssistanceModel;
             default:
-                throw new ApiError("Invalid service type", 400);
+                throw new ApiError("Invalid service type", HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -28,9 +29,9 @@ export class ChatRepository implements IChatRepository {
 
         const service = await ServiceModel.findById(serviceId);
 
-        if (!service) throw new ApiError("Service not found", 404);
+        if (!service) throw new ApiError("Service not found", HttpStatus.NOT_FOUND);
 
-        if (service.userId.toString() !== userId) throw new ApiError("Unauthorized access to service chats", 403);
+        if (service.userId.toString() !== userId) throw new ApiError("Unauthorized access to service chats", HttpStatus.FORBIDDEN);
 
         return ChatMessageModel.find({ serviceId: new Types.ObjectId(serviceId), serviceType })
             .populate("senderId", "name")

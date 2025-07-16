@@ -3,6 +3,7 @@ import { sendSuccess } from "../../utils/apiResponse";
 import { ApiError } from "../../utils/apiError";
 import { ProfileService } from "../../services/mechanic/profileService";
 import { mechanicRegisterValidation } from "../../validation/mechanicValidation";
+import { HttpStatus } from "../../types/responseCode";
 
 
 interface CloudinaryFile extends Express.Multer.File {
@@ -34,11 +35,11 @@ export class ProfileController {
         const shopImage = files.shopImage?.[0];
         const qualification = files.qualification?.[0];
         if (!photo || !shopImage || !qualification) {
-            throw new ApiError('All files are required', 400);
+            throw new ApiError('All files are required', HttpStatus.BAD_REQUEST);
         }
 
         const mechanicId = req.user?.id;
-        if (!mechanicId) throw new ApiError('Unauthorized', 401);
+        if (!mechanicId) throw new ApiError('Unauthorized', HttpStatus.UNAUTHORIZED);
 
         const validated = mechanicRegisterValidation.parse(req.body);
         const { education, specialised, experience, shopName, place, landmark, location } = validated;

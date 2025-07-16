@@ -4,6 +4,7 @@ import { CustomJwtPayload } from '../types/express';
 import { UserModel } from '../models/userModel';
 import { MechanicModel } from '../models/mechanicModel';
 import { ApiError } from '../utils/apiError';
+import { HttpStatus } from '../types/responseCode';
 
 const tokenService = new TokenService();
 
@@ -11,7 +12,7 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
   const token = req.cookies.jwt || req.headers.authorization?.split(" ")[1];
 
   try {
-    if (!token) throw new ApiError('Access Denied. No Token Found',401)
+    if (!token) throw new ApiError('Access Denied. No Token Found',HttpStatus.UNAUTHORIZED);
     const decoded: CustomJwtPayload = tokenService.verifyToken(token);
     req.user = decoded; 
 
@@ -28,17 +29,17 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
     }
 
     if (!userDoc) {
-      res.status(401).json({ message: 'User Not Found' });
+      res.status(HttpStatus.NOT_FOUND).json({ message: 'User Not Found' });
       return;
     }
 
     if (userDoc.status === 'blocked') {
-      res.status(401).json({ message: 'Access Denied. User is Blocked' });
+      res.status(HttpStatus.FORBIDDEN).json({ message: 'Access Denied. User is Blocked' });
       return;
     }
 
     next();
   } catch {
-    res.status(401).json({ message: "Invalid or Expired Token" });
+    res.status(HttpStatus.UNAUTHORIZED).json({ message: "Invalid or Expired Token" });
   }
 };

@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { AssetsService } from "../../services/assets/assetsService";
 import { ApiError } from "../../utils/apiError";
+import { HttpStatus } from "../../types/responseCode";
 
 export class AssetsController {
   constructor(private _assetService: AssetsService) {}
@@ -10,10 +11,10 @@ export class AssetsController {
       const { publicId, resourceType } = req.query;
 
       if (!publicId || !resourceType) {
-        throw new ApiError("Missing publicId or resourceType", 400);
+        throw new ApiError("Missing publicId or resourceType", HttpStatus.BAD_REQUEST);
       }
       if (resourceType !== "image" && resourceType !== "raw") {
-        throw new ApiError("Invalid resourceType", 400);
+        throw new ApiError("Invalid resourceType", HttpStatus.BAD_REQUEST);
       }
 
       const signedUrl = await this._assetService.getAsset({ publicId: publicId as string, resourceType: resourceType as "image" | "raw" });
@@ -25,7 +26,7 @@ export class AssetsController {
 
       const contentType = response.headers.get("content-type");
       if (!contentType) {
-        throw new ApiError("Missing content type", 500);
+        throw new ApiError("Missing content type", HttpStatus.INTERNAL_SERVER_ERROR);
       }
 
       res.setHeader("Content-Type", contentType);

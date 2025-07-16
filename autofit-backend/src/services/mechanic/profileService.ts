@@ -7,6 +7,7 @@ import { MechanicProfileDocument } from "../../models/mechanicProfileModel";
 import { INotificationRepository } from "../../repositories/interfaces/INotificationRepository";
 import { IProfileService } from "./interface/IProfileService";
 import { MechanicRegisterPayload } from "./interface/IProfileService";
+import { HttpStatus } from "../../types/responseCode";
 
 
 export class ProfileService implements IProfileService {
@@ -21,7 +22,7 @@ export class ProfileService implements IProfileService {
     const { data, photo, shopImage, qualification, mechanicId } = payload;
 
     const mech = await this._mechanicRepository.findById(mechanicId);
-    if (!mech) throw new ApiError('Mechanic not found', 404);
+    if (!mech) throw new ApiError('Mechanic not found', HttpStatus.NOT_FOUND);
 
     const photoId = photo.public_id || photo.filename;
     const shopImageId = shopImage.public_id || shopImage.filename;
@@ -51,7 +52,7 @@ export class ProfileService implements IProfileService {
       
     } catch (err) {
       if (err instanceof ApiError) throw err;
-      throw new ApiError(`Error retrieving profile: ${(err as Error).message}`, 500);
+      throw new ApiError(`Error retrieving profile: ${(err as Error).message}`, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 

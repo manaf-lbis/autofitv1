@@ -7,6 +7,7 @@ import { MechanicProfileDocument } from "../../models/mechanicProfileModel";
 import { ProfileService } from "../../services/mechanic/profileService";
 import { ApiError } from "../../utils/apiError";
 import { getIO, userSocketMap } from "../../sockets/socket";  
+import { HttpStatus } from "../../types/responseCode";
 
 
 export class MechanicController {
@@ -88,7 +89,7 @@ export class MechanicController {
                 sortOrder: sortOrder as 'asc' | 'desc',
             });
 
-            res.status(200).json({
+            res.status(HttpStatus.OK).json({
                 status: 'success',
                 message: 'Pending applications fetched successfully',
                 data: result,

@@ -1,5 +1,6 @@
 
 import { IOtpRepository } from "../../repositories/interfaces/IOtpRepository";
+import { HttpStatus } from "../../types/responseCode";
 import { Role } from "../../types/role";
 import { ApiError } from "../../utils/apiError";
 import { HashService } from "../hash/hashService";
@@ -20,7 +21,7 @@ export class OtpService implements IOtpService {
 
     const now = new Date();
     if (!data || data.expiresAt < now) {
-      throw new ApiError("Please request a new OTP.", 400);
+      throw new ApiError("Please request a new OTP.", HttpStatus.BAD_REQUEST);
     }
 
     if (data.attempt >= Number(process.env.OTP_ATTEMPT_LIMIT)) {
@@ -30,7 +31,7 @@ export class OtpService implements IOtpService {
 
       throw new ApiError(
         `Too many invalid attempts. Try After : `,
-        400, {remainingTime:remainingSeconds}
+        HttpStatus.BAD_REQUEST, {remainingTime:remainingSeconds}
       );
     }
 
@@ -38,7 +39,7 @@ export class OtpService implements IOtpService {
 
     if (!isCorrect && data._id) {
       await this._otpRepository.incrementAttemptCount(data._id);
-      throw new ApiError(`Invalid OTP you have ${Number(process.env.OTP_ATTEMPT_LIMIT) - data.attempt} attempt left`, 400);
+      throw new ApiError(`Invalid OTP you have ${Number(process.env.OTP_ATTEMPT_LIMIT) - data.attempt} attempt left`, HttpStatus.BAD_REQUEST);
     }
 
     if (data._id) {
@@ -59,7 +60,7 @@ export class OtpService implements IOtpService {
      
       throw new ApiError(
         `Attempt already Exhausted Try After : `,
-        400,{remainingTime:remainingSeconds}
+        HttpStatus.BAD_REQUEST,{remainingTime:remainingSeconds}
       );
     }
 

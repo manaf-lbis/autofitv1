@@ -4,6 +4,8 @@ import { TokenService } from "../../token/tokenService";
 import { ApiError } from "../../../utils/apiError";
 import { Types } from "mongoose";
 import { IAdminAuthService } from "./interface/IAdminAuthService";
+import logger from "../../../utils/logger";
+import { HttpStatus } from "../../../types/responseCode";
 
 export class AdminAuthService implements IAdminAuthService {
 
@@ -16,12 +18,12 @@ export class AdminAuthService implements IAdminAuthService {
   async login(email: string, password: string) {
 
     const admin = await this._adminRepository.findByEmail(email);
-    if (!admin) throw new ApiError("Invalid email or password", 404);
+    if (!admin) throw new ApiError("Invalid email or password", HttpStatus.NOT_FOUND);
 
     const INVALID_ATTEMPTS = Number(process.env.MAX_INVALID_PASSWORD_ATTEMPT);
 
     if (admin.lockUntil && admin.lockUntil > new Date()) {
-      throw new ApiError(`Account locked until ${admin.lockUntil.toLocaleTimeString()}`, 423);
+      throw new ApiError(`Account locked until ${admin.lockUntil.toLocaleTimeString()}`, HttpStatus.FORBIDDEN);
     }
 
     const isMatch = await this._hashService.compare(password, admin.password);
@@ -33,12 +35,13 @@ export class AdminAuthService implements IAdminAuthService {
         failedLoginAttempts: attempts,
         ...(lockUntil && { lockUntil }),
       });
+      logger.error(`Admin ${admin.email} failed login attempts: ${attempts}`);
 
       throw new ApiError(
         attempts >= INVALID_ATTEMPTS
           ? "Account locked due to too many failed attempts"
           : `Invalid credentials. ${INVALID_ATTEMPTS - attempts} tries left.`,
-        401
+        HttpStatus.UNAUTHORIZED
       );
     }
 
@@ -62,26 +65,26 @@ export class AdminAuthService implements IAdminAuthService {
       const payload = this._tokenService.verifyToken(token);
       const storedToken = await this._adminRepository.getRefreshToken(payload.id);
       if (storedToken !== token) {
-        throw new ApiError("Invalid refresh token", 401);
+        throw new ApiError("Invalid refresh token", HttpStatus.UNAUTHORIZED);
       }
       return payload.id;
     } catch {
-      throw new ApiError("Invalid refresh token", 401);
+      throw new ApiError("Invalid refresh token", HttpStatus.UNAUTHORIZED);
     }
 
   }
 
   async refreshAccessToken(userId: string): Promise<{ accessToken: string }> {
     const admin = await this._adminRepository.findById(new Types.ObjectId(userId));
-    if (!admin) throw new ApiError("Admin not found", 404);
+    if (!admin) throw new ApiError("Admin not found", HttpStatus.NOT_FOUND);
 
     const storedRefreshToken = admin.refreshToken;
-    if (!storedRefreshToken) throw new ApiError("No refresh token available", 401);
+    if (!storedRefreshToken) throw new ApiError("No refresh token available", HttpStatus.UNAUTHORIZED);
 
     try {
       this._tokenService.verifyToken(storedRefreshToken);
     } catch {
-      throw new ApiError("Invalid refresh token", 401);
+      throw new ApiError("Invalid refresh token", HttpStatus.UNAUTHORIZED);
     }
     
     const payload = { id: userId, role: admin.role };
@@ -96,7 +99,7 @@ export class AdminAuthService implements IAdminAuthService {
   async getUser(id: Types.ObjectId) {
     const admin = await this._adminRepository.findById(id);
     if (!admin) {
-      throw new ApiError("Admin not found", 404);
+      throw new ApiError("Admin not found", HttpStatus.NOT_FOUND);
     }
     return { name: admin.name, role: admin.role , email : admin.email };
   }

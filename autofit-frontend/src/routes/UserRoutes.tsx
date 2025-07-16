@@ -8,7 +8,7 @@ import MyVehicle from "@/features/user/pages/profile/MyVehicle";
 import MechanicBooking from "@/features/user/pages/roadsideAssistance/MechanicBooking";
 import BookingSuccessPage from "@/features/user/pages/roadsideAssistance/RoadsideDetails";
 import PaymentPage from "@/features/user/pages/profile/PaymentPage";
-import PaymentStatusPage from "@/features/user/pages/profile/PaymentStatusPage";
+import PaymentStatusPage from "@/features/user/pages/roadsideAssistance/PaymentStatusPage";
 import UserSocketContext from "@/context/UserSocketContext";
 
 const UserRoutes: React.FC = () => {
