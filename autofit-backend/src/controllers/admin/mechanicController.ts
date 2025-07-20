@@ -14,8 +14,6 @@ export class MechanicController {
     constructor(
         private _mechanicService: IMechanicService,
         private _mechanicProfileService : IProfileService
-
-
     ) { }
 
     async getAllMechanic(req: Request, res: Response, next: NextFunction) {
