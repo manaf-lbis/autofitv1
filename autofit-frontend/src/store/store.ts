@@ -12,6 +12,7 @@ import { roadsideApi } from "@/services/mechanicServices/roadsideApi";
 import { userChatApi } from "@/services/userServices/userChatApi";
 import { adminChatApi } from "@/services/adminServices/adminChatApi";
 import { mechanicChatApi } from "@/services/mechanicServices/mechanicChatApi";
+import { planApi } from "@/services/adminServices/planApi";
 
 
 import authReducer from "../features/auth/slices/authSlice";
@@ -44,6 +45,7 @@ export const store = configureStore({
     [userChatApi.reducerPath]: userChatApi.reducer,
     [mechanicChatApi.reducerPath]: mechanicChatApi.reducer,
     [adminChatApi.reducerPath]: adminChatApi.reducer,
+    [planApi.reducerPath]: planApi.reducer,
 
   },
   
@@ -62,6 +64,7 @@ export const store = configureStore({
       userChatApi.middleware,
       mechanicChatApi.middleware,
       adminChatApi.middleware,
+      planApi.middleware,
     ),
 });
 

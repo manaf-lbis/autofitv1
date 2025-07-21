@@ -8,6 +8,7 @@ import AccountPage from "@/features/mechanic/pages/Account";
 import MechanicSocketContext from "@/context/MechanicSocketContext";
 import EmergencyDetails from "@/features/mechanic/pages/RoadsideAssistanceDetails";
 import Messages from "@/features/mechanic/pages/Messages";
+import PretripCheckup from "@/features/mechanic/pages/jobs/PretripCheckup";
 import NotFound from "@/features/mechanic/pages/NotFound";
 
 
@@ -24,6 +25,10 @@ const MechanicRoutes: React.FC = () => {
 
               <Route path="account" element={<AccountPage />} />
               <Route path="messages" element={<Messages/>} />
+              
+              <Route path="jobs/pre-trip-checkup" element={<PretripCheckup/>} />
+
+
               
               <Route path="/*" element={<NotFound/>} />
             </Route>

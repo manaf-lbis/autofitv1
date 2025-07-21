@@ -16,6 +16,12 @@ import {
   CheckCheck,
   RefreshCw,
   Loader2,
+  Receipt,
+  FileText,
+  MapPin,
+  DollarSign,
+  Timer,
+  Star,
 } from "lucide-react";
 import { useParams, useNavigate } from "react-router-dom";
 import { RoadsideStatusMech,useGenerateQuotationMutation,useRoadsideServiceDetailsQuery,useRoadsideStatusUpdateMutation } from "../../../services/mechanicServices/roadsideApi";
@@ -63,7 +69,7 @@ export default function BookingDetails() {
     return () => {
       socket.current?.off("roadside_assistance_changed")
     };
-  }, []);
+  }, [refetch]);
 
   useEffect(() => {
     socket.current?.emit("joinRoom", { room: `live_tracking_${params.id}`})
@@ -83,7 +89,6 @@ export default function BookingDetails() {
       socket.current?.emit("leaveRoom", { room: params.id });
     };
   }, [params.id, latitude, longitude, error]);
-
 
   const handleStatusChange = async (bookingId: string, status: RoadsideStatusMech) => {
     try {
@@ -108,6 +113,7 @@ export default function BookingDetails() {
         total: data.totalAmount,
       }).unwrap();
       refetch();
+      setIsModalOpen(false);
     } catch (error) {
       console.error("Failed to generate quotation", error);
     }
@@ -120,6 +126,25 @@ export default function BookingDetails() {
     setIsNavModalOpen(!isNavModalOpen);
   };
 
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleString('en-IN', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  };
+
+  const calculateDuration = (start: string, end: string) => {
+    const startTime = new Date(start).getTime();
+    const endTime = new Date(end).getTime();
+    const durationMs = endTime - startTime;
+    const hours = Math.floor(durationMs / (1000 * 60 * 60));
+    const minutes = Math.floor((durationMs % (1000 * 60 * 60)) / (1000 * 60));
+    return `${hours}h ${minutes}m`;
+  };
+
   if (isLoading) {
     return <BookingDetailsShimmer />;
   }
@@ -130,6 +155,14 @@ export default function BookingDetails() {
   }
 
   const booking = data?.data;
+
+  // Timeline data
+  const timelineEvents = [
+    { label: "Booking Created", time: booking.createdAt, icon: Calendar, color: "bg-gray-500" },
+    ...(booking.arrivedAt ? [{ label: "Arrived at Location", time: booking.arrivedAt, icon: MapPin, color: "bg-orange-500" }] : []),
+    ...(booking.startedAt ? [{ label: "Work Started", time: booking.startedAt, icon: Timer, color: "bg-blue-500" }] : []),
+    ...(booking.endedAt ? [{ label: "Work Completed", time: booking.endedAt, icon: CheckCircle, color: "bg-green-500" }] : []),
+  ].sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime());
 
   return (
     <div className="min-h-screen p-4 max-w-6xl mx-auto">
@@ -186,7 +219,7 @@ export default function BookingDetails() {
                 <span className="font-medium text-gray-900">{booking.user.mobile}</span>
               </div>
             </div>
-            {booking.status === "assigned" || booking.status === "on_the_way" && (
+            {(booking.status === "assigned" || booking.status === "on_the_way") && (
               <Button
                 onClick={handleNavigate}
                 className="w-full bg-blue-600 hover:bg-blue-700 mt-4 h-9 focus:outline-none"
@@ -259,15 +292,17 @@ export default function BookingDetails() {
                 <Calendar className="h-4 w-4 text-gray-500" />
                 <div>
                   <p className="text-sm text-gray-500">Booking Time</p>
-                  <p className="font-medium text-gray-900">{new Date(booking.createdAt).toLocaleString()}</p>
+                  <p className="font-medium text-gray-900">{formatDate(booking.createdAt)}</p>
                 </div>
               </div>
               {booking.endedAt && (
                 <div className="flex items-center space-x-3 p-3 bg-green-50 rounded-lg">
                   <Clock className="h-4 w-4 text-green-600" />
                   <div>
-                    <p className="text-sm text-gray-500">Completed Time</p>
-                    <p className="font-medium text-gray-900">{new Date(booking.endedAt).toLocaleString()}</p>
+                    <p className="text-sm text-gray-500">Total Duration</p>
+                    <p className="font-medium text-gray-900">
+                      {calculateDuration(booking.createdAt, booking.endedAt)}
+                    </p>
                   </div>
                 </div>
               )}
@@ -276,14 +311,108 @@ export default function BookingDetails() {
         </CardContent>
       </Card>
 
-      {/* Payment Details */}
+      {/* Timeline - Show only if work is in progress or completed */}
+      {(booking.status === "in_progress" || booking.status === "completed") && (
+        <Card className="shadow-sm border-0 bg-white mb-6">
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center text-base text-gray-900">
+              <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
+                <Timer className="h-4 w-4 text-blue-600" />
+              </div>
+              Service Timeline
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="relative">
+              {timelineEvents.map((event, index) => {
+                const IconComponent = event.icon;
+                return (
+                  <div key={index} className="flex items-start space-x-4 pb-6 last:pb-0">
+                    <div className="flex flex-col items-center">
+                      <div className={`w-8 h-8 ${event.color} rounded-full flex items-center justify-center`}>
+                        <IconComponent className="h-4 w-4 text-white" />
+                      </div>
+                      {index < timelineEvents.length - 1 && (
+                        <div className="w-px h-6 bg-gray-300 mt-2"></div>
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-gray-900">{event.label}</p>
+                      <p className="text-sm text-gray-500">{formatDate(event.time)}</p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Quotation Details - Show if quotation exists */}
+      {booking.quotationId && (
+        <Card className="shadow-sm border-0 bg-white mb-6">
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center text-base text-gray-900">
+              <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center mr-3">
+                <FileText className="h-4 w-4 text-purple-600" />
+              </div>
+              Service Quotation
+              <Badge className={`ml-2 ${booking.quotationId.status === 'approved' ? 'bg-green-500' : booking.quotationId.status === 'rejected' ? 'bg-red-500' : 'bg-yellow-500'} text-white`}>
+                {booking.quotationId.status.charAt(0).toUpperCase() + booking.quotationId.status.slice(1)}
+              </Badge>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="bg-gray-50 rounded-lg p-4">
+                <h4 className="font-medium text-gray-900 mb-3">Items & Services</h4>
+                <div className="space-y-3">
+                  {booking.quotationId.items.map((item: any, index: number) => (
+                    <div key={index} className="bg-white rounded-lg p-3 border border-gray-200">
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-2 mb-1">
+                            <span className="font-medium text-gray-900">{item.name}</span>
+                            <span className="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded">x {item.quantity}</span>
+                          </div>
+                          <div className="text-sm text-gray-600">
+                            ₹{item.price} per unit
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className="font-semibold text-gray-900">₹{item.price * item.quantity}</div>
+                          <div className="text-xs text-gray-500">Subtotal</div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div className="pt-4 mt-4 border-t-2 border-gray-300">
+                  <div className="flex justify-between items-center bg-blue-50 p-3 rounded-lg">
+                    <span className="font-semibold text-gray-900 text-lg">Total Amount</span>
+                    <span className="font-bold text-xl text-blue-600">₹{booking.quotationId.total}</span>
+                  </div>
+                </div>
+              </div>
+              <div className="flex justify-between text-sm text-gray-600">
+                <span>Generated on: {formatDate(booking.quotationId.createdAt)}</span>
+                {booking.quotationId.status === 'approved' && (
+                  <span className="text-green-600">✓ Approved by customer</span>
+                )}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Enhanced Payment Details */}
       <Card className="shadow-sm border-0 bg-white mb-6">
         <CardHeader className="pb-4">
           <CardTitle className="flex items-center text-base text-gray-900">
-            <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center mr-3">
-              <CreditCard className="h-4 w-4 text-purple-600" />
+            <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center mr-3">
+              <CreditCard className="h-4 w-4 text-green-600" />
             </div>
-            Payment Info
+            Payment Information
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -292,22 +421,100 @@ export default function BookingDetails() {
               <div className="flex items-start space-x-3">
                 <AlertTriangle className="h-5 w-5 text-yellow-600 mt-0.5" />
                 <div>
-                  <p className="font-medium text-yellow-800">Payment Not Completed</p>
-                  <p className="text-yellow-700 text-sm mt-1">Customer has not made the payment yet.</p>
+                  <p className="font-medium text-yellow-800">Payment Pending</p>
+                  <p className="text-yellow-700 text-sm mt-1">
+                    {booking.quotationId ? 
+                      `Waiting for payment of ₹${booking.quotationId.total}` : 
+                      "Customer has not made the payment yet."
+                    }
+                  </p>
                 </div>
               </div>
             </div>
           ) : (
-            <div className="flex justify-between py-2 border-b border-gray-100">
-              <span className="text-sm text-gray-600">Payment Status</span>
-              <div className="flex items-center">
-                <CheckCircle className="h-4 w-4 text-green-600 mr-1" />
-                <span className="font-medium text-green-600">Completed</span>
+            <div className="space-y-4">
+              <div className="bg-green-50 border border-green-200 p-4 rounded-lg">
+                <div className="flex items-center space-x-3 mb-3">
+                  <CheckCircle className="h-5 w-5 text-green-600" />
+                  <p className="font-medium text-green-800">Payment Successful</p>
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between py-2 border-b border-gray-100">
+                    <span className="text-sm text-gray-600 flex items-center">
+                      <DollarSign className="h-4 w-4 mr-1" />
+                      Amount
+                    </span>
+                    <span className="font-semibold text-gray-900">₹{booking.paymentId.amount}</span>
+                  </div>
+                  <div className="flex items-center justify-between py-2 border-b border-gray-100">
+                    <span className="text-sm text-gray-600">Method</span>
+                    <span className="font-medium text-gray-900 capitalize">{booking.paymentId.method}</span>
+                  </div>
+                  <div className="flex items-center justify-between py-2 border-b border-gray-100">
+                    <span className="text-sm text-gray-600">Status</span>
+                    <Badge className="bg-green-500 text-white">Success</Badge>
+                  </div>
+                </div>
+                
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between py-2 border-b border-gray-100">
+                    <span className="text-sm text-gray-600 flex items-center">
+                      <Receipt className="h-4 w-4 mr-1" />
+                      Payment ID
+                    </span>
+                    <span className="font-mono text-sm text-gray-900">{booking.paymentId.paymentId}</span>
+                  </div>
+                  <div className="flex items-center justify-between py-2 border-b border-gray-100">
+                    <span className="text-sm text-gray-600">Receipt</span>
+                    <span className="font-mono text-sm text-gray-900">{booking.paymentId.receipt}</span>
+                  </div>
+                  <div className="flex items-center justify-between py-2 border-b border-gray-100">
+                    <span className="text-sm text-gray-600">Payment Date</span>
+                    <span className="text-sm text-gray-900">{formatDate(booking.paymentId.createdAt)}</span>
+                  </div>
+                </div>
               </div>
             </div>
           )}
         </CardContent>
       </Card>
+
+      {/* Job Summary for Completed Work */}
+      {booking.status === "completed" && (
+        <Card className="shadow-sm border-0 bg-white mb-6">
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center text-base text-gray-900">
+              <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center mr-3">
+                <Star className="h-4 w-4 text-green-600" />
+              </div>
+              Job Summary
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="text-center p-4 bg-white rounded-lg shadow-sm">
+                <div className="text-2xl font-bold text-green-600">{booking.quotationId?.items.length || 0}</div>
+                <div className="text-sm text-gray-600">Items Serviced</div>
+              </div>
+              <div className="text-center p-4 bg-white rounded-lg shadow-sm">
+                <div className="text-2xl font-bold text-blue-600">
+                  {booking.startedAt && booking.endedAt ? 
+                    calculateDuration(booking.startedAt, booking.endedAt) : '-'
+                  }
+                </div>
+                <div className="text-sm text-gray-600">Work Duration</div>
+              </div>
+              <div className="text-center p-4 bg-white rounded-lg shadow-sm">
+                <div className="text-2xl font-bold text-purple-600">₹{booking.paymentId?.amount || 0}</div>
+                <div className="text-sm text-gray-600">Total Earned</div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Action Buttons */}
       <div className="space-y-3">
@@ -374,7 +581,11 @@ export default function BookingDetails() {
 
         {booking.status === "quotation_sent" && (
           <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-lg">
-            <p className="text-yellow-800 font-medium">Waiting for approval</p>
+            <div className="flex items-center space-x-3">
+              <Clock className="h-5 w-5 text-yellow-600" />
+              <p className="text-yellow-800 font-medium">Waiting for customer approval</p>
+            </div>
+            <p className="text-sm text-yellow-700 mt-1">The quotation has been sent to the customer for approval.</p>
           </div>
         )}
 
@@ -402,7 +613,10 @@ export default function BookingDetails() {
           <div className="bg-green-50 border border-green-200 p-4 rounded-lg">
             <div className="flex items-center space-x-3">
               <CheckCheck className="h-5 w-5 text-green-600" />
-              <p className="font-medium text-green-800">Job Completed</p>
+              <div>
+                <p className="font-medium text-green-800">Job Completed Successfully!</p>
+                <p className="text-sm text-green-700">Service completed on {formatDate(booking.endedAt)}</p>
+              </div>
             </div>
           </div>
         )}
@@ -416,3 +630,4 @@ export default function BookingDetails() {
     </div>
   );
 }
+
