@@ -1,11 +1,11 @@
 export interface Feature {
-  id: string
+  _id: string
   name: string
   createdAt: string
 }
 
 export interface Plan {
-  id: string
+  _id: string
   name: string
   description: string
   price: number
@@ -28,7 +28,6 @@ export interface CreatePlanRequest {
 
 export interface ApiResponse<T> {
   success: boolean
-  data?: T
+  data: T
   message?: string
-  error?: string
 }

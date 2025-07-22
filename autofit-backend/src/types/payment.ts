@@ -1,6 +1,6 @@
 import { ObjectId } from "mongodb";
 
-export interface Payment {
+export interface IPayment {
   _id: ObjectId;
   userId: ObjectId;
   serviceId: ObjectId;
