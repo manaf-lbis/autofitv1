@@ -4,4 +4,5 @@ import { FilterQuery } from 'mongoose';
 
 export interface IPretripPlanRepository extends IBaseRepository<PretripPlanDocument>{
     findWithFilters(query: FilterQuery<PretripPlanDocument>): Promise<PretripPlanDocument[]>
+    planWithFeatures(): Promise<any>
 }

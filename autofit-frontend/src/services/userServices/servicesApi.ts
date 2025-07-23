@@ -49,7 +49,7 @@ export const servicesApi = createApi({
                 body: data
             })
         }),
-
+        
         cancelBooking: builder.mutation<any,{serviceId:string}>({
             query: ({serviceId}) => ({
                 url: `user/services/roadside-assistance/cancel`,
@@ -65,13 +65,8 @@ export const servicesApi = createApi({
                 body: data
             })
         }),
-        
-        
-
 
     }),
-
-
 
 });
 

@@ -58,4 +58,8 @@ export class PretripPlanService implements IPretripPlanService {
         await this._pretripFeatureRepository.delete(id);
     }
 
+    async plansWithFeatureNames(): Promise<IPretripPlan[] | void[]> {
+        return await this._pretripPlanRepository.planWithFeatures()
+    }
+
 }

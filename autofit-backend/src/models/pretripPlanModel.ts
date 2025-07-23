@@ -26,7 +26,8 @@ const planSchema : Schema<PretripPlanDocument> = new Schema<PretripPlanDocument>
         min: 0
     },
     features: [{
-        type: String,
+        type: Schema.Types.ObjectId,
+        ref: 'feature',
         required: true
     }],
     isActive: {

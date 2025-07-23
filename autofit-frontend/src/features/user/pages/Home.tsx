@@ -10,7 +10,6 @@ import FeatureShowcase from "../components/home/FeatureShowcase";
 
 const Home :React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
-  console.log("Home component rendered");
 
   return (
     <div className="bg-white" ref={containerRef}>
