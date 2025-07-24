@@ -59,7 +59,13 @@ export class PretripPlanService implements IPretripPlanService {
     }
 
     async plansWithFeatureNames(): Promise<IPretripPlan[] | void[]> {
-        return await this._pretripPlanRepository.planWithFeatures()
+        return await this._pretripPlanRepository.plansWithFeatures()
     }
+
+    async getPlan(id: Types.ObjectId): Promise<IPretripPlan | null> {
+        return await this._pretripPlanRepository.findPlanDetails(id)
+    }
+
+    
 
 }

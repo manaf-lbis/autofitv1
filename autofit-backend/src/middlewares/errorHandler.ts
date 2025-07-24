@@ -5,7 +5,7 @@ import logger from '../utils/logger';
 
 export const errorHandler = (err: ApiError, req: Request, res: Response, next:NextFunction ) => {
 
-  logger.error(err.message);
+  logger.error(err.message,err.stack);
   
   const statusCode = err.statusCode || HttpStatus.INTERNAL_SERVER_ERROR;
   const message = err.message || 'Something went wrong';

@@ -10,12 +10,14 @@ import BookingSuccessPage from "@/features/user/pages/roadsideAssistance/Roadsid
 import PaymentPage from "@/features/user/pages/profile/PaymentPage";
 import PaymentStatusPage from "@/features/user/pages/roadsideAssistance/PaymentStatusPage";
 import UserSocketContext from "@/context/UserSocketContext";
+import PretripCheckupBooking from "@/features/user/pages/PreTripCheckup/PretripCheckupBooking";
 
 const UserRoutes: React.FC = () => {
   return (
     <UserSocketContext>
       <Routes>
         <Route element={<ProtectedRoute allowedRoles={["user"]} />}>
+      
           <Route element={<MainLayout />}>
             <Route element={<ProfileLayout />}>
               <Route path="profile" element={<ProfilePage />} />
@@ -27,10 +29,13 @@ const UserRoutes: React.FC = () => {
 
             <Route path="roadside-assistance/mechanic-booking" element={<MechanicBooking />} />
             <Route path="roadside-assistance/:id/details" element={<BookingSuccessPage />} />
+            <Route path="pretrip-checkup/booking/:id" element={<PretripCheckupBooking/>} />
           </Route>
 
           <Route path="payment/status/:status" element={<PaymentStatusPage />} />
           <Route path="payment/:id" element={<PaymentPage />} />
+
+          
           
         </Route>
       </Routes>

@@ -1,5 +1,5 @@
 
-import { format,isToday,isYesterday,isThisWeek,parseISO,formatDistanceToNowStrict,isValid} from 'date-fns';
+import { format,isToday,isYesterday,isThisWeek,parseISO,isValid} from 'date-fns';
 
 export const formatTimeToNow = (dateString: string): string => {
     const date = new Date(dateString);
@@ -27,3 +27,9 @@ export const formatDateTime = (dateString: string | null) => {
 
     return format(parsedDate, "MMM d, yyyy, hh:mm a");
 };
+
+
+export function convertTo12HourFormat(isoDateTime:string) {
+  const date = parseISO(isoDateTime);
+  return format(date, 'h:mm a');
+}

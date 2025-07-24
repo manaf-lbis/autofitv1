@@ -13,7 +13,6 @@ export const mechanicApi = createApi({
 
   endpoints: (builder) => ({
 
-    //registration
     registerMechanic: builder.mutation<SuccessResponse, FormData>({
       query: (formData) => ({
         url: "/mechanic/profile/register",

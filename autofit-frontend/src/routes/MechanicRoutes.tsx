@@ -12,6 +12,7 @@ import PretripCheckup from "@/features/mechanic/pages/jobs/PretripCheckup";
 import NotFound from "@/features/mechanic/pages/NotFound";
 
 
+
 const MechanicRoutes: React.FC = () => {
   return (
     <MechanicSocketContext>
@@ -27,7 +28,6 @@ const MechanicRoutes: React.FC = () => {
               <Route path="messages" element={<Messages/>} />
               
               <Route path="jobs/pre-trip-checkup" element={<PretripCheckup/>} />
-
 
               
               <Route path="/*" element={<NotFound/>} />

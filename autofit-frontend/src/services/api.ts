@@ -17,6 +17,8 @@ export const api = {
 
   async createSlots(date: string, times: string[]): Promise<ApiResponse<TimeSlot[]>> {
     await delay(800)
+    console.log(date, times);
+    
     // Mock response - replace with actual API call
     return {
       success: true,

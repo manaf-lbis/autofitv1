@@ -10,7 +10,7 @@ import toast from "react-hot-toast"
 import LatLngToAddress from "@/components/shared/LocationInput/LatLngToAddress"
 import AccountShimmer from "../components/shimmer/AccountShimmer"
 import LazyImage from "@/components/shared/LazyImage"
-import { getAssetURL } from "@/utils/utilityFunctions.ts/getAssetURL"
+import { getAssetURL } from "@/utils/utilityFunctions/getAssetURL"
 
 export default function Account() {
   const [showDocument, setShowDocument] = useState(false)

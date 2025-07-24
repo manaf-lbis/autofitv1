@@ -183,8 +183,8 @@ export class AuthController {
 
     async logout(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-
             const userId = req.user?.id;
+
             if (!userId) throw new ApiError("Not authenticated!", HttpStatus.BAD_REQUEST);
 
             await this._authService.logout(userId);

@@ -20,3 +20,22 @@ export interface IPretripFeature {
     createdAt: Date; 
     updatedAt: Date; 
 }
+
+export enum SlotStatus {
+  BOOKED = 'booked',
+  AVAILABLE = 'available',
+  CANCELLED = 'cancelled',
+}
+
+export interface IPretripSlot {
+  _id: Types.ObjectId;
+  date: Date;
+  status: SlotStatus;
+  mechanicId: Types.ObjectId;
+  userId?: Types.ObjectId;
+  vehicleId?: Types.ObjectId;
+  bookingId?: Types.ObjectId;
+  servicePlan?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}

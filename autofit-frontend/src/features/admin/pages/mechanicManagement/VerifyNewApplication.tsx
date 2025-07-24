@@ -15,7 +15,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { cn } from "@/lib/utils";
 import LazyImage from "@/components/shared/LazyImage";
-import { getAssetURL } from "@/utils/utilityFunctions.ts/getAssetURL";
+import { getAssetURL } from "@/utils/utilityFunctions/getAssetURL";
 
 const rejectFormSchema = z.object({
   reason: z

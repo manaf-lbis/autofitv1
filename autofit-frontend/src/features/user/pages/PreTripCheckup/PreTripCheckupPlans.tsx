@@ -6,6 +6,7 @@ import { useState, useEffect, useRef } from "react"
 import { useGetPretripPlansQuery } from "@/services/userServices/pretripUserApi"
 import { Plan } from "@/types/plans"
 import {PlanPageShimmer} from "../../components/shimmer/pretrip/PlanPageShimmer"
+import { useNavigate } from "react-router-dom"
 
 
 export default function PreTripCheckupPlans() {
@@ -18,6 +19,7 @@ export default function PreTripCheckupPlans() {
   const [startX, setStartX] = useState(0)
   const [currentX, setCurrentX] = useState(0)
   const containerRef = useRef<HTMLDivElement>(null)
+  const navigate = useNavigate()
 
   useEffect(() => {
     const handleResize = () => {
@@ -67,7 +69,7 @@ export default function PreTripCheckupPlans() {
   }
 
   const handlePlanSelect = (planId: string) => {
-    console.log(planId);
+    navigate(`/user/pretrip-checkup/booking/${planId}`)
   }
 
   const handleMove = (clientX: number) => {

@@ -10,10 +10,10 @@ import { LoaderCircle } from "lucide-react";
 
 type VehicleFormData = { regNo: string; brand: string; modelName: string; fuelType: string; owner: string };
 
-const VehicleModal = ({ isOpen, setIsOpen, vehicle, refetchVehicles }: { isOpen: boolean; setIsOpen: React.Dispatch<React.SetStateAction<boolean>>; vehicle: Vehicle | null; refetchVehicles: () => void }) => {
+const VehicleModal = ({ isOpen, setIsOpen, vehicle }: { isOpen: boolean; setIsOpen: React.Dispatch<React.SetStateAction<boolean>>; vehicle: Vehicle | null; }) => {
   const [addVehicle, { isLoading: addingLoading }] = useNewVehicleMutation();
   const [updateVehicle, { isLoading: updatingLoading }] = useUpdateVehicleMutation();
-  const { data, isError, isLoading } = useGetVehicleBrandQuery({});
+  const { data, } = useGetVehicleBrandQuery({});
   const { register, handleSubmit, formState: { errors }, reset, setValue, trigger, watch, control } = useForm<VehicleFormData>({
     defaultValues: { regNo: "", brand: "", modelName: "", fuelType: "", owner: "" },
   });
@@ -50,9 +50,12 @@ const VehicleModal = ({ isOpen, setIsOpen, vehicle, refetchVehicles }: { isOpen:
 
   const onSubmit = async (data: VehicleFormData) => {
     try {
-      
-      vehicle ? await updateVehicle({ ...data, id: vehicle._id } as any) : await addVehicle(data);
-      await refetchVehicles();
+      if(vehicle){
+        await updateVehicle({ ...data, id: vehicle._id } as any)
+      }else{
+
+        await addVehicle(data);
+      }
       reset();
       setIsOpen(false);
     } catch (error) {

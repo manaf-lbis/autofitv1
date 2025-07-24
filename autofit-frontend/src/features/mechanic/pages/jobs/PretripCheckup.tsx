@@ -26,7 +26,7 @@ export default function PretripCheckup() {
         </div>
 
         <div className="mb-6">
-          <ScheduleManagement loading={loading} />
+          <ScheduleManagement/>
         </div>
 
         <ServiceHistory loading={loading} />

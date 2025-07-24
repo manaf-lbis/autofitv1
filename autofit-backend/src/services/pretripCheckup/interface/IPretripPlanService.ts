@@ -12,4 +12,5 @@ export interface IPretripPlanService {
     updateFeature(id:Types.ObjectId,name:string):Promise<IPretripFeature | null>
     deleteFeature(id:Types.ObjectId):Promise<void>
     plansWithFeatureNames ():Promise<IPretripPlan[] | void[]>
+    getPlan(id:Types.ObjectId):Promise<IPretripPlan | null>
 }

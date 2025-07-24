@@ -29,6 +29,6 @@ export interface IMechanicProfileRepository extends IBaseRepository<MechanicProf
   deleteByMechanicId(mechanicId: Types.ObjectId): Promise<void>;
   getProfileStatus(mechanicId: Types.ObjectId): Promise<ProfileStatus | null>;
   getAvailablity(mechanicId: Types.ObjectId): Promise<MechanicAvailability | null>;
-  findMechnaicWithRadius({radius,lat,lng}:{radius:number,lat:number,lng:number}) :Promise<MechanicProfileDocument[]|[]>
+  findMechnaicWithRadius({radius,lat,lng,checkAvailablity}:{radius:number,lat:number,lng:number,checkAvailablity?:boolean}) :Promise<MechanicProfileDocument[]|[]>
   findByMechanicIdAndUpdate(mechanicId: Types.ObjectId,entity:Partial<MechanicProfileDocument>): Promise<MechanicProfileDocument | null>;
 } 
