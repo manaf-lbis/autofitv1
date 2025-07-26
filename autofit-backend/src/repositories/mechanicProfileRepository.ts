@@ -162,7 +162,7 @@ export class MechanicProfileRepository extends BaseRepository<MechanicProfileDoc
 
 
 
-  async findMechnaicWithRadius({radius,lat,lng,checkAvailablity = true}: { radius: number;lat: number;  lng: number;checkAvailablity: boolean}) {
+  async findMechnaicWithRadius({radius,lat,lng,checkAvailablity = true}: { radius: number;lat: number;  lng: number; checkAvailablity: boolean}) {
   const EARTH_RADIUS_KM = 6371;
   const radiusInRadians = radius / EARTH_RADIUS_KM;
 

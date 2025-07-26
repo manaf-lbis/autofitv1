@@ -42,7 +42,7 @@ export interface Quotation {
     rejectedAt?: Date;
 }
 
-//data transfred object from client
+
 export type CreateRoadsideAssistanceDTO = {
   mechanicId: Types.ObjectId;
   vehicle: {
@@ -59,3 +59,10 @@ export type CreateRoadsideAssistanceDTO = {
     coordinates: [number, number];
   };
 };
+
+
+export enum ServiceType {
+  ROADSIDE = 'roadside',
+  PRETRIP = 'pretrip',
+  LIVE = 'liveAssistance',
+}

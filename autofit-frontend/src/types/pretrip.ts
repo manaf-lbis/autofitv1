@@ -1,17 +1,18 @@
 export enum SlotStatus {
   BOOKED = "booked",
+  BLOCKED = "blocked",
   AVAILABLE = "available",
   CANCELLED = "cancelled",
 }
 
 export interface IPretripSlot {
   _id: string;
-  date: string; // Full ISO string with time
+  date: string;
   status: SlotStatus;
   mechanicId: string;
-  userId?: { _id: string; name: string; phone: string };
-  vehicleId?: { _id: string; regno: string };
-  bookingId?: { _id: string };
+  userId?: { _id: string; name: string; phone: string  };
+  vehicleId?: { _id: string; regNo: string; modelName:string; brand:string};
+  bookingId?: string 
   servicePlan?: string;
   createdAt: string;
   updatedAt: string;
