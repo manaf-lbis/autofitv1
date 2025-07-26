@@ -19,6 +19,14 @@ export class PretripPaymentHandler implements IServicePaymentHandler {
   async makeReadyForPayment(serviceId: Types.ObjectId): Promise<PaymentData> {
     const response = await this._pretripBookingRepo.detailedBooking(serviceId);
     if (!response) throw new ApiError('Booking not found', HttpStatus.NOT_FOUND)
+    if(response.payment.status === PaymentStatus.PAID) throw new ApiError('Payment already made', HttpStatus.BAD_REQUEST)
+    const createdAt = new Date(response.payment.paymentId.createdAt);
+    
+    const now = new Date();
+    const tenMinutesInMs = 10 * 60 * 1000;
+    const isExpired = now.getTime() - createdAt.getTime() > tenMinutesInMs;
+  
+    if(response.payment.paymentId.status === 'pending' && !isExpired ) throw new ApiError('Previous Payment is still processing Try after 10 Minutes', HttpStatus.BAD_REQUEST) 
       
     const payment = await this._paymentRepository.createPayment({serviceId, status:'pending',userId:response.userId._id, amount:response?.servicePlan?.price})
     await this._pretripBookingRepo.update(serviceId, { payment: { status: PaymentStatus.PENDING,paymentId:payment._id } });
@@ -56,13 +64,7 @@ export class PretripPaymentHandler implements IServicePaymentHandler {
        amount:verificationDetails.amount,
        method:verificationDetails.method,
     });
-
-
   }
-
-
-
-
 
 
 

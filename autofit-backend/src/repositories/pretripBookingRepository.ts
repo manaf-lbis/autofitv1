@@ -13,7 +13,7 @@ export class PretripBookingRepository extends BaseRepository<PretripBookingDocum
     }
 
     async detailedBooking(serviceId: Types.ObjectId): Promise<any> {
-        return await PretripBookingModel.findOne({_id:serviceId}).populate('vehicleId').populate('userId')
+        return await PretripBookingModel.findOne({_id:serviceId}).populate('vehicleId').populate('userId','name email mobile').populate('payment.paymentId')
     }
 
 }

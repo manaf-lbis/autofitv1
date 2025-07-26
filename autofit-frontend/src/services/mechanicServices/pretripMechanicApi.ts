@@ -30,6 +30,8 @@ export const pretripMechanicApi = createApi({
       }),
       invalidatesTags: ["Slots"],
     }),
+
+    
   }),
 });
 

@@ -98,11 +98,15 @@ export default function PaymentGatewaySelection() {
   }
 
   const handlePayment = async () => {
-    createPayment({
-      gateway: selectedGateway,
-      serviceId: params.id!,
-      serviceType: params.service! as ServiceType,
-    });
+    try {
+      await createPayment({
+        gateway: selectedGateway,
+        serviceId: params.id!,
+        serviceType: params.service! as ServiceType,
+      }).unwrap();
+    } catch (error:any) {
+      toast.error(error.message);
+    }
   };
 
   const handleGoBack = () => window.history.back();
