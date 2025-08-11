@@ -9,6 +9,7 @@ export interface Plan {
   name: string
   description: string
   price: number
+  duration:number
   originalPrice?: number
   features: string[]
   isActive: boolean

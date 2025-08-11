@@ -1,3 +1,5 @@
+import toast from "react-hot-toast";
+
 interface RazorpayOptions {
   orderId: string;
   amount: number;
@@ -39,7 +41,7 @@ export async function triggerRazorpayPayment({
   const scriptLoaded = await loadRazorpayScript();
 
   if (!scriptLoaded) {
-    alert("Razorpay SDK failed to load. Are you online?");
+    toast.loading("Razorpay SDK failed to load. Are you online?");
     return;
   }
 

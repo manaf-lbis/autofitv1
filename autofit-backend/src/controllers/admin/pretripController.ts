@@ -39,15 +39,15 @@ export class PretripController {
 
     async updatePlan(req: Request, res: Response, next: NextFunction) {
         try {
-            const {name, description, price, originalPrice, features, isPopular } = req.body;
-            if (!name.trim() || !description.trim() || price <= 0 || originalPrice < price || !features.length || isPopular === undefined ){
+            const {name, description, price, originalPrice, features, isPopular,duration } = req.body;
+            if (duration <=0 || !name.trim() || !description.trim() || price <= 0 || originalPrice < price || !features.length || isPopular === undefined ){
                throw new ApiError('Invalid Fields', HttpStatus.BAD_REQUEST); 
             } 
             
             if(!req.params.id) throw new ApiError('Plan id is required', HttpStatus.BAD_REQUEST);
             
             const planId = new Types.ObjectId(req.params.id)
-            const plan = await this._pretripPlanService.updatePlan(planId, { name, description, price, originalPrice, features, isPopular });
+            const plan = await this._pretripPlanService.updatePlan(planId, { name, description, price, originalPrice, features, isPopular ,duration});
 
             sendSuccess(res, 'Plan updated successfully',plan)
         } catch (error) {

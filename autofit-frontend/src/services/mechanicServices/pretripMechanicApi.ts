@@ -1,38 +1,71 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { baseQueryWithRefresh } from "@/utils/baseQuery";
-import { IPretripSlot, } from "@/types/pretrip";
+import { PretripStatus } from "@/types/pretrip";
 
 export const pretripMechanicApi = createApi({
   reducerPath: "pretripMechanicApi",
   baseQuery: baseQueryWithRefresh,
-  tagTypes: ["Slots"],
+  tagTypes: ["Schedule", "Work"],
   endpoints: (builder) => ({
-    getSlots: builder.query<IPretripSlot[], void>({
+
+    weeklySchedules: builder.query<any, void>({
       query: () => ({
-        url: "mechanic/pretrip/slots",
+        url: "/mechanic/pretrip/weekly-schedules",
         method: "GET",
       }),
-      transformResponse: (response: any) => response.data || [],
-      providesTags: ["Slots"],
+      providesTags: ["Schedule"],
+      transformErrorResponse: (res) => res.data
     }),
-    createSlots: builder.mutation<IPretripSlot[], { slots: { date: string }[] }>({
+
+    blockSchedule: builder.mutation<any, any>({
       query: (slotData) => ({
-        url: "mechanic/pretrip/slots",
+        url: "/mechanic/profile/block-schedule",
         method: "POST",
         body: slotData,
       }),
-      invalidatesTags: ["Slots"],
-    }),
-    deleteSlot: builder.mutation<void, string>({
-      query: (slotId) => ({
-        url: `mechanic/pretrip/slots/${slotId}`,
-        method: "DELETE",
-      }),
-      invalidatesTags: ["Slots"],
+      invalidatesTags: ["Schedule"],
+      transformResponse: (response: any) => response.data,
     }),
 
-    
-  }),
+    unblockSchedule: builder.mutation<any, { id: string }>({
+      query: (slotData) => ({
+        url: "/mechanic/profile/unblock-schedule",
+        method: "DELETE",
+        body: slotData,
+      }),
+      invalidatesTags: ["Schedule"],
+      transformResponse: (response: any) => response.data,
+    }),
+
+    todaysSchedules: builder.query<any, void>({
+      query: () => ({
+        url: "/mechanic/pretrip/todays-schedules",
+        method: "GET",
+      }),
+      providesTags: ["Work"],
+      transformErrorResponse: (res) => res.data
+    }),
+
+    updatePretripStatus: builder.mutation<any, { id: string; status: PretripStatus }>({
+      query: (slotData) => ({
+        url: "/mechanic/pretrip/update-pretrip-status",
+        method: "POST",
+        body: slotData,
+      }),
+      invalidatesTags: ["Work"],
+      transformResponse: (response: any) => response.data,
+    }),
+
+
+
+
+  })
+
 });
 
-export const { useGetSlotsQuery, useCreateSlotsMutation, useDeleteSlotMutation } = pretripMechanicApi;
+export const {
+  useWeeklySchedulesQuery,
+  useBlockScheduleMutation,
+  useUnblockScheduleMutation,
+  useTodaysSchedulesQuery
+} = pretripMechanicApi;

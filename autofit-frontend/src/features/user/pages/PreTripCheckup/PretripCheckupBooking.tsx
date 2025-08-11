@@ -1,8 +1,8 @@
-import {  useState } from "react"
-import {CheckCircle,Loader2,Shield,ArrowLeft} from "lucide-react"
+import { useState } from "react"
+import { CheckCircle, Loader2, Shield, ArrowLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, } from "@/components/ui/card"
-import {  useCreateBookingMutation, useGetPlanForBookingQuery } from "@/services/userServices/pretripUserApi"
+import { useCreateBookingMutation, useGetPlanForBookingQuery } from "@/services/userServices/pretripUserApi"
 import { useNavigate, useParams } from "react-router-dom"
 import VehicleSelectionCard from "../../components/VehicleSelectionCard"
 import LocationPicker from "../../components/LocationPicker"
@@ -15,34 +15,38 @@ import { ServiceType } from "@/types/user"
 export default function PretripCheckupBooking() {
   const [selectedMechanic, setSelectedMechanic] = useState<string>("")
   const [selectedVehicle, setSelectedVehicle] = useState<string>("")
-  const [selectedSlot, setSelectedSlot] = useState<string>("")
+  const [selectedSlot, setSelectedSlot] = useState<string>("");
+  const [selectedDate, setSelectedDate] = useState<string>("");
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null)
   const params = useParams();
   const navigate = useNavigate()
 
   const { data: selectedPlan } = useGetPlanForBookingQuery(params.id);
-  const [createBooking,isLoading] = useCreateBookingMutation()
+  const [createBooking, isLoading] = useCreateBookingMutation()
 
 
 
   const handleBooking = async () => {
     try {
-        if(coords){
-          const response = await createBooking({
-            mechanicId:selectedMechanic,
-            vehicleId:selectedVehicle,
-            slotId:selectedSlot,
-            coords,
-            planId:params.id!
-          }).unwrap()
+      if (coords) {
+        const response = await createBooking({
+          coords,
+          mechanicId: selectedMechanic,
+          planId: params.id!,
+          slot: {
+            date: selectedDate,
+            time: selectedSlot,
+          },
+          vehicleId: selectedVehicle,
+        }).unwrap()
 
-          navigate(`/user/${ServiceType.PRETRIP}/checkout/${response.data.bookingId}`)
+        navigate(`/user/${ServiceType.PRETRIP}/checkout/${response.data.bookingId}`)
 
-        }else{
-          toast.error("Please select a location")
-        }
-     } catch (error:any) {
-      toast.error(error?.message || 'Invalid Booking')
+      } else {
+        toast.error("Please select a location")
+      }
+    } catch (error: any) {
+      toast.error(error?.data?.message ?? 'Invalid Booking')
     }
   }
 
@@ -52,7 +56,7 @@ export default function PretripCheckupBooking() {
     window.history.back()
   }
 
-  const isBookingEnabled = selectedMechanic && selectedVehicle && selectedSlot && coords 
+  const isBookingEnabled = selectedMechanic && selectedVehicle && selectedSlot && coords
 
 
   return (
@@ -112,10 +116,10 @@ export default function PretripCheckupBooking() {
                   {/* Features Grid - Responsive based on number of features */}
                   <div
                     className={`grid gap-3 ${selectedPlan && selectedPlan.features.length <= 8
-                        ? "grid-cols-1 md:grid-cols-2"
-                        : selectedPlan && selectedPlan.features.length <= 16
-                          ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
-                          : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+                      ? "grid-cols-1 md:grid-cols-2"
+                      : selectedPlan && selectedPlan.features.length <= 16
+                        ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
+                        : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
                       } ${selectedPlan && selectedPlan.features.length > 12 ? "max-h-80 overflow-y-auto pr-2" : ""}`}
                   >
                     {selectedPlan && selectedPlan.features.map((feature, index) => (
@@ -149,7 +153,7 @@ export default function PretripCheckupBooking() {
                     </div>
                   </div>
                   <div className="border-t pt-4">
-                    <div className="text-2xl font-bold text-gray-900 mb-1">2 Hours</div>
+                    <div className="text-2xl font-bold text-gray-900 mb-1">{selectedPlan && selectedPlan?.duration / 60} hr{selectedPlan && selectedPlan?.duration / 60 > 1 ? "s" : ""}</div>
                     <div className="text-sm text-gray-600">Inspection Duration</div>
                   </div>
                 </div>
@@ -162,13 +166,13 @@ export default function PretripCheckupBooking() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
           <Card className="bg-white shadow-sm border-0 rounded-md">
             <CardContent className="p-6 text-center">
-              <div className="text-3xl font-bold text-gray-900 mb-2">2 Hours</div>
+              <div className="text-3xl font-bold text-gray-900 mb-2">{selectedPlan && selectedPlan?.duration / 60} hr{selectedPlan && selectedPlan?.duration / 60 > 1 ? "s" : ""}</div>
               <div className="text-sm text-gray-600">Average Duration</div>
             </CardContent>
           </Card>
           <Card className="bg-white shadow-sm border-0 rounded-md">
             <CardContent className="p-6 text-center">
-              <div className="text-3xl font-bold text-green-600 mb-2">50+</div>
+              <div className="text-3xl font-bold text-green-600 mb-2">{selectedPlan && selectedPlan.features.length-1}+</div>
               <div className="text-sm text-gray-600">Check Points</div>
             </CardContent>
           </Card>
@@ -185,15 +189,15 @@ export default function PretripCheckupBooking() {
         {/* Available Service Centers */}
         {coords && (
           <SlotBooking
-          selectedMechanic={selectedMechanic}
-          selectedSlot={selectedSlot}
-          setSelectedMechanic={setSelectedMechanic}
-          setSelectedSlot={setSelectedSlot}
-          coords={coords}
-           />
+            setSelectedSlot={setSelectedSlot}
+            coords={coords}
+            durationMinutes={selectedPlan?.duration || 0}
+            selectedMechanic={selectedMechanic}
+            setSelectedMechanic={setSelectedMechanic}
+            selectedDate={selectedDate}
+            setSelectedDate={setSelectedDate}
+          />
         )}
-
-
 
         <VehicleSelectionCard selectedVehicle={selectedVehicle} setSelectedVehicle={setSelectedVehicle} />
 

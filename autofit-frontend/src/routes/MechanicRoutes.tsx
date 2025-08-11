@@ -10,6 +10,7 @@ import EmergencyDetails from "@/features/mechanic/pages/RoadsideAssistanceDetail
 import Messages from "@/features/mechanic/pages/Messages";
 import PretripCheckup from "@/features/mechanic/pages/jobs/PretripCheckup";
 import NotFound from "@/features/mechanic/pages/NotFound";
+import PretripDetails from "@/features/mechanic/pages/PretripDetails";
 
 
 
@@ -28,6 +29,7 @@ const MechanicRoutes: React.FC = () => {
               <Route path="messages" element={<Messages/>} />
               
               <Route path="jobs/pre-trip-checkup" element={<PretripCheckup/>} />
+              <Route path="pre-trip-checkup/:id/details" element={<PretripDetails/>} />
 
               
               <Route path="/*" element={<NotFound/>} />

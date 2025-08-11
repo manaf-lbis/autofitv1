@@ -9,7 +9,7 @@ import { PretripPaymentHandler } from "../../services/paymentServices/servicePay
 import { ServiceType } from "../../types/services";
 import { PaymentGateway } from "../../types/payment";
 import { PaymentRepository } from "../../repositories/PaymentRepository";
-import { PretripSlotRepository } from "../../repositories/pretripSlotRepository";
+
 
 
 const router = Router();
@@ -18,8 +18,7 @@ const pretripBookingRepository = new PretripBookingRepository()
 const razorpayGateway = new RazorpayGateway()
 const paymentGatewayResolver = new PaymentGatewayResolver([{ name:PaymentGateway.RAZORPAY, instance: razorpayGateway }]);
 const paymentRepository = new PaymentRepository()
-const slotRepository = new PretripSlotRepository
-const pretripPaymentHandler = new PretripPaymentHandler(pretripBookingRepository,paymentRepository,slotRepository)
+const pretripPaymentHandler = new PretripPaymentHandler(pretripBookingRepository,paymentRepository)
 const servicePaymentHanleResolver = new ServicePaymentHandleResolver([{type:ServiceType.PRETRIP,handler:pretripPaymentHandler}])
 const checkoutService = new CheckoutService(pretripBookingRepository,paymentGatewayResolver,servicePaymentHanleResolver,paymentRepository)
 const checkoutcontroller = new CheckoutController(checkoutService)

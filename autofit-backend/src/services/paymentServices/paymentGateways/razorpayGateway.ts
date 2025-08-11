@@ -35,7 +35,7 @@ export class RazorpayGateway implements IPaymentGateway {
         amount: data.amount * 100,
         currency: "INR",
         receipt,
-        notes: data.metadata
+        notes: data.metadata,
       });
       return { orderId: order.id, amountInRupees: data.amount };
 
@@ -47,10 +47,10 @@ export class RazorpayGateway implements IPaymentGateway {
 
   async verifyPayment(data: any): Promise<PaymentVerificationResult> {
     try {
-      const { status, razorpay_payment_id, razorpay_signature, gateway,orderId} = data;
+      const { status, razorpay_payment_id, razorpay_signature, gateway, orderId } = data;
 
       if (status === 'failed') {
-        return { status: 'failed' ,gateway }
+        return { status: 'failed', gateway }
       };
 
       const generatedSignature = crypto
@@ -58,19 +58,19 @@ export class RazorpayGateway implements IPaymentGateway {
         .update(orderId + "|" + razorpay_payment_id)
         .digest("hex");
 
-      if(generatedSignature !== razorpay_signature) throw new ApiError("Payment verification failed");
+      if (generatedSignature !== razorpay_signature) throw new ApiError("Payment verification failed");
 
       const orderDetails = await this._razorpay.orders.fetch(orderId);
       const paymentDetails = await this._razorpay.payments.fetch(razorpay_payment_id);
 
       return {
-        amount : Number(paymentDetails.amount) / 100,
+        amount: Number(paymentDetails.amount) / 100,
         paymentId: paymentDetails.id,
         status,
-        method:paymentDetails.method,
+        method: paymentDetails.method,
         userId: paymentDetails.notes.userId,
         serviceId: paymentDetails.notes.serviceId,
-        receipt:orderDetails.receipt!
+        receipt: orderDetails.receipt!
       }
 
     } catch (error: any) {

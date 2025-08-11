@@ -166,7 +166,7 @@ export default function MapModal({ isOpen, onClose, startLat, startLng, endLat, 
               <span className="text-sm font-medium text-gray-700">Estimated Arrival</span>
             </div>
             <div className="text-right">
-              <span className="text-2xl font-bold text-gray-900">{eta}</span>
+              <span className="text-2xl font-bold text-gray-900">{(startLat && startLng) ? eta :'Allow Location'  }</span>
               <p className="text-xs text-gray-500">Based on current traffic</p>
             </div>
           </div>

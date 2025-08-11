@@ -4,12 +4,13 @@ import { PretripPlanService } from "../../services/pretripCheckup/PretripPlanSer
 import { PretripFeatureRepository } from "../../repositories/pretripFeatureRepository";
 import { PretripPlanRepository } from "../../repositories/pretripPlanRepository";
 import { PretripService } from "../../services/pretripCheckup/pretripService";
-import { PretripSlotRepository } from "../../repositories/pretripSlotRepository";
 import { MechanicProfileRepository } from "../../repositories/mechanicProfileRepository";
 import { GoogleMapRepository } from "../../repositories/GoogleMapRepository";
 import { PretripBookingRepository } from "../../repositories/pretripBookingRepository";
 import { authorize } from "../../middlewares/authorize";
 import { authenticate } from "../../middlewares/authenticate";
+import { WorkingHoursRepository } from "../../repositories/workingHoursRepository";
+import { TimeBlockRepository } from "../../repositories/timeBlockRepository";
 
 
 const router = Router();
@@ -17,11 +18,19 @@ const router = Router();
 const pretripPlanRepository = new PretripPlanRepository()
 const pretripFeaterRepository = new PretripFeatureRepository()
 const pretripPlanService = new PretripPlanService(pretripFeaterRepository,pretripPlanRepository);
-const pretripSlotRepository = new PretripSlotRepository()
 const mechanicProfileRepository = new MechanicProfileRepository()
 const googleMapRepo = new GoogleMapRepository()
 const pretripBookingRepository = new PretripBookingRepository() 
-const pretripService = new PretripService(pretripSlotRepository,mechanicProfileRepository,googleMapRepo,pretripBookingRepository,pretripPlanRepository)
+const workingHoursRepository = new WorkingHoursRepository()
+const timeBlockingRepository = new TimeBlockRepository()
+const pretripService = new PretripService(
+    mechanicProfileRepository,
+    googleMapRepo,
+    pretripBookingRepository,
+    pretripPlanRepository,
+    workingHoursRepository,
+    timeBlockingRepository
+)
 const pretripController = new PretripController(pretripPlanService, pretripService)
 
 

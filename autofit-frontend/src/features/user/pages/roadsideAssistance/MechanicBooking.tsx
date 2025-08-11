@@ -105,7 +105,7 @@ export default function MechanicBooking() {
           </div>
 
           <LocationPicker coords={coords} setCoord={setCoord} />
-
+          
           {/* Nearby Mechanics */}
           {coords && (
             <ShowNearByMechanic

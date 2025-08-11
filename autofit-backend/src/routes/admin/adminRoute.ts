@@ -13,9 +13,4 @@ router.use('/mechanic', authenticate, authorize(['admin']),mechanicRoute)
 router.use('/plans', authenticate, authorize(['admin']), pretripPlansRoute)
 
 
-
-
-
-
-
 export default router

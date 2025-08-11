@@ -1,5 +1,5 @@
 
-import { format,isToday,isYesterday,isThisWeek,parseISO,isValid} from 'date-fns';
+import { format, isToday, isYesterday, isThisWeek, parseISO, isValid } from 'date-fns';
 
 export const formatTimeToNow = (dateString: string): string => {
     const date = new Date(dateString);
@@ -13,7 +13,7 @@ export const formatTimeToNow = (dateString: string): string => {
     }
 
     if (isThisWeek(date)) {
-        return format(date, 'EEE'); 
+        return format(date, 'EEE');
     }
 
     return format(date, 'dd/MM/yy');
@@ -29,7 +29,14 @@ export const formatDateTime = (dateString: string | null) => {
 };
 
 
-export function convertTo12HourFormat(isoDateTime:string) {
-  const date = parseISO(isoDateTime);
-  return format(date, 'h:mm a');
+export function convertTo12HourFormat(isoDateTime: string) {
+    const date = parseISO(isoDateTime);
+    return format(date, 'h:mm a');
+}
+
+// h and m
+export const formatTime12Hour = (h: number, m: number) => {
+    const date = new Date()
+    date.setHours(h, m)
+    return format(date, "h:mm a") // e.g., "9:00 AM"
 }

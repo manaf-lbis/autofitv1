@@ -27,10 +27,15 @@ const pretripBookingSchema = new Schema<PretripBookingDocument>({
         ref: "vehicle",
         required: true
     },
-    slotId: {
-        type: Schema.Types.ObjectId,
-        ref: "pretripSlot",
-        required: true
+    schedule: {
+        start: {
+            type: Date,
+            required: true
+        },
+        end: {
+            type: Date,
+            required: true
+        }
     },
     reportId:{
         type: Schema.Types.ObjectId,

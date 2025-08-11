@@ -2,6 +2,16 @@ import { createApi } from '@reduxjs/toolkit/query/react';
 import { baseQueryWithRefresh } from '@/utils/baseQuery';
 import { ApiResponse, Plan } from '@/types/plans';
 
+interface MechanicData {
+  mechanicId: string;
+  shopName: string;
+  distanceInMeters: number;
+  place: string;
+  specialised: string;
+  availableWindows: { [date: string]: { start: string; end: string }[] };
+}
+
+
 
 export const pretripUserApi = createApi({
   reducerPath: 'pretripUserApi',
@@ -21,15 +31,16 @@ export const pretripUserApi = createApi({
       transformResponse: (response: ApiResponse<Plan>) => response.data ?? {},
     }),
 
-    getNearbyMechanicShops: builder.query<any, { lat: number; lng: number }>({
+    getNearbyMechanicShops: builder.query<MechanicData[], { lat: number; lng: number }>({
       query: (coordinates) => ({
         url: `user/pretrip/mechanic-shops?lat=${coordinates.lat}&lng=${coordinates.lng}`,
         method: 'GET',
       }),
+      transformResponse: (response: ApiResponse<MechanicData[]>) => response.data || [],
       providesTags: ['MechanicShops'],
     }),
 
-    createBooking: builder.mutation<any, { planId: string; mechanicId: string , vehicleId: string, slotId: string, coords: { lat: number; lng: number }}>({
+    createBooking: builder.mutation<any, { planId: string; mechanicId: string , vehicleId: string, slot: {date: string, time: string}, coords: { lat: number; lng: number }}>({
       query: (data) => ({
         url: 'user/pretrip/booking',
         method: 'POST',

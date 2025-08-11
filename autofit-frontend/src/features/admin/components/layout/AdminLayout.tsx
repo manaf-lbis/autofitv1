@@ -21,7 +21,6 @@ import { Link } from "react-router-dom";
 
 const AdminLayout: React.FC = () => {
   const { breadcrumbs } = useSelector((state: RootState) => state.adminSlice);
-
   return (
     <SidebarProvider>
       <AppSidebar />

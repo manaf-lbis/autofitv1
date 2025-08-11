@@ -56,7 +56,6 @@ export default function PaymentGatewaySelection() {
   useEffect(() => {
     const data = paymentData?.data;
     if (data?.gateway === PaymentGateway.RAZORPAY && userData) {
-      console.log("triggered");
       triggerRazorpayPayment({
         amount: data.amountInRupees,
         email: userData.email,
@@ -67,7 +66,7 @@ export default function PaymentGatewaySelection() {
         onFailure: handleFail,
       });
     }
-  }, [paymentData, userData]);
+  }, [paymentData,userData]);
 
   if (isLoading) {
     return (
@@ -106,6 +105,7 @@ export default function PaymentGatewaySelection() {
       }).unwrap();
     } catch (error:any) {
       toast.error(error.message);
+      navigate('/user/service-history')
     }
   };
 
@@ -289,3 +289,4 @@ export default function PaymentGatewaySelection() {
     </div>
   );
 }
+

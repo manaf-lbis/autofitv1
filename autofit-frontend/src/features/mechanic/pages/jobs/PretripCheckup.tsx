@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { ScheduleManagement } from "../../components/jobs/ScheduleManagement" 
+import ScheduleManagement from "../../components/jobs/ScheduleManagement"  
 import { ServiceHistory } from "../../components/jobs/ServiceHistory" 
 
 

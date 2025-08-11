@@ -40,6 +40,10 @@ const planSchema : Schema<PretripPlanDocument> = new Schema<PretripPlanDocument>
         required: true,
         default: false
     },
+    duration:{
+        type:Number,
+        required:true
+    },
     isPopular: {
         type: Boolean,
         required: true,

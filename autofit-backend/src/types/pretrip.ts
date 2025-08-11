@@ -6,6 +6,7 @@ export interface IPretripPlan  {
     description: string;
     price: number;
     originalPrice?: number;
+    duration:number;
     features: string[];
     isDeleted: boolean;
     isActive: boolean;
@@ -21,25 +22,7 @@ export interface IPretripFeature {
     updatedAt: Date; 
 }
 
-export enum SlotStatus {
-  BLOCKED = 'blocked',
-  BOOKED = 'booked',
-  AVAILABLE = 'available',
-  CANCELLED = 'cancelled',
-}
 
-export interface IPretripSlot {
-  _id: Types.ObjectId;
-  date: Date;
-  status: SlotStatus;
-  mechanicId: Types.ObjectId;
-  userId?: Types.ObjectId;
-  vehicleId?: Types.ObjectId;
-  bookingId?: Types.ObjectId;
-  servicePlan?: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
 
 export enum PretripStatus{
   BOOKED = 'booked',
@@ -64,7 +47,10 @@ export interface IPretripBooking {
   mechanicId: Types.ObjectId;
   userId: Types.ObjectId;
   vehicleId: Types.ObjectId;
-  slotId: Types.ObjectId;
+  schedule:{
+    start: Date;
+    end: Date;
+  }
   reportId?: Types.ObjectId;
   servicePlan: {
     name: string;

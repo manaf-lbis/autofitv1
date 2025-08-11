@@ -1,5 +1,7 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { baseQueryWithRefresh } from "@/utils/baseQuery";
+import { WorkingHoursData } from "@/types/mechanic";
+import { ApiResponse } from "@/types/apiResponse";
 
 type SuccessResponse = {
   message: string;
@@ -10,6 +12,7 @@ type SuccessResponse = {
 export const mechanicApi = createApi({
   reducerPath: "mechanicApi",
   baseQuery: baseQueryWithRefresh,
+  tagTypes:["WorkingHours"],
 
   endpoints: (builder) => ({
 
@@ -66,6 +69,56 @@ export const mechanicApi = createApi({
       }),
     }),
 
+    getWorkingHours: builder.query<WorkingHoursData | null, void>({
+      query: () => ({
+        url: "/mechanic/profile/working-hours",
+        method: "GET",
+      }),
+      transformResponse: (response: ApiResponse<WorkingHoursData>) => response.data,
+      providesTags: ["WorkingHours"],
+    }),
+
+    createWorkingHours : builder.mutation<WorkingHoursData, WorkingHoursData>({
+      query: (slotData) => ({
+        url: "/mechanic/profile/working-hours",
+        method: "POST",
+        body: slotData,
+      }),
+      transformResponse: (response: ApiResponse<WorkingHoursData>) => response.data,
+      invalidatesTags: ["WorkingHours"],
+    }),
+
+    updateWorkingHours : builder.mutation<WorkingHoursData, WorkingHoursData>({
+      query: (slotData) => ({
+        url: "/mechanic/profile/working-hours",
+        method: "PATCH",
+        body: slotData,
+      }),
+      transformResponse: (response: ApiResponse<WorkingHoursData>) => response.data,
+      invalidatesTags: ["WorkingHours"],
+    }),
+
+    // blockSchedule : builder.mutation<any, any>({
+    //   query: (slotData) => ({
+    //     url: "/mechanic/profile/block-schedule",
+    //     method: "POST",
+    //     body: slotData,
+    //   }),
+    //   transformResponse: (response: ApiResponse<any>) => response.data,
+    // }),
+
+    // unblockSchedule : builder.mutation<any, {id:string}>({
+    //   query: (slotData) => ({
+    //     url: "/mechanic/profile/unblock-schedule",
+    //     method: "DELETE",
+    //     body: slotData,
+    //   }),
+    //   transformResponse: (response: ApiResponse<any>) => response.data,
+    // }),
+
+    
+
+
 
   }),
 
@@ -79,4 +132,9 @@ export const {
   useGetDashboardQuery,
   useSetAvailabilityMutation,
   useNotificationReadMutation,
+  useGetWorkingHoursQuery,
+  useCreateWorkingHoursMutation,
+  useUpdateWorkingHoursMutation,
+  // useBlockScheduleMutation,
+  // useUnblockScheduleMutation
 } = mechanicApi;

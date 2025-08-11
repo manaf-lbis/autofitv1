@@ -49,6 +49,7 @@ export class CheckoutService implements ICheckoutService {
     };
 
     async createPayment(serviceId: Types.ObjectId, serviceType: ServiceType, gateway: PaymentGateway): Promise<any> {
+
         const paymentGateway = this._paymentGatewayResolver.resolve(gateway);
         const paymentHandler = this._servicePaymentHanleResolver.resolve(serviceType);
 
@@ -62,6 +63,7 @@ export class CheckoutService implements ICheckoutService {
         response.gateway = gateway;
         response.serviceId = serviceId.toString();
         return response
+ 
     }
 
     async verifyPayment(serviceId: Types.ObjectId, serviceType: ServiceType, data?: any): Promise<any> {
@@ -75,9 +77,6 @@ export class CheckoutService implements ICheckoutService {
 
         return {serviceId,status:verifiedDetails.status,amount:verifiedDetails.amount}
     }
-
-
-
 
 
 }

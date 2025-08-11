@@ -36,15 +36,7 @@ export const paymentApi = createApi({
         transformErrorResponse : (res)=>res.data
     }),
 
-
-
-
-
-   
-
   }),
-
-
 
 });
 
