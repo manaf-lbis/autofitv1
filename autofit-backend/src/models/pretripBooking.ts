@@ -37,31 +37,9 @@ const pretripBookingSchema = new Schema<PretripBookingDocument>({
             required: true
         }
     },
-    reportId:{
+    serviceReportId:{
         type: Schema.Types.ObjectId,
         ref: "pretripReport",
-    },
-    servicePlan:{
-        name: {
-            type: String,
-            required: true
-        },
-        description: {
-            type: String,
-            required: true
-        },
-        price: {
-            type: Number,
-            required: true,
-            min: 0
-        },
-        originalPrice: {
-            type: Number,
-            min: 0  
-        },
-        features: [{
-            type:String
-        }]
     },
     payment:{
         status: {

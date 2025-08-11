@@ -51,14 +51,7 @@ export interface IPretripBooking {
     start: Date;
     end: Date;
   }
-  reportId?: Types.ObjectId;
-  servicePlan: {
-    name: string;
-    description: string;
-    originalPrice: number;
-    price: number;
-    features: string[];
-  };
+  serviceReportId?: Types.ObjectId;
   pickedUpAt?: Date;
   returnedAt?: Date;
   pickupLocation?:{
@@ -70,6 +63,32 @@ export interface IPretripBooking {
     status: PaymentStatus;
     paymentId?: Types.ObjectId;
   }
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export enum CheckupCondition {
+  EXCELLENT = 'excellent',
+  GOOD = 'good',
+  AVERAGE = 'average',
+  POOR = 'poor',
+}
+
+export interface IReportItem {
+  feature: string;
+  condition?: CheckupCondition
+  remarks?: string;
+  needsAction?: boolean;
+}
+
+export interface IPretripReport {
+  servicePlan: {
+    name: string;
+    description: string;
+    price: number;
+    originalPrice?: number;
+  };
+  reportItems: IReportItem[];
   createdAt: Date;
   updatedAt: Date;
 }

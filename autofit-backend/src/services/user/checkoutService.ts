@@ -26,7 +26,7 @@ export class CheckoutService implements ICheckoutService {
             if (!response) throw new ApiError('Booking not found', HttpStatus.NOT_FOUND)
             return {
                 date: response.createdAt,
-                price: response.servicePlan?.price,
+                price: response?.serviceReportId?.servicePlan?.price,
                 orderId: response._id,
                 serviceType: ServiceType.PRETRIP,
                 vehicleRegNo: response.vehicleId?.regNo,

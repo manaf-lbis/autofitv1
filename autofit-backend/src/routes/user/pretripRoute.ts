@@ -11,6 +11,7 @@ import { authorize } from "../../middlewares/authorize";
 import { authenticate } from "../../middlewares/authenticate";
 import { WorkingHoursRepository } from "../../repositories/workingHoursRepository";
 import { TimeBlockRepository } from "../../repositories/timeBlockRepository";
+import { PretripReportRepository } from "../../repositories/pretripReportRepository";
 
 
 const router = Router();
@@ -23,13 +24,16 @@ const googleMapRepo = new GoogleMapRepository()
 const pretripBookingRepository = new PretripBookingRepository() 
 const workingHoursRepository = new WorkingHoursRepository()
 const timeBlockingRepository = new TimeBlockRepository()
+const pretripReportRepository = new PretripReportRepository()
 const pretripService = new PretripService(
     mechanicProfileRepository,
     googleMapRepo,
     pretripBookingRepository,
     pretripPlanRepository,
     workingHoursRepository,
-    timeBlockingRepository
+    timeBlockingRepository,
+    pretripReportRepository
+
 )
 const pretripController = new PretripController(pretripPlanService, pretripService)
 

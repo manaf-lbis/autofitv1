@@ -10,6 +10,7 @@ import { NotificationRepository } from "../../repositories/notificationRepositor
 import { MechanicRepository } from "../../repositories/mechanicRepository";
 import { WorkingHoursRepository } from "../../repositories/workingHoursRepository";
 import { TimeBlockRepository } from "../../repositories/timeBlockRepository";
+import { PretripReportRepository } from "../../repositories/pretripReportRepository";
 
 
 const router = Router();
@@ -22,6 +23,7 @@ const notificationRepository = new NotificationRepository()
 const mechanicRepository = new MechanicRepository();
 const workingHoursRepository = new WorkingHoursRepository()
 const timeBlockingRepo = new TimeBlockRepository()
+const pretripReportRepository = new PretripReportRepository()
 const mechanicProfileService = new ProfileService(
     mechanicProfileRepository,
     mechanicRepository,
@@ -29,13 +31,15 @@ const mechanicProfileService = new ProfileService(
     workingHoursRepository,
     timeBlockingRepo
 )
+
 const pretripService = new PretripService(
     mechanicProfileRepository,
     googleMapRepo,
     pretripBookingRepository,
     pretripPlanRepository,
     workingHoursRepository,
-    timeBlockingRepo
+    timeBlockingRepo,
+    pretripReportRepository
 )
 
 const pretripController = new PretripController(pretripService, mechanicProfileService)

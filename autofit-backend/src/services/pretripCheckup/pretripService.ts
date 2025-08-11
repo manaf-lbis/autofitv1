@@ -11,6 +11,7 @@ import { ITimeBlockRepository } from "../../repositories/interfaces/ITimeBlockRe
 import { ApiError } from "../../utils/apiError";
 import { BlockType } from "../../models/timeBlock";
 import { Types } from "mongoose";
+import { IPretripReportRepository } from "../../repositories/interfaces/IPretripRepository";
 
 
 
@@ -22,7 +23,8 @@ export class PretripService implements IPretripService {
         private _pretripBookingRepository: IPretripBookingRepository,
         private _planRepository: IPretripPlanRepository,
         private _workingHoursRepo: IWorkingHoursRepository,
-        private _timeBlockingRepo: ITimeBlockRepository
+        private _timeBlockingRepo: ITimeBlockRepository,
+        private _pretripReportRepo : IPretripReportRepository
     ) { }
 
 
@@ -97,6 +99,17 @@ export class PretripService implements IPretripService {
 
         const startDateTime = dateAndTimeToDateString(slot.date, startingTime);
         const endDateTime = dateAndTimeToDateString(slot.date, endingTime);
+
+        const report  = await this._pretripReportRepo.save({
+            servicePlan:{
+                name,
+                description,
+                price,
+                originalPrice  
+            },
+            reportItems : features.map((feature :any) => {feature})
+        })
+
         const booking = await this._pretripBookingRepository.save({
             userId,
             vehicleId,
@@ -105,13 +118,7 @@ export class PretripService implements IPretripService {
                 start: startDateTime,
                 end: endDateTime
             },
-            servicePlan: {
-                name,
-                description,
-                price,
-                originalPrice,
-                features
-            },
+            serviceReportId: report._id,
             pickupLocation: {
                 type: "Point",
                 coordinates: [coords.lng, coords.lat]

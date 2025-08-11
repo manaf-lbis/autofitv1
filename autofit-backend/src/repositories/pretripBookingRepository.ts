@@ -3,7 +3,7 @@ import { PretripBookingDocument, PretripBookingModel } from "../models/pretripBo
 import { BaseRepository } from "./baseRepository";
 import { IPretripBookingRepository } from "./interfaces/IPretripBookingRepository";
 import { PaymentStatus, PretripStatus } from "../types/pretrip";
-import { add, addDays, endOfDay, startOfDay } from "date-fns";
+import { addDays, endOfDay, startOfDay } from "date-fns";
 
 export class PretripBookingRepository extends BaseRepository<PretripBookingDocument> implements IPretripBookingRepository {
     constructor() {
@@ -11,11 +11,15 @@ export class PretripBookingRepository extends BaseRepository<PretripBookingDocum
     }
 
     async checkoutDetails(serviceId: Types.ObjectId): Promise<any> {
-        return await PretripBookingModel.findOne({ _id: serviceId }).populate('vehicleId', 'regNo')
+        return await PretripBookingModel.findOne({ _id: serviceId }).populate('vehicleId', 'regNo').populate('serviceReportId','servicePlan.price -_id')
     }
 
     async detailedBooking(serviceId: Types.ObjectId): Promise<any> {
-        return await PretripBookingModel.findOne({ _id: serviceId }).populate('vehicleId').populate('userId', 'name email mobile').populate('payment.paymentId')
+        return await PretripBookingModel.findOne({ _id: serviceId })
+        .populate('vehicleId')
+        .populate('userId', 'name email mobile')
+        .populate('payment.paymentId')
+        .populate('serviceReportId','servicePlan.price -_id')
     }
 
     async dayWiseBookings(mechanicId: Types.ObjectId, date: Date): Promise<any> {

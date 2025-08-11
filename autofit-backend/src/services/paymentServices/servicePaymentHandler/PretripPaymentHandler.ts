@@ -32,12 +32,12 @@ export class PretripPaymentHandler implements IServicePaymentHandler {
     }
 
 
-    const payment = await this._paymentRepository.createPayment({ serviceId, status: 'pending', userId: response.userId._id, amount: response?.servicePlan?.price })
+    const payment = await this._paymentRepository.createPayment({ serviceId, status: 'pending', userId: response.userId._id, amount: response?.serviceReportId?.servicePlan?.price })
     await this._pretripBookingRepo.update(serviceId, { payment: { status: PaymentStatus.PENDING, paymentId: payment._id } });
 
     return {
       paymentId: payment._id,
-      amount: response?.servicePlan?.price,
+      amount: response?.serviceReportId?.servicePlan?.price,
       currency: 'INR',
       email: response?.userId.email!,
       metadata: {
