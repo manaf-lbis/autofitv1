@@ -17,7 +17,7 @@ export default function MechanicDashboard() {
   const [activeTab, setActiveTab] = useState("emergency");
   const dispatch = useDispatch();
 
-  const { data: dashboardData,isLoading } = useGetDashboardQuery(undefined,{refetchOnMountOrArgChange:true});
+  const { data: dashboardData, isLoading } = useGetDashboardQuery(undefined,{refetchOnMountOrArgChange:true});
   const emergencyRequest = useSelector((state: RootState) => state.mechanicSlice.emergencyRequest);
 
   useEffect(() => {
@@ -94,7 +94,9 @@ export default function MechanicDashboard() {
                   {activeTab === "emergency" && (
                     <EmergencyTab emergencyRequest={emergencyRequest ?? null} />
                   )}
-                  {activeTab === "pickup" && <PickupTab />}
+                  {activeTab === "pickup" &&( 
+                    <PickupTab pickupSchedules={dashboardData?.data?.pickupSchedules ?? []} /> 
+                  )}
                   {activeTab === "progress" && <OnProgressTab />}
                   {activeTab === "completed" && <CompletedTab />}
                 </div>

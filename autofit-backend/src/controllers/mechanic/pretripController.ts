@@ -25,18 +25,6 @@ export class PretripController {
         }
     }
 
-    async mySchedules (req: Request, res: Response, next: NextFunction): Promise<void> {
-        try {
-            const mechanicId = req.user?.id
-            if(!mechanicId) throw new ApiError('Invalid User')
-            const result = await this._pretripService.mySchedules(mechanicId)
-            
-            sendSuccess(res, 'Success',result);
-        } catch (err) {
-            next(err);
-        }
-    }
-
     
 
 

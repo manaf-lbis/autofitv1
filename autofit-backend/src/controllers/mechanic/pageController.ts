@@ -12,13 +12,9 @@ export class PageController {
     async dashboard(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const id = req.user?.id;
-
             if (!id) throw new ApiError('Invalid User')
-
             const dashboard = await this._pageService.dashboard(id);
-
             sendSuccess(res, 'Successfully Fetched', dashboard);
-
         } catch (error: any) {
             next(error);
         }

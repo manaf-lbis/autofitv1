@@ -46,7 +46,7 @@ const pretripController = new PretripController(pretripService, mechanicProfileS
 
 
 router.get('/weekly-schedules', pretripController.weeklySchedules.bind(pretripController));
-router.get('/todays-schedules', pretripController.mySchedules.bind(pretripController));
+
 
 
 

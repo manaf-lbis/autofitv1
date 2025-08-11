@@ -8,7 +8,6 @@ export interface IPageService {
     messages: number;
   }>;
 
-
   dashboard(mechanicId: Types.ObjectId): Promise<{
     recentActivities: { id: number; name: string; action: string; time: string }[];
     emergencyRequest: {

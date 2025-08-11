@@ -98,25 +98,6 @@ export const mechanicApi = createApi({
       invalidatesTags: ["WorkingHours"],
     }),
 
-    // blockSchedule : builder.mutation<any, any>({
-    //   query: (slotData) => ({
-    //     url: "/mechanic/profile/block-schedule",
-    //     method: "POST",
-    //     body: slotData,
-    //   }),
-    //   transformResponse: (response: ApiResponse<any>) => response.data,
-    // }),
-
-    // unblockSchedule : builder.mutation<any, {id:string}>({
-    //   query: (slotData) => ({
-    //     url: "/mechanic/profile/unblock-schedule",
-    //     method: "DELETE",
-    //     body: slotData,
-    //   }),
-    //   transformResponse: (response: ApiResponse<any>) => response.data,
-    // }),
-
-    
 
 
 
@@ -135,6 +116,4 @@ export const {
   useGetWorkingHoursQuery,
   useCreateWorkingHoursMutation,
   useUpdateWorkingHoursMutation,
-  // useBlockScheduleMutation,
-  // useUnblockScheduleMutation
 } = mechanicApi;

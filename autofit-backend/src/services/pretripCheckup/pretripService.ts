@@ -266,10 +266,5 @@ export class PretripService implements IPretripService {
         return { bookings, blockings }
     }
 
-    async mySchedules(mechanicId: Types.ObjectId): Promise<any> {
-       return await this._pretripBookingRepository.todayScheduleOfMechanic(mechanicId);  
-    }
-
-
 
 }

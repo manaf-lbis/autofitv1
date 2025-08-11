@@ -3,6 +3,7 @@ import { Types } from "mongoose";
 import { INotificationRepository } from "../../repositories/interfaces/INotificationRepository";
 import { IRoadsideAssistanceRepo } from "../../repositories/interfaces/IRoadsideAssistanceRepo";
 import { IPageService } from "./interface/IPageService";
+import { IPretripBookingRepository } from "../../repositories/interfaces/IPretripBookingRepository";
 
 
 
@@ -10,16 +11,14 @@ export class PageService implements IPageService {
   constructor(
     private _mechanicProfileRepository: IMechanicProfileRepository,
     private _notificationRepository: INotificationRepository,
-    private _roadsideAssistanceRepo: IRoadsideAssistanceRepo
+    private _roadsideAssistanceRepo: IRoadsideAssistanceRepo,
+    private _pretripBookingRepository: IPretripBookingRepository
   ) { }
 
   async primaryInfo(mechanicId: Types.ObjectId) {
-
     const response = await this._mechanicProfileRepository.getAvailablity(mechanicId)
     const availability = response?.availability ?? 'notAvailable'
-
     const notifications = await this._notificationRepository.findByRecipientId(mechanicId)
-
     return { availability, notifications, messages: 0 }
   }
 
@@ -29,6 +28,9 @@ export class PageService implements IPageService {
     const recentActivities = [{ id: 1, name: "Saraaah Johnson", action: "Engine overheating resolved", time: "2h ago" }];
 
     const response = await this._roadsideAssistanceRepo.ongoingServiceByMechanicId(mechanicId);
+    const pickupSchedules = await this._pretripBookingRepository.todayScheduleOfMechanic(mechanicId)
+
+    
     let emergencyRequest = null;
     if (response) {
       const { _id, issue, vehicle, serviceLocation, status, createdAt, description } = response;
@@ -45,7 +47,7 @@ export class PageService implements IPageService {
       };
     }
 
-    return { recentActivities, emergencyRequest };
+    return { recentActivities, emergencyRequest, pickupSchedules};
   }
 
 

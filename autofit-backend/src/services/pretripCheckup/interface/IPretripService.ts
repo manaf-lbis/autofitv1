@@ -20,5 +20,4 @@ export interface IPretripService {
     createBooking({ coords, mechanicId, planId, slot, vehicleId, userId }:ICreateBookingParams): Promise<any>
     getNearbyMechanics(params: { lat: number; lng: number }): Promise<any>
     weeklySchedules(mechanicId: Types.ObjectId): Promise<any>
-    mySchedules(mechanicId: Types.ObjectId): Promise<any>
 }

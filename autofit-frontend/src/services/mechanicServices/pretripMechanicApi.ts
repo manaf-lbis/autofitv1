@@ -37,15 +37,6 @@ export const pretripMechanicApi = createApi({
       transformResponse: (response: any) => response.data,
     }),
 
-    todaysSchedules: builder.query<any, void>({
-      query: () => ({
-        url: "/mechanic/pretrip/todays-schedules",
-        method: "GET",
-      }),
-      providesTags: ["Work"],
-      transformErrorResponse: (res) => res.data
-    }),
-
     updatePretripStatus: builder.mutation<any, { id: string; status: PretripStatus }>({
       query: (slotData) => ({
         url: "/mechanic/pretrip/update-pretrip-status",
@@ -67,5 +58,4 @@ export const {
   useWeeklySchedulesQuery,
   useBlockScheduleMutation,
   useUnblockScheduleMutation,
-  useTodaysSchedulesQuery
 } = pretripMechanicApi;

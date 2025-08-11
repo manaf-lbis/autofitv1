@@ -52,8 +52,8 @@ export class PretripBookingRepository extends BaseRepository<PretripBookingDocum
             'payment.status': PaymentStatus.PAID,
             status: PretripStatus.BOOKED
         }).populate('userId', 'name mobile')
-        .populate('vehicleId', 'regNo brand modelName')
-        .select('userId pickupLocation.coordinates vehicleId schedule servicePlan.name status')
+        .populate('vehicleId', 'regNo brand modelName').populate('serviceReportId','servicePlan.name -_id')
+        .select('userId pickupLocation.coordinates vehicleId schedule servicePlan.name status serviceReportId')
     }
 
 

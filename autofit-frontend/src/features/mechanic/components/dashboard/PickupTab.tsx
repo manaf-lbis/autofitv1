@@ -1,6 +1,5 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { useTodaysSchedulesQuery } from "@/services/mechanicServices/pretripMechanicApi";
 import {
   Car,
   Check,
@@ -19,8 +18,11 @@ import { useGeolocation } from "@/hooks/useGeolocation";
 import LatLngToAddress from "@/components/shared/LocationInput/LatLngToAddress";
 import { useNavigate } from "react-router-dom";
 
-const PickupTab = () => {
-  const { data } = useTodaysSchedulesQuery();
+interface Props{
+  pickupSchedules: any
+}
+
+const PickupTab:React.FC<Props> = ({pickupSchedules}) => {
   const [isNavModalOpen, setIsNavModalOpen] = useState<boolean>(false);
   const [selectedLocation, setSelectedLocation] = useState<
     [number, number] | null
@@ -34,9 +36,7 @@ const PickupTab = () => {
     setIsNavModalOpen(true);
   };
 
-  const todaySchedules = data?.data || [];
-
-  if (!todaySchedules.length) {
+  if (!pickupSchedules.length) {
     return (
       <>
         <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-4 lg:p-6 flex items-center justify-center">
@@ -56,7 +56,7 @@ const PickupTab = () => {
           Today's Schedule
         </h3>
         <div className="space-y-4">
-          {todaySchedules.map((request: any) => (
+          {pickupSchedules.map((request: any) => (
             <div
               key={request._id}
               className="rounded-lg p-4 lg:p-6 bg-blue-50 border-2 border-blue-200"
@@ -99,7 +99,7 @@ const PickupTab = () => {
               </div>
 
               <p className="text-gray-600 mb-3 lg:mb-4 text-sm lg:text-base">
-                {request.servicePlan.name} checkup
+                {request?.serviceReportId?.servicePlan?.name ?? 'Service Plan'} checkup
               </p>
               <div className="flex flex-col sm:flex-row gap-2 lg:gap-3">
                 <div className="flex gap-2 w-full sm:w-auto">
