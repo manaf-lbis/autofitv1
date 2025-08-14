@@ -2,7 +2,7 @@ import { Types } from "mongoose";
 import { WorkingHoursDocument, WorkingHoursModel } from "../models/workingHoursModel";
 import { BaseRepository } from "./baseRepository";
 import { CheckAvailablityParams, IWorkingHoursRepository } from "./interfaces/IWorkingHoursRepository";
-import { DAYS_OF_WEEK } from "../utils/constands";
+import { DAYS_OF_WEEK } from "../utils/constants";
 
 export class WorkingHoursRepository extends BaseRepository<WorkingHoursDocument> implements IWorkingHoursRepository {
 

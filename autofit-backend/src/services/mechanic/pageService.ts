@@ -28,7 +28,9 @@ export class PageService implements IPageService {
     const recentActivities = [{ id: 1, name: "Saraaah Johnson", action: "Engine overheating resolved", time: "2h ago" }];
 
     const response = await this._roadsideAssistanceRepo.ongoingServiceByMechanicId(mechanicId);
-    const pickupSchedules = await this._pretripBookingRepository.todayScheduleOfMechanic(mechanicId)
+    const pickupSchedules = await this._pretripBookingRepository.todayScheduleOfMechanic(mechanicId);
+    const workOnProgress = await this._pretripBookingRepository.activeWorks(mechanicId);
+    const workCompleted = await this._pretripBookingRepository.completedWorks(mechanicId);
 
     
     let emergencyRequest = null;
@@ -47,7 +49,7 @@ export class PageService implements IPageService {
       };
     }
 
-    return { recentActivities, emergencyRequest, pickupSchedules};
+    return { recentActivities, emergencyRequest, pickupSchedules , workOnProgress ,workCompleted};
   }
 
 

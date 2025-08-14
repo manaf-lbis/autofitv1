@@ -74,7 +74,6 @@ export interface ApiResponse {
 
 export enum PretripStatus{
   BOOKED = 'booked',
-  PICKED_UP = 'picked_up',
   ANALYSING='analysing',
   REPORT_CREATED = 'report_created',
   VEHICLE_RETURNED = 'vehicle_returned',

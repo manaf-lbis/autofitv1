@@ -6,9 +6,9 @@ import {
   CheckCircle,
   ChevronRight,
   Clock,
+  Loader2,
   MapPin,
   Navigation,
-  Search,
   User,
 } from "lucide-react";
 import React, { useState } from "react";
@@ -17,36 +17,47 @@ import { formatTime } from "@/utils/utilityFunctions/dateUtils";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import LatLngToAddress from "@/components/shared/LocationInput/LatLngToAddress";
 import { useNavigate } from "react-router-dom";
+import { useUpdatePretripStatusMutation } from "@/services/mechanicServices/pretripMechanicApi";
+import { PretripStatus } from "@/types/pretrip";
 
 interface Props{
+  refetch: () => void
   pickupSchedules: any
 }
 
-const PickupTab:React.FC<Props> = ({pickupSchedules}) => {
+const PickupTab:React.FC<Props> = ({pickupSchedules, refetch}) => {
+
   const [isNavModalOpen, setIsNavModalOpen] = useState<boolean>(false);
   const [selectedLocation, setSelectedLocation] = useState<
     [number, number] | null
   >(null);
 
   const navigate = useNavigate();
-  const { latitude, longitude } = useGeolocation();
+  const geo = useGeolocation();
+  const [updateStatus,{isLoading}] = useUpdatePretripStatusMutation()
 
   const handleNavigate = (coords: [number, number]) => {
     setSelectedLocation(coords);
     setIsNavModalOpen(true);
   };
 
+
+
   if (!pickupSchedules.length) {
     return (
-      <>
-        <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-4 lg:p-6 flex items-center justify-center">
-          <div className="flex items-center justify-center gap-3  text-blue-500 h-full">
-            <Search className="w-5 h-5 lg:w-6 lg:h-6 " />
-            No Schedule Available
-          </div>
-        </div>
-      </>
-    );
+      <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 text-center">
+        <p className="text-sm text-gray-600">No active jobs found.</p>
+        <Button
+          size="sm"
+          variant="outline"
+          className="mt-4"
+          onClick={refetch}
+          aria-label="Refresh jobs"
+        >
+          Refresh
+        </Button>
+      </div>
+    )
   }
 
   return (
@@ -117,11 +128,15 @@ const PickupTab:React.FC<Props> = ({pickupSchedules}) => {
                   </Button>
 
                   <Button
+                     disabled={isLoading}
                     size="sm"
-                    // onClick={() => handlePickupComplete(request.id)}
+                    onClick={async () =>{
+                       await updateStatus({serviceId: request._id,status:PretripStatus.ANALYSING})
+                       refetch()
+                      }}
                     className="bg-green-500 hover:bg-green-600 text-sm lg:text-base w-1/2 sm:w-auto"
                   >
-                    <CheckCircle className="w-4 h-4 mr-1 lg:mr-2" />
+                    {isLoading ? <Loader2 className="w-4 h-4 mr-1 lg:mr-2 animate-spin" /> : <CheckCircle className="w-4 h-4 mr-1 lg:mr-2" />}
                     Pickup Completed
                   </Button>
                 </div>
@@ -131,7 +146,7 @@ const PickupTab:React.FC<Props> = ({pickupSchedules}) => {
                   className="text-sm lg:text-base w-full sm:w-auto"
                   onClick={() =>
                     navigate(
-                      "/mechanic/pre-trip-checkup/df5g4ds5gdf4gdf57g/details"
+                      `/mechanic/pre-trip-checkup/${request._id}/details`
                     )
                   }
                 >
@@ -145,10 +160,11 @@ const PickupTab:React.FC<Props> = ({pickupSchedules}) => {
         <MapModal
           isOpen={isNavModalOpen}
           onClose={() => setIsNavModalOpen(false)}
-          startLat={latitude!}
-          startLng={longitude!}
+          startLat={geo.latitude!}
+          startLng={geo.longitude!}
           endLat={selectedLocation ? selectedLocation[1] : 8.994086}
           endLng={selectedLocation ? selectedLocation[0] : 76.559832}
+          error={geo.error}
         />
       </div>
     </>

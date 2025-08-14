@@ -1,4 +1,5 @@
 import z from 'zod'
+import { CheckupCondition } from '../types/pretrip';
 
 export const isoDateSchema = z.string().refine((val) => {
   const date = new Date(val);
@@ -40,3 +41,16 @@ export const workingHoursSchema = z.object({
   friday: daySchema,
   saturday: daySchema,
 });
+
+
+const conditionEnum = z.enum(Object.values(CheckupCondition) as [string, ...string[]]);
+
+const reportItemSchema = z.object({
+  _id: z.string().min(1, "_id is required"),
+  name: z.string().min(1, "Name is required"),
+  condition: conditionEnum,
+  remarks: z.string().optional(),
+  needsAction: z.boolean(),
+});
+
+export const reportItemsSchema = z.array(reportItemSchema);

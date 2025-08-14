@@ -1,7 +1,7 @@
 import axios from "axios";
 import { IGoogleMapRepository } from "./interfaces/IGoogleMapRepository"; 
 import { ApiError } from "../utils/apiError";
-import { MAP_DISTANCE_MATRIX_URL } from "../utils/constands";
+import { MAP_DISTANCE_MATRIX_URL } from "../utils/constants";
 
 export class GoogleMapRepository implements IGoogleMapRepository {
   private _apiKey: string;

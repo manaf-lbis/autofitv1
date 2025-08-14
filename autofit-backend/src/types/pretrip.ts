@@ -22,11 +22,8 @@ export interface IPretripFeature {
     updatedAt: Date; 
 }
 
-
-
-export enum PretripStatus{
+export enum PretripStatus {
   BOOKED = 'booked',
-  PICKED_UP = 'picked_up',
   ANALYSING='analysing',
   REPORT_CREATED = 'report_created',
   VEHICLE_RETURNED = 'vehicle_returned',
@@ -51,7 +48,7 @@ export interface IPretripBooking {
     start: Date;
     end: Date;
   }
-  serviceReportId?: Types.ObjectId;
+  serviceReportId: Types.ObjectId;
   pickedUpAt?: Date;
   returnedAt?: Date;
   pickupLocation?:{
@@ -75,6 +72,7 @@ export enum CheckupCondition {
 }
 
 export interface IReportItem {
+  _id: Types.ObjectId;
   feature: string;
   condition?: CheckupCondition
   remarks?: string;
@@ -89,6 +87,7 @@ export interface IPretripReport {
     originalPrice?: number;
   };
   reportItems: IReportItem[];
+  mechanicNotes:string;
   createdAt: Date;
   updatedAt: Date;
 }

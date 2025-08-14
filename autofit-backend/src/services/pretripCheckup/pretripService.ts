@@ -1,4 +1,4 @@
-import { ICreateBookingParams, IPretripService } from "./interface/IPretripService";
+import { ICreateBookingParams, IPretripService, Report } from "./interface/IPretripService";
 import { IMechanicProfileRepository } from "../../repositories/interfaces/IMechanicProfileRepository";
 import { IGoogleMapRepository } from "../../repositories/interfaces/IGoogleMapRepository";
 import { IPretripBookingRepository } from "../../repositories/interfaces/IPretripBookingRepository";
@@ -6,12 +6,17 @@ import { IPretripPlanRepository } from "../../repositories/interfaces/IPretripPl
 import { IWorkingHoursRepository } from "../../repositories/interfaces/IWorkingHoursRepository";
 import { addDays, format, getHours, getMinutes, isToday, startOfDay } from "date-fns";
 import { convertHHMMToMinutes, convertMinutesToHHMM, dateAndTimeToDateString, findDayByISODate } from "../../utils/dateAndTimeFormater";
-import { DAYS_OF_WEEK } from "../../utils/constands";
+import { DAYS_OF_WEEK } from "../../utils/constants";
 import { ITimeBlockRepository } from "../../repositories/interfaces/ITimeBlockRepository";
 import { ApiError } from "../../utils/apiError";
 import { BlockType } from "../../models/timeBlock";
 import { Types } from "mongoose";
-import { IPretripReportRepository } from "../../repositories/interfaces/IPretripRepository";
+import { IPretripReportRepository } from "../../repositories/interfaces/IPretripReportRepository";
+import { HttpStatus } from "../../types/responseCode";
+import { PretripStatus } from "../../types/pretrip";
+import { reportItemsSchema } from "../../validation/pretripValidations";
+import { ZodError } from "zod";
+
 
 
 
@@ -24,7 +29,7 @@ export class PretripService implements IPretripService {
         private _planRepository: IPretripPlanRepository,
         private _workingHoursRepo: IWorkingHoursRepository,
         private _timeBlockingRepo: ITimeBlockRepository,
-        private _pretripReportRepo : IPretripReportRepository
+        private _pretripReportRepo: IPretripReportRepository
     ) { }
 
 
@@ -100,14 +105,14 @@ export class PretripService implements IPretripService {
         const startDateTime = dateAndTimeToDateString(slot.date, startingTime);
         const endDateTime = dateAndTimeToDateString(slot.date, endingTime);
 
-        const report  = await this._pretripReportRepo.save({
-            servicePlan:{
+        const report = await this._pretripReportRepo.save({
+            servicePlan: {
                 name,
                 description,
                 price,
-                originalPrice  
+                originalPrice
             },
-            reportItems : features.map((feature :any) => {feature})
+            reportItems: features.map((feature: any) => ({ feature }))
         })
 
         const booking = await this._pretripBookingRepository.save({
@@ -251,7 +256,7 @@ export class PretripService implements IPretripService {
         const start = startOfDay(new Date());
         const end = addDays(start, 6);
         const bookings = await this._pretripBookingRepository.weeklyScheduleOfMechanic(mechanicId);
-        const blockingsByMech = await this._timeBlockingRepo.findBlockingByDateRange(mechanicId, start, end,BlockType.MECHANIC_BLOCK);
+        const blockingsByMech = await this._timeBlockingRepo.findBlockingByDateRange(mechanicId, start, end, BlockType.MECHANIC_BLOCK);
 
         const blockings = blockingsByMech.map((block) => {
             return {
@@ -265,6 +270,77 @@ export class PretripService implements IPretripService {
 
         return { bookings, blockings }
     }
+
+    async workDetails(mechanicId: Types.ObjectId, serviceId: Types.ObjectId): Promise<any> {
+        const booking = await this._pretripBookingRepository.detailedBooking(serviceId);
+        if (!booking) throw new ApiError('Invalid Service', HttpStatus.BAD_REQUEST);
+        if (booking.mechanicId.toString() !== mechanicId.toString()) throw new ApiError('Invalid Mechanic', HttpStatus.BAD_REQUEST);
+
+        return {
+            serviceId: booking._id,
+            schedule: booking.schedule,
+            status: booking.status,
+            user: booking.userId
+            , vehicle: {
+                registration: booking.vehicleId?.regNo,
+                brand: booking.vehicleId?.brand,
+                model: booking.vehicleId?.modelName,
+                owner: booking.vehicleId?.owner
+            }, service: {
+                paymentId: booking.payment?.paymentId?.paymentId,
+                method: booking.payment?.paymentId?.method,
+                status: booking.payment?.paymentId?.status,
+                amount: booking.payment?.paymentId?.amount,
+            },
+            plan: booking?.serviceReportId,
+            serviceLocation: booking.pickupLocation?.coordinates
+        }
+    }
+
+    async updateStatus(mechanicId: Types.ObjectId, serviceId: Types.ObjectId, status: PretripStatus): Promise<any> {
+
+        const booking = await this._pretripBookingRepository.findById(serviceId);
+        if (!booking) throw new ApiError('Invalid Service', HttpStatus.BAD_REQUEST);
+        if (booking.mechanicId.toString() !== mechanicId.toString()) throw new ApiError('Invalid Mechanic', HttpStatus.BAD_REQUEST);
+        if (booking.status === PretripStatus.CANCELLED) throw new ApiError('Service is already cancelled', HttpStatus.BAD_REQUEST);
+        if (booking.status === PretripStatus.VEHICLE_RETURNED) throw new ApiError('Service is already completed', HttpStatus.BAD_REQUEST);
+        if (status === PretripStatus.CANCELLED) throw new ApiError('Mechanic cannot cancel the service', HttpStatus.BAD_REQUEST);
+
+        if (!Object.values(PretripStatus).includes(status)) throw new ApiError('Invalid Status', HttpStatus.BAD_REQUEST);
+        return await this._pretripBookingRepository.update(serviceId, { status })
+    }
+
+
+    async createReport(mechanicId: Types.ObjectId, serviceId: Types.ObjectId, report: Report[], mechanicNotes: string): Promise<any> {
+        try {
+            console.log(report, mechanicNotes, serviceId);
+            reportItemsSchema.parse(report);
+            const booking = await this._pretripBookingRepository.findById(serviceId);
+
+            if (!booking) throw new ApiError('Invalid Service', HttpStatus.BAD_REQUEST);
+            if (booking.mechanicId.toString() !== mechanicId.toString()) throw new ApiError('Invalid Mechanic', HttpStatus.BAD_REQUEST);
+            if (booking.status === PretripStatus.COMPLETED) throw new ApiError('Service is already completed', HttpStatus.BAD_REQUEST);
+            if (booking.status === PretripStatus.CANCELLED) throw new ApiError('Service is already cancelled', HttpStatus.BAD_REQUEST);
+            if (booking.status === PretripStatus.REPORT_CREATED || booking.status === PretripStatus.VEHICLE_RETURNED) {
+                throw new ApiError('Report is already created', HttpStatus.BAD_REQUEST);
+            }
+
+
+            const result = await this._pretripReportRepo.updateReport(booking.serviceReportId, report, mechanicNotes);
+            await this._pretripBookingRepository.update(serviceId, { status: PretripStatus.REPORT_CREATED });
+            return result
+
+        } catch (error: any) {
+            if (error instanceof ZodError) {
+                throw new ApiError(error.issues[0].message, HttpStatus.BAD_REQUEST);
+            } else {
+                throw new ApiError(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        }
+
+    }
+
+
 
 
 }

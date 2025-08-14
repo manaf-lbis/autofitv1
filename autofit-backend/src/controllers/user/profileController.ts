@@ -32,11 +32,28 @@ export class ProfileController {
         }
     }
 
-    async serviceHistory(req: Request, res: Response, next: NextFunction) {
+    async roadsideServiceHistory(req: Request, res: Response, next: NextFunction) {
          try {
             const userId = req.user?.id
+            const {page} = req.query
+            if(!page || isNaN(Number(page))) throw new ApiError('Invalid page number',HttpStatus.BAD_REQUEST)
             if(!userId) throw new ApiError('Invalid user')
-            const serviceHistory = await this._profileService.serviceHistoryByUserId(userId)
+
+            const serviceHistory = await this._profileService.roadsideServiceHistory(userId,Number(page));
+            sendSuccess(res, 'Profile Updated',serviceHistory);
+        } catch (error: any) {
+            next(error);
+        }
+    }
+
+    async pretripServiceHistory(req: Request, res: Response, next: NextFunction) {
+         try {
+            const userId = req.user?.id
+            const {page} = req.query
+            if(!page || isNaN(Number(page))) throw new ApiError('Invalid page number',HttpStatus.BAD_REQUEST)
+            if(!userId) throw new ApiError('Invalid user')
+
+            const serviceHistory = await this._profileService.pretripServiceHistory(userId,Number(page));
             sendSuccess(res, 'Profile Updated',serviceHistory);
         } catch (error: any) {
             next(error);

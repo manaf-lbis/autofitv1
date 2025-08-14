@@ -38,7 +38,10 @@ const pretripReport = new Schema<PretripReportDocument>({
         needsAction: {
             type: Boolean,
         }
-    }]
+    }],
+    mechanicNotes: {
+        type: String,
+    }
 
 },{ timestamps: true });
 

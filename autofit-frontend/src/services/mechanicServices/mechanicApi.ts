@@ -8,7 +8,6 @@ type SuccessResponse = {
   data?: any;
 };
 
-
 export const mechanicApi = createApi({
   reducerPath: "mechanicApi",
   baseQuery: baseQueryWithRefresh,
@@ -97,6 +96,8 @@ export const mechanicApi = createApi({
       transformResponse: (response: ApiResponse<WorkingHoursData>) => response.data,
       invalidatesTags: ["WorkingHours"],
     }),
+
+    
 
 
 

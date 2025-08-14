@@ -1,5 +1,6 @@
 import { Star } from "lucide-react";
 import { motion } from "framer-motion";
+import LazyImage from "@/components/shared/LazyImage";
 
 interface LeftColumnProps {
   mechanic: { name: string; avatar: string };
@@ -24,13 +25,14 @@ export function LeftColumn({ mechanic, vehicle, issue, description }: LeftColumn
         <div className="p-4">
           <div className="flex items-center gap-3">
             <div className="w-14 h-14 rounded-full overflow-hidden bg-gray-100 border-2 border-blue-100">
-              <img
-                src={mechanic.avatar || "/placeholder.svg"}
-                alt={mechanic.name}
-                width={56}
-                height={56}
-                className="w-full h-full object-cover"
-              />
+              
+              <LazyImage
+                 publicId={mechanic.avatar}
+                 resourceType="image"
+                 alt="avatar"
+                 className="w-full h-full object-cover"
+               />
+
             </div>
             <div>
               <h4 className="font-medium text-gray-900">{mechanic.name}</h4>

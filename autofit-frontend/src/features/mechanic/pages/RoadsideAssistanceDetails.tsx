@@ -235,6 +235,7 @@ export default function BookingDetails() {
               startLng={longitude || 76.535293}
               endLat={ booking.serviceLocation.coordinates[1] || 8.994086}
               endLng={booking.serviceLocation.coordinates[0] || 76.559832}
+              error={error}
             />
           </CardContent>
         </Card>

@@ -1,96 +1,103 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Car, ChevronRight, Clock, Eye, MapPin, User, Wrench } from "lucide-react";
+import { Car, ChevronRight, Clock, Eye, User } from "lucide-react";
 import React from "react";
+import { formatTime } from "@/utils/utilityFunctions/dateUtils";
+import { useNavigate } from "react-router-dom";
 
+interface Work {
+  _id: string;
+  schedule: { start: string; end: string };
+  status: "analysing" | "report_created";
+  userId: { _id: string; name: string };
+  vehicleId: { _id: string; regNo: string; brand: string; modelName: string };
+}
 
-  const workInProgress = [
-    {
-      id: 1,
-      name: "Tom Wilson",
-      vehicle: "Ford F-150 2018",
-      issue: "Transmission repair",
-      startTime: "Started 2h ago",
-      location: "Workshop Bay 2",
-    },
-    {
-      id: 2,
-      name: "Anna Brown",
-      vehicle: "BMW X3 2021",
-      issue: "Engine diagnostic",
-      startTime: "Started 45m ago",
-      location: "Workshop Bay 1",
-    },
-  ]
+interface Props {
+  refetch: () => void;
+  workInProgress: Work[];
+}
 
+const OnProgressTab: React.FC<Props> = ({ refetch, workInProgress }) => {
+  const navigate = useNavigate();
+  const getStatusDisplay = (status: Work["status"]) => {
+    return status === "analysing" ? "Analysing" : "Report Created";
+  };
 
-const OnProgressTab = () => {
+  const getButtonText = (status: Work["status"]) => {
+    return status === "analysing" ? "Analyse and Create Report" : "Mark as Complete";
+  };
+
   return (
-    <>
-    
-      <div className="space-y-4 lg:space-y-6">
-        <h3 className="font-bold text-gray-900 text-lg lg:text-xl">
-          Active Jobs
-        </h3>
+    <div className="space-y-6 p-4">
+      <h3 className="font-bold text-gray-900 text-lg lg:text-xl">Active Jobs</h3>
+      {(!workInProgress || workInProgress.length === 0) ? (
+        <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 text-center">
+          <p className="text-sm text-gray-600">No active jobs found.</p>
+          <Button
+            size="sm"
+            variant="outline"
+            className="mt-4"
+            onClick={refetch}
+            aria-label="Refresh jobs"
+          >
+            Refresh
+          </Button>
+        </div>
+      ) : (
         <div className="space-y-4">
           {workInProgress.map((work) => (
             <div
-              key={work.id}
-              className="bg-orange-50 border-2 border-orange-200 rounded-lg p-4 lg:p-6"
+              key={work._id}
+              className="bg-orange-50 border-2 border-orange-200 rounded-lg p-4 lg:p-6 shadow-sm"
             >
-              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-3 lg:mb-4">
+              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-4">
                 <div>
-                  <div className="flex items-center gap-2 mb-1">
+                  <div className="flex items-center gap-2 mb-2">
                     <User className="w-4 h-4 text-gray-600" />
-                    <h4 className="font-bold text-gray-900 text-sm lg:text-base">
-                      {work.name}
+                    <h4 className="font-semibold text-gray-900 text-sm lg:text-base">
+                      {work.userId.name}
                     </h4>
                   </div>
-                  <div className="flex items-center gap-1">
-                    <Car className="w-3 h-3 lg:w-4 lg:h-4 text-gray-500" />
+                  <div className="flex items-center gap-2">
+                    <Car className="w-4 h-4 text-gray-500" />
                     <p className="text-gray-600 text-xs lg:text-sm">
-                      {work.vehicle}
+                      {`${work.vehicleId.brand} ${work.vehicleId.modelName} (${work.vehicleId.regNo})`}
                     </p>
                   </div>
                 </div>
-                <Badge className="bg-orange-500 text-white text-xs self-start">
-                  In Progress
+                <Badge className="bg-orange-500 text-white text-xs self-start capitalize">
+                  {getStatusDisplay(work.status)}
                 </Badge>
               </div>
 
-              <div className="flex items-center gap-2 mb-3 lg:mb-4">
-                <Wrench className="w-4 h-4 text-orange-600" />
-                <p className="font-medium text-gray-900 text-sm lg:text-base">
-                  {work.issue}
-                </p>
-              </div>
-
-              <div className="flex flex-col sm:flex-row sm:items-center gap-2 lg:gap-6 text-xs lg:text-sm text-gray-600 mb-3 lg:mb-4">
-                <div className="flex items-center gap-2">
-                  <Clock className="w-4 h-4" />
-                  <span>{work.startTime}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <MapPin className="w-4 h-4" />
-                  <span>{work.location}</span>
-                </div>
+              <div className="flex items-center gap-2 mb-4 text-xs lg:text-sm text-gray-600">
+                <Clock className="w-4 h-4" />
+                <span>
+                  {`${formatTime(new Date(work.schedule.start))} - ${formatTime(new Date(work.schedule.end))}`}
+                </span>
               </div>
 
               <Button
                 size="sm"
                 variant="outline"
-                className="text-sm lg:text-base"
+                className="w-full sm:w-auto text-sm lg:text-base"
+                   onClick={() =>
+                    navigate(
+                      `/mechanic/pre-trip-checkup/${work._id}/details`
+                    )
+                  }
+                aria-label={getButtonText(work.status)}
               >
-                <Eye className="w-4 h-4 mr-1 lg:mr-2" />
-                View Details
-                <ChevronRight className="w-4 h-4 ml-1 lg:ml-2" />
+                <Eye className="w-4 h-4 mr-2" />
+                {getButtonText(work.status)}
+                <ChevronRight className="w-4 h-4 ml-2" />
               </Button>
             </div>
           ))}
         </div>
-      </div>
-
-    </>
+      )}
+    </div>
   );
 };
 
