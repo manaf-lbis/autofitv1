@@ -25,6 +25,7 @@ const router = Router();
 
 router.get('/dashboard', pageController.dashboard.bind(pageController));
 router.get('/info', pageController.primaryInfo.bind(pageController));
+// router.get('/earnings',pagecontroller)
 
 
 
