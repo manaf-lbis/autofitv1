@@ -1,7 +1,7 @@
 import { Document, model, Schema, Types } from "mongoose";
-import { Payment } from "../types/payment";
+import { IPayment } from "../types/payment";
 
-export interface PaymentDocument extends Payment, Document<Types.ObjectId> {}
+export interface PaymentDocument extends IPayment, Document<Types.ObjectId> {}
 
 const paymentSchema = new Schema<PaymentDocument>({
     userId: {

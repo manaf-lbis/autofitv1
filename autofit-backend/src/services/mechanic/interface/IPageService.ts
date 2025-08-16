@@ -1,4 +1,5 @@
 import { Types } from "mongoose";
+import { TransactionDurations } from "../../../types/transaction";
 
 export interface IPageService {
 
@@ -7,7 +8,6 @@ export interface IPageService {
     notifications: any[]; 
     messages: number;
   }>;
-
 
   dashboard(mechanicId: Types.ObjectId): Promise<{
     recentActivities: { id: number; name: string; action: string; time: string }[];
@@ -22,4 +22,6 @@ export interface IPageService {
       vehicle: string;
     } | null;
   }>;
+
+  transactions(mechanicId: Types.ObjectId,duration:TransactionDurations): Promise<any>;
 }

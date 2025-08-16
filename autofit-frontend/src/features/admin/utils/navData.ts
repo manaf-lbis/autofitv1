@@ -64,8 +64,8 @@ const data = {
           url: "#",
         },
          {
-          title: "Plans",
-          url: "#",
+          title: "Pretrip Plans",
+          url: "/admin/pretrip-plans",
         },
       ],
     },

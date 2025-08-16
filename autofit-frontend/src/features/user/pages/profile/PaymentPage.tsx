@@ -100,7 +100,6 @@ const getServiceBadgeColor = (serviceType: string) => {
 export default function PaymentPage() {
     const [selectedGateway, setSelectedGateway] = useState<string>("");
     const [isProcessing, setIsProcessing] = useState(false);
-    const [paymentCompleted, setPaymentCompleted] = useState(false);
     const [verifyPayment, { isLoading: verifyingPayment }] = useVerifyPaymentMutation();
     const { initiateRazorpay } = useRazorpayPayment();
     const navigate = useNavigate();

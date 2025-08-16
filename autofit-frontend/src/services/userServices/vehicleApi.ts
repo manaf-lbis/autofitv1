@@ -1,4 +1,4 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { createApi } from "@reduxjs/toolkit/query/react";
 import { baseQueryWithRefresh } from "@/utils/baseQuery";
 
 type FormData = {
@@ -14,7 +14,8 @@ type UpdateVehicleData = FormData & { id: string };
 export const vehicleApi = createApi({
   reducerPath: "vehicleApi",
   baseQuery: baseQueryWithRefresh,
-  
+  tagTypes: ["Vehicle"],
+
   endpoints: (builder) => ({
     newVehicle: builder.mutation({
       query: (data: FormData) => ({
@@ -22,12 +23,14 @@ export const vehicleApi = createApi({
         method: "POST",
         body: data,
       }),
+      invalidatesTags: ["Vehicle"],
     }),
     getMyVehicles: builder.query({
       query: () => ({
         url: "user/vehicle/my-vehicles",
         method: "GET",
       }),
+      providesTags:["Vehicle"],
     }),
     updateVehicle: builder.mutation({
       query: (data: UpdateVehicleData) => ({
@@ -35,13 +38,16 @@ export const vehicleApi = createApi({
         method: "PATCH",
         body: data,
       }),
+      invalidatesTags: ["Vehicle"],
     }),
     deleteVehicle: builder.mutation({
       query: (id: string) => ({
         url: `user/vehicle/my-vehicle?id=${id}`,
         method: "DELETE",
       }),
+      invalidatesTags: ["Vehicle"],
     }),
+    
     getVehicleBrand: builder.query({
       query: () => ({
         url: "user/vehicle/vehicle-brands",

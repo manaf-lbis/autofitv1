@@ -1,7 +1,7 @@
 import { ObjectId } from "mongodb";
 import { Types } from "mongoose";
-import { MechanicProfileDocument } from "../../../models/mechanicProfileModel"; 
-import { MechanicRegisterInput } from "../../../types/mechanic/mechanic"; 
+import { MechanicProfileDocument } from "../../../models/mechanicProfileModel";
+import { IMechanicTiming, MechanicRegisterInput } from "../../../types/mechanic/mechanic";
 
 interface CloudinaryFile {
   public_id: string;
@@ -15,6 +15,17 @@ export interface MechanicRegisterPayload {
   qualification: CloudinaryFile;
   mechanicId: ObjectId;
 }
+
+export interface IScheduleDetails {
+  date: string,
+  isFullDayBlock:boolean,
+  blockedTiming: {
+    from: string,
+    to: string
+  },
+  reason: string
+}
+
 
 export interface IProfileService {
 
@@ -38,4 +49,12 @@ export interface IProfileService {
   ): Promise<MechanicProfileDocument | null>;
 
   setNotificationRead(userId: Types.ObjectId): Promise<any>;
+
+  getWorkingHours(mechanicId: Types.ObjectId): Promise<any>;
+  createWorkingHours(mechanicId: Types.ObjectId, workingHours: Omit<IMechanicTiming, "mechanicId">): Promise<void>;
+  updateWorkingHours(mechanicId: Types.ObjectId, workingHours: Omit<IMechanicTiming, "mechanicId">): Promise<void>;
+
+  blockSchedule(mechanicId: Types.ObjectId, scheduleDetails: IScheduleDetails): Promise<void>;
+  unblockSchedule(mechanicId: Types.ObjectId, id:Types.ObjectId): Promise<void>;
+
 }

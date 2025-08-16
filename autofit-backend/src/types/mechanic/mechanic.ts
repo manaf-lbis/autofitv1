@@ -22,15 +22,15 @@ export interface MechanicProfile {
   _id: Types.ObjectId,
   mechanicId: Types.ObjectId
   education: string,
-  availability: 'available'|'notAvailable'|'busy'
+  availability: 'available' | 'notAvailable' | 'busy'
   specialised: string,
   experience: number,
   shopName: string,
-  registration:{
-     status:'pending'| 'approved' | 'rejected',
-     rejectionReason:string,
-     approvedOn:Date,
-     rejectedOn:Date
+  registration: {
+    status: 'pending' | 'approved' | 'rejected',
+    rejectionReason: string,
+    approvedOn: Date,
+    rejectedOn: Date
   }
   place: string,
   location: {
@@ -41,6 +41,7 @@ export interface MechanicProfile {
   photo: string
   shopImage: string,
   qualification: string,
+  workingHours: Types.ObjectId
   createdAt?: Date,
   updatedAt?: Date
 }
@@ -86,4 +87,36 @@ export interface MechanicNearbyDto {
   [key: string]: any;
   distanceInMeters: number;
   durationInSeconds: number;
+}
+
+export interface IDayTiming {
+  isOpen: boolean;
+  openTime: number;
+  closeTime: number;
+}
+
+export interface IMechanicTiming {
+  mechanicId: Types.ObjectId;
+  sunday: IDayTiming;
+  monday: IDayTiming;
+  tuesday: IDayTiming;
+  wednesday: IDayTiming;
+  thursday: IDayTiming;
+  friday: IDayTiming;
+  saturday: IDayTiming;
+}
+
+
+export interface ITimeBlock {
+  _id: Types.ObjectId;
+  mechanicId: Types.ObjectId;
+  date:Date;
+  startMinutes: number;
+  endMinutes: number;
+  blockType: string;
+  reason: string;
+  userId: Types.ObjectId;
+  createdAt: Date;
+  updatedAt: Date;
+
 }

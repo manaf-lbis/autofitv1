@@ -9,7 +9,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useGetMechanicDetailsQuery, useUpdateMechanicStatusMutation } from "../../../../services/adminServices/mechanicManagement";
 import toast from "react-hot-toast";
 import GoogleMapForLocation from "@/components/shared/googleMap/GoogleMapForLocation";
-import { getAssetURL } from "@/utils/utilityFunctions.ts/getAssetURL";
+import { getAssetURL } from "@/utils/utilityFunctions/getAssetURL";
 import LazyImage from "@/components/shared/LazyImage";
 
 

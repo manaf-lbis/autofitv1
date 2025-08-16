@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { getAssetURL } from "@/utils/utilityFunctions.ts/getAssetURL";
+import { getAssetURL } from "@/utils/utilityFunctions/getAssetURL";
 
 interface LazyImageProps {
   publicId: string;

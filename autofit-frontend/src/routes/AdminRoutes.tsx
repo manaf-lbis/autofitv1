@@ -8,6 +8,7 @@ import NewApplication from "@/features/admin/pages/mechanicManagement/NewApplica
 import VerifyNewApplication from "@/features/admin/pages/mechanicManagement/VerifyNewApplication";
 import MechanicDashboard from "@/features/admin/pages/mechanicManagement/MechanicDashboard";
 import MechanicDetails from "@/features/admin/pages/mechanicManagement/MechanicDetails";
+import PretripPlans from "@/features/admin/pages/services/PretripPlans";
 
 const AdminRoutes: React.FC = () => {
   return (
@@ -23,6 +24,10 @@ const AdminRoutes: React.FC = () => {
 
             <Route path="new-application" element={<NewApplication/>} />
             <Route path="mechanic-application/:id" element={<VerifyNewApplication/>} />
+
+            <Route path="/pretrip-plans" element={<PretripPlans/>} />
+
+
 
             <Route  path="*" element={<>Not Found</>}></Route>
           </Route>

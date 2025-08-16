@@ -1,6 +1,7 @@
 import axios from "axios";
 import { IGoogleMapRepository } from "./interfaces/IGoogleMapRepository"; 
 import { ApiError } from "../utils/apiError";
+import { MAP_DISTANCE_MATRIX_URL } from "../utils/constants";
 
 export class GoogleMapRepository implements IGoogleMapRepository {
   private _apiKey: string;
@@ -12,7 +13,7 @@ export class GoogleMapRepository implements IGoogleMapRepository {
   async getDistanceMatrix( origin: { lat: number; lng: number }, destinations: { lat: number; lng: number }[]): Promise<{ distances: number[]; durations: number[] }> {
     const origins = `${origin.lat},${origin.lng}`;
     const destinationStr = destinations.map((d) => `${d.lat},${d.lng}`).join("|");
-    const url = `https://maps.googleapis.com/maps/api/distancematrix/json`;
+    const url = MAP_DISTANCE_MATRIX_URL;
 
     try {
       const response = await axios.get(url, {

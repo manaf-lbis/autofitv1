@@ -1,4 +1,4 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { createApi } from "@reduxjs/toolkit/query/react";
 import { baseQueryWithRefresh } from "@/utils/baseQuery";
 
 
@@ -49,7 +49,7 @@ export const servicesApi = createApi({
                 body: data
             })
         }),
-
+        
         cancelBooking: builder.mutation<any,{serviceId:string}>({
             query: ({serviceId}) => ({
                 url: `user/services/roadside-assistance/cancel`,
@@ -65,13 +65,8 @@ export const servicesApi = createApi({
                 body: data
             })
         }),
-        
-        
-
 
     }),
-
-
 
 });
 
