@@ -6,26 +6,34 @@ import { DAYS_OF_WEEK } from "../utils/constants";
 
 export class WorkingHoursRepository extends BaseRepository<WorkingHoursDocument> implements IWorkingHoursRepository {
 
-    constructor (){
+    constructor() {
         super(WorkingHoursModel)
     }
     async getWorkingHours(mechanicId: Types.ObjectId): Promise<any> {
-       return await WorkingHoursModel.findOne({mechanicId}).select(`${DAYS_OF_WEEK.split(',').join(' ')}, -_id`).lean()
+        return await WorkingHoursModel.findOne({ mechanicId }).select(`${DAYS_OF_WEEK.split(',').join(' ')}, -_id`).lean()
     }
 
     async updateWorkingHours(mechanicId: Types.ObjectId, workingHours: any): Promise<any> {
-        return await WorkingHoursModel.updateOne({mechanicId},workingHours)
+        return await WorkingHoursModel.updateOne({ mechanicId }, workingHours)
     }
 
     async workingHoursOfMultipleMechanics(mechanicIds: Types.ObjectId[]): Promise<any> {
-        return await WorkingHoursModel.find({mechanicId:{$in:mechanicIds}})
+        return await WorkingHoursModel.find({ mechanicId: { $in: mechanicIds } })
     }
 
     async checkAvailablity({ mechanicId, day, startingMinute, endingMinute }: CheckAvailablityParams): Promise<any> {
         return await WorkingHoursModel.findOne({ mechanicId, [`${day}.openTime`]: { $lte: startingMinute }, [`${day}.closeTime`]: { $gte: endingMinute } })
     }
 
+    async findAvailabelMechanicsByday(day: string, startingMinute: number, endingMinute: number): Promise<any> {
+        return await WorkingHoursModel.find({
+            [`${day}.isOpen`]: true,
+            [`${day}.openTime`]: { $lte: startingMinute },
+            [`${day}.closeTime`]: { $gte: endingMinute }
+        }).select('mechanicId')
+    }
 
-    
+
+
 
 }

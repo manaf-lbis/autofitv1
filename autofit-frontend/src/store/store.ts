@@ -16,6 +16,7 @@ import { planApi } from "@/services/adminServices/planApi";
 import { pretripUserApi } from "@/services/userServices/pretripUserApi";
 import { pretripMechanicApi } from "@/services/mechanicServices/pretripMechanicApi";
 import { paymentApi } from "@/services/userServices/paymentApi";
+import { liveAssistanceApi } from "@/services/userServices/liveAssistanceApi";
 
 
 import authReducer from "../features/auth/slices/authSlice";
@@ -51,7 +52,8 @@ export const store = configureStore({
     [planApi.reducerPath]: planApi.reducer,
     [pretripUserApi.reducerPath]: pretripUserApi.reducer,
     [pretripMechanicApi.reducerPath]: pretripMechanicApi.reducer,
-    [paymentApi.reducerPath]: paymentApi.reducer
+    [paymentApi.reducerPath]: paymentApi.reducer,
+    [liveAssistanceApi.reducerPath]: liveAssistanceApi.reducer
 
 
   },
@@ -74,7 +76,8 @@ export const store = configureStore({
       planApi.middleware,
       pretripUserApi.middleware,
       pretripMechanicApi.middleware,
-      paymentApi.middleware
+      paymentApi.middleware,
+      liveAssistanceApi.middleware
     ),
 });
 

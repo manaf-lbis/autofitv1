@@ -142,7 +142,7 @@ export class PretripService implements IPretripService {
             date,
             startMinutes: startingMinute,
             endMinutes: endingMinute,
-            blockType: BlockType.USER_BOOKING,
+            blockType: BlockType.PAYMENT_DELAY,
             userId,
             reason: `Booking for ${name}`
         });
