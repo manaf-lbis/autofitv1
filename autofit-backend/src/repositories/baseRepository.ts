@@ -9,11 +9,11 @@ export class BaseRepository<T extends Document> implements IBaseRepository<T> {
   }
 
   async findById(id: Types.ObjectId): Promise<T | null> {
-    return await this._model.findById(id).exec();
+    return await this._model.findById(id).select('-__v').exec();
   }
 
   async findAll(): Promise<T[]> {
-    return await this._model.find().exec();
+    return await this._model.find().select('-__v').exec();
   }
 
   async save(entity: Partial<T>): Promise<T> {
@@ -22,10 +22,10 @@ export class BaseRepository<T extends Document> implements IBaseRepository<T> {
   }
 
   async update(id: Types.ObjectId, update: Partial<T>): Promise<T | null> {
-    return await this._model.findByIdAndUpdate(id, update, { new: true }).exec();
+    return await this._model.findByIdAndUpdate(id, update, { new: true }).select('-__v').exec();
   }
 
   async delete(id: Types.ObjectId): Promise<void> {
-    await this._model.findByIdAndDelete(id).exec();
+    await this._model.findByIdAndDelete(id).select('-__v').exec();
   }
 }

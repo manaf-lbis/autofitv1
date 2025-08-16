@@ -17,7 +17,7 @@ export default function MechanicDashboard() {
   const [activeTab, setActiveTab] = useState("emergency");
   const dispatch = useDispatch();
 
-  const { data: dashboardData,isLoading } = useGetDashboardQuery(undefined,{refetchOnMountOrArgChange:true});
+  const { data: dashboardData, isLoading,refetch } = useGetDashboardQuery(undefined,{refetchOnMountOrArgChange:true});
   const emergencyRequest = useSelector((state: RootState) => state.mechanicSlice.emergencyRequest);
 
   useEffect(() => {
@@ -31,11 +31,11 @@ export default function MechanicDashboard() {
       case "emergency":
         return emergencyRequest ? 1 : 0;
       case "pickup":
-        return 2;
+        return dashboardData?.data?.pickupSchedules?.length || 0;
       case "progress":
-        return 2;
+        return dashboardData?.data?.workOnProgress?.length || 0;
       case "completed":
-        return 2;
+        return dashboardData?.data?.workCompleted?.length || 0;
       default:
         return 0;
     }
@@ -94,9 +94,15 @@ export default function MechanicDashboard() {
                   {activeTab === "emergency" && (
                     <EmergencyTab emergencyRequest={emergencyRequest ?? null} />
                   )}
-                  {activeTab === "pickup" && <PickupTab />}
-                  {activeTab === "progress" && <OnProgressTab />}
-                  {activeTab === "completed" && <CompletedTab />}
+                  {activeTab === "pickup" &&( 
+                    <PickupTab refetch={refetch} pickupSchedules={dashboardData?.data?.pickupSchedules ?? []} /> 
+                  )}
+                  {activeTab === "progress" && (
+                    <OnProgressTab refetch={refetch} workInProgress={dashboardData?.data?.workOnProgress ?? []}/>
+                  )}
+                  {activeTab === "completed" && (
+                    <CompletedTab refetch={refetch} workCompleted={dashboardData?.data?.workCompleted ?? []} />
+                  )}
                 </div>
               </ScrollArea>
             </div>

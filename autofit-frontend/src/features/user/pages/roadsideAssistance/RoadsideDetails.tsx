@@ -159,7 +159,7 @@ export default function RoadsideDetails() {
   if (isLoading) return <RoadsideDetailsShimmer />;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br mt-16 from-slate-50 via-blue-50/30 to-indigo-50/50 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br  from-slate-50 via-blue-50/30 to-indigo-50/50 relative overflow-hidden">
       <main className="container mx-auto px-4 py-6 relative">
         <div className="mb-4 cursor-pointer">
           <div onClick={() => navigate(-1)} className="inline-flex items-center text-blue-600 hover:text-blue-800">

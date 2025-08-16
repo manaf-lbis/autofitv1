@@ -50,7 +50,6 @@ export class UserRoadsideService implements IUserRoadsideService {
 
 
     const vehicle = await this._vehicleRepository.findById(vehicleId)
-
     if (!vehicle) throw new ApiError('Invalid Vehicle Vehicle Details')
 
     const emergencyAssistance = await this._roadsideAssistanceRepo.create({

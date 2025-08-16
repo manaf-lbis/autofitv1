@@ -7,7 +7,7 @@ import { IProfileService } from "../../services/mechanic/interface/IProfileServi
 
 
 interface CloudinaryFile extends Express.Multer.File {
-  public_id: string;
+    public_id: string;
 }
 
 export class ProfileController {
@@ -29,32 +29,32 @@ export class ProfileController {
 
     async register(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-             
-        const files = req.files as Record<string, CloudinaryFile[]>;
-        const photo = files.photo?.[0];
-        const shopImage = files.shopImage?.[0];
-        const qualification = files.qualification?.[0];
-        if (!photo || !shopImage || !qualification) {
-            throw new ApiError('All files are required', HttpStatus.BAD_REQUEST);
-        }
 
-        const mechanicId = req.user?.id;
-        if (!mechanicId) throw new ApiError('Unauthorized', HttpStatus.UNAUTHORIZED);
+            const files = req.files as Record<string, CloudinaryFile[]>;
+            const photo = files.photo?.[0];
+            const shopImage = files.shopImage?.[0];
+            const qualification = files.qualification?.[0];
+            if (!photo || !shopImage || !qualification) {
+                throw new ApiError('All files are required', HttpStatus.BAD_REQUEST);
+            }
 
-        const validated = mechanicRegisterValidation.parse(req.body);
-        const { education, specialised, experience, shopName, place, landmark, location } = validated;
+            const mechanicId = req.user?.id;
+            if (!mechanicId) throw new ApiError('Unauthorized', HttpStatus.UNAUTHORIZED);
 
-        await this._mechanicProfileService.registerUser({
-            data: { education, specialised, experience, shopName, place, landmark, location },
-            photo,
-            shopImage,
-            qualification,
-            mechanicId,
-        });
+            const validated = mechanicRegisterValidation.parse(req.body);
+            const { education, specialised, experience, shopName, place, landmark, location } = validated;
 
-        sendSuccess(res, 'Submitted Successfully');
+            await this._mechanicProfileService.registerUser({
+                data: { education, specialised, experience, shopName, place, landmark, location },
+                photo,
+                shopImage,
+                qualification,
+                mechanicId,
+            });
+
+            sendSuccess(res, 'Submitted Successfully');
         } catch (err) {
-        next(err);
+            next(err);
         }
     }
 
@@ -76,10 +76,10 @@ export class ProfileController {
         try {
             const mechanicId = req.user?.id;
             if (!mechanicId) throw new ApiError('Invalid User')
-            
+
             const availability = req.body.availability
-            const response = await this._mechanicProfileService.setAvailablity(mechanicId,{availability})
-            sendSuccess(res, 'Success',{availability:response?.availability});
+            const response = await this._mechanicProfileService.setAvailablity(mechanicId, { availability })
+            sendSuccess(res, 'Success', { availability: response?.availability });
 
         } catch (err) {
             next(err);
@@ -89,15 +89,91 @@ export class ProfileController {
     async setReadNotification(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const userId = req.user?.id
-            if(!userId) throw new ApiError('Invalid User')
+            if (!userId) throw new ApiError('Invalid User')
             await this._mechanicProfileService.setNotificationRead(userId)
 
-         
+
             sendSuccess(res, 'Success');
         } catch (err) {
             next(err);
         }
     }
+
+    async getWorkingHours(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const mechanicId = req.user?.id
+            if (!mechanicId) throw new ApiError('Invalid User')
+            const result = await this._mechanicProfileService.getWorkingHours(mechanicId)
+            sendSuccess(res, 'Success', result);
+        } catch (err) {
+            next(err);
+        }
+    }
+
+    async createWorkingHours(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const mechanicId = req.user?.id
+            if (!mechanicId) throw new ApiError('Invalid User')
+            const data = req.body
+            await this._mechanicProfileService.createWorkingHours(mechanicId, data)
+            sendSuccess(res, 'Success');
+        } catch (err) {
+            next(err);
+        }
+    }
+
+    async updateworkingHours(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const mechanicId = req.user?.id
+            if (!mechanicId) throw new ApiError('Invalid User')
+            const data = req.body
+            await this._mechanicProfileService.updateWorkingHours(mechanicId, data)
+            sendSuccess(res, 'Success');
+        } catch (err) {
+            next(err);
+        }
+    }
+
+
+    async blockSchedule(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const mechanicId = req.user?.id
+            if (!mechanicId) throw new ApiError('Invalid User')
+            const { date, isFullDayBlock, blockedTiming, reason } = req.body;
+
+            if (!date) throw new ApiError('Date is required');
+
+            if (isFullDayBlock) {
+                if (blockedTiming) throw new ApiError('Blocked timing should not be provided for full day block');
+            } else {
+                if (!blockedTiming) throw new ApiError('Blocked timing is required for partial block');
+            }
+
+            const result = await this._mechanicProfileService.blockSchedule(mechanicId, { date, isFullDayBlock, blockedTiming, reason })
+
+            sendSuccess(res, 'Success', result);
+        } catch (err) {
+            next(err);
+        }
+    }
+
+    async unblockSchedule(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const mechanicId = req.user?.id
+            if (!mechanicId) throw new ApiError('Invalid User')
+            const id = req.body.id
+            const result = await this._mechanicProfileService.unblockSchedule(mechanicId, id)
+            sendSuccess(res, 'Success', result);
+        } catch (err) {
+            next(err);
+        }
+    }
+
+
+
+
+
+
 
 
 }

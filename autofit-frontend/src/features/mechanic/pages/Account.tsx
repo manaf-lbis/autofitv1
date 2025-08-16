@@ -1,5 +1,5 @@
 import { useState } from "react"
-import {MapPin,Briefcase, GraduationCap, Store, Calendar, CheckCircle, Eye, FileText, X, Star, Award, Clock, Users, Download,ExternalLink } from "lucide-react"
+import {MapPin,Briefcase, GraduationCap, Store, Calendar, CheckCircle, Eye, FileText, X, Star, Award, Clock, Users, Download,ExternalLink, ClockArrowUp } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { format } from "date-fns"
@@ -10,11 +10,14 @@ import toast from "react-hot-toast"
 import LatLngToAddress from "@/components/shared/LocationInput/LatLngToAddress"
 import AccountShimmer from "../components/shimmer/AccountShimmer"
 import LazyImage from "@/components/shared/LazyImage"
-import { getAssetURL } from "@/utils/utilityFunctions.ts/getAssetURL"
+import { getAssetURL } from "@/utils/utilityFunctions/getAssetURL"
+import WorkingHoursModal from "../components/workingHours/WorkingHoursModal"
 
 export default function Account() {
+
   const [showDocument, setShowDocument] = useState(false)
   const { data, isLoading, isError, error } = useGetMechanicQuery()
+  const [isModalOpen,setIsModalOpen] = useState<boolean>(false)
   const navigate = useNavigate()
 
   const dummyData = {
@@ -25,6 +28,7 @@ export default function Account() {
     avgResponseTime: "24h",
     name: "NOUSHAD I",
   }
+
 
   const handleDownload = () => {
     if (data?.data?.qualification) {
@@ -271,10 +275,17 @@ export default function Account() {
                   <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
                     <Store className="w-5 h-5" /> Shop Information
                   </h2>
-                  <Button variant="outline" size="sm" onClick={handleViewOnMap} aria-label="View shop location on map">
-                    <ExternalLink className="w-4 h-4 mr-2" />
-                    View on Map
-                  </Button>
+                  <div>
+                    <Button variant="outline" size="sm" className="mr-2" onClick={()=>setIsModalOpen(true)} >
+                      <ClockArrowUp className="w-4 h-4 mr-2" />
+                      Update Working Hours
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={handleViewOnMap} aria-label="View shop location on map">
+                      <ExternalLink className="w-4 h-4 mr-2" />
+                      View on Map
+                    </Button>
+                  </div>
+                 
                 </div>
               </div>
 
@@ -340,6 +351,7 @@ export default function Account() {
                       title="Qualification Document"
                       onError={() => toast.error("Failed to load document")}
                     />
+
                   </div>
                 </div>
               </div>
@@ -370,6 +382,7 @@ export default function Account() {
                 ))}
               </div>
             </div>
+            <WorkingHoursModal isOpen={isModalOpen} onClose={()=>setIsModalOpen(false)} />
           </div>
         </div>
       </div>

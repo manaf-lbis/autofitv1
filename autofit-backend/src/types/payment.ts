@@ -1,6 +1,6 @@
 import { ObjectId } from "mongodb";
 
-export interface Payment {
+export interface IPayment {
   _id: ObjectId;
   userId: ObjectId;
   serviceId: ObjectId;
@@ -11,4 +11,8 @@ export interface Payment {
   receipt?: string;
   createdAt?: Date;
   updatedAt?: Date;
+}
+
+export enum PaymentGateway {
+  RAZORPAY = "razorpay",
 }

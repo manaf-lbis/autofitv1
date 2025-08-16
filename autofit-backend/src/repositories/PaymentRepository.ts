@@ -1,9 +1,14 @@
 import { IPaymentRepository } from "./interfaces/IPaymentRepository";
 import { PaymentDocument, PaymentModel } from "../models/paymentModel";
+import { BaseRepository } from "./baseRepository";
 
 
 
-export class PaymentRepository implements IPaymentRepository {
+export class PaymentRepository extends BaseRepository<PaymentDocument> implements IPaymentRepository {
+
+    constructor() {
+        super(PaymentModel);
+    }
 
     async createPayment(entity: Partial<PaymentDocument>): Promise<PaymentDocument> {
         return await new PaymentModel(entity).save();

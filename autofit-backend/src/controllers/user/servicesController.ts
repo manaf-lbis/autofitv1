@@ -130,7 +130,6 @@ export class ServicesController {
     }
 
     async cancelQuotation(req: Request, res: Response, next: NextFunction): Promise<void> {
-
         try {
             const { serviceId } = req.body
             await this._roadsideService.cancelQuotation({ serviceId })

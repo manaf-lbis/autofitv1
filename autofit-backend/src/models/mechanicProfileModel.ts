@@ -2,7 +2,7 @@ import mongoose, { Schema, Document, Types } from 'mongoose';
 import { MechanicProfile } from '../types/mechanic/mechanic';
 
 
-export interface MechanicProfileDocument extends MechanicProfile, Document<Types.ObjectId> { }
+export interface MechanicProfileDocument extends MechanicProfile, Document<Types.ObjectId> {}
 
 const mechanicProfileSchema: Schema<MechanicProfileDocument> = new Schema<MechanicProfileDocument>({
     mechanicId: {
@@ -77,7 +77,11 @@ const mechanicProfileSchema: Schema<MechanicProfileDocument> = new Schema<Mechan
         type: String,
         required: true,
     },
-}, {
+    workingHours :{
+        type:mongoose.Schema.ObjectId,
+        ref:'workingHours'
+    },
+},{
     timestamps: true,
 });
 

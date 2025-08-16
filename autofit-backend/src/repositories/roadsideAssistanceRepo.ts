@@ -1,10 +1,11 @@
 import { Types } from "mongoose";
 import { RoadsideAssistanceDocument, RoadsideAssistanceModel } from "../models/roadsideAssistanceModel";
-import { IRoadsideAssistanceRepo } from "./interfaces/IRoadsideAssistanceRepo";
+import { IRoadsideAssistanceRepo, PagenatedHistoryParams, PagenatedResponse } from "./interfaces/IRoadsideAssistanceRepo";
 import { CreateRoadsideAssistanceDTO } from "../types/services";
 import { ApiError } from "../utils/apiError";
 import { BaseRepository } from "./baseRepository";
-import { HttpStatus } from "../types/responseCode";
+import { HttpStatus } from "../types/responseCode"; import { Role } from "../types/role";
+;
 
 export class RoadsideAssistanceRepository extends BaseRepository<RoadsideAssistanceDocument> implements IRoadsideAssistanceRepo {
 
@@ -52,7 +53,7 @@ export class RoadsideAssistanceRepository extends BaseRepository<RoadsideAssista
             .populate('userId', 'name email mobile -_id')
             .populate('mechanicId', 'name email avatar')
             .populate('quotationId', '-requestId')
-            .populate('paymentId','-userId')
+            .populate('paymentId', '-userId')
             .lean();
 
         if (!result) throw new ApiError('No Service Details Found', HttpStatus.NOT_FOUND);
@@ -66,8 +67,23 @@ export class RoadsideAssistanceRepository extends BaseRepository<RoadsideAssista
     }
 
     async getActiveServiceId(userId: Types.ObjectId): Promise<Types.ObjectId[]> {
-       const services = await RoadsideAssistanceModel.find({$or:[{mechanicId : userId}, {userId:userId}]}).select('_id').lean()
-       return services.map(service => service._id);
+        const services = await RoadsideAssistanceModel.find({ $or: [{ mechanicId: userId }, { userId: userId }] }).select('_id').lean()
+        return services.map(service => service._id);
     }
+
+    async pagenatedRoadsideHistory({ end, start, userId, role, sortBy }: PagenatedHistoryParams): Promise<PagenatedResponse> {
+
+        const query = role === Role.MECHANIC ? { mechanicId: userId } : { userId };
+        const sort = sortBy === 'asc' ? 1 : -1;
+        const data = await RoadsideAssistanceModel.find(query).sort({ createdAt: sort }).skip(start).limit(end)
+            .select('issue description vehicle status startedAt endedAt location.coordinates').lean();
+        const count = await RoadsideAssistanceModel.countDocuments(query)
+        return {
+            history: data,
+            totalDocuments: count
+        }
+    }
+
+
 
 }

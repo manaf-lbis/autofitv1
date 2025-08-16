@@ -17,7 +17,7 @@ interface FormData {
 
 const Step3: React.FC = () => {
   const { register, handleSubmit, formState: { errors }, setValue } = useForm<FormData>();
-  const { currentStep, formData } = useSelector((state: RootState) => state.mechRegistration);
+  const { formData } = useSelector((state: RootState) => state.mechRegistration);
   const dispatch = useDispatch();
 
   const onSubmit = (data: FormData) => {
