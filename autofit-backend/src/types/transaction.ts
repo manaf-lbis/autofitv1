@@ -23,3 +23,10 @@ export interface Transaction {
   transactionId: string; 
   description: string;
 }
+
+export enum TransactionDurations {
+  DAY = "day",
+  WEEK = "week",
+  MONTH = "month",
+  YEAR = "year",
+}

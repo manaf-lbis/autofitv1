@@ -24,7 +24,8 @@ export class PretripReportRepository extends BaseRepository<PretripReportDocumen
                 _id : item._id,
                 feature : item.feature,
                 condition : update.condition as CheckupCondition,
-                needsAction : update.needsAction
+                needsAction : update.needsAction,
+                remarks : update.remarks
             }
         });
         reportData.mechanicNotes = mechanicNotes

@@ -62,8 +62,6 @@ export class PretripController {
             if (!serviceId) throw new ApiError('Invalid Parameters', HttpStatus.BAD_REQUEST);
             if (!mechanicId) throw new ApiError('Invalid User')
 
-            console.log(report, mechanicNotes, serviceId);
-
             const result = await this._pretripService.createReport(mechanicId,serviceId,report,mechanicNotes)
 
             sendSuccess(res, 'Success',result);

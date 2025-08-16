@@ -20,7 +20,7 @@ export interface Report {
   _id: string,
   name: string,
   condition: string,
-  remarks: string | null,
+  remarks: string | undefined,
   needsAction: boolean
 }
 
@@ -32,4 +32,5 @@ export interface IPretripService {
     workDetails(mechanicId: Types.ObjectId, serviceId: Types.ObjectId): Promise<any>
     updateStatus(mechanicId : Types.ObjectId,serviceId: Types.ObjectId,status:PretripStatus): Promise<any>
     createReport(mechanicId: Types.ObjectId, serviceId: Types.ObjectId, report: Report[] ,mechanicNotes:string): Promise<any>
+    getDetails(serviceId: Types.ObjectId,userId:Types.ObjectId): Promise<any>
 }

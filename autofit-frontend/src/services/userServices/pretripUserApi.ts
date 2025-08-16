@@ -46,7 +46,12 @@ export const pretripUserApi = createApi({
         method: 'POST',
         body: data,
       })
-    })
+    }),
+
+    pretripDetails: builder.query<any, {id:string}>({
+      query: ({id}) => `user/pretrip/${id}/details`,
+      transformResponse: (response: ApiResponse<Plan>) => response.data ?? {},
+    }),
 
   }),
 });
@@ -55,5 +60,6 @@ export const {
   useGetPretripPlansQuery,
   useGetPlanForBookingQuery,
   useGetNearbyMechanicShopsQuery,
-  useCreateBookingMutation
+  useCreateBookingMutation,
+  usePretripDetailsQuery
 } = pretripUserApi;

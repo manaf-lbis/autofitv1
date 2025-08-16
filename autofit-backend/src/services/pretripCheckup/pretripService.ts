@@ -16,6 +16,11 @@ import { HttpStatus } from "../../types/responseCode";
 import { PretripStatus } from "../../types/pretrip";
 import { reportItemsSchema } from "../../validation/pretripValidations";
 import { ZodError } from "zod";
+import { ITransactionRepository } from "../../repositories/interfaces/ITransactionRepository";
+import { TransactionStatus } from "../../types/transaction";
+import { generateTransactionId, getDeductionRate } from "../../utils/transactionUtils";
+import { ServiceType } from "../../types/services";
+import { IPaymentRepository } from "../../repositories/interfaces/IPaymentRepository";
 
 
 
@@ -29,7 +34,9 @@ export class PretripService implements IPretripService {
         private _planRepository: IPretripPlanRepository,
         private _workingHoursRepo: IWorkingHoursRepository,
         private _timeBlockingRepo: ITimeBlockRepository,
-        private _pretripReportRepo: IPretripReportRepository
+        private _pretripReportRepo: IPretripReportRepository,
+        private _transactionRepo: ITransactionRepository,
+        private _paymentRepository: IPaymentRepository
     ) { }
 
 
@@ -306,6 +313,29 @@ export class PretripService implements IPretripService {
         if (booking.status === PretripStatus.VEHICLE_RETURNED) throw new ApiError('Service is already completed', HttpStatus.BAD_REQUEST);
         if (status === PretripStatus.CANCELLED) throw new ApiError('Mechanic cannot cancel the service', HttpStatus.BAD_REQUEST);
 
+
+        if (status === PretripStatus.VEHICLE_RETURNED) {
+            const deductionRate = getDeductionRate(ServiceType.PRETRIP)
+
+            const paymentdetais = await this._paymentRepository.findById(booking.payment?.paymentId!);
+            if (!paymentdetais) throw new ApiError('Payment not found', HttpStatus.NOT_FOUND);
+
+            await this._transactionRepo.save({
+                serviceId: serviceId,
+                mechanicId: mechanicId,
+                status: TransactionStatus.RECEIVED,
+                deductionAmount: (deductionRate * paymentdetais?.amount)/100,
+                deductionRate : deductionRate,
+                grossAmount : paymentdetais?.amount,
+                netAmount : paymentdetais?.amount - (deductionRate * paymentdetais?.amount)/100,
+                description : 'Pretrip Checkup',
+                transactionId : generateTransactionId(ServiceType.PRETRIP),
+                paymentId : paymentdetais._id,
+                userId : booking.userId,
+                serviceType : ServiceType.PRETRIP,
+            })
+        }
+
         if (!Object.values(PretripStatus).includes(status)) throw new ApiError('Invalid Status', HttpStatus.BAD_REQUEST);
         return await this._pretripBookingRepository.update(serviceId, { status })
     }
@@ -338,6 +368,12 @@ export class PretripService implements IPretripService {
             }
         }
 
+    }
+
+    async getDetails(serviceId: Types.ObjectId,userId:Types.ObjectId): Promise<any> {
+        const booking = await this._pretripBookingRepository.detailedBooking(serviceId);
+        if (!booking || booking.userId._id.toString() !== userId.toString() ) throw new ApiError('Invalid Service', HttpStatus.BAD_REQUEST);
+        return booking
     }
 
 

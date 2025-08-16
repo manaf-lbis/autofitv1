@@ -10,15 +10,17 @@ import { RoadsideService } from "../../services/roadsideAssistance/roadsideServi
 import { QuotationRepository } from "../../repositories/quotationRepository";
 import { RazorpayRepository } from "../../repositories/RazorpayRepository";
 import { PaymentRepository } from "../../repositories/PaymentRepository";
+import { TransactionRepository } from "../../repositories/TransactionRepository";
 
 const mechanicProfileRepo = new MechanicProfileRepository()
 const googleMapRepo = new GoogleMapRepository()
 const roadsideAssistanceRepo = new RoadsideAssistanceRepository()
 const vehicleRepository = new VehicleRepository()
 const quotationRepo = new QuotationRepository()
-const roadsideService = new RoadsideService(roadsideAssistanceRepo, quotationRepo,mechanicProfileRepo)
+const transactionRepo = new TransactionRepository()
 const notificationRepository = new NotificationRepository()
 const paymentRepo = new PaymentRepository()
+const roadsideService = new RoadsideService(roadsideAssistanceRepo, quotationRepo,mechanicProfileRepo,transactionRepo,paymentRepo)
 const razorpayRepository = new RazorpayRepository()
 const roadsideAssistanceService = new UserRoadsideService(mechanicProfileRepo,
     googleMapRepo,
@@ -30,7 +32,6 @@ const roadsideAssistanceService = new UserRoadsideService(mechanicProfileRepo,
     paymentRepo
 )
 const servicesController = new ServicesController(roadsideAssistanceService, roadsideService)
-
 
 const router = Router();
 

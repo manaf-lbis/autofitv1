@@ -1,7 +1,7 @@
 import { Router } from "express";
 import profileRoute from './profileRoutes'
 import pagesRoute from './pagesRoute'
-import serviceRoute from './serviceRoute'
+import serviceRoute from './roadsideRoute'
 import pretripRoute from './pretripRoute'
 import { authorize } from "../../middlewares/authorize";
 import { authenticate } from "../../middlewares/authenticate";

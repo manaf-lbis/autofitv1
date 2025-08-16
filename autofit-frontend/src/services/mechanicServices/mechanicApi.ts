@@ -8,6 +8,14 @@ type SuccessResponse = {
   data?: any;
 };
 
+export enum EarningsDuration {
+  DAY = "day",
+  WEEK = "week",
+  MONTH = "month",
+  YEAR = "year",
+}
+
+
 export const mechanicApi = createApi({
   reducerPath: "mechanicApi",
   baseQuery: baseQueryWithRefresh,
@@ -97,9 +105,16 @@ export const mechanicApi = createApi({
       invalidatesTags: ["WorkingHours"],
     }),
 
+    earnings : builder.query<any, {duration: EarningsDuration}>({
+      query: ({duration}) => ({
+        url: "/mechanic/pages/earnings",
+        method: "GET",
+        params: {duration}
+      }),
+      transformResponse: (response: ApiResponse<any>) => response.data
+    }),
+
     
-
-
 
 
   }),
@@ -117,4 +132,5 @@ export const {
   useGetWorkingHoursQuery,
   useCreateWorkingHoursMutation,
   useUpdateWorkingHoursMutation,
+  useEarningsQuery
 } = mechanicApi;

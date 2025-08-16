@@ -68,5 +68,18 @@ export class PretripController {
         }
     }
 
+    async details(req: Request, res: Response, next: NextFunction) {
+        try {
+            const { id } = req.params;
+            const userId = req.user?.id;
+            if(!userId) throw new ApiError('Invalid User', HttpStatus.UNAUTHORIZED);
+            
+            const details = await this._pretripService.getDetails(new Types.ObjectId(id),userId);
+            sendSuccess(res, 'Details fetched successfully', details);
+        } catch (error) {
+            next(error)
+        }
+    }
+
 
 }

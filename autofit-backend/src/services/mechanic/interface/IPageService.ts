@@ -1,4 +1,5 @@
 import { Types } from "mongoose";
+import { TransactionDurations } from "../../../types/transaction";
 
 export interface IPageService {
 
@@ -21,4 +22,6 @@ export interface IPageService {
       vehicle: string;
     } | null;
   }>;
+
+  transactions(mechanicId: Types.ObjectId,duration:TransactionDurations): Promise<any>;
 }
