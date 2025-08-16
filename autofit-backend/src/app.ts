@@ -59,7 +59,6 @@ app.use("/admin",adminRoute)
 app.use("/chat",chatRoute)
 app.use("/assets",assetRoute)
 
-
 app.use(errorHandler);
 
 export default app
