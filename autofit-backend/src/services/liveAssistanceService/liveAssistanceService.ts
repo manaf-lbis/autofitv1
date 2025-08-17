@@ -64,6 +64,27 @@ export class LiveAssistanceService implements ILiveAssistanceService {
         }
     }
 
+    async getDetails(serviceId: Types.ObjectId,userId:Types.ObjectId): Promise<any> {
+        const booking = await this._liveAssistanceRepo.getServiceDetails(serviceId);
+        if (!booking || booking.userId.toString() !== userId.toString() ) throw new ApiError('Invalid Service', HttpStatus.BAD_REQUEST);
+        return booking
+    }
+
+    async getSessionDetails(serviceId: Types.ObjectId, userId: Types.ObjectId): Promise<any> {
+        const booking = await this._liveAssistanceRepo.findById(serviceId);
+        if (!booking || booking.userId.toString() !== userId.toString() ) throw new ApiError('Invalid Service', HttpStatus.BAD_REQUEST);
+        if(booking.endTime >= new Date()) throw new ApiError('Service is already completed', HttpStatus.BAD_REQUEST);
+
+        return {
+            sessionId: booking.sessionId,
+            mechanicId: booking.mechanicId
+        }
+    }
+
+    async activeBookingsByMechanicId(mechanicId: Types.ObjectId): Promise<any> {
+        return await this._liveAssistanceRepo.activeBookingsByMechanicId(mechanicId);
+    }
+
 
 
 }

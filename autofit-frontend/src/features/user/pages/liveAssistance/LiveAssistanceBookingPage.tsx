@@ -1,5 +1,4 @@
 import type React from "react"
-
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -8,13 +7,16 @@ import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { CheckCircle, Clock, Users, MessageSquare, Wrench, Shield, Star, ArrowLeft } from "lucide-react"
 import { useCreateBookingMutation } from "@/services/userServices/liveAssistanceApi"
-import { toast } from "react-toastify"
+import { toast } from "react-hot-toast"
+import { useNavigate } from "react-router-dom"
+import { ServiceType } from "@/types/user"
 
 export default function VideoDiagnosisPage() {
   const [selectedConcern, setSelectedConcern] = useState("")
   const [issueDescription, setIssueDescription] = useState("")
   const [errors, setErrors] = useState({ concern: "", description: "" })
-  const [createBooking,{isLoading}] = useCreateBookingMutation()
+  const [createBooking,{isLoading}] = useCreateBookingMutation();
+  const navigate = useNavigate()
 
   const driverConcerns = [
     "Strange Noises",
@@ -59,11 +61,11 @@ export default function VideoDiagnosisPage() {
     }
 
     try {
-      await createBooking({
+      const response = await createBooking({
         concern: selectedConcern,
         description: issueDescription
       }).unwrap()
-
+      navigate(`/user/${ServiceType.LIVE}/checkout/${response.data.bookingId}`);
       setSelectedConcern("")
       setIssueDescription("")
       setErrors({ concern: "", description: "" })

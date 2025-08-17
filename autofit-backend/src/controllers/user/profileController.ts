@@ -40,7 +40,7 @@ export class ProfileController {
             if(!userId) throw new ApiError('Invalid user')
 
             const serviceHistory = await this._profileService.roadsideServiceHistory(userId,Number(page));
-            sendSuccess(res, 'Profile Updated',serviceHistory);
+            sendSuccess(res, 'Service History',serviceHistory);
         } catch (error: any) {
             next(error);
         }
@@ -54,7 +54,21 @@ export class ProfileController {
             if(!userId) throw new ApiError('Invalid user')
 
             const serviceHistory = await this._profileService.pretripServiceHistory(userId,Number(page));
-            sendSuccess(res, 'Profile Updated',serviceHistory);
+            sendSuccess(res, 'Service History',serviceHistory);
+        } catch (error: any) {
+            next(error);
+        }
+    }
+
+    async liveAssistanceServiceHistory(req: Request, res: Response, next: NextFunction) {
+         try {
+            const userId = req.user?.id
+            const {page} = req.query
+            if(!page || isNaN(Number(page))) throw new ApiError('Invalid page number',HttpStatus.BAD_REQUEST)
+            if(!userId) throw new ApiError('Invalid user')
+
+            const serviceHistory = await this._profileService.liveAssistanceServiceHistory(userId,Number(page));
+            sendSuccess(res, 'serviceHistory',serviceHistory);
         } catch (error: any) {
             next(error);
         }

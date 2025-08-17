@@ -3,6 +3,7 @@ import { ILiveAssistanceService } from "../../services/liveAssistanceService/ILi
 import { ApiError } from "../../utils/apiError";
 import { HttpStatus } from "../../types/responseCode";
 import { sendSuccess } from "../../utils/apiResponse";
+import { Types } from "mongoose";
 
 export class LiveAssistanceController {
 
@@ -22,6 +23,32 @@ export class LiveAssistanceController {
             const booking = await this.liveAssistanceService.createBooking(concern, description, userId)
 
             sendSuccess(res, 'Booking created successfully', booking)
+        } catch (error) {
+            next(error)
+        }
+    }
+
+    async bookingDetails(req: Request, res: Response, next: NextFunction) {
+        try {
+            const { id } = req.params
+            const userId = req.user?.id;
+            if(!userId) throw new ApiError('User not found', HttpStatus.BAD_REQUEST);
+
+            const details = await this.liveAssistanceService.getDetails(new Types.ObjectId(id), userId)
+            sendSuccess(res, 'Details fetched successfully', details)
+        } catch (error) {
+            next(error)
+        }
+    }
+
+    async getSessionDetails(req: Request, res: Response, next: NextFunction) {
+        try {
+            const serviceId  = req.params.id
+            const userId = req.user?.id;
+            if(!userId) throw new ApiError('User not found', HttpStatus.BAD_REQUEST);
+            const details = await this.liveAssistanceService.getSessionDetails(new Types.ObjectId(serviceId), userId);
+           
+            sendSuccess(res, 'Details fetched successfully', details)
         } catch (error) {
             next(error)
         }

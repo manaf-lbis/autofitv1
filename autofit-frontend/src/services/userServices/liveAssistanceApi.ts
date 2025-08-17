@@ -14,6 +14,23 @@ export const liveAssistanceApi = createApi({
         method: 'POST',
         body: data,
       }),
+      transformErrorResponse: (res) => res.data
+    }),
+
+    liveBookingDetails: builder.query({
+      query: (id: string) => ({
+        url: `user/live-assistance/booking/${id}/details`,
+        method: 'GET',
+      }),
+      transformErrorResponse: (res) => res.data
+    }),
+
+    getCallSessionId: builder.query({
+      query:(id: string) => ({
+        url: `user/live-assistance/session/${id}/details`,
+        method: 'GET',
+      }),
+      transformErrorResponse: (res) => res.data
     })
 
     
@@ -22,5 +39,7 @@ export const liveAssistanceApi = createApi({
 });
 
 export const {
-  useCreateBookingMutation
+  useCreateBookingMutation,
+  useLiveBookingDetailsQuery,
+  useGetCallSessionIdQuery
 } = liveAssistanceApi;

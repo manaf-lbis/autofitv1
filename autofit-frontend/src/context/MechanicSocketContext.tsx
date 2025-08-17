@@ -10,12 +10,14 @@ import {
   setNewMessage,
 } from "@/features/mechanic/slices/mechanicChatSlice";
 import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
 const MechanicSocketContext = ({ children }: { children: React.ReactNode }) => {
   const dispatch = useDispatch();
   const socketRef = useRef(initSocket());
   const notify = useNotification();
   const { data: response } = useAvailableRoomsQuery({});
+  const navigate = useNavigate()
 
   useEffect(() => {
     const socket = socketRef.current;
@@ -27,6 +29,10 @@ const MechanicSocketContext = ({ children }: { children: React.ReactNode }) => {
     socket.on("unauthorized", (data) => {
       toast.error(data.message);
     });
+
+    socket.on("liveAssistanceRequest",()=>{
+      navigate("/mechanic/jobs/live-assistance")
+    })
 
     socketRef.current.on("seen", ({ serviceId }) => {
       dispatch(markAsSeen({ serviceId }));
@@ -55,6 +61,7 @@ const MechanicSocketContext = ({ children }: { children: React.ReactNode }) => {
       socket.off("emergency");
       socket.off("seen");
       socket.off("roadsideMessage");
+      socket.off("liveAssistanceRequest");
     };
   }, [dispatch, response]);
 

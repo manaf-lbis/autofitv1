@@ -4,7 +4,8 @@ export enum LiveAssistanceStatus {
     PENDING = 'pending',
     ONGOING = 'ongoing',
     COMPLETED = 'completed',
-    CANCELLED = 'cancelled'
+    CANCELLED = 'cancelled',
+    TIMEOUT = 'timeout'
 }
 
 
@@ -13,9 +14,11 @@ export interface ILiveAssistance {
     userId: Types.ObjectId;
     mechanicId: Types.ObjectId;
     status: LiveAssistanceStatus;
+    price: number;
     paymentId: Types.ObjectId;
     startTime : Date;
     endTime : Date;
+    sessionId : string;
     blockedTimeId : Types.ObjectId;
     issue: string;
     description: string;

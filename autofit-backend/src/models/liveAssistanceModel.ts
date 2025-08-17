@@ -1,17 +1,18 @@
 import mongoose, { Schema, Document, Types } from 'mongoose';
 import { ILiveAssistance, LiveAssistanceStatus } from '../types/liveAssistance';
+import { randomUUID } from "crypto";
 
 export interface LiveAssistanceDocument extends ILiveAssistance, Document<Types.ObjectId> { }
 
 const liveAssistanceSchema: Schema<LiveAssistanceDocument> = new Schema<LiveAssistanceDocument>({
     userId: {
         type: Schema.Types.ObjectId,
-        ref: 'User',
+        ref: 'user',
         required: true
     },
     mechanicId: {
         type: Schema.Types.ObjectId,
-        ref: 'Mechanic',
+        ref: 'mechanic',
         required: true
     },
     status: {
@@ -20,9 +21,19 @@ const liveAssistanceSchema: Schema<LiveAssistanceDocument> = new Schema<LiveAssi
         default: LiveAssistanceStatus.PENDING,
         required: true
     },
+    price: {
+        type: Number,
+        required: true,
+        default :  () => Number(process.env.LIVE_ASSISTANCE_PRICE)
+    },
     paymentId: {
         type: Schema.Types.ObjectId,
-        ref: 'Payment',
+        ref: 'payment',
+    },
+    sessionId: {
+        type: String,
+        required: true,
+        default : () => randomUUID()
     },
     startTime: {
         type: Date,

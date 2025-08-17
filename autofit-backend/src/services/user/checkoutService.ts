@@ -8,6 +8,7 @@ import { IPaymentGatewayResolver } from "../paymentServices/interface/IPaymentGa
 import { IServicePaymentHandleResolver } from "../paymentServices/interface/IServicePaymentHandleResolver";
 import { PaymentGateway } from "../../types/payment";
 import { IPaymentRepository } from "../../repositories/interfaces/IPaymentRepository";
+import { ILiveAssistanceRepository } from "../../repositories/interfaces/ILiveAssistanceRepository";
 
 export class CheckoutService implements ICheckoutService {
 
@@ -15,7 +16,8 @@ export class CheckoutService implements ICheckoutService {
         private _pretripBookingRepository: IPretripBookingRepository,
         private _paymentGatewayResolver: IPaymentGatewayResolver,
         private _servicePaymentHanleResolver: IServicePaymentHandleResolver,
-        private _paymentRepository: IPaymentRepository
+        private _paymentRepository: IPaymentRepository,
+        private _liveAssistanceRepository: ILiveAssistanceRepository
     ) { }
 
     async checkoutDetails(serviceId: Types.ObjectId, serviceType: ServiceType): Promise<ICheckoutResponse> {
@@ -32,18 +34,26 @@ export class CheckoutService implements ICheckoutService {
                 vehicleRegNo: response.vehicleId?.regNo,
                 originalPrice: response.servicePlan?.originalPrice
             }
-        } else {
-            // reserved for roadside assistance
-            const response = await this._pretripBookingRepository.checkoutDetails(serviceId);
-            if (!response) throw new ApiError('Booking not found', HttpStatus.NOT_FOUND)
+        } else if (serviceType === ServiceType.LIVE) {
+
+            const response = await this._liveAssistanceRepository.checkoutDetails(serviceId);
+
+            const createdAt = new Date(response.createdAt);
+            const now = new Date();
+            const bufferInMs = Number(process.env.PAYMENT_BUFFER || 10) * 60 * 1000;
+            const isExpired = now.getTime() - createdAt.getTime() > bufferInMs;
+
+            if (isExpired) throw new ApiError('Request Expired Try With New Request', HttpStatus.BAD_REQUEST)
+
             return {
                 date: response.createdAt,
-                price: response.servicePlan?.price,
+                price: response.price,
                 orderId: response._id,
-                serviceType: ServiceType.PRETRIP,
-                vehicleRegNo: response.vehicleId.regNo,
-                originalPrice: response.servicePlan.originalPrice
+                serviceType: ServiceType.LIVE,
             }
+
+        } else {
+            throw new ApiError('Invalid Service Type', HttpStatus.BAD_REQUEST)
         }
 
     };
@@ -56,14 +66,14 @@ export class CheckoutService implements ICheckoutService {
         const paymentInfo = await paymentHandler.makeReadyForPayment(serviceId);
         const response = await paymentGateway.createPayment(paymentInfo);
 
-        const payment = await this._paymentRepository.update(paymentInfo.paymentId,{paymentId:response.orderId})  
+        const payment = await this._paymentRepository.update(paymentInfo.paymentId, { paymentId: response.orderId })
 
-        if(!payment) throw new ApiError('Payment creation failed', HttpStatus.BAD_REQUEST)
+        if (!payment) throw new ApiError('Payment creation failed', HttpStatus.BAD_REQUEST)
 
         response.gateway = gateway;
         response.serviceId = serviceId.toString();
         return response
- 
+
     }
 
     async verifyPayment(serviceId: Types.ObjectId, serviceType: ServiceType, data?: any): Promise<any> {
@@ -73,9 +83,9 @@ export class CheckoutService implements ICheckoutService {
         const servicePaymetnHandler = this._servicePaymentHanleResolver.resolve(serviceType);
         await servicePaymetnHandler.verifyPayment(serviceId, verifiedDetails);
 
-        if(verifiedDetails.status !== 'success') throw new ApiError('Payment Failed', HttpStatus.BAD_REQUEST)
+        if (verifiedDetails.status !== 'success') throw new ApiError('Payment Failed', HttpStatus.BAD_REQUEST)
 
-        return {serviceId,status:verifiedDetails.status,amount:verifiedDetails.amount}
+        return { serviceId, status: verifiedDetails.status, amount: verifiedDetails.amount }
     }
 
 
