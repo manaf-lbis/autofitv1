@@ -1,25 +1,12 @@
-
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import {
-  Video,
-  VideoOff,
-  Mic,
-  MicOff,
-  Phone,
-  Settings,
-  MoreVertical,
-  Copy,
-  Shield,
-  ArrowLeft,
-  Grid3x3,
-  Users,
-  AlertCircle,
-} from "lucide-react";
+import { Video, VideoOff, Mic, MicOff, Phone, Settings, Copy, Shield, ArrowLeft, Grid3x3, Users, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useUserMedia } from "@/hooks/useUserMedia";
 import { initSocket } from "@/lib/socket";
+import { useWebRTCOffer } from "@/hooks/useWebRTCOffer";
+import toast from "react-hot-toast";
+import { Badge } from "../ui/badge";
+import { Button } from "../ui/button";
 
 interface VideoCallModalProps {
   isOpen: boolean;
@@ -27,6 +14,8 @@ interface VideoCallModalProps {
   mechanicName: string;
   bookingTime: string;
   sessionId: string;
+  userId: string;
+  role: "user" | "mechanic";
 }
 
 interface Participant {
@@ -36,75 +25,174 @@ interface Participant {
   isMuted: boolean;
   isVideoOn: boolean;
   isYou: boolean;
+  stream?: MediaStream;
 }
 
-export function VideoCallModal({ isOpen, onClose, mechanicName, bookingTime ,sessionId }: VideoCallModalProps) {
-
+export function VideoCallModal({ isOpen, onClose, mechanicName, bookingTime, sessionId, userId, role }: VideoCallModalProps) {
   const [isMuted, setIsMuted] = useState(false);
   const [isVideoOn, setIsVideoOn] = useState(true);
   const [callDuration, setCallDuration] = useState(0);
   const [layoutMode, setLayoutMode] = useState<"spotlight" | "grid">("spotlight");
-  const { stream, error } = useUserMedia({ video: isVideoOn, audio: true });
-  const localVideoRef = useRef<HTMLVideoElement>(null);
-  const socket = initSocket()
-
-  const [participants, setParticipants] = useState<Participant[]>([
-    {
-      id: "you",
-      name: "You",
-      isHost: false,
-      isMuted: isMuted,
-      isVideoOn: isVideoOn,
-      isYou: true,
-    },
-    {
-      id: "mechanic",
-      name: mechanicName,
-      isHost: true,
-      isMuted: false,
-      isVideoOn: true,
-      isYou: false,
-    },
-    {
-      id: "jose",
-      name: "Jose",
-      isHost: false,
-      isMuted: true,
-      isVideoOn: false,
-      isYou: false,
-    },
-  ]);
-
-  useEffect(()=>{
-    socket.emit('liveAssistance',{sessionId})
-  },[])
+  const [hasJoined, setHasJoined] = useState(false);
+  const { stream, error } = useUserMedia({ video: true, audio: true });
+  const localVideoRef = useRef<HTMLVideoElement | null>(null);
+  const remoteVideoRefs = useRef<Record<string, HTMLVideoElement | null>>({});
+  const socket = useRef(initSocket()).current;
 
   useEffect(() => {
-    setParticipants((prev) =>
-      prev.map((p) => (p.isYou ? { ...p, isMuted, isVideoOn } : p))
-    );
-  }, [isMuted, isVideoOn]);
+    if (stream) {
+      console.log("Local stream tracks:", {
+        video: stream.getVideoTracks(),
+        audio: stream.getAudioTracks(),
+      });
+      stream.getVideoTracks().forEach((track) => (track.enabled = isVideoOn));
+      stream.getAudioTracks().forEach((track) => (track.enabled = !isMuted));
+    }
+  }, [stream, isVideoOn, isMuted]);
+
+  useEffect(() => {
+    if (!isOpen || hasJoined) return;
+
+    const handler = setTimeout(() => {
+      console.log("Emitting liveAssistance for session:", sessionId);
+      socket.emit("liveAssistance", { sessionId });
+      setHasJoined(true);
+    }, 500);
+
+    return () => clearTimeout(handler);
+  }, [isOpen, sessionId, socket]);
+
+  const { isConnected, resetPeerConnection } = useWebRTCOffer({
+    socket,
+    sessionId,
+    stream,
+    onRemoteStream: (remoteStream) => {
+      setParticipants((prev) => {
+        const remoteParticipant = prev.find((p) => !p.isYou);
+        if (remoteParticipant) {
+          console.log(`Assigning stream to participant: ${remoteParticipant.id}`);
+          return prev.map((p) =>
+            p.id === remoteParticipant.id
+              ? { ...p, stream: remoteStream, isVideoOn: remoteStream.getVideoTracks().length > 0 }
+              : p
+          );
+        }
+        console.warn("No remote participant found to assign stream");
+        return prev;
+      });
+    },
+  });
+
+  const [participants, setParticipants] = useState<Participant[]>([
+    { id: userId, name: role === "user" ? "You" : mechanicName, isHost: role === "mechanic", isMuted, isVideoOn, isYou: true },
+  ]);
+
+  useEffect(() => {
+    if (!isOpen) {
+      socket.emit("liveAssistanceDisconnect");
+      resetPeerConnection();
+      setHasJoined(false);
+      setParticipants([
+        { id: userId, name: role === "user" ? "You" : mechanicName, isHost: role === "mechanic", isMuted, isVideoOn, isYou: true },
+      ]);
+      toast.dismiss("waiting");
+      return;
+    }
+
+    socket.on("participantJoined", ({ userId: joinedId, role: joinedRole }) => {
+      if (joinedId !== userId) {
+        setParticipants((prev) => {
+          if (!prev.some((p) => p.id === joinedId)) {
+            console.log(`Adding new participant: ${joinedId} (${joinedRole})`);
+            return [
+              ...prev,
+              {
+                id: joinedId,
+                name: joinedRole === "mechanic" ? mechanicName : "Customer",
+                isHost: joinedRole === "mechanic",
+                isMuted: false,
+                isVideoOn: true,
+                isYou: false,
+              },
+            ];
+          }
+          console.log(`Participant ${joinedId} already exists, skipping`);
+          return prev;
+        });
+        toast.dismiss("waiting");
+      }
+    });
+
+    socket.on("participantDisconnected", ({ userId: disconnectedId }) => {
+      setParticipants((prev) => {
+        const newParticipants = prev.filter((p) => p.id !== disconnectedId);
+        console.log(`Removed participant: ${disconnectedId}, remaining: ${newParticipants.length}`);
+        if (newParticipants.length === 1 && newParticipants[0].isYou) {
+          toast.loading("Waiting for other party...", { id: "waiting" });
+        }
+        return newParticipants;
+      });
+      // Clear remote stream for disconnected participant
+      remoteVideoRefs.current[disconnectedId] = null;
+    });
+
+    socket.on("waiting", ({ message }) => {
+      console.log("Received waiting message:", message);
+      toast.loading(message, { id: "waiting" });
+    });
+
+    socket.on("liveError", ({ message }) => {
+      console.error("Live error:", message);
+      toast.error(message);
+      resetPeerConnection();
+      setHasJoined(false);
+      onClose();
+    });
+
+    socket.on("mediaState", ({ userId: senderId, isMuted, isVideoOn }) => {
+      if (senderId !== userId) {
+        setParticipants((prev) =>
+          prev.map((p) =>
+            p.id === senderId ? { ...p, isMuted, isVideoOn } : p
+          )
+        );
+        console.log(`Updated media state for ${senderId}: muted=${isMuted}, video=${isVideoOn}`);
+      }
+    });
+
+    return () => {
+      socket.emit("liveAssistanceDisconnect");
+      socket.off("participantJoined");
+      socket.off("participantDisconnected");
+      socket.off("waiting");
+      socket.off("liveError");
+      socket.off("mediaState");
+      resetPeerConnection();
+      setHasJoined(false);
+      setParticipants([
+        { id: userId, name: role === "user" ? "You" : mechanicName, isHost: role === "mechanic", isMuted, isVideoOn, isYou: true },
+      ]);
+      toast.dismiss("waiting");
+    };
+  }, [socket, sessionId, userId, mechanicName, isOpen, onClose, resetPeerConnection, role, isMuted, isVideoOn]);
+
+  useEffect(() => {
+    setParticipants((prev) => prev.map((p) => (p.isYou ? { ...p, isMuted, isVideoOn } : p)));
+    socket.emit("mediaState", { sessionId, data: { isMuted, isVideoOn } });
+  }, [isMuted, isVideoOn, socket, sessionId]);
 
   useEffect(() => {
     if (stream && localVideoRef.current) {
       localVideoRef.current.srcObject = stream;
-      console.log("Stream assigned:", stream.active, stream.getVideoTracks());
-    }
-
-    if (stream) {
-      stream.getAudioTracks().forEach((track) => {
-        track.enabled = !isMuted;
-        console.log("Audio track enabled:", track.enabled);
-      });
+      localVideoRef.current.play().catch((err) => console.error("Local video play error:", err));
     }
 
     return () => {
       if (stream) {
         stream.getTracks().forEach((track) => track.stop());
-        console.log("Stream tracks stopped");
       }
     };
-  }, [stream, isMuted, isVideoOn, isOpen]);
+  }, [stream, isOpen]);
 
   useEffect(() => {
     if (isOpen) {
@@ -118,6 +206,16 @@ export function VideoCallModal({ isOpen, onClose, mechanicName, bookingTime ,ses
     }
   }, [isOpen, bookingTime]);
 
+  useEffect(() => {
+    console.log("Participants updated:", participants.map((p) => ({
+      id: p.id,
+      name: p.name,
+      isYou: p.isYou,
+      hasStream: !!p.stream,
+      videoOn: p.isVideoOn,
+    })));
+  }, [participants]);
+
   const formatDuration = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -125,6 +223,7 @@ export function VideoCallModal({ isOpen, onClose, mechanicName, bookingTime ,ses
   };
 
   const handleEndCall = () => {
+    toast.dismiss("waiting");
     onClose();
     setCallDuration(0);
     setIsMuted(false);
@@ -172,14 +271,33 @@ export function VideoCallModal({ isOpen, onClose, mechanicName, bookingTime ,ses
       };
 
       return (
-        <div className="relative w-full h-full group">
+        <div key={participant.id} className="relative w-full h-full group">
           {participant.isYou && stream && participant.isVideoOn ? (
             <video
-              ref={localVideoRef}
+              ref={(el) => {
+                if (el && stream && localVideoRef.current !== el) {
+                  localVideoRef.current = el;
+                  el.srcObject = stream;
+                  el.play().catch((err) => console.error("Local video play error:", err));
+                }
+              }}
               autoPlay
               muted
               playsInline
               className="w-full h-full object-cover rounded-xl transform scale-x-[-1]"
+            />
+          ) : !participant.isYou && participant.stream && participant.isVideoOn ? (
+            <video
+              ref={(el) => {
+                if (el && participant.stream && remoteVideoRefs.current[participant.id] !== el) {
+                  remoteVideoRefs.current[participant.id] = el;
+                  el.srcObject = participant.stream;
+                  el.play().catch((err) => console.error(`Remote video play error for ${participant.id}:`, err));
+                }
+              }}
+              autoPlay
+              playsInline
+              className="w-full h-full object-cover rounded-xl"
             />
           ) : participant.isYou && error ? (
             <div className="w-full h-full bg-gray-900 flex items-center justify-center relative border border-gray-700">
@@ -192,54 +310,29 @@ export function VideoCallModal({ isOpen, onClose, mechanicName, bookingTime ,ses
             <div className="w-full h-full bg-gray-900 flex items-center justify-center relative border border-gray-700">
               <div className="text-center">
                 <div className={`${getAvatarSize()} bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-3`}>
-                  <span className={`text-gray-400 ${getTextSize()} font-semibold`}>
-                    {participant.name.charAt(0).toUpperCase()}
-                  </span>
+                  <span className={`text-gray-400 ${getTextSize()} font-semibold`}>{participant.name.charAt(0).toUpperCase()}</span>
                 </div>
                 <VideoOff className={`${isInGrid && gridSize === 1 ? "w-8 h-8" : "w-5 h-5"} text-gray-500 mx-auto mb-2`} />
                 <span className="text-gray-400 text-xs sm:text-sm">Camera off</span>
               </div>
             </div>
-          ) : participant.isVideoOn ? (
+          ) : (
             <div className={`w-full h-full ${gradientClass} flex items-center justify-center relative overflow-hidden`}>
               <div className="absolute inset-0 bg-black/5"></div>
               <div className={`${getAvatarSize()} bg-white/20 rounded-full flex items-center justify-center relative z-10 backdrop-blur-sm border-2 border-white/20`}>
-                <span className={`text-white ${getTextSize()} font-semibold drop-shadow-lg`}>
-                  {participant.name.charAt(0).toUpperCase()}
-                </span>
+                <span className={`text-white ${getTextSize()} font-semibold drop-shadow-lg`}>{participant.name.charAt(0).toUpperCase()}</span>
               </div>
               <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-black/5"></div>
-            </div>
-          ) : (
-            <div className="w-full h-full bg-gray-900 flex items-center justify-center relative border border-gray-700">
-              <div className="text-center">
-                <div className={`${getAvatarSize()} bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-3`}>
-                  <span className={`text-gray-400 ${getTextSize()} font-semibold`}>
-                    {participant.name.charAt(0).toUpperCase()}
-                  </span>
-                </div>
-                <VideoOff className={`${isInGrid && gridSize === 1 ? "w-8 h-8" : "w-5 h-5"} text-gray-500 mx-auto mb-2`} />
-                <span className="text-gray-400 text-xs sm:text-sm">Camera off</span>
-              </div>
             </div>
           )}
 
           {!participant.isYou && (
             <div className="absolute bottom-3 left-3 flex items-center gap-2">
-              <Badge
-                variant="secondary"
-                className="bg-black/90 text-white text-xs font-medium border-0 backdrop-blur-md"
-              >
+              <Badge variant="secondary" className="bg-black/90 text-white text-xs font-medium border-0 backdrop-blur-md">
                 {participant.name}
-                {participant.isMuted ? (
-                  <MicOff className="w-3 h-3 ml-1 text-red-400" />
-                ) : (
-                  <Mic className="w-3 h-3 ml-1 text-green-400" />
-                )}
+                {participant.isMuted ? <MicOff className="w-3 h-3 ml-1 text-red-400" /> : <Mic className="w-3 h-3 ml-1 text-green-400" />}
               </Badge>
-              {participant.isHost && (
-                <Badge className="bg-blue-600/90 text-white text-xs font-medium backdrop-blur-md">Host</Badge>
-              )}
+              {participant.isHost && <Badge className="bg-blue-600/90 text-white text-xs font-medium backdrop-blur-md">Host</Badge>}
             </div>
           )}
 
@@ -247,11 +340,7 @@ export function VideoCallModal({ isOpen, onClose, mechanicName, bookingTime ,ses
             <div className="absolute bottom-3 left-3 flex items-center gap-2">
               <Badge className="bg-blue-600/90 text-white text-xs font-medium backdrop-blur-md flex items-center">
                 You
-                {participant.isMuted ? (
-                  <MicOff className="w-3 h-3 ml-1 text-red-400" />
-                ) : (
-                  <Mic className="w-3 h-3 ml-1 text-green-400" />
-                )}
+                {participant.isMuted ? <MicOff className="w-3 h-3 ml-1 text-red-400" /> : <Mic className="w-3 h-3 ml-1 text-green-400" />}
               </Badge>
             </div>
           )}
@@ -272,12 +361,7 @@ export function VideoCallModal({ isOpen, onClose, mechanicName, bookingTime ,ses
       <div className="absolute top-0 left-0 right-0 z-10 bg-black/60 backdrop-blur-md border-b border-gray-800/50">
         <div className="flex items-center justify-between p-4">
           <div className="flex items-center gap-4">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-white hover:bg-white/20 font-medium"
-              onClick={handleEndCall}
-            >
+            <Button variant="ghost" size="sm" className="text-white hover:bg-white/20 font-medium" onClick={handleEndCall}>
               <ArrowLeft className="w-4 h-4 mr-2" />
               <span className="hidden sm:inline">Back</span>
             </Button>
@@ -288,7 +372,7 @@ export function VideoCallModal({ isOpen, onClose, mechanicName, bookingTime ,ses
               </div>
               <Badge variant="secondary" className="bg-green-600/90 text-white font-medium">
                 <Shield className="w-3 h-3 mr-1" />
-                Secure
+                {isConnected ? "Connected" : "Connecting"}
               </Badge>
               <div className="flex items-center gap-1 text-gray-300">
                 <Users className="w-4 h-4" />
@@ -298,12 +382,7 @@ export function VideoCallModal({ isOpen, onClose, mechanicName, bookingTime ,ses
           </div>
 
           <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-white hover:bg-white/20"
-              onClick={() => setLayoutMode(layoutMode === "spotlight" ? "grid" : "spotlight")}
-            >
+            <Button variant="ghost" size="sm" className="text-white hover:bg-white/20" onClick={() => setLayoutMode(layoutMode === "spotlight" ? "grid" : "spotlight")}>
               <Grid3x3 className="w-4 h-4" />
             </Button>
             <Button variant="ghost" size="sm" className="text-white hover:bg-white/20">
@@ -335,10 +414,7 @@ export function VideoCallModal({ isOpen, onClose, mechanicName, bookingTime ,ses
               }`}
             >
               {participants.map((participant) => (
-                <div
-                  key={participant.id}
-                  className="video-tile overflow-hidden bg-black border border-gray-600 shadow-2xl rounded-xl"
-                >
+                <div key={participant.id} className="video-tile overflow-hidden bg-black border border-gray-600 shadow-2xl rounded-xl">
                   {renderParticipantVideo(participant, true, totalParticipants)}
                 </div>
               ))}
@@ -362,10 +438,7 @@ export function VideoCallModal({ isOpen, onClose, mechanicName, bookingTime ,ses
                   }`}
                 >
                   {otherParticipants.map((participant) => (
-                    <div
-                      key={participant.id}
-                      className="video-tile overflow-hidden bg-black border border-gray-600 shadow-2xl rounded-xl"
-                    >
+                    <div key={participant.id} className="video-tile overflow-hidden bg-black border border-gray-600 shadow-2xl rounded-xl">
                       {renderParticipantVideo(participant, true, otherParticipants.length)}
                     </div>
                   ))}
@@ -391,9 +464,7 @@ export function VideoCallModal({ isOpen, onClose, mechanicName, bookingTime ,ses
               size="lg"
               className={cn(
                 "w-14 h-14 rounded-full font-semibold transition-all duration-200 shadow-lg",
-                isMuted
-                  ? "bg-red-600 hover:bg-red-700 text-white border-2 border-red-400"
-                  : "bg-gray-700 hover:bg-gray-600 text-white border-2 border-gray-500"
+                isMuted ? "bg-red-600 hover:bg-red-700 text-white border-2 border-red-400" : "bg-gray-700 hover:bg-gray-600 text-white border-2 border-gray-500"
               )}
               onClick={() => setIsMuted(!isMuted)}
             >
@@ -404,9 +475,7 @@ export function VideoCallModal({ isOpen, onClose, mechanicName, bookingTime ,ses
               size="lg"
               className={cn(
                 "w-14 h-14 rounded-full font-semibold transition-all duration-200 shadow-lg",
-                !isVideoOn
-                  ? "bg-red-600 hover:bg-red-700 text-white border-2 border-red-400"
-                  : "bg-gray-700 hover:bg-gray-600 text-white border-2 border-gray-500"
+                !isVideoOn ? "bg-red-600 hover:bg-red-700 text-white border-2 border-red-400" : "bg-gray-700 hover:bg-gray-600 text-white border-2 border-gray-500"
               )}
               onClick={() => setIsVideoOn(!isVideoOn)}
             >
@@ -417,7 +486,7 @@ export function VideoCallModal({ isOpen, onClose, mechanicName, bookingTime ,ses
               size="lg"
               className="w-14 h-14 rounded-full bg-gray-700 hover:bg-gray-600 text-white border-2 border-gray-500 transition-all duration-200 shadow-lg"
             >
-              <MoreVertical className="w-6 h-6" />
+              <Settings className="w-6 h-6" />
             </Button>
 
             <Button
@@ -433,6 +502,8 @@ export function VideoCallModal({ isOpen, onClose, mechanicName, bookingTime ,ses
     </div>
   );
 }
+
+
 
 
 

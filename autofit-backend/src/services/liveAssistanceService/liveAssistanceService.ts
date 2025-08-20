@@ -73,9 +73,10 @@ export class LiveAssistanceService implements ILiveAssistanceService {
     async getSessionDetails(serviceId: Types.ObjectId, userId: Types.ObjectId): Promise<any> {
         const booking = await this._liveAssistanceRepo.findById(serviceId);
         if (!booking || booking.userId.toString() !== userId.toString() ) throw new ApiError('Invalid Service', HttpStatus.BAD_REQUEST);
-        if(booking.endTime >= new Date()) throw new ApiError('Service is already completed', HttpStatus.BAD_REQUEST);
+        if(booking.endTime <= new Date()) throw new ApiError('Service is already completed', HttpStatus.BAD_REQUEST);
 
         return {
+            userId,
             sessionId: booking.sessionId,
             mechanicId: booking.mechanicId
         }

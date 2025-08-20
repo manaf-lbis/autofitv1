@@ -46,7 +46,7 @@ const liveAssistanceSchema: Schema<LiveAssistanceDocument> = new Schema<LiveAssi
         default: function () {
             const duration = Number(process.env.LIVE_ASSISTANCE_DURATION || 0);
             const buffer = Number(process.env.PAYMENT_BUFFER || 0);
-            return new Date(Date.now() + duration + buffer);
+            return new Date(Date.now() + (duration + buffer)  * 60 * 1000);
         },
     },
     blockedTimeId: {

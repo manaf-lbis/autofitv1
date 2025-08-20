@@ -4,8 +4,8 @@ import { RoadsideService } from "../../services/roadsideAssistance/roadsideServi
 import { RoadsideAssistanceRepository } from "../../repositories/roadsideAssistanceRepo";
 import { QuotationRepository } from "../../repositories/quotationRepository";
 import { MechanicProfileRepository } from "../../repositories/mechanicProfileRepository";
-import { TransactionRepository } from "../../repositories/TransactionRepository";
-import { PaymentRepository } from "../../repositories/PaymentRepository";
+import { TransactionRepository } from "../../repositories/transactionRepository";
+import { PaymentRepository } from "../../repositories/paymentRepository";
 
 
 const roadsideAssistanceRepo = new RoadsideAssistanceRepository()

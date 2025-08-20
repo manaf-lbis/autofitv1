@@ -5,7 +5,7 @@ import { MechanicProfileRepository } from "../../repositories/mechanicProfileRep
 import { NotificationRepository } from "../../repositories/notificationRepository";
 import { RoadsideAssistanceRepository } from "../../repositories/roadsideAssistanceRepo";
 import { PretripBookingRepository } from "../../repositories/pretripBookingRepository";
-import { TransactionRepository } from "../../repositories/TransactionRepository";
+import { TransactionRepository } from "../../repositories/transactionRepository";
 
 
 

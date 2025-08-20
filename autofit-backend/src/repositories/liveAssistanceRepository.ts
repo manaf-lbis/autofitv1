@@ -7,7 +7,7 @@ import { LiveAssistanceStatus } from "../types/liveAssistance";
 
 export class LiveAsistanceRepository extends BaseRepository<LiveAssistanceDocument> implements ILiveAssistanceRepository {
 
-    constructor (){
+    constructor() {
         super(LiveAssistanceModel);
     }
 
@@ -23,8 +23,8 @@ export class LiveAsistanceRepository extends BaseRepository<LiveAssistanceDocume
         const query = role === Role.MECHANIC ? { mechanicId: userId } : { userId };
         const sort = sortBy === 'asc' ? 1 : -1;
         const data = await LiveAssistanceModel.find(query).sort({ createdAt: sort }).skip(start).limit(end).lean()
-        .populate('mechanicId', 'name email').populate('paymentId','status amount methord receipt paymentId')
-        .select('issue description status startTime endTime mechanicId paymentId price').lean();
+            .populate('mechanicId', 'name email').populate('paymentId', 'status amount methord receipt paymentId')
+            .select('issue description status startTime endTime mechanicId paymentId price').lean();
         const count = await LiveAssistanceModel.countDocuments(query)
         return {
             history: data,
@@ -33,13 +33,16 @@ export class LiveAsistanceRepository extends BaseRepository<LiveAssistanceDocume
     }
 
     async getServiceDetails(serviceId: Types.ObjectId): Promise<any> {
-        return await LiveAssistanceModel.findOne({ _id: serviceId }).populate('paymentId','status amount methord receipt').populate('mechanicId', 'name email')
-        .select('paymentId mechanicId userId issue description status startTime endTime price')
+        return await LiveAssistanceModel.findOne({ _id: serviceId }).populate('paymentId', 'status amount methord receipt').populate('mechanicId', 'name email')
+            .select('paymentId mechanicId userId issue description status startTime endTime price')
     }
 
     async activeBookingsByMechanicId(mechanicId: Types.ObjectId): Promise<LiveAssistanceDocument | null> {
-        return await LiveAssistanceModel.findOne({ mechanicId , status: { $in: [LiveAssistanceStatus.ONGOING, LiveAssistanceStatus.PENDING] }})
-        .populate('userId', 'name mobile').select('userId issue description status startTime endTime price sessionId')
+        return await LiveAssistanceModel.findOne({
+            mechanicId, status: { $in: [LiveAssistanceStatus.ONGOING, LiveAssistanceStatus.PENDING] },
+            startTime: { $lte: new Date() },
+            endTime: { $gte: new Date() }
+        }).populate('userId', 'name mobile').select('userId issue description status startTime endTime price sessionId mechanicId')
     }
 
 }

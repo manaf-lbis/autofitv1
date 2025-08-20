@@ -8,7 +8,7 @@ import { ServicePaymentHandleResolver } from "../../services/paymentServices/res
 import { PretripPaymentHandler } from "../../services/paymentServices/servicePaymentHandler/PretripPaymentHandler";
 import { ServiceType } from "../../types/services";
 import { PaymentGateway } from "../../types/payment";
-import { PaymentRepository } from "../../repositories/PaymentRepository";
+import { PaymentRepository } from "../../repositories/paymentRepository";
 import { LiveAsistanceRepository } from "../../repositories/liveAssistanceRepository";
 import { LiveAssistancePaymentHandler } from "../../services/paymentServices/servicePaymentHandler/liveAssistancePaymentHandler";
 import { TimeBlockRepository } from "../../repositories/timeBlockRepository";

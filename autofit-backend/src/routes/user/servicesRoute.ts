@@ -2,15 +2,15 @@ import { Router } from "express";
 import { ServicesController } from "../../controllers/user/servicesController";
 import { UserRoadsideService } from "../../services/roadsideAssistance/userRoadsideService";
 import { MechanicProfileRepository } from "../../repositories/mechanicProfileRepository";
-import { GoogleMapRepository } from "../../repositories/GoogleMapRepository";
+import { GoogleMapRepository } from "../../repositories/googleMapRepository";
 import { RoadsideAssistanceRepository } from "../../repositories/roadsideAssistanceRepo";
 import { VehicleRepository } from "../../repositories/vehicleRepository";
 import { NotificationRepository } from "../../repositories/notificationRepository";
 import { RoadsideService } from "../../services/roadsideAssistance/roadsideService";
 import { QuotationRepository } from "../../repositories/quotationRepository";
-import { RazorpayRepository } from "../../repositories/RazorpayRepository";
-import { PaymentRepository } from "../../repositories/PaymentRepository";
-import { TransactionRepository } from "../../repositories/TransactionRepository";
+import { RazorpayRepository } from "../../repositories/razorpayRepository";
+import { PaymentRepository } from "../../repositories/paymentRepository";
+import { TransactionRepository } from "../../repositories/transactionRepository";
 
 const mechanicProfileRepo = new MechanicProfileRepository()
 const googleMapRepo = new GoogleMapRepository()

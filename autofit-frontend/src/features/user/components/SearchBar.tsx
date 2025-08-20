@@ -1,7 +1,4 @@
-"use client"
-
 import type React from "react"
-
 import { useState, useEffect, useRef } from "react"
 import { Search, X, Car, Video, CheckCircle } from "lucide-react"
 import { useNavigate } from "react-router-dom"

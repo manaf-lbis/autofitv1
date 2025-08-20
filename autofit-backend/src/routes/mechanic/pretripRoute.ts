@@ -2,7 +2,7 @@ import { Router } from "express";
 import { PretripController } from "../../controllers/mechanic/pretripController";
 import { PretripService } from "../../services/pretripCheckup/pretripService";
 import { MechanicProfileRepository } from "../../repositories/mechanicProfileRepository";
-import { GoogleMapRepository } from "../../repositories/GoogleMapRepository";
+import { GoogleMapRepository } from "../../repositories/googleMapRepository";
 import { PretripBookingRepository } from "../../repositories/pretripBookingRepository";
 import { PretripPlanRepository } from "../../repositories/pretripPlanRepository";
 import { ProfileService } from "../../services/mechanic/profileService";
@@ -11,8 +11,8 @@ import { MechanicRepository } from "../../repositories/mechanicRepository";
 import { WorkingHoursRepository } from "../../repositories/workingHoursRepository";
 import { TimeBlockRepository } from "../../repositories/timeBlockRepository";
 import { PretripReportRepository } from "../../repositories/pretripReportRepository";
-import { TransactionRepository } from "../../repositories/TransactionRepository";
-import { PaymentRepository } from "../../repositories/PaymentRepository";
+import { TransactionRepository } from "../../repositories/transactionRepository";
+import { PaymentRepository } from "../../repositories/paymentRepository";
 
 
 const router = Router();
