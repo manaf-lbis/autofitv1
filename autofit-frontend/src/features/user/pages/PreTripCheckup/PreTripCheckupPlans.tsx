@@ -1,6 +1,6 @@
 import type React from "react"
 import { Button } from "@/components/ui/button"
-import { ChevronLeft, ChevronRight, Shield, ArrowRight, Users, Clock, Award, Star, Grid3X3, Layers } from "lucide-react"
+import { ChevronLeft, ChevronRight, ArrowRight, Users, Clock, Award, Star, Grid3X3, Layers, Check, Sparkles } from "lucide-react"
 import { useState, useEffect, useRef } from "react"
 import { useGetPretripPlansQuery } from "@/services/userServices/pretripUserApi"
 import type { Plan } from "@/types/plans"
@@ -15,6 +15,7 @@ export default function PreTripCheckupPlans() {
   const [viewMode, setViewMode] = useState<ViewMode>("carousel")
   const { data: plans, isLoading } = useGetPretripPlansQuery({})
   const [isMobile, setIsMobile] = useState(false)
+  const [isSmallScreen, setIsSmallScreen] = useState(false)
   const [isDragging, setIsDragging] = useState(false)
   const [startX, setStartX] = useState(0)
   const [currentX, setCurrentX] = useState(0)
@@ -25,7 +26,9 @@ export default function PreTripCheckupPlans() {
   useEffect(() => {
     const handleResize = () => {
       const mobile = window.innerWidth < 768
+      const small = window.innerWidth < 640
       setIsMobile(mobile)
+      setIsSmallScreen(small)
     }
     handleResize()
     window.addEventListener("resize", handleResize)
@@ -39,7 +42,6 @@ export default function PreTripCheckupPlans() {
     }, 4000)
     return () => clearInterval(interval)
   }, [isAutoPlaying, isDragging, isLoading, plans, viewMode])
-
 
   const formatPlanDuration = (minutes: number) => {
     if (minutes < 60) {
@@ -112,7 +114,7 @@ export default function PreTripCheckupPlans() {
   }
 
   const getCardTransform = (index: number) => {
-    if (!plans) return { transform: "translateX(0) scale(1)", zIndex: 1, opacity: 0 }
+    if (!plans) return { transform: "translateX(0) scale(1)", zIndex: 1, opacity: 1 }
     if (isMobile) {
       return { transform: "translateX(0) scale(1)", zIndex: 1, opacity: 1 }
     }
@@ -123,163 +125,202 @@ export default function PreTripCheckupPlans() {
     if (diff > totalCards / 2) position = diff - totalCards
     if (diff < -totalCards / 2) position = diff + totalCards
 
-    // Removed opacity changes for better visibility
     if (position === 0) {
       return { transform: "translateX(-50%) scale(1.05)", zIndex: 50, opacity: 1, left: "50%" }
     }
     if (position === -1) {
-      return { transform: "translateX(-50%) scale(0.9)", zIndex: 40, opacity: 1, left: "30%" }
+      return { transform: "translateX(-50%) scale(0.9)", zIndex: 40, opacity: 0.8, left: "25%" }
     }
     if (position === -2) {
-      return { transform: "translateX(-50%) scale(0.8)", zIndex: 30, opacity: 1, left: "15%" }
+      return { transform: "translateX(-50%) scale(0.8)", zIndex: 30, opacity: 0.6, left: "10%" }
     }
     if (position === 1) {
-      return { transform: "translateX(-50%) scale(0.9)", zIndex: 40, opacity: 1, left: "70%" }
+      return { transform: "translateX(-50%) scale(0.9)", zIndex: 40, opacity: 0.8, left: "75%" }
     }
     if (position === 2) {
-      return { transform: "translateX(-50%) scale(0.8)", zIndex: 30, opacity: 1, left: "85%" }
+      return { transform: "translateX(-50%) scale(0.8)", zIndex: 30, opacity: 0.6, left: "90%" }
     }
 
     return {
       transform: "translateX(-50%) scale(0.6)",
       zIndex: 1,
-      opacity: 0, 
+      opacity: 0,
       left: "50%",
       pointerEvents: "none" as const,
     }
   }
 
-  const renderImprovedCard = (plan: Plan, index?: number, isCarousel = false) => {
+  const renderPlanCard = (plan: Plan, index?: number, isCarousel = false) => {
     const isCenter = isCarousel
       ? Math.abs((index || 0) - currentIndex) === 0 || Math.abs((index || 0) - currentIndex) === (plans?.length || 0)
       : false
     const isHovered = hoveredCard === plan._id
+    const isPopular = plan.isPopular && ((isCarousel && isCenter) || !isCarousel)
 
+    // Enhanced feature count based on screen size
+    let maxFeatures = 6 // Default to 6 features
+    if (isCarousel) {
+      if (isMobile) {
+        maxFeatures = 6 // Show 6 features on mobile
+      } else {
+        maxFeatures = isCenter ? 4 : 3
+      }
+    } else {
+      maxFeatures = isSmallScreen ? 5 : 6
+    }
     
-    const maxFeatures = isCarousel ? (isCenter ? 5 : 3) : 6 
     const visibleFeatures = plan.features.slice(0, maxFeatures)
     const remainingFeatures = plan.features.length - maxFeatures
 
     return (
       <div
         key={plan._id}
-        className={`relative transition-all duration-300 ${!isCarousel ? "cursor-pointer" : ""}`}
+        className={`relative transition-all duration-500 ${!isCarousel ? "cursor-pointer" : ""} group`}
         onMouseEnter={() => !isCarousel && setHoveredCard(plan._id)}
         onMouseLeave={() => !isCarousel && setHoveredCard(null)}
         onClick={() => !isCarousel && handlePlanSelect(plan._id)}
       >
-        {/* Fixed Height Card Container */}
         <div
-          className={`relative bg-white border rounded-xl overflow-hidden transition-all duration-300 ${
-            isCarousel ? "h-[560px]" : "h-[630px]" 
+          className={`relative bg-white border overflow-hidden transition-all duration-500 rounded-xl ${
+            isMobile 
+              ? "h-[600px] mx-1 shadow-lg hover:shadow-xl" 
+              : isCarousel
+                ? "h-[480px] sm:h-[520px]"
+                : "h-[580px] sm:h-[620px]"
           } ${
-            plan.isPopular && (isCarousel ? isCenter : true)
-              ? "border-blue-500 shadow-lg shadow-blue-500/10"
-              : "border-gray-200 shadow-md"
-          } ${!isCarousel && isHovered ? "transform scale-[1.02] shadow-lg" : ""}`}
+            isPopular
+              ? "border-2 border-blue-500 shadow-xl shadow-blue-500/20"
+              : "border border-gray-200 hover:border-blue-300 hover:shadow-xl"
+          } ${!isCarousel && isHovered ? "transform scale-[1.02] shadow-2xl" : ""}`}
         >
           {/* Popular Badge */}
-          {plan.isPopular && ((isCarousel && isCenter) || !isCarousel) && (
+          {isPopular && (
             <div className="absolute top-4 left-4 z-10">
-              <div className="bg-green-500 text-white px-3 py-1 rounded-lg text-xs font-bold flex items-center gap-1">
-                <Star className="h-3 w-3 fill-current" />
-                Popular
+              <div className="bg-blue-600 text-white px-4 py-2 rounded-full text-xs font-bold flex items-center gap-2 shadow-xl">
+                <Sparkles className="h-3.5 w-3.5 fill-current" />
+                Most Popular
               </div>
             </div>
           )}
 
           {/* Discount Badge */}
-          {((isCarousel && isCenter) || !isCarousel) && plan.originalPrice && plan.originalPrice > plan.price && (
+          {!isPopular && plan.originalPrice && plan.originalPrice > plan.price && (
             <div className="absolute top-4 right-4 z-10">
-              <div className="bg-red-500 text-white px-3 py-1 rounded-lg text-xs font-bold">
+              <div className="bg-red-500 text-white px-4 py-2 rounded-full text-xs font-bold shadow-xl">
                 {getDiscountPercentage(plan.originalPrice, plan.price)}% OFF
               </div>
             </div>
           )}
 
-          {/* Card Content with Better Layout */}
-          <div className="h-full flex flex-col">
-            {/* Header Section */}
-            <div className="flex-shrink-0 text-center p-6 pb-4">
-              <h3 className="text-xl font-bold text-gray-900 mb-2">{plan.name}</h3>
-              <p className="text-gray-600 text-sm mb-4">{plan.description}</p>
+          {/* Card Content */}
+          <div className={`h-full flex flex-col ${isMobile ? "p-4" : "p-6"}`}>
+            {/* Header with enhanced styling */}
+            <div className={`text-center ${isMobile ? "mb-5" : "mb-5"}`}>
+              <h3 className={`font-bold text-gray-900 ${
+                isMobile ? "text-xl mb-3" : "text-lg sm:text-xl mb-3"
+              }`}>
+                {plan.name}
+              </h3>
+              <p className={`text-gray-600 line-clamp-2 ${
+                isMobile ? "text-sm leading-relaxed px-2" : "text-xs sm:text-sm"
+              }`}>
+                {plan.description}
+              </p>
+            </div>
 
-              {/* Improved Time Design */}
-              <div className="flex items-center justify-center gap-2 mb-4">
-                <div className="bg-gray-100 rounded-lg p-2">
-                  <Clock className="h-4 w-4 text-gray-600" />
+            {/* Enhanced Pricing Section */}
+            <div className={`text-center ${isMobile ? "mb-5" : "mb-5"}`}>
+              <div className="flex items-baseline justify-center gap-2 mb-3">
+                <span className={`font-bold text-gray-900 ${
+                  isMobile ? "text-3xl" : "text-2xl sm:text-3xl"
+                }`}>
+                  ₹{plan.price.toLocaleString()}
+                </span>
+                {plan.originalPrice && plan.originalPrice > plan.price && (
+                  <span className={`text-gray-400 line-through ${
+                    isMobile ? "text-lg" : "text-sm"
+                  }`}>
+                    ₹{plan.originalPrice.toLocaleString()}
+                  </span>
+                )}
+              </div>
+              <p className={`text-gray-500 ${isMobile ? "text-sm mb-4" : "text-xs mb-4"}`}>
+                per inspection
+              </p>
+              
+              {/* Modern badge layout with row order */}
+              <div className={`flex items-center justify-center ${isMobile ? "gap-3" : "gap-4"}`}>
+                <div className={`inline-flex items-center gap-2 bg-blue-50 border border-blue-200 rounded-full ${
+                  isMobile ? "px-4 py-2.5" : "px-4 py-2"
+                }`}>
+                  <Clock className={`text-blue-600 ${isMobile ? "h-4 w-4" : "h-3.5 w-3.5"}`} />
+                  <span className={`font-semibold text-blue-800 ${isMobile ? "text-sm" : "text-xs"}`}>
+                    {formatPlanDuration(plan.duration)}
+                  </span>
                 </div>
-                <div className="text-left">
-                  <div className="text-sm font-semibold text-gray-900">{formatPlanDuration(plan.duration)}</div>
-                  <div className="text-xs text-gray-500">inspection time</div>
-                </div>
+
+                {plan.originalPrice && plan.originalPrice > plan.price && (
+                  <div className={`inline-flex items-center bg-green-50 border border-green-200 rounded-full ${
+                    isMobile ? "px-4 py-2.5" : "px-4 py-2"
+                  }`}>
+                    <span className={`text-green-700 font-semibold ${isMobile ? "text-sm" : "text-xs"}`}>
+                      Save ₹{(plan.originalPrice - plan.price).toLocaleString()}
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
 
-            {/* Pricing Section */}
-            <div className="flex-shrink-0 text-center px-6 pb-4">
-              <div className="flex items-baseline justify-center gap-2 mb-2">
-                <span className="text-3xl font-bold text-gray-900">₹{plan.price.toLocaleString()}</span>
-                {plan.originalPrice && plan.originalPrice > plan.price && (
-                  <span className="text-lg text-gray-400 line-through">₹{plan.originalPrice.toLocaleString()}</span>
-                )}
+            {/* Enhanced Features Section */}
+            <div className="flex-grow">
+              <h4 className={`font-bold text-gray-800 flex items-center gap-2 ${
+                isMobile ? "text-sm mb-3" : "text-sm mb-4"
+              }`}>
+                <Check className={`text-green-600 ${isMobile ? "h-4 w-4" : "h-4 w-4"}`} />
+                What's Included
+              </h4>
+              <div className={`${isMobile ? "space-y-2.5" : "space-y-3"}`}>
+                {visibleFeatures.map((feature, featureIndex) => (
+                  <div key={featureIndex} className="flex items-start gap-3 group">
+                    <div className={`bg-green-100 rounded-full p-0.5 flex-shrink-0 ${isMobile ? "mt-0.5" : "mt-0.5"}`}>
+                      <Check className={`text-green-600 ${
+                        isMobile ? "h-3 w-3" : "h-3 w-3"
+                      }`} />
+                    </div>
+                    <span className={`text-gray-700 leading-relaxed font-medium ${
+                      isMobile ? "text-sm" : "text-xs"
+                    } group-hover:text-gray-900 transition-colors`}>
+                      {feature}
+                    </span>
+                  </div>
+                ))}
               </div>
-              <p className="text-sm text-gray-500 mb-2">per inspection</p>
-              {plan.originalPrice && plan.originalPrice > plan.price && (
-                <div className="inline-block bg-green-50 text-green-700 px-3 py-1 rounded-lg border border-green-200">
-                  <span className="text-sm font-medium">
-                    Save ₹{(plan.originalPrice - plan.price).toLocaleString()}
+
+              {remainingFeatures > 0 && (
+                <div className={`${isMobile ? "mt-4" : "mt-4"}`}>
+                  <span className={`inline-block bg-blue-100 text-blue-700 border border-blue-200 rounded-lg font-medium ${
+                    isMobile ? "text-sm px-4 py-2" : "text-xs px-3 py-1"
+                  }`}>
+                    +{remainingFeatures} more {remainingFeatures === 1 ? 'feature' : 'features'}
                   </span>
                 </div>
               )}
             </div>
 
-            {/* Features Section - Better Space Management */}
-            <div className="flex-grow px-6 pb-4 min-h-0">
-              <div className="h-full flex flex-col">
-                <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3 flex-shrink-0">
-                  What's Included:
-                </h4>
-                <div className="flex-grow flex flex-col justify-between">
-                  <div className="space-y-2">
-                    {visibleFeatures.map((feature, featureIndex) => (
-                      <div key={featureIndex} className="flex items-start gap-3">
-                        <div className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
-                        <span className="text-sm text-gray-700 leading-relaxed">{feature}</span>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* More Features - Only visible if remainingFeatures > 0 */}
-                  {remainingFeatures > 0 && (
-                    <div className="mt-3 pt-2 border-t border-gray-100">
-                      <div className="bg-blue-50 rounded-lg p-3 text-center">
-                        <span className="text-sm font-medium text-blue-700">
-                          +{remainingFeatures} more feature{remainingFeatures > 1 ? "s" : ""} included
-                        </span>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            {/* Button Section - Fixed at Bottom */}
-            <div className="flex-shrink-0 p-6 pt-0">
+            {/* Modern CTA Button */}
+            <div className={`mt-auto ${isMobile ? "pt-4" : "pt-4"}`}>
               <Button
-                className={`w-full py-3 text-sm font-medium rounded-lg transition-all duration-300 ${
-                  plan.isPopular && ((isCarousel && isCenter) || !isCarousel)
-                    ? "bg-indigo-600 hover:bg-indigo-700 text-white" // Popular button color
-                    : "bg-blue-600 hover:bg-blue-700 text-white" // Changed default button color to blue
-                } ${isHovered && !isCarousel ? "scale-[1.02]" : ""}`}
+                className={`w-full bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-all duration-300 transform hover:scale-[1.02] shadow-lg hover:shadow-xl ${
+                  isMobile ? "text-sm py-4 px-6" : "text-sm py-3"
+                } ${isPopular ? "ring-2 ring-blue-300 bg-blue-700" : ""}`}
                 onClick={(e) => {
                   e.stopPropagation()
                   handlePlanSelect(plan._id)
                 }}
               >
                 <span className="flex items-center justify-center gap-2">
-                  Select {plan.name}
-                  <ArrowRight className="h-4 w-4" />
+                  {isPopular ? "Choose Popular Plan" : "Select This Plan"}
+                  <ArrowRight className={`${isMobile ? "h-4 w-4" : "h-4 w-4"} transition-transform group-hover:translate-x-1`} />
                 </span>
               </Button>
             </div>
@@ -292,73 +333,108 @@ export default function PreTripCheckupPlans() {
   if (isLoading || !plans) return <PlanPageShimmer />
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="max-w-4xl mx-auto text-center pt-16 pb-12 px-6">
-        <div className="inline-flex items-center gap-2 bg-blue-50 text-blue-700 rounded-lg px-4 py-2 mb-8 border border-blue-200">
-          <Shield className="h-4 w-4" />
-          <span className="text-sm font-medium">Trusted by 50,000+ drivers</span>
+    <div className="min-h-screen bg-gray-50 mt-16 sm:mt-6">
+      {/* Enhanced Header with trust indicator */}
+      <div className={`max-w-4xl mx-auto text-center px-4 sm:px-4 lg:px-6 ${
+        isMobile 
+          ? "pt-4 pb-3" 
+          : "pt-6 sm:pt-8 lg:pt-16 pb-4 sm:pb-8 lg:pb-12"
+      }`}>
+        {/* Trust Badge with modern design */}
+        <div className={`inline-flex items-center gap-1.5 sm:gap-2 bg-white px-3 sm:px-4 py-2 rounded-full shadow-sm border mb-4 sm:mb-6 ${
+          isMobile ? "text-xs" : "text-sm"
+        }`}>
+          <div className="w-2 h-2 bg-green-500 rounded-full flex-shrink-0"></div>
+          <span className="font-medium text-gray-700 whitespace-nowrap">
+            Trusted by 50,000+ drivers
+          </span>
         </div>
 
-        <h1 className="text-4xl font-bold text-gray-900 mb-6">Vehicle Inspection Plans</h1>
-        <p className="text-lg text-gray-600 mb-12 max-w-2xl mx-auto">
-          Professional pre-trip inspections to ensure your vehicle is road-ready and safe
+        {/* Enhanced Main Heading with better typography */}
+        <h1 className={`font-bold text-gray-900 mb-3 sm:mb-4 leading-tight ${
+          isMobile 
+            ? "text-2xl xs:text-3xl px-2" 
+            : "text-3xl sm:text-4xl md:text-5xl"
+        }`}>
+          Choose Your Perfect{" "}
+          <span className="text-blue-600 block xs:inline">
+            Inspection Plan
+          </span>
+        </h1>
+        <p className={`text-gray-600 max-w-2xl mx-auto leading-relaxed px-2 sm:px-4 ${
+          isMobile 
+            ? "text-sm xs:text-base mb-4" 
+            : "text-base sm:text-lg mb-6 sm:mb-8"
+        }`}>
+          Professional pre-trip inspections designed for your vehicle's safety and your peace of mind. Expert technicians, transparent pricing, same-day service.
         </p>
 
-        {/* Stats */}
-        <div className="flex flex-wrap justify-center gap-8 text-sm text-gray-600 mb-12">
-          <div className="flex items-center gap-2">
-            <Users className="h-4 w-4 text-blue-600" />
-            <span>50K+ customers</span>
+        {/* Enhanced Social Proof */}
+        <div className={`flex flex-wrap justify-center text-gray-600 ${
+          isMobile 
+            ? "gap-3 text-sm mb-4" 
+            : "gap-4 sm:gap-8 text-sm mb-6 sm:mb-8"
+        }`}>
+          <div className={`flex items-center bg-white rounded-lg px-3 py-2 shadow-sm ${isMobile ? "gap-1.5" : "gap-2"}`}>
+            <Users className={`text-blue-600 ${isMobile ? "h-3.5 w-3.5" : "h-4 w-4"}`} />
+            <span className="font-medium">50K+ customers</span>
           </div>
-          <div className="flex items-center gap-2">
-            <Award className="h-4 w-4 text-green-600" />
-            <span>ASE certified</span>
+          <div className={`flex items-center bg-white rounded-lg px-3 py-2 shadow-sm ${isMobile ? "gap-1.5" : "gap-2"}`}>
+            <Award className={`text-green-600 ${isMobile ? "h-3.5 w-3.5" : "h-4 w-4"}`} />
+            <span className="font-medium">Certified</span>
           </div>
-          <div className="flex items-center gap-2">
-            <Clock className="h-4 w-4 text-orange-600" />
-            <span>Same day service</span>
+          <div className={`flex items-center bg-white rounded-lg px-3 py-2 shadow-sm ${isMobile ? "gap-1.5" : "gap-2"}`}>
+            <Clock className={`text-orange-600 ${isMobile ? "h-3.5 w-3.5" : "h-4 w-4"}`} />
+            <span className="font-medium">Same day</span>
           </div>
-          <div className="flex items-center gap-2">
-            <Star className="h-4 w-4 text-yellow-600" />
-            <span>4.9/5 rating</span>
+          <div className={`flex items-center bg-white rounded-lg px-3 py-2 shadow-sm ${isMobile ? "gap-1.5" : "gap-2"}`}>
+            <Star className={`text-yellow-600 ${isMobile ? "h-3.5 w-3.5" : "h-4 w-4"} fill-current`} />
+            <span className="font-medium">4.9★</span>
           </div>
         </div>
 
-        {/* View Toggle */}
+        {/* Enhanced View Toggle - Hide on mobile */}
         {!isMobile && (
-          <div className="inline-flex bg-white rounded-lg p-1 border border-gray-200 mb-16">
+          <div className="inline-flex bg-white rounded-lg p-1 border border-gray-200 shadow-lg">
             <button
               onClick={() => setViewMode("carousel")}
-              className={`flex items-center gap-2 px-6 py-3 rounded-md text-sm font-medium transition-all duration-300 ${
-                viewMode === "carousel" ? "bg-blue-600 text-white" : "text-gray-600 hover:text-gray-900"
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 ${
+                viewMode === "carousel" 
+                  ? "bg-blue-600 text-white shadow-md" 
+                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
               }`}
             >
               <Layers className="h-4 w-4" />
-              Carousel
+              Carousel View
             </button>
             <button
               onClick={() => setViewMode("slide")}
-              className={`flex items-center gap-2 px-6 py-3 rounded-md text-sm font-medium transition-all duration-300 ${
-                viewMode === "slide" ? "bg-blue-600 text-white" : "text-gray-600 hover:text-gray-900"
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 ${
+                viewMode === "slide" 
+                  ? "bg-blue-600 text-white shadow-md" 
+                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
               }`}
             >
               <Grid3X3 className="h-4 w-4" />
-              Grid
+              Grid View
             </button>
           </div>
         )}
       </div>
 
-      {/* Content */}
-      <div className="max-w-7xl mx-auto px-6 pb-16">
-        {viewMode === "carousel" ? (
+      {/* Plans Content */}
+      <div className={`max-w-6xl mx-auto px-4 sm:px-4 lg:px-6 ${
+        isMobile ? "pb-6" : "pb-8 sm:pb-12"
+      }`}>
+        {viewMode === "carousel" || isMobile ? (
           <>
-            {/* Carousel View */}
+            {/* Enhanced Carousel */}
             <div
               ref={containerRef}
               className={`relative ${
-                isMobile ? "overflow-hidden py-4" : "h-[600px] py-8 flex items-center justify-center" // Adjusted height
+                isMobile 
+                  ? "overflow-hidden py-2" 
+                  : "h-[520px] py-8 flex items-center justify-center"
               } cursor-grab active:cursor-grabbing`}
               onTouchStart={handleTouchStart}
               onTouchMove={handleTouchMove}
@@ -374,8 +450,8 @@ export default function PreTripCheckupPlans() {
                   style={{ transform: `translateX(-${currentIndex * 100}%)` }}
                 >
                   {plans.map((plan, index) => (
-                    <div key={plan._id} className="flex-shrink-0 w-full px-4">
-                      {renderImprovedCard(plan, index, true)}
+                    <div key={plan._id} className="flex-shrink-0 w-full px-2">
+                      {renderPlanCard(plan, index, true)}
                     </div>
                   ))}
                 </div>
@@ -386,11 +462,11 @@ export default function PreTripCheckupPlans() {
                     return (
                       <div
                         key={plan._id}
-                        className="absolute w-96 transition-all duration-700 ease-out cursor-pointer"
+                        className="absolute w-80 transition-all duration-700 ease-out cursor-pointer"
                         style={style}
                         onClick={() => goToSlide(index)}
                       >
-                        {renderImprovedCard(plan, index, true)}
+                        {renderPlanCard(plan, index, true)}
                       </div>
                     )
                   })}
@@ -398,23 +474,29 @@ export default function PreTripCheckupPlans() {
               )}
             </div>
 
-            {/* Controls */}
-            <div className="flex items-center justify-center gap-8 mt-8">
+            {/* Enhanced Controls */}
+            <div className={`flex items-center justify-center gap-6 ${isMobile ? "mt-4" : "mt-8"}`}>
               <button
                 onClick={prevSlide}
-                className="bg-white border border-gray-200 rounded-full p-3 hover:bg-gray-50 transition-all duration-300"
+                className={`bg-white border-2 border-blue-200 rounded-lg hover:bg-blue-50 hover:border-blue-300 transition-all duration-200 shadow-lg ${
+                  isMobile ? "p-3" : "p-3"
+                }`}
                 aria-label="Previous plan"
               >
-                <ChevronLeft className="h-5 w-5 text-gray-700" />
+                <ChevronLeft className={`text-blue-600 ${isMobile ? "h-5 w-5" : "h-5 w-5"}`} />
               </button>
 
-              <div className="flex gap-2">
+              <div className={`flex ${isMobile ? "gap-2" : "gap-2"}`}>
                 {plans.map((_, index) => (
                   <button
                     key={index}
                     onClick={() => goToSlide(index)}
-                    className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                      index === currentIndex ? "bg-blue-600 w-6" : "bg-gray-300 hover:bg-gray-400"
+                    className={`rounded-full transition-all duration-300 ${
+                      isMobile ? "h-2.5" : "h-2.5"
+                    } ${
+                      index === currentIndex 
+                        ? `bg-blue-600 ${isMobile ? "w-8" : "w-8"} shadow-md` 
+                        : `bg-gray-300 hover:bg-gray-400 ${isMobile ? "w-2.5" : "w-2.5"}`
                     }`}
                     aria-label={`Go to plan ${index + 1}`}
                   />
@@ -423,27 +505,30 @@ export default function PreTripCheckupPlans() {
 
               <button
                 onClick={nextSlide}
-                className="bg-white border border-gray-200 rounded-full p-3 hover:bg-gray-50 transition-all duration-300"
+                className={`bg-white border-2 border-blue-200 rounded-lg hover:bg-blue-50 hover:border-blue-300 transition-all duration-200 shadow-lg ${
+                  isMobile ? "p-3" : "p-3"
+                }`}
                 aria-label="Next plan"
               >
-                <ChevronRight className="h-5 w-5 text-gray-700" />
+                <ChevronRight className={`text-blue-600 ${isMobile ? "h-5 w-5" : "h-5 w-5"}`} />
               </button>
             </div>
 
-            <div className="text-center mt-6">
-              <button
-                onClick={() => setIsAutoPlaying(!isAutoPlaying)}
-                className="text-gray-500 hover:text-gray-700 text-sm transition-colors bg-white rounded-lg px-4 py-2 border border-gray-200"
-                aria-label={isAutoPlaying ? "Pause slideshow" : "Resume slideshow"}
-              >
-                {isAutoPlaying ? "⏸ Pause" : "▶ Play"}
-              </button>
-            </div>
+            {!isMobile && (
+              <div className="text-center mt-8">
+                <button
+                  onClick={() => setIsAutoPlaying(!isAutoPlaying)}
+                  className="text-gray-600 hover:text-gray-800 text-sm transition-colors bg-white rounded-lg px-6 py-3 border-2 border-gray-200 hover:border-gray-300 font-medium shadow-lg"
+                >
+                  {isAutoPlaying ? "⏸ Pause Slideshow" : "▶ Resume Slideshow"}
+                </button>
+              </div>
+            )}
           </>
         ) : (
-          /* Grid View - Fixed Heights */
-          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8">
-            {plans.map((plan, index) => renderImprovedCard(plan, index))}
+          /* Enhanced Grid View */
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {plans.map((plan, index) => renderPlanCard(plan, index))}
           </div>
         )}
       </div>
