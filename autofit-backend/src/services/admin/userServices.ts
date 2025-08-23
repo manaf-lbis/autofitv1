@@ -14,7 +14,6 @@ export class UserServices implements IUserService {
     ) { }
 
     async allUsers(data:{page: number; limit: number;search?: string;sortField?: keyof User;sortOrder?: "asc" | "desc";}) {
-      
        return await this._userRepository.findUsersWithPagination(data)
     }
 

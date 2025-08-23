@@ -1,35 +1,20 @@
 import { Types } from "mongoose";
 import { MechanicDocument } from "../../models/mechanicModel";
-import { MechanicProfileDocument } from "../../models/mechanicProfileModel";
 import { IMechanicRepository } from "../../repositories/interfaces/IMechanicRepository";
 import { IMechanicProfileRepository } from "../../repositories/interfaces/IMechanicProfileRepository";
-import { IMechanicService } from "./interface/IMechanicServices";
+import { IMechanicService, PagenateParams, PaginationResponse } from "./interface/IMechanicServices";
+import { MechanicProfileDocument } from "../../models/mechanicProfileModel";
+import { AdminMapper } from "../../utils/mappers/adminMapper";
 
 
-interface PaginationParams {
-  page: number;
-  limit: number;
-  search?: string;
-  sortField?: keyof MechanicProfileDocument;
-  sortOrder?: 'asc' | 'desc';
-}
-
-interface PaginationResponse {
-  users: MechanicProfileDocument[];
-  total: number;
-  page: number;
-  totalPages: number;
-}
 
 export class MechanicService implements IMechanicService {
     constructor(
         private _mechanicRepository: IMechanicRepository,
         private _mechanicprofileRepository: IMechanicProfileRepository
-
     ) { }
 
-    async allUsers(data: { page: number; limit: number; search?: string; sortField?: keyof MechanicDocument; sortOrder?: "asc" | "desc"; }) {
-
+    async allUsers(data: PagenateParams<MechanicDocument> ) {
         return await this._mechanicRepository.findMechanicWithPagination(data)
     }
 
@@ -43,7 +28,7 @@ export class MechanicService implements IMechanicService {
         return { mechanic, mechanicProfile };
     }
 
-    async mechanicApplications(params: PaginationParams): Promise<PaginationResponse> {
+    async mechanicApplications(params: PagenateParams<MechanicProfileDocument>): Promise<PaginationResponse> {
         const result = await this._mechanicprofileRepository.findMechanicWithPagination(params);
         return result;
     }
