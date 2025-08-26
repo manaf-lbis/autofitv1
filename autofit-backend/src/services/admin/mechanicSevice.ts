@@ -4,8 +4,6 @@ import { IMechanicRepository } from "../../repositories/interfaces/IMechanicRepo
 import { IMechanicProfileRepository } from "../../repositories/interfaces/IMechanicProfileRepository";
 import { IMechanicService, PagenateParams, PaginationResponse } from "./interface/IMechanicServices";
 import { MechanicProfileDocument } from "../../models/mechanicProfileModel";
-import { AdminMapper } from "../../utils/mappers/adminMapper";
-
 
 
 export class MechanicService implements IMechanicService {
