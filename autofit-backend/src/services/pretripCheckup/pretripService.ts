@@ -1,4 +1,4 @@
-import { ICreateBookingParams, IPretripService, Report } from "./interface/IPretripService";
+import { ICreateBookingParams, IPretripService, PretripServiceHistoryResponse, Report } from "./interface/IPretripService";
 import { IMechanicProfileRepository } from "../../repositories/interfaces/IMechanicProfileRepository";
 import { IGoogleMapRepository } from "../../repositories/interfaces/IGoogleMapRepository";
 import { IPretripBookingRepository } from "../../repositories/interfaces/IPretripBookingRepository";
@@ -21,6 +21,7 @@ import { TransactionStatus } from "../../types/transaction";
 import { generateTransactionId, getDeductionRate } from "../../utils/transactionUtils";
 import { ServiceType } from "../../types/services";
 import { IPaymentRepository } from "../../repositories/interfaces/IPaymentRepository";
+import { Role } from "../../types/role";
 
 
 
@@ -324,15 +325,15 @@ export class PretripService implements IPretripService {
                 serviceId: serviceId,
                 mechanicId: mechanicId,
                 status: TransactionStatus.RECEIVED,
-                deductionAmount: (deductionRate * paymentdetais?.amount)/100,
-                deductionRate : deductionRate,
-                grossAmount : paymentdetais?.amount,
-                netAmount : paymentdetais?.amount - (deductionRate * paymentdetais?.amount)/100,
-                description : 'Pretrip Checkup',
-                transactionId : generateTransactionId(ServiceType.PRETRIP),
-                paymentId : paymentdetais._id,
-                userId : booking.userId,
-                serviceType : ServiceType.PRETRIP,
+                deductionAmount: (deductionRate * paymentdetais?.amount) / 100,
+                deductionRate: deductionRate,
+                grossAmount: paymentdetais?.amount,
+                netAmount: paymentdetais?.amount - (deductionRate * paymentdetais?.amount) / 100,
+                description: 'Pretrip Checkup',
+                transactionId: generateTransactionId(ServiceType.PRETRIP),
+                paymentId: paymentdetais._id,
+                userId: booking.userId,
+                serviceType: ServiceType.PRETRIP,
             })
         }
 
@@ -370,10 +371,25 @@ export class PretripService implements IPretripService {
 
     }
 
-    async getDetails(serviceId: Types.ObjectId,userId:Types.ObjectId): Promise<any> {
+    async getDetails(serviceId: Types.ObjectId, userId: Types.ObjectId): Promise<any> {
         const booking = await this._pretripBookingRepository.detailedBooking(serviceId);
-        if (!booking || booking.userId._id.toString() !== userId.toString() ) throw new ApiError('Invalid Service', HttpStatus.BAD_REQUEST);
+        if (!booking || booking.userId._id.toString() !== userId.toString()) throw new ApiError('Invalid Service', HttpStatus.BAD_REQUEST);
         return booking
+    }
+
+
+    async pretripServiceHistory(userId: Types.ObjectId, page: number): Promise<PretripServiceHistoryResponse> {
+        const itemsPerPage = Number(process.env.ITEMS_PER_PAGE);
+        const start = Number(page) <= 0 ? 0 : (page - 1) * itemsPerPage;
+        const end = start + itemsPerPage;
+
+        const response = await this._pretripBookingRepository.pagenatedPretripHistory({ end, start, userId, role: Role.MECHANIC, sortBy: 'desc' })
+
+        return {
+            totalDocuments: response.totalDocuments,
+            hasMore: response.totalDocuments > end,
+            history: response.history
+        }
     }
 
 

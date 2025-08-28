@@ -14,7 +14,6 @@ export const liveAssistanceHandler = (socket: Socket) => {
     const { id: verifiedUserId, role: verifiedRole } = verifyJwt(socket);
 
     if (verifiedUserId !== userId || verifiedRole !== role) {
-      console.warn(`[Server] ❌ Invalid user or role. Provided: ${userId}/${role}, Verified: ${verifiedUserId}/${verifiedRole}`);
       socket.emit("liveError", { message: "Invalid user or role" });
       return;
     }
@@ -24,19 +23,13 @@ export const liveAssistanceHandler = (socket: Socket) => {
       rooms[sessionId] = { participants: [] };
     }
 
-    // Check for existing participant with same userId
     const existingParticipant = rooms[sessionId].participants.find((p) => p.userId === userId);
     if (existingParticipant) {
-      // Kick the old socket
       io.to(existingParticipant.socketId).emit("sessionEnded", { message: "Session accessed from another device" });
-      // Force disconnect old socket
       const oldSocket = io.sockets.sockets.get(existingParticipant.socketId);
       oldSocket?.disconnect(true);
-      // Remove old participant
       rooms[sessionId].participants = rooms[sessionId].participants.filter((p) => p.userId !== userId);
-      // Notify others about left
       io.to(sessionId).emit("participantLeft", { userId });
-      // Broadcast updated list
       io.to(sessionId).emit(
         "participantsList",
         rooms[sessionId].participants.map(({ userId, role, isMuted, isVideoOn }) => ({
@@ -48,17 +41,14 @@ export const liveAssistanceHandler = (socket: Socket) => {
       );
     }
 
-    // Now add the new participant
     socket.data.sessionId = sessionId;
     socket.data.userId = userId;
     socket.data.role = role;
 
     socket.join(sessionId);
 
-    // add participant
     rooms[sessionId].participants.push({ userId, role, socketId: socket.id, isMuted, isVideoOn });
 
-    // send participants list to new joiner
     socket.emit(
       "participantsList",
       rooms[sessionId].participants.map(({ userId, role, isMuted, isVideoOn }) => ({
@@ -69,10 +59,8 @@ export const liveAssistanceHandler = (socket: Socket) => {
       }))
     );
 
-    // inform others
     socket.to(sessionId).emit("participantJoined", { userId, role, isMuted: !!isMuted, isVideoOn: !!isVideoOn });
 
-    // Broadcast updated list to all
     io.to(sessionId).emit(
       "participantsList",
       rooms[sessionId].participants.map(({ userId, role, isMuted, isVideoOn }) => ({
@@ -83,7 +71,6 @@ export const liveAssistanceHandler = (socket: Socket) => {
       }))
     );
 
-    // If room has >=2 participants, request mechanic to create offer
     const roomState = rooms[sessionId];
     if (roomState.participants.length >= 2) {
       const mech = roomState.participants.find((p) => p.role === "mechanic");
@@ -95,7 +82,6 @@ export const liveAssistanceHandler = (socket: Socket) => {
     }
   });
 
-  // signaling forwarding (with verification)
   socket.on("signal", ({ sessionId, offer, answer, candidate }) => {
     const { id: verifiedUserId } = verifyJwt(socket);
     if (verifiedUserId !== socket.data.userId) return; 
@@ -123,15 +109,13 @@ export const liveAssistanceHandler = (socket: Socket) => {
     }
   );
 
-  // manual leave (with verification)
   socket.on("liveAssistanceDisconnect", ({ sessionId, userId }: { sessionId: string; userId: string }) => {
     const { id: verifiedUserId } = verifyJwt(socket);
-    if (verifiedUserId !== userId) return; // Security check
+    if (verifiedUserId !== userId) return; 
 
     leaveRoom(socket, sessionId, userId);
   });
 
-  // clean up on disconnect
   socket.on("disconnect", () => {
     const sessionId = socket.data.sessionId as string | undefined;
     const userId = socket.data.userId as string | undefined;
@@ -151,7 +135,6 @@ function leaveRoom(socket: Socket, sessionId: string, userId: string) {
   state.participants = state.participants.filter((p) => p.socketId !== socket.id);
   socket.to(sessionId).emit("participantLeft", { userId });
 
-  // Broadcast updated list for sync
   socket.to(sessionId).emit(
     "participantsList",
     state.participants.map(({ userId, role, isMuted, isVideoOn }) => ({
@@ -175,6 +158,5 @@ function leaveRoom(socket: Socket, sessionId: string, userId: string) {
     }
   }
 }
-
 
 

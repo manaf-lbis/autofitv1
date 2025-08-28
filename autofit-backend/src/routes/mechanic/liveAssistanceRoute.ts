@@ -15,6 +15,9 @@ const liveAssistanceController = new LiveAssistanceController(liveAssistanceServ
 
 
 router.get('/', liveAssistanceController.getDetails.bind(liveAssistanceController));
+router.get('/service-history', liveAssistanceController.serviceHistory.bind(liveAssistanceController));
+
+
 
 
 export default router

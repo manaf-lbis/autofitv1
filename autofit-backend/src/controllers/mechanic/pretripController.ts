@@ -70,6 +70,23 @@ export class PretripController {
         }
     }
 
+    async serviceHistory(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const mechanicId = req.user?.id
+            const {page} = req.query
+
+            if(!page || isNaN(Number(page))) throw new ApiError('Invalid page number',HttpStatus.BAD_REQUEST)
+            if (!mechanicId) throw new ApiError('Invalid User')
+
+            
+            const serviceHistory = await this._pretripService.pretripServiceHistory(mechanicId,Number(page))
+            sendSuccess(res, 'Success', serviceHistory);
+
+        } catch (err) {
+            next(err);
+        }
+    }
+
 
 
 

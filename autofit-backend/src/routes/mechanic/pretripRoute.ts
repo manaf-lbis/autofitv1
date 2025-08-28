@@ -54,6 +54,7 @@ router.get('/weekly-schedules', pretripController.weeklySchedules.bind(pretripCo
 router.get('/:id/details', pretripController.workDetails.bind(pretripController));
 router.patch('/update-status', pretripController.updateStatus.bind(pretripController));
 router.post('/create-report', pretripController.createReport.bind(pretripController));
+router.get('/service-history', pretripController.serviceHistory.bind(pretripController));
 
 
 

@@ -34,7 +34,7 @@ export class UserProfileService implements IUserProfileService {
     
         return {
             totalDocuments: response.totalDocuments,
-            hasMore : response.totalDocuments >= end,
+            hasMore : response.totalDocuments > end,
             history: response.history
         }
     
@@ -48,7 +48,7 @@ export class UserProfileService implements IUserProfileService {
     
         return {
             totalDocuments: response.totalDocuments,
-            hasMore : response.totalDocuments >= end,
+            hasMore : response.totalDocuments > end,
             history: response.history
         }
         
@@ -62,7 +62,7 @@ export class UserProfileService implements IUserProfileService {
     
         return {
             totalDocuments: response.totalDocuments,
-            hasMore : response.totalDocuments >= end,
+            hasMore : response.totalDocuments > end,
             history: response.history
         }
     }

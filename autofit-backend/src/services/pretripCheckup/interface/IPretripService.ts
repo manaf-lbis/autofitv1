@@ -1,5 +1,6 @@
 import { Types } from "mongoose";
 import { PretripStatus } from "../../../types/pretrip";
+import { PretripBookingDocument } from "../../../models/pretripBooking";
 
 export interface ICreateBookingParams {
     userId: Types.ObjectId,
@@ -24,6 +25,16 @@ export interface Report {
   needsAction: boolean
 }
 
+interface PagenationInfo{
+  totalDocuments: number,
+  hasMore: boolean
+}
+
+export interface PretripServiceHistoryResponse extends PagenationInfo{
+  history: PretripBookingDocument[]
+}
+
+
 
 export interface IPretripService {
     createBooking({ coords, mechanicId, planId, slot, vehicleId, userId }:ICreateBookingParams): Promise<any>
@@ -33,4 +44,6 @@ export interface IPretripService {
     updateStatus(mechanicId : Types.ObjectId,serviceId: Types.ObjectId,status:PretripStatus): Promise<any>
     createReport(mechanicId: Types.ObjectId, serviceId: Types.ObjectId, report: Report[] ,mechanicNotes:string): Promise<any>
     getDetails(serviceId: Types.ObjectId,userId:Types.ObjectId): Promise<any>
+    pretripServiceHistory(userId: Types.ObjectId, page: number): Promise<PretripServiceHistoryResponse>;
+    
 }

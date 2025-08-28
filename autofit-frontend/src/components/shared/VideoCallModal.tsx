@@ -75,25 +75,20 @@ export function VideoCallModal({
     },
   ]);
 
-  // DOM refs
   const localVideoRef = useRef<HTMLVideoElement | null>(null);
   const remoteVideoRef = useRef<HTMLVideoElement | null>(null);
 
-  // single modal-scoped socket (shared with hook)
   const socketRef = useRef<any | null>(null);
   if (!socketRef.current) {
     socketRef.current = initSocket();
   }
   const socket = socketRef.current;
 
-  // Remote audio always unmuted; no toggle
   const remoteAudioMuted = false;
 
-  // Keep lightweight refs to streams so socket handlers (attached once) can access latest streams
   const localStreamRef = useRef<MediaStream | null>(null);
   const remoteStreamRef = useRef<MediaStream | null>(null);
 
-  // pass the shared socket into the hook to avoid duplicate sockets
   const { localStream, remoteStream, startLocalStream, endConnection, setSendingKind } = useWebRTC({
     sessionId,
     userId,
@@ -101,7 +96,6 @@ export function VideoCallModal({
     socket,
   });
 
-  // Keep refs up-to-date
   useEffect(() => {
     localStreamRef.current = localStream;
   }, [localStream]);
@@ -114,7 +108,6 @@ export function VideoCallModal({
   const hasAudioTrack = (s?: MediaStream | null) =>
     !!s && s.getAudioTracks().some((t) => t.readyState === "live" && t.enabled && !t.muted);
 
-  // assign video elements — use callback refs, wait for loadedmetadata before play
   const assignLocalVideoEl = useCallback(
     (el: HTMLVideoElement | null) => {
       localVideoRef.current = el;
@@ -169,7 +162,6 @@ export function VideoCallModal({
     [remoteStream, remoteAudioMuted]
   );
 
-  // Sync UI participant flags when localStream changes
   useEffect(() => {
     const hasVid = hasVideoTrack(localStream);
     const hasAud = hasAudioTrack(localStream);
@@ -180,16 +172,13 @@ export function VideoCallModal({
       prev.map((p) => (p.isYou ? { ...p, stream: localStream ?? undefined, isVideoOn: hasVid, isMuted: !hasAud } : p))
     );
 
-    // send media state to server
     socket.emit("mediaState", { sessionId, userId, isMuted: !hasAud, isVideoOn: hasVid });
 
     if (localVideoRef.current) {
       localVideoRef.current.srcObject = localStream ?? null;
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [localStream]);
 
-  // Sync remote stream
   useEffect(() => {
 
     if (remoteVideoRef.current) {
@@ -254,10 +243,8 @@ export function VideoCallModal({
       setIsConnected(false);
       setParticipants((prev) => prev.filter((p) => p.isYou));
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [remoteStream]);
 
-  // Socket listeners
   useEffect(() => {
     if (!isOpen || !socket) return;
 
@@ -361,7 +348,6 @@ export function VideoCallModal({
       } catch { /* ignore */ }
       socketRef.current = null;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
 
   // Toggle mic
@@ -644,7 +630,6 @@ export function VideoCallModal({
         )}
       </div>
 
-      {/* controls - removed remote audio toggle */}
       <div className="fixed bottom-0 left-0 right-0 bg-black/70 backdrop-blur-md border-t border-gray-800/50 z-10">
         <div className="flex items-center justify-center p-6 min-h-[96px]">
           <div className="flex items-center gap-4">

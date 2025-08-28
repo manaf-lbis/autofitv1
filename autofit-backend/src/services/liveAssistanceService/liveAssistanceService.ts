@@ -1,12 +1,13 @@
 import { differenceInMinutes, format, startOfDay } from "date-fns";
 import { IWorkingHoursRepository } from "../../repositories/interfaces/IWorkingHoursRepository";
-import { ILiveAssistanceService } from "./ILiveAssistanceService";
+import { ILiveAssistanceService, LiveAssistanceHistoryResponse } from "./ILiveAssistanceService";
 import { ApiError } from "../../utils/apiError";
 import { HttpStatus } from "../../types/responseCode";
 import { Types } from "mongoose";
 import { ITimeBlockRepository } from "../../repositories/interfaces/ITimeBlockRepository";
 import { BlockType } from "../../models/timeBlock";
 import { ILiveAssistanceRepository } from "../../repositories/interfaces/ILiveAssistanceRepository";
+import { Role } from "../../types/role";
 
 export class LiveAssistanceService implements ILiveAssistanceService {
     constructor(
@@ -84,6 +85,19 @@ export class LiveAssistanceService implements ILiveAssistanceService {
 
     async activeBookingsByMechanicId(mechanicId: Types.ObjectId): Promise<any> {
         return await this._liveAssistanceRepo.activeBookingsByMechanicId(mechanicId);
+    }
+
+    async serviceHistory(userId: Types.ObjectId, page: number): Promise<LiveAssistanceHistoryResponse> {
+        const itemsPerPage = Number(process.env.ITEMS_PER_PAGE);
+        const start = Number(page) <= 0 ?  0 : (page - 1) * itemsPerPage;
+        const end = start + itemsPerPage;
+        const response = await this._liveAssistanceRepo.pagenatedLiveAssistanceHistory({end,start,userId,role:Role.MECHANIC,sortBy:'desc'})
+        
+        return {
+            totalDocuments: response.totalDocuments,
+            hasMore : response.totalDocuments > end,
+            history: response.history
+        }
     }
 
 
