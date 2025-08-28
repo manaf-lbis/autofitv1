@@ -55,7 +55,6 @@ export const initSocket = (server: http.Server): Server => {
 
   } catch (err: any) {
     console.error("Socket Auth Error:", err.message);
-
     socket.emit("unauthorized", { message: "Unauthorized: Invalid or expired token" });
     socket.disconnect();
   }

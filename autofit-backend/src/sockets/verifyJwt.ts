@@ -28,6 +28,7 @@ export const verifyJwt = (socket: Socket): DecodedToken => {
         return jwt.verify(token, process.env.JWT_SECRET!) as DecodedToken;
 
     } catch {
+        socket.emit('refresh')
         throw new ApiError("Invalid or expired token", HttpStatus.UNAUTHORIZED); 
     }
 };

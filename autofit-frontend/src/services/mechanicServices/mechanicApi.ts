@@ -129,5 +129,6 @@ export const {
   useGetWorkingHoursQuery,
   useCreateWorkingHoursMutation,
   useUpdateWorkingHoursMutation,
-  useEarningsQuery
+  useEarningsQuery,
+  useLazyGetMechanicQuery
 } = mechanicApi;

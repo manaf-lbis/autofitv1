@@ -6,9 +6,11 @@ import { addMessage, markAsSeen } from "@/features/user/slices/chatSlice";
 import { useNotification } from "@/hooks/useNotification";
 import { formatTimeToNow } from "@/lib/dateFormater";
 import toast from "react-hot-toast";
+import { useLazyGetCurrentUserQuery } from "@/services/authServices/authApi";
 
 const UserSocketContext = ({ children }: { children: React.ReactNode }) => {
   const dispatch = useDispatch();
+  const [trigger] = useLazyGetCurrentUserQuery()
   const socketRef = useRef(initSocket());
   const notify = useNotification();
 
@@ -36,6 +38,10 @@ const UserSocketContext = ({ children }: { children: React.ReactNode }) => {
     }
     socket.on("unauthorized", (data) => {
       toast.error(data.message);
+    });
+
+    socket.on('refresh',()=>{
+      trigger()
     });
 
     socketRef.current.on("seen", ({ serviceId }) => {

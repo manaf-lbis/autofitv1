@@ -11,12 +11,15 @@ import {
 } from "@/features/mechanic/slices/mechanicChatSlice";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import { useLazyGetMechanicQuery } from "@/services/mechanicServices/mechanicApi";
 
 const MechanicSocketContext = ({ children }: { children: React.ReactNode }) => {
   const dispatch = useDispatch();
   const socketRef = useRef(initSocket());
   const notify = useNotification();
   const { data: response } = useAvailableRoomsQuery({});
+  const [trigger] = useLazyGetMechanicQuery();
+
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -32,6 +35,10 @@ const MechanicSocketContext = ({ children }: { children: React.ReactNode }) => {
 
     socket.on("liveAssistanceRequest",()=>{
       navigate("/mechanic/jobs/live-assistance")
+    })
+
+    socket.on('refresh',()=>{
+      trigger()
     })
 
     socketRef.current.on("seen", ({ serviceId }) => {
@@ -62,6 +69,7 @@ const MechanicSocketContext = ({ children }: { children: React.ReactNode }) => {
       socket.off("seen");
       socket.off("roadsideMessage");
       socket.off("liveAssistanceRequest");
+      socket.off("refresh");
     };
   }, [dispatch, response]);
 
