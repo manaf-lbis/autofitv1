@@ -32,6 +32,7 @@ export default function PaymentGatewaySelection() {
 
   const { data, isLoading } = useGetCheckoutQuery({ serviceId: params.id!, serviceType: params.service! as ServiceType });
 
+
   const handleSuccess = async (data: any) => {
     try {
       await verifyPayment({
@@ -42,7 +43,9 @@ export default function PaymentGatewaySelection() {
         status: "success",  
         gateway: paymentData?.data.gateway,
       }).unwrap();
-      navigate('/user/payment/status/success')
+      // navigate('/user/payment/status/success');
+      navigate(`/user/${params.service === 'liveAssistance' ? 'live-assistance' : 'pretrip-checkup'}/${params.id}/details`,{replace: true});
+
     } catch (error: any) {
       toast.error(error.message);
       navigate('/user/payment/status/failed')

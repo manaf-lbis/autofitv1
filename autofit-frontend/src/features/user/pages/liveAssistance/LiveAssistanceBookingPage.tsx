@@ -70,7 +70,7 @@ export default function VideoDiagnosisPage() {
       setIssueDescription("")
       setErrors({ concern: "", description: "" })
     } catch (error:any) {
-        toast.error(error?.data.message)
+        toast.error(error?.message)
     }
   }
 

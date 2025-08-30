@@ -6,12 +6,15 @@ import { ApiError } from "../../../utils/apiError";
 import { HttpStatus } from "../../../types/responseCode";
 import { PaymentVerificationResult } from "../interface/IPaymentGateway";
 import { IPaymentRepository } from "../../../repositories/interfaces/IPaymentRepository";
+import { ITimeBlockRepository } from "../../../repositories/interfaces/ITimeBlockRepository";
+import { BlockType } from "../../../models/timeBlock";
 
 
 export class PretripPaymentHandler implements IServicePaymentHandler {
   constructor(
     private _pretripBookingRepo: IPretripBookingRepository,
     private _paymentRepository: IPaymentRepository,
+    private _timeBlockRepo : ITimeBlockRepository
   ) { }
 
 
@@ -63,10 +66,14 @@ export class PretripPaymentHandler implements IServicePaymentHandler {
         receipt: verificationDetails.receipt
       });
 
-      await this._pretripBookingRepo.updatePaymentStatus(
+      const response = await this._pretripBookingRepo.updatePaymentStatus(
         serviceId,
         PaymentStatus.PAID
       );
+
+      if(!response) throw new ApiError('Booking not found', HttpStatus.NOT_FOUND);
+      await this._timeBlockRepo.update(response.blockedTimeId, {blockType: BlockType.USER_BOOKING});
+
     }
   }
 

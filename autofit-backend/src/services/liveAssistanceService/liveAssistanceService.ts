@@ -138,6 +138,8 @@ export class LiveAssistanceService implements ILiveAssistanceService {
         } else {
             throw new ApiError('Invalid User')
         }
+
+        await this._timeBlockingRepo.delete(booking.blockedTimeId)
         await this._liveAssistanceRepo.update(serviceId, {status:LiveAssistanceStatus.COMPLETED});
 
     }

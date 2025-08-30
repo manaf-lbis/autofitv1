@@ -21,9 +21,9 @@ const pretripBookingRepository = new PretripBookingRepository()
 const razorpayGateway = new RazorpayGateway()
 const paymentGatewayResolver = new PaymentGatewayResolver([{ name:PaymentGateway.RAZORPAY, instance: razorpayGateway }]);
 const paymentRepository = new PaymentRepository()
-const pretripPaymentHandler = new PretripPaymentHandler(pretripBookingRepository,paymentRepository);
 const liveAssistanceRepo = new LiveAsistanceRepository()
 const timeBlockingRepo = new TimeBlockRepository()
+const pretripPaymentHandler = new PretripPaymentHandler(pretripBookingRepository,paymentRepository,timeBlockingRepo);
 const liveAssistancePaymentHandler = new LiveAssistancePaymentHandler(liveAssistanceRepo,paymentRepository,timeBlockingRepo)
 const servicePaymentHanleResolver = new ServicePaymentHandleResolver([
     {type:ServiceType.PRETRIP,handler:pretripPaymentHandler},
