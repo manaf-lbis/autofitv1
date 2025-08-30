@@ -2,7 +2,6 @@ import { Router } from "express";
 import { ServicesController } from "../../controllers/user/servicesController";
 import { UserRoadsideService } from "../../services/roadsideAssistance/userRoadsideService";
 import { MechanicProfileRepository } from "../../repositories/mechanicProfileRepository";
-import { GoogleMapRepository } from "../../repositories/googleMapRepository";
 import { RoadsideAssistanceRepository } from "../../repositories/roadsideAssistanceRepo";
 import { VehicleRepository } from "../../repositories/vehicleRepository";
 import { NotificationRepository } from "../../repositories/notificationRepository";
@@ -11,6 +10,7 @@ import { QuotationRepository } from "../../repositories/quotationRepository";
 import { RazorpayRepository } from "../../repositories/razorpayRepository";
 import { PaymentRepository } from "../../repositories/paymentRepository";
 import { TransactionRepository } from "../../repositories/transactionRepository";
+import { GoogleMapRepository } from "../../repositories/googleMapRepository";
 
 const mechanicProfileRepo = new MechanicProfileRepository()
 const googleMapRepo = new GoogleMapRepository()
@@ -44,5 +44,6 @@ router.post('/roadside-assistance/verify-payment', servicesController.verifyPaym
 router.post('/roadside-assistance/quotation/reject', servicesController.cancelQuotation.bind(servicesController));
 router.post('/roadside-assistance/cancel', servicesController.cancelQuotation.bind(servicesController));
 
+router.post('/roadside-assistance/invoice', servicesController.getInvoice.bind(servicesController));
 
 export default router

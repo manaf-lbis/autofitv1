@@ -2,24 +2,11 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
-import { Video, Clock, AlertCircle } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import { useGetActiveCallsQuery } from "@/services/mechanicServices/mechanicLiveAssistanceApi";
+import { Video, AlertCircle, CheckCircle, Phone } from "lucide-react";
+import { useGetActiveCallsQuery, useMarkAsCompletedMutation } from "@/services/mechanicServices/mechanicLiveAssistanceApi";
 import { VideoCallModal } from "../../../../components/shared/VideoCallModal";
 import { ServiceHistory } from "../../components/jobs/ServiceHistory";
-
-// interface Call {
-//   id: number;
-//   name: string;
-//   vehicle: string;
-//   location: string;
-//   startTime: string;
-//   endTime: string;
-//   status: string;
-//   issue: string;
-//   service: string;
-//   amount: string;
-// }
+import toast from "react-hot-toast";
 
 interface ActiveCall {
   _id: string;
@@ -31,7 +18,7 @@ interface ActiveCall {
   sessionId: string;
   startTime: string;
   endTime: string;
-  mechanicId:string
+  mechanicId: string;
 }
 
 export function LiveAssistance() {
@@ -41,142 +28,133 @@ export function LiveAssistance() {
     refetchOnReconnect: true,
   });
   const [isVideoCallOpen, setIsVideoCallOpen] = useState(false);
-  const navigate = useNavigate();
+  const [markAsCompleted,{isLoading}] = useMarkAsCompletedMutation()
+
 
   const activeCall: ActiveCall | null = data?.data || null;
 
-  // const callHistory: Call[] = [
-  //   {
-  //     id: 1,
-  //     name: "Rajesh Kumar",
-  //     vehicle: "KL 07 AB 1234",
-  //     location: "Downtown Area, Kollam",
-  //     startTime: "Jan 22, 1:30 PM",
-  //     endTime: "Jan 22, 2:15 PM",
-  //     status: "Completed",
-  //     issue:
-  //       "Brake system diagnostic - Customer reports squeaking noise when braking",
-  //     service: "Premium",
-  //     amount: "₹2500",
-  //   },
-  //   {
-  //     id: 6,
-  //     name: "Suresh Kumar",
-  //     vehicle: "KL 12 F 7654",
-  //     location: "Industrial Area, Kollam",
-  //     startTime: "Jan 26, 9:30 AM",
-  //     endTime: "Jan 26, 11:00 AM",
-  //     status: "In Progress",
-  //     issue:
-  //       "Engine overheating - Coolant leak detected, needs immediate attention",
-  //     service: "Premium",
-  //     amount: "₹3200",
-  //   },
-  // ];
+  const handleMarkCompleted = async () => {
+    if (!activeCall) return;
+    try {
+      markAsCompleted({serviceId:activeCall._id}).unwrap()
+    } catch (error :any) {
+      toast.error(error.data.message || "Failed to mark as completed");
+    } 
+  };
+
+  const formatTime = (timeString: string) => {
+    return new Date(timeString).toLocaleTimeString("en-IN", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    });
+  };
 
   return (
-    <div className="p-6 w-full bg-gray-50">
+    <div className="w-full bg-gray-50 p-4 sm:p-6">
+      {/* Header */}
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 mb-1">
-          Live Assistance
-        </h1>
-        <p className="text-gray-600 text-sm">
-          Manage your live video calls and assistance requests
-        </p>
+        <h1 className="text-2xl font-bold text-gray-900 mb-1">Live Assistance</h1>
+        <p className="text-gray-600 text-sm">Manage your live video calls and assistance requests</p>
       </div>
 
+      {/* Active Call Section */}
       <div className="mb-8">
         <Card className="border-2 border-blue-200 bg-blue-50 rounded-xl">
-          <CardContent className="p-8">
+          <CardContent className="p-6">
             {isFetching ? (
               <div className="flex items-center justify-center h-24">
                 <p className="text-gray-600">Loading active call...</p>
               </div>
             ) : activeCall ? (
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-6">
-                  <div className="w-16 h-16 bg-blue-600 rounded-xl flex items-center justify-center">
-                    <Video className="w-8 h-8 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-semibold text-gray-900 mb-1">
-                      {activeCall.userId.name}
-                    </h3>
-                    <div className="flex items-center gap-6 text-sm text-gray-600 mb-3">
-                      <div className="flex items-center gap-2">
-                        <Clock className="w-4 h-4" />
-                        <span>
-                          Started:{" "}
-                          {new Date(activeCall.startTime).toLocaleTimeString(
-                            "en-IN",
-                            {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                              hour12: true,
-                            }
-                          )}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Clock className="w-4 h-4" />
-                        <span>
-                          End:{" "}
-                          {new Date(activeCall.endTime).toLocaleTimeString(
-                            "en-IN",
-                            {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                              hour12: true,
-                            }
-                          )}
-                        </span>
+              <div>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center">
+                      <Video className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900">{activeCall.userId.name}</h3>
+                      <div className="flex items-center gap-2 text-sm text-gray-600">
+                        <Phone className="w-4 h-4" />
+                        <span>{activeCall.userId.mobile}</span>
                       </div>
                     </div>
                   </div>
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      className="bg-blue-600 hover:bg-blue-700 px-4 py-2 text-sm"
+                      onClick={() => setIsVideoCallOpen(true)}
+                    >
+                      <Video className="w-4 h-4 mr-2" />
+                      Join Call
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="border-green-200 text-green-700 hover:bg-green-50 px-4 py-2 text-sm"
+                      onClick={handleMarkCompleted}
+                      disabled={isLoading}
+                    >
+                      {isLoading ? (
+                        <div className="w-4 h-4 border-2 border-green-600 border-t-transparent rounded-full animate-spin"></div>
+                      ) : (
+                        <>
+                          <CheckCircle className="w-4 h-4 mr-2" />
+                          Complete
+                        </>
+                      )}
+                    </Button>
+                  </div>
                 </div>
-                <div className="flex items-center gap-4">
-                  <Button
-                    size="lg"
-                    className="bg-blue-600 hover:bg-blue-700 rounded-xl px-8"
-                    onClick={() => setIsVideoCallOpen(true)}
-                  >
-                    <Video className="w-5 h-5 mr-3" />
-                    Join Call
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="lg"
-                    className="rounded-xl"
-                    onClick={() =>
-                      navigate(`/booking-details/${activeCall._id}`)
-                    }
-                  >
-                    View Details
-                  </Button>
+
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+                  <div className="text-center sm:text-left">
+                    <div className="text-xs text-gray-500 mb-1">Started</div>
+                    <div className="text-sm font-medium">{formatTime(activeCall.startTime)}</div>
+                  </div>
+                  <div className="text-center sm:text-left">
+                    <div className="text-xs text-gray-500 mb-1">Ends</div>
+                    <div className="text-sm font-medium">{formatTime(activeCall.endTime)}</div>
+                  </div>
+                  <div className="text-center sm:text-left">
+                    <div className="text-xs text-gray-500 mb-1">Issue</div>
+                    <div className="text-sm font-medium">{activeCall.issue}</div>
+                  </div>
+                  <div className="text-center sm:text-left">
+                    <div className="text-xs text-gray-500 mb-1">Price</div>
+                    <div className="text-sm font-medium">₹{activeCall.price}</div>
+                  </div>
+                </div>
+
+                <div className="p-4 bg-white rounded-lg">
+                  <p className="text-sm text-gray-600">{activeCall.description}</p>
                 </div>
               </div>
             ) : (
               <div className="flex items-center justify-center h-24">
                 <div className="flex items-center gap-2 text-gray-600">
-                  <AlertCircle className="w-6 h-6" />
+                  <AlertCircle className="w-5 h-5" />
                   <p>No active call at the moment</p>
                 </div>
-              </div>
-            )}
-            {activeCall && (
-              <div className="mt-6 p-6 bg-white rounded-xl">
-                <h4 className="font-medium text-gray-900 mb-3">
-                  Issue Description
-                </h4>
-                <p className="text-gray-600 leading-relaxed">
-                  {activeCall.description}
-                </p>
               </div>
             )}
           </CardContent>
         </Card>
       </div>
 
+      {/* Call History */}
+      <div>
+        <h2 className="text-xl font-medium text-gray-900 mb-4">Call History</h2>
+        <Card className="rounded-xl border bg-white">
+          <div className="h-96">
+            <ServiceHistory mode="live" />
+          </div>
+        </Card>
+      </div>
+
+      {/* Video Call Modal */}
       {activeCall && isVideoCallOpen && (
         <VideoCallModal
           isOpen={isVideoCallOpen}
@@ -188,16 +166,6 @@ export function LiveAssistance() {
           userId={activeCall.mechanicId}
         />
       )}
-
-      <div>
-        <h2 className="text-xl font-medium text-gray-900 mb-6">Call History</h2>
-        <div className="h-96 rounded-xl border bg-white">
-          
-          <ServiceHistory mode="live" />
-
-
-        </div>
-      </div>
     </div>
   );
 }

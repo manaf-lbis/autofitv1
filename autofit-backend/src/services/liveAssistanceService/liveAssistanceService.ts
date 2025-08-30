@@ -1,4 +1,4 @@
-import { differenceInMinutes, format, startOfDay } from "date-fns";
+import { differenceInMinutes, format, formatDate, startOfDay } from "date-fns";
 import { IWorkingHoursRepository } from "../../repositories/interfaces/IWorkingHoursRepository";
 import { ILiveAssistanceService, LiveAssistanceHistoryResponse } from "./ILiveAssistanceService";
 import { ApiError } from "../../utils/apiError";
@@ -8,6 +8,8 @@ import { ITimeBlockRepository } from "../../repositories/interfaces/ITimeBlockRe
 import { BlockType } from "../../models/timeBlock";
 import { ILiveAssistanceRepository } from "../../repositories/interfaces/ILiveAssistanceRepository";
 import { Role } from "../../types/role";
+import { generateReceiptPDF } from "../../utils/templates/receiptTemplate";
+import { LiveAssistanceStatus } from "../../types/liveAssistance";
 
 export class LiveAssistanceService implements ILiveAssistanceService {
     constructor(
@@ -98,6 +100,46 @@ export class LiveAssistanceService implements ILiveAssistanceService {
             hasMore : response.totalDocuments > end,
             history: response.history
         }
+    }
+
+    async getInvoice(serviceId: Types.ObjectId ,userId:Types.ObjectId): Promise<any> {
+        const booking = await this._liveAssistanceRepo.detailedBooking(serviceId);
+        if (!booking ) throw new ApiError('Invalid Service', HttpStatus.BAD_REQUEST);
+        if(booking.status !== LiveAssistanceStatus.COMPLETED) throw new ApiError('Service is not completed', HttpStatus.BAD_REQUEST);
+     
+        return generateReceiptPDF({
+            customer:{
+                name: booking.userId.name,
+                email: booking.userId.email,
+                phone: booking.userId.phone
+            },
+            items:[{
+                description : 'Live Assistance',
+                rate: Number(process.env.LIVE_ASSISTANCE_PRICE),
+                qty :1
+            }],
+            serviceDate :formatDate(booking.createdAt,"dd MMM yyyy"),
+            documentType : 'RECEIPT',
+            notes : `Assistance For the Issue Was Completed on ${formatDate(booking.updatedAt,"dd MMM yyyy")}`,
+            reference : booking._id.toString(),
+            tax:{
+                type : 'percent',
+                value: Number(process.env.TAX)
+            }
+        })
+    }
+
+    async markAsCompleted(serviceId: Types.ObjectId, userId: Types.ObjectId, role : Role): Promise<any> {
+        const booking = await this._liveAssistanceRepo.findById(serviceId);
+        if(role === Role.USER){
+            if (!booking || booking.userId.toString() !== userId.toString() ) throw new ApiError('Invalid Service', HttpStatus.BAD_REQUEST);
+        }else if(role === Role.MECHANIC){
+            if (!booking || booking.mechanicId.toString() !== userId.toString() ) throw new ApiError('Invalid Service', HttpStatus.BAD_REQUEST);
+        } else {
+            throw new ApiError('Invalid User')
+        }
+        await this._liveAssistanceRepo.update(serviceId, {status:LiveAssistanceStatus.COMPLETED});
+
     }
 
 

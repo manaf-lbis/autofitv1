@@ -7,6 +7,7 @@ import { getIO, userSocketMap } from '../../sockets/socket';
 import logger from '../../utils/logger';
 import { IUserRoadsideService } from '../../services/roadsideAssistance/interface/IUserRoadsideService';
 import { IRoadsideService } from '../../services/roadsideAssistance/interface/IRoadsideService';
+import { HttpStatus } from '../../types/responseCode';
 
 
 export class ServicesController {
@@ -95,7 +96,7 @@ export class ServicesController {
 
             if (!serviceId || !userId) throw new ApiError('Invalid Service Id');
 
-            const response = await this._userRoadsideService.approveQuoteAndPay({ serviceId, quotationId ,userId})
+            const response = await this._userRoadsideService.approveQuoteAndPay({ serviceId, quotationId, userId })
 
             sendSuccess(res, 'Order Created Successfully', { orderId: response.orderId })
 
@@ -153,6 +154,31 @@ export class ServicesController {
         }
 
     }
+
+    async getInvoice(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const { serviceId } = req.body;
+            const userId = req.user?.id;
+            if (!serviceId || !userId) throw new ApiError("Invalid Service ID or User ID", HttpStatus.BAD_REQUEST);
+            if (!Types.ObjectId.isValid(serviceId) || !Types.ObjectId.isValid(userId)) {
+                throw new ApiError("Invalid ID format", HttpStatus.BAD_REQUEST);
+            }
+
+            const pdfBuffer = await this._roadsideService.getInvoice({
+                serviceId: new Types.ObjectId(serviceId),
+                userId: new Types.ObjectId(userId),
+            });
+
+            res.setHeader("Content-Type", "application/pdf");
+            res.setHeader("Content-Disposition", `attachment; filename=invoice-${serviceId}.pdf`);
+            res.send(pdfBuffer);
+        } catch (error) {
+            console.error("Invoice error:", error);
+            next(error);
+        }
+    }
+
+    
 
 
 

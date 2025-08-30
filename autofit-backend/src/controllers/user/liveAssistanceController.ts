@@ -4,6 +4,7 @@ import { ApiError } from "../../utils/apiError";
 import { HttpStatus } from "../../types/responseCode";
 import { sendSuccess } from "../../utils/apiResponse";
 import { Types } from "mongoose";
+import { Role } from "../../types/role";
 
 export class LiveAssistanceController {
 
@@ -49,6 +50,34 @@ export class LiveAssistanceController {
             const details = await this.liveAssistanceService.getSessionDetails(new Types.ObjectId(serviceId), userId);
            
             sendSuccess(res, 'Details fetched successfully', details)
+        } catch (error) {
+            next(error)
+        }
+    }
+
+    async invoice(req: Request, res: Response, next: NextFunction) {
+        try {
+            const {serviceId}  = req.body
+            const userId = req.user?.id;
+            if(!userId || !serviceId) throw new ApiError('User not found', HttpStatus.BAD_REQUEST);
+            const pdfBuffer = await this.liveAssistanceService.getInvoice(new Types.ObjectId(serviceId), userId);
+
+            res.setHeader("Content-Type", "application/pdf");
+            res.setHeader("Content-Disposition", `attachment; filename=invoice-${serviceId}.pdf`);
+            res.send(pdfBuffer);
+
+        } catch (error) {
+            next(error)
+        }
+    }
+
+    async markAsCompleted(req: Request, res: Response, next: NextFunction) {
+        try {
+            const {serviceId}  = req.body
+            const userId = req.user?.id;
+            if(!userId || !serviceId) throw new ApiError('User not found', HttpStatus.BAD_REQUEST);
+            const updated = await this.liveAssistanceService.markAsCompleted(new Types.ObjectId(serviceId), userId, Role.USER);
+            sendSuccess(res, 'Booking marked as completed successfully', updated)
         } catch (error) {
             next(error)
         }

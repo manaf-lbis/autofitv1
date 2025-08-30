@@ -45,5 +45,8 @@ export interface IPretripService {
     createReport(mechanicId: Types.ObjectId, serviceId: Types.ObjectId, report: Report[] ,mechanicNotes:string): Promise<any>
     getDetails(serviceId: Types.ObjectId,userId:Types.ObjectId): Promise<any>
     pretripServiceHistory(userId: Types.ObjectId, page: number): Promise<PretripServiceHistoryResponse>;
+    getInvoice(serviceId: Types.ObjectId ,userId:Types.ObjectId): Promise<any>
+    generateReport(serviceId: Types.ObjectId): Promise<any>
+
     
 }

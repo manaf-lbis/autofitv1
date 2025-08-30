@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { usePretripDetailsQuery } from "@/services/userServices/pretripUserApi"
+import { useGenerateInvoiceMutation, useGenerateReportMutation, usePretripDetailsQuery } from "@/services/userServices/pretripUserApi"
 import {
   Car,
   CreditCard,
@@ -10,12 +10,13 @@ import {
   RefreshCw,
   FileText,
   Download,
-  Receipt,
   AlertTriangle,
   CheckCircle,
   XCircle,
+  ReceiptText,
 } from "lucide-react"
 import { useNavigate, useParams } from "react-router-dom"
+import toast from "react-hot-toast"
 
 const formatTime = (dateString: string) => {
   return new Date(dateString).toLocaleTimeString("en-US", {
@@ -54,11 +55,29 @@ const getOverallStatus = (score: number) => {
 export default function PretripDetails() {
   const { id } = useParams();
   const { data } = usePretripDetailsQuery({ id: id! }, { skip: !id });
+  const [generateInvoice,{isLoading}] = useGenerateInvoiceMutation();
+  const [generateReport,{isLoading:isLoadingReport}] = useGenerateReportMutation();
   const navigate = useNavigate();
 
   const safetyScore = calculateSafetyScore(data?.serviceReportId?.reportItems || []);
   const overallStatus = getOverallStatus(safetyScore);
   const recommendations = (data?.serviceReportId?.reportItems || []).filter((item: any) => item.needsAction).map((item: any) => `Check ${item.feature}`);
+
+  const handleDownloadReceipt = async ()=>{
+    try {
+      await generateInvoice({serviceId:data?._id}).unwrap();
+    } catch (error:any) {
+      toast.error(error.data.message || "Failed to download receipt");
+    }
+  }
+
+  const handleDownloadReport = async ()=>{
+    try {
+      await generateReport({serviceId:data?._id}).unwrap();
+    } catch (error:any) {
+      toast.error(error.data.message || "Failed to download receipt");
+    }
+  }
 
   return (
     <div className="min-h-screen md:mb-0 mb-20">
@@ -278,12 +297,12 @@ export default function PretripDetails() {
 
           {/* Action Buttons */}
           <div className="space-y-2 pb-4">
-            <Button className="w-full bg-blue-600 hover:bg-blue-700 h-10 focus:outline-none">
+            <Button disabled={isLoadingReport} onClick={handleDownloadReport} className="w-full bg-blue-600 hover:bg-blue-700 h-10 focus:outline-none">
               <Download className="h-4 w-4 mr-2" />
               Download Report
             </Button>
-            <Button variant="outline" className="w-full bg-transparent h-10 focus:outline-none">
-              <Receipt className="h-4 w-4 mr-2" />
+            <Button disabled={isLoading} onClick={handleDownloadReceipt} variant="outline" className="w-full bg-transparent h-10 focus:outline-none">
+              <ReceiptText className="h-4 w-4 mr-2" />
               Download Receipt
             </Button>
           </div>
@@ -510,12 +529,12 @@ export default function PretripDetails() {
         </Card>
 
         <div className="flex justify-end space-x-3">
-          <Button className="bg-blue-600 hover:bg-blue-700 h-9 focus:outline-none">
+          <Button disabled={isLoadingReport} onClick={handleDownloadReport} className="bg-blue-600 hover:bg-blue-700 h-9 focus:outline-none">
             <Download className="h-4 w-4 mr-2" />
             Download Report
           </Button>
-          <Button variant="outline" className="bg-transparent h-9 focus:outline-none">
-            <Receipt className="h-4 w-4 mr-2" />
+          <Button disabled={isLoading} onClick={handleDownloadReceipt} variant="outline" className="bg-transparent h-9 focus:outline-none">
+            <ReceiptText className="h-4 w-4 mr-2" />
             Download Receipt
           </Button>
         </div>

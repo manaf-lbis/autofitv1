@@ -1,9 +1,11 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { baseQueryWithRefresh } from "@/utils/baseQuery";
 
+
 export const mechanicLiveAssistanceApi = createApi({
   reducerPath: "mechanicLiveAssistanceApi",
   baseQuery: baseQueryWithRefresh,
+  tagTypes: ['LiveAssistance'],
 
   endpoints: (builder) => ({
 
@@ -12,6 +14,7 @@ export const mechanicLiveAssistanceApi = createApi({
         url: `/mechanic/live-assistance/`,
         method: "GET"
       }),
+      providesTags: ['LiveAssistance'],
       transformErrorResponse: (res) => res.data
     }),
 
@@ -54,8 +57,20 @@ export const mechanicLiveAssistanceApi = createApi({
           },
         })),
       }),
-
+      providesTags: ['LiveAssistance']
     }),
+
+
+    markAsCompleted : builder.mutation<void , {serviceId:string}>({
+      query: ({serviceId}) => ({
+        url: `/mechanic/live-assistance/update-status`,
+        method: "POST",
+        body: {serviceId},
+      }),
+      invalidatesTags: ['LiveAssistance']
+    })
+
+
 
 
 
@@ -65,5 +80,6 @@ export const mechanicLiveAssistanceApi = createApi({
 
 export const {
   useGetActiveCallsQuery,
-  useLiveAssistanceHistoryQuery
+  useLiveAssistanceHistoryQuery,
+  useMarkAsCompletedMutation
 } = mechanicLiveAssistanceApi;

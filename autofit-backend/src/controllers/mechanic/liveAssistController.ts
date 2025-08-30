@@ -3,6 +3,8 @@ import { sendSuccess } from "../../utils/apiResponse";
 import { ILiveAssistanceService } from "../../services/liveAssistanceService/ILiveAssistanceService";
 import { ApiError } from "../../utils/apiError";
 import { HttpStatus } from "../../types/responseCode";
+import { Types } from "mongoose";
+import { Role } from "../../types/role";
 
 export class LiveAssistanceController {
     constructor(
@@ -34,6 +36,18 @@ export class LiveAssistanceController {
 
         } catch (err) {
             next(err);
+        }
+    }
+
+    async markAsCompleted (req:Request,res:Response,next:NextFunction){
+        try {
+            const {serviceId}  = req.body
+            const userId = req.user?.id;
+            if(!userId || !serviceId) throw new ApiError('User not found', HttpStatus.BAD_REQUEST);
+            const updated = await this._liveAssistanceService.markAsCompleted(new Types.ObjectId(serviceId), userId, Role.MECHANIC);
+            sendSuccess(res, 'Booking marked as completed successfully', updated)
+        } catch (error) {
+            next(error)
         }
     }
 }

@@ -4,9 +4,9 @@ import { IGoogleMapRepository } from "../../repositories/interfaces/IGoogleMapRe
 import { IPretripBookingRepository } from "../../repositories/interfaces/IPretripBookingRepository";
 import { IPretripPlanRepository } from "../../repositories/interfaces/IPretripPlanRepository";
 import { IWorkingHoursRepository } from "../../repositories/interfaces/IWorkingHoursRepository";
-import { addDays, format, getHours, getMinutes, isToday, startOfDay } from "date-fns";
+import { addDays, format, formatDate, getHours, getMinutes, isToday, startOfDay } from "date-fns";
 import { convertHHMMToMinutes, convertMinutesToHHMM, dateAndTimeToDateString, findDayByISODate } from "../../utils/dateAndTimeFormater";
-import { DAYS_OF_WEEK } from "../../utils/constants";
+import { COMPANY_ADDRESS, COMPANY_EMAIL, DAYS_OF_WEEK } from "../../utils/constants";
 import { ITimeBlockRepository } from "../../repositories/interfaces/ITimeBlockRepository";
 import { ApiError } from "../../utils/apiError";
 import { BlockType } from "../../models/timeBlock";
@@ -22,6 +22,8 @@ import { generateTransactionId, getDeductionRate } from "../../utils/transaction
 import { ServiceType } from "../../types/services";
 import { IPaymentRepository } from "../../repositories/interfaces/IPaymentRepository";
 import { Role } from "../../types/role";
+import { generateReceiptPDF } from "../../utils/templates/receiptTemplate";
+import { generateInspectionReportPDF } from "../../utils/templates/serviceReportTeplate";
 
 
 
@@ -392,7 +394,82 @@ export class PretripService implements IPretripService {
         }
     }
 
+    async getInvoice(serviceId: Types.ObjectId, userId: Types.ObjectId): Promise<any> {
 
+        if (!Types.ObjectId.isValid(serviceId) || !Types.ObjectId.isValid(userId)) {
+            throw new Error("Invalid service ID or user ID format");
+        }
+
+        const booking = await this._pretripBookingRepository.detailedBooking(serviceId);
+        if (!booking) throw new ApiError('Invalid Service', HttpStatus.BAD_REQUEST)
+        if (booking.status !== PretripStatus.VEHICLE_RETURNED) throw new ApiError('Service is not completed', HttpStatus.BAD_REQUEST)
+
+
+        return generateReceiptPDF({
+            customer: {
+                name: booking.userId.name,
+                email: booking.userId.email,
+                phone: booking.userId.phone
+            },
+            items: [{
+                description: `${booking.serviceReportId?.servicePlan?.name} Checkup`,
+                qty: 1,
+                rate: booking.serviceReportId?.servicePlan?.price
+            }],
+            serviceDate: formatDate(booking.createdAt, "dd MMM yyyy"),
+            discount: booking.serviceReportId?.servicePlan?.originalPrice,
+            documentType: 'RECEIPT',
+            tax: {
+                type: 'percent',
+                value: Number(process.env.TAX)
+            }
+        })
+    }
+
+    async generateReport(serviceId: Types.ObjectId): Promise<any> {
+        const service = await this._pretripBookingRepository.detailedBooking(serviceId);
+        if(!service) throw new ApiError('Invalid Service', HttpStatus.BAD_REQUEST)
+        if(service.status !== PretripStatus.VEHICLE_RETURNED) throw new ApiError('Report is not created', HttpStatus.BAD_REQUEST)
+
+       const checks = service.serviceReportId.reportItems.map((item:any)=>{
+            return {
+                condition : item?.condition,
+                feature : item?.feature,
+                needsAction : item?.needsAction,
+                remarks : item?.remarks
+            }
+        });
+
+
+        return generateInspectionReportPDF({
+            checks,
+            reference: service._id,
+            customer :{
+                name : service.userId?.name,
+                email : service.userId?.email,
+                mobile : service.userId.mobile
+            },
+            overallReport : service.serviceReportId?.mechanicNotes,
+            plan :{
+                description : service.serviceReportId?.servicePlan?.description,
+                price : service.serviceReportId?.servicePlan?.price,
+                name : service.serviceReportId?.servicePlan?.name
+            },
+            preparedBy:{
+                address : COMPANY_ADDRESS,
+                email : COMPANY_EMAIL,
+                mechanicName : 'mechnaic nae'
+            },
+            reportDate : formatDate(service.createdAt, "dd MMM yyyy"),
+            vehicle :{
+                brand : service.vehicleId?.brand,
+                model : service.vehicleId?.modelName,
+                ownerName : service.vehicleId?.ownerName,
+                regNo : service.vehicleId?.regNo
+            }
+        })
+
+    }
 
 
 }
