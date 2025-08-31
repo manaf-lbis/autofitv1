@@ -1,18 +1,6 @@
 import { Router } from "express";
 import { profileController } from "../../di/userDI";
-// import { ProfileController } from "../../controllers/user/profileController";
-// import { UserProfileService } from "../../services/user/userProfileService";
-// import { UserRepository } from "../../repositories/userRepository";
-// import { RoadsideAssistanceRepository } from "../../repositories/roadsideAssistanceRepo";
-// import { PretripBookingRepository } from "../../repositories/pretripBookingRepository";
-// import { LiveAsistanceRepository } from "../../repositories/liveAssistanceRepository";
 
-// const userRepository = new UserRepository()
-// const roadsideAssistanceRepo = new RoadsideAssistanceRepository()
-// const pretripBookingRepository = new PretripBookingRepository()
-// const liveAssistanceRepo = new LiveAsistanceRepository()
-// const profileService = new UserProfileService(userRepository,roadsideAssistanceRepo, pretripBookingRepository,liveAssistanceRepo)
-// const profileController = new ProfileController(profileService)
 
 
 const router = Router();

@@ -11,6 +11,7 @@ import { IPaymentRepository } from "../../repositories/interfaces/IPaymentReposi
 import { IUserRoadsideService } from "./interface/IUserRoadsideService";
 import { Role } from "../../types/role";
 import logger from "../../utils/logger";
+import { RoadsideAssistanceStatus, RoadsideQuotationStatus } from "../../types/services";
 
 export class UserRoadsideService implements IUserRoadsideService {
   constructor(
@@ -147,9 +148,9 @@ export class UserRoadsideService implements IUserRoadsideService {
       throw new ApiError('Invalid Payment')
     } 
 
-    const response = await this._roadsideAssistanceRepo.update(order.notes.serviceId, { status: 'in_progress', startedAt: new Date(), paymentId: paymentDoc._id })
+    const response = await this._roadsideAssistanceRepo.update(order.notes.serviceId, { status: RoadsideAssistanceStatus.IN_PROGRESS, startedAt: new Date(), paymentId: paymentDoc._id })
     if (!response?.quotationId) throw new ApiError('Invalid Service')
-    await this._quotaionRepo.update(response.quotationId, { status: 'approved' })
+    await this._quotaionRepo.update(response.quotationId, { status: RoadsideQuotationStatus.APPROVED})
 
     logger.info(`payment verified for ${response._id}`)
     return { mechanicId: response.mechanicId }

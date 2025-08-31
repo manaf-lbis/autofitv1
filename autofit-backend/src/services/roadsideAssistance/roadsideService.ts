@@ -8,7 +8,7 @@ import { IRoadsideService } from "./interface/IRoadsideService";
 import { ITransactionRepository } from "../../repositories/interfaces/ITransactionRepository";
 import { TransactionStatus } from "../../types/transaction";
 import { generateTransactionId, getDeductionRate } from "../../utils/transactionUtils";
-import { ServiceType } from "../../types/services";
+import { RoadsideAssistanceStatus, RoadsideQuotationStatus, ServiceType } from "../../types/services";
 import { IPaymentRepository } from "../../repositories/interfaces/IPaymentRepository";
 import { generateReceiptPDF } from "../../utils/templates/receiptTemplate";
 import { formatDate } from "date-fns";
@@ -64,22 +64,22 @@ export class RoadsideService implements IRoadsideService {
 
   async createQuotation(entity: Partial<QuotationDocument>) {
     const { _id, serviceId } = await this._quotationRepo.save(entity);
-    return await this._roadsideAssistanceRepo.update(serviceId, { quotationId: _id, status: "quotation_sent" });
+    return await this._roadsideAssistanceRepo.update(serviceId, { quotationId: _id, status: RoadsideAssistanceStatus.QUOTATION_SENT });
   }
 
   async cancelQuotation({ serviceId }: { serviceId: Types.ObjectId }) {
-    const response = await this._roadsideAssistanceRepo.update(serviceId, { status: 'canceled' })
+    const response = await this._roadsideAssistanceRepo.update(serviceId, { status: RoadsideAssistanceStatus.CANCELED })
     if (response) {
-      await this._quotationRepo.update(response?.quotationId as Types.ObjectId, { status: 'rejected' });
+      await this._quotationRepo.update(response?.quotationId as Types.ObjectId, { status: RoadsideQuotationStatus.REJECTED });
       await this._mechanicProfileRepo.findByMechanicIdAndUpdate(response?.mechanicId, { availability: 'available' })
     }
   }
 
   async cancelService({ serviceId }: { serviceId: Types.ObjectId }) {
 
-    const response = await this._roadsideAssistanceRepo.update(serviceId, { status: 'canceled' })
+    const response = await this._roadsideAssistanceRepo.update(serviceId, { status: RoadsideAssistanceStatus.CANCELED})
     if (response?.quotationId) {
-      await this._quotationRepo.update(response?.quotationId as Types.ObjectId, { status: 'rejected' });
+      await this._quotationRepo.update(response?.quotationId as Types.ObjectId, { status: RoadsideQuotationStatus.REJECTED });
     }
 
     if (response) {

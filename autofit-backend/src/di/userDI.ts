@@ -5,7 +5,7 @@ import { PretripController } from "../controllers/user/pretripController";
 import { ProfileController } from "../controllers/user/profileController";
 import { ServicesController } from "../controllers/user/servicesController";
 import { VehicleController } from "../controllers/user/vehicleController";
-import { GoogleMapRepository } from "../repositories/googleMapRepository";
+import { GoogleMapRepository } from "../repositories/GoogleMapRepository";
 import { LiveAsistanceRepository } from "../repositories/liveAssistanceRepository";
 import { MechanicProfileRepository } from "../repositories/mechanicProfileRepository";
 import { NotificationRepository } from "../repositories/notificationRepository";
