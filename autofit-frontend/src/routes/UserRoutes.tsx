@@ -13,6 +13,8 @@ import UserSocketContext from "@/context/UserSocketContext";
 import PretripCheckupBooking from "@/features/user/pages/PreTripCheckup/PretripCheckupBooking";
 import Checkout from "@/features/user/paymentAndCheckout/Checkout";
 import PretripDetails from "@/features/user/pages/PreTripCheckup/PretripDetails";
+import LiveAssistanceBookingPage from "@/features/user/pages/liveAssistance/LiveAssistanceBookingPage";
+import BookingDetailsPage from "@/features/user/pages/liveAssistance/bookingDetails";
 
 const UserRoutes: React.FC = () => {
   return (
@@ -21,17 +23,21 @@ const UserRoutes: React.FC = () => {
         <Route element={<ProtectedRoute allowedRoles={["user"]} />}>
       
           <Route element={<MainLayout />}>
+
             <Route element={<ProfileLayout />}>
               <Route path="profile" element={<ProfilePage />} />
               <Route path="my-vehicles" element={<MyVehicle />} />
               <Route path="service-history" element={<ServiceHistory />} />
               <Route path="pretrip-checkup/:id/details" element={<PretripDetails />} />
+              <Route path="live-assistance/:id/details" element={<BookingDetailsPage />} />
               <Route path="roadside-assistance/:id/details" element={<BookingSuccessPage />} />
 
               <Route path="*" element={<>Not Found</>}></Route>
             </Route>
 
             <Route path="roadside-assistance/mechanic-booking" element={<MechanicBooking />} />
+            <Route path="live-assistance/booking" element={<LiveAssistanceBookingPage />}/>
+
             
             <Route path="pretrip-checkup/booking/:id" element={<PretripCheckupBooking/>} />
             <Route path=":service/checkout/:id" element={<Checkout/>} />

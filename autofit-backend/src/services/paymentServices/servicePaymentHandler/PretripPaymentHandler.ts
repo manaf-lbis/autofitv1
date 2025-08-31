@@ -6,12 +6,15 @@ import { ApiError } from "../../../utils/apiError";
 import { HttpStatus } from "../../../types/responseCode";
 import { PaymentVerificationResult } from "../interface/IPaymentGateway";
 import { IPaymentRepository } from "../../../repositories/interfaces/IPaymentRepository";
+import { ITimeBlockRepository } from "../../../repositories/interfaces/ITimeBlockRepository";
+import { BlockType } from "../../../models/timeBlock";
 
 
 export class PretripPaymentHandler implements IServicePaymentHandler {
   constructor(
     private _pretripBookingRepo: IPretripBookingRepository,
     private _paymentRepository: IPaymentRepository,
+    private _timeBlockRepo : ITimeBlockRepository
   ) { }
 
 
@@ -25,8 +28,8 @@ export class PretripPaymentHandler implements IServicePaymentHandler {
       const createdAt = new Date(response.payment?.paymentId?.createdAt);
 
       const now = new Date();
-      const tenMinutesInMs = 10 * 60 * 1000;
-      const isExpired = now.getTime() - createdAt.getTime() > tenMinutesInMs;
+      const bufferInMs = Number(process.env.PAYMENT_BUFFER || 10) * 60 * 1000;
+      const isExpired = now.getTime() - createdAt.getTime() > bufferInMs;
 
       if (response.payment.paymentId.status === 'pending' && !isExpired) throw new ApiError('Previous Payment is still processing Try after 10 Minutes', HttpStatus.BAD_REQUEST)
     }
@@ -50,23 +53,27 @@ export class PretripPaymentHandler implements IServicePaymentHandler {
   };
 
   async verifyPayment(serviceId: Types.ObjectId, verificationDetails: PaymentVerificationResult): Promise<any> {
-   
+
     if (verificationDetails.status !== 'success') {
       console.log('Payment failed');
     } else {
-      
+
       await this._paymentRepository.updatePayemtStatus({
-        serviceId ,
+        serviceId,
         paymentId: verificationDetails.paymentId,
         method: verificationDetails.method,
         status: 'success',
         receipt: verificationDetails.receipt
       });
- 
-      await this._pretripBookingRepo.updatePaymentStatus(
+
+      const response = await this._pretripBookingRepo.updatePaymentStatus(
         serviceId,
         PaymentStatus.PAID
       );
+
+      if(!response) throw new ApiError('Booking not found', HttpStatus.NOT_FOUND);
+      await this._timeBlockRepo.update(response.blockedTimeId, {blockType: BlockType.USER_BOOKING});
+
     }
   }
 

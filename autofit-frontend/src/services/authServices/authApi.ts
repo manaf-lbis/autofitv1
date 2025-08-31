@@ -107,5 +107,6 @@ export const {
   useGoogleLoginMutation,
   useLogoutMutation,
   useVerifyOtpMutation,
-  useResentOtpMutation
+  useResentOtpMutation,
+  useLazyGetCurrentUserQuery
 } = authApi;

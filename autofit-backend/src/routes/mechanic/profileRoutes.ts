@@ -1,28 +1,30 @@
 import { Router } from "express";
-import { ProfileController } from "../../controllers/mechanic/profileController";
-import { ProfileService } from "../../services/mechanic/profileService";
-import { MechanicProfileRepository } from "../../repositories/mechanicProfileRepository";
-import { MechanicRepository } from "../../repositories/mechanicRepository";
+import { mechProfileController } from "../../di/mechnaicDI";
 import fileUploadMiddleware from "../../middlewares/uploadMiddleware";
-import { NotificationRepository } from "../../repositories/notificationRepository";
-import { WorkingHoursRepository } from "../../repositories/workingHoursRepository";
-import { TimeBlockRepository } from "../../repositories/timeBlockRepository";
+// import { ProfileController } from "../../controllers/mechanic/profileController";
+// import { ProfileService } from "../../services/mechanic/profileService";
+// import { MechanicProfileRepository } from "../../repositories/mechanicProfileRepository";
+// import { MechanicRepository } from "../../repositories/mechanicRepository";
+// import fileUploadMiddleware from "../../middlewares/uploadMiddleware";
+// import { NotificationRepository } from "../../repositories/notificationRepository";
+// import { WorkingHoursRepository } from "../../repositories/workingHoursRepository";
+// import { TimeBlockRepository } from "../../repositories/timeBlockRepository";
 
 
 
-const mechProfileRepo = new MechanicProfileRepository()
-const mechRepository = new MechanicRepository()
-const notificationRepository = new NotificationRepository()
-const workingHoursRepository = new WorkingHoursRepository()
-const timeBlockingRepo = new TimeBlockRepository()
-const mechanicProfileService = new ProfileService(
-    mechProfileRepo,
-    mechRepository,
-    notificationRepository,
-    workingHoursRepository,
-    timeBlockingRepo
-)
-const mechProfileController = new ProfileController(mechanicProfileService)
+// const mechProfileRepo = new MechanicProfileRepository()
+// const mechRepository = new MechanicRepository()
+// const notificationRepository = new NotificationRepository()
+// const workingHoursRepository = new WorkingHoursRepository()
+// const timeBlockingRepo = new TimeBlockRepository()
+// const mechanicProfileService = new ProfileService(
+//     mechProfileRepo,
+//     mechRepository,
+//     notificationRepository,
+//     workingHoursRepository,
+//     timeBlockingRepo
+// )
+// const mechProfileController = new ProfileController(mechanicProfileService)
 
 const router = Router();
 

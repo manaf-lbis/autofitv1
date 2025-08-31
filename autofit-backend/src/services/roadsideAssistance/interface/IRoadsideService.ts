@@ -12,8 +12,7 @@ export interface IRoadsideService {
   ): Promise<RoadsideAssistanceDocument | null>;
 
   createQuotation(entity: Partial<QuotationDocument>): Promise<RoadsideAssistanceDocument | null>;
-
   cancelQuotation(params: { serviceId: Types.ObjectId }): Promise<void>;
-
   cancelService(params: { serviceId: Types.ObjectId }): Promise<void>;
+  getInvoice(params: { serviceId: Types.ObjectId ,userId:Types.ObjectId}): Promise<any>;
 }

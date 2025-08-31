@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { CheckCircle, Loader2, Shield, ArrowLeft } from "lucide-react"
+import { CheckCircle, Loader2, Shield, ArrowLeft, Clock, Star} from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, } from "@/components/ui/card"
 import { useCreateBookingMutation, useGetPlanForBookingQuery } from "@/services/userServices/pretripUserApi"
@@ -9,8 +9,6 @@ import LocationPicker from "../../components/LocationPicker"
 import SlotBooking from "../../components/pretrip/SlotBooking"
 import toast from "react-hot-toast"
 import { ServiceType } from "@/types/user"
-
-
 
 export default function PretripCheckupBooking() {
   const [selectedMechanic, setSelectedMechanic] = useState<string>("")
@@ -22,9 +20,7 @@ export default function PretripCheckupBooking() {
   const navigate = useNavigate()
 
   const { data: selectedPlan } = useGetPlanForBookingQuery(params.id);
-  const [createBooking, isLoading] = useCreateBookingMutation()
-
-
+  const [createBooking, { isLoading }] = useCreateBookingMutation()
 
   const handleBooking = async () => {
     try {
@@ -41,7 +37,6 @@ export default function PretripCheckupBooking() {
         }).unwrap()
 
         navigate(`/user/${ServiceType.PRETRIP}/checkout/${response.data.bookingId}`)
-
       } else {
         toast.error("Please select a location")
       }
@@ -50,180 +45,210 @@ export default function PretripCheckupBooking() {
     }
   }
 
-
-
   const handleGoBack = () => {
     window.history.back()
   }
 
   const isBookingEnabled = selectedMechanic && selectedVehicle && selectedSlot && coords
 
-
   return (
-    <div className="min-h-screen bg-gray-50 mt-10">
-      <div className="max-w-6xl mx-auto px-4 py-8">
-        {/* Go Back Button */}
-        <div className="mb-6">
-          <Button
-            onClick={handleGoBack}
-            variant="outline"
-            className="flex items-center gap-2 text-gray-600 hover:text-gray-900 bg-transparent"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Go Back
-          </Button>
-        </div>
-
-        {/* Header */}
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-2 bg-white px-4 py-2 rounded-md shadow-sm border mb-6">
-            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-            <span className="text-sm font-medium text-gray-700">Professional Pre-Trip Inspection Available</span>
+    <div className="min-h-screen bg-slate-50">
+      {/* Header Section */}
+      <div className=" border-slate-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="flex items-center justify-start mb-8">
+            <Button
+              onClick={handleGoBack}
+              variant="outline"
+              className="flex items-center gap-2 text-slate-600 hover:text-slate-900 border-slate-300 hover:border-slate-400 rounded-lg"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Back
+            </Button>
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-            Pre-Trip <span className="text-gray-900">Vehicle Checkup</span>
-          </h1>
-          <p className="text-gray-600 text-lg max-w-2xl mx-auto leading-relaxed">
-            Ensure your vehicle is road-ready with our comprehensive pre-trip inspection. Professional mechanics,
-            detailed reports, and peace of mind for your journey.
-          </p>
-        </div>
 
-        {/* Selected Plan Details */}
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-12">
-          {/* Plan Info */}
-          <div className="lg:col-span-3">
-            <Card className="bg-white shadow-sm border-0 rounded-lg h-full">
-              <CardContent className="p-6">
-                <div className="flex items-start gap-4 mb-6">
-                  <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                    <Shield className="w-6 h-6 text-blue-600" />
+          <div className="text-center mb-8 sm:mb-10 lg:mb-12">
+            <div className="inline-flex items-center gap-1.5 sm:gap-2  px-3 sm:px-4 py-2 rounded-full shadow-sm border mb-4 sm:mb-6">
+              <div className="w-2 h-2 bg-green-500 rounded-full flex-shrink-0"></div>
+              <span className="text-xs sm:text-sm font-medium text-gray-700 whitespace-nowrap">
+                Professional Pre-Trip Inspection Available
+              </span>
+            </div>
+            <h1 className="text-2xl xs:text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-3 sm:mb-4 leading-tight px-2">
+              Pre-Trip <span className="text-blue-600 block xs:inline">Vehicle Inspection</span>
+            </h1>
+            <p className="text-gray-600 text-sm xs:text-base sm:text-lg max-w-2xl mx-auto leading-relaxed px-2 sm:px-4">
+              Professional vehicle checkup to ensure your journey is safe and worry-free. 
+              Get detailed inspection reports from certified mechanics.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        {/* Plan Overview Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+          {/* Main Plan Details */}
+          <div className="lg:col-span-2">
+            <Card className="bg-white shadow-sm border-slate-200 rounded-xl overflow-hidden">
+              <CardContent className="p-8">
+                <div className="flex items-start gap-6 mb-8">
+                  <div className="w-16 h-16 bg-blue-50 rounded-xl flex items-center justify-center">
+                    <Shield className="w-8 h-8 text-blue-600" />
                   </div>
                   <div className="flex-1">
-                    <h3 className="text-xl font-bold text-gray-900 mb-2">{selectedPlan && selectedPlan.name}</h3>
-                    <p className="text-gray-600 text-sm">Complete vehicle inspection with detailed digital report</p>
+                    <h2 className="text-2xl font-bold text-slate-900 mb-3">
+                      {selectedPlan?.name || "Professional Inspection"}
+                    </h2>
+                    <p className="text-slate-600">
+                      Comprehensive vehicle assessment with detailed digital report and safety recommendations
+                    </p>
                   </div>
                 </div>
 
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <h4 className="font-medium text-gray-900">Inspection Includes:</h4>
-                    <span className="text-sm text-blue-600 bg-blue-50 px-2 py-1 rounded">
-                      {selectedPlan && selectedPlan.features.length} services
+                {/* Features Section */}
+                <div className="space-y-6">
+                  <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+                    <h3 className="text-lg font-semibold text-slate-900">What's Included</h3>
+                    <span className="bg-blue-50 text-blue-700 px-3 py-1 rounded-lg text-sm font-medium">
+                      {selectedPlan?.features?.length || 0} checks
                     </span>
                   </div>
 
-                  {/* Features Grid - Responsive based on number of features */}
-                  <div
-                    className={`grid gap-3 ${selectedPlan && selectedPlan.features.length <= 8
-                      ? "grid-cols-1 md:grid-cols-2"
-                      : selectedPlan && selectedPlan.features.length <= 16
-                        ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
-                        : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
-                      } ${selectedPlan && selectedPlan.features.length > 12 ? "max-h-80 overflow-y-auto pr-2" : ""}`}
-                  >
-                    {selectedPlan && selectedPlan.features.map((feature, index) => (
-                      <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                        <CheckCircle className="w-4 h-4 text-green-600 flex-shrink-0" />
-                        <span className="text-sm font-medium text-gray-700">{feature}</span>
-                      </div>
-                    ))}
-                  </div>
-
-                  {selectedPlan && selectedPlan.features.length > 12 && (
-                    <p className="text-xs text-gray-500 italic">
-                      Scroll to see all {selectedPlan && selectedPlan.features.length} services included
-                    </p>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Pricing & Duration */}
-          <div className="space-y-4">
-            <Card className="bg-white shadow-sm border-0 rounded-lg">
-              <CardContent className="p-6">
-                <div className="text-center space-y-4">
-                  <div>
-                    <div className="text-3xl font-bold text-gray-900 mb-1">₹{selectedPlan && selectedPlan.price}</div>
-                    <div className="text-gray-500 line-through text-lg">₹{selectedPlan && selectedPlan.originalPrice}</div>
-                    <div className="bg-green-50 text-green-700 px-3 py-1 rounded-full text-sm font-medium inline-block mt-2">
-                      Save ₹{selectedPlan?.originalPrice && selectedPlan?.originalPrice - selectedPlan.price || 0}
+                  <div className="max-h-80 overflow-y-auto pr-2">
+                    <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
+                      {selectedPlan?.features?.map((feature, index) => (
+                        <div key={index} className="flex items-center gap-3 p-4 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors">
+                          <CheckCircle className="w-5 h-5 text-emerald-600 flex-shrink-0" />
+                          <span className="text-sm font-medium text-slate-700">{feature}</span>
+                        </div>
+                      ))}
                     </div>
                   </div>
-                  <div className="border-t pt-4">
-                    <div className="text-2xl font-bold text-gray-900 mb-1">{selectedPlan && selectedPlan?.duration / 60} hr{selectedPlan && selectedPlan?.duration / 60 > 1 ? "s" : ""}</div>
-                    <div className="text-sm text-gray-600">Inspection Duration</div>
-                  </div>
                 </div>
               </CardContent>
             </Card>
           </div>
-        </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-          <Card className="bg-white shadow-sm border-0 rounded-md">
-            <CardContent className="p-6 text-center">
-              <div className="text-3xl font-bold text-gray-900 mb-2">{selectedPlan && selectedPlan?.duration / 60} hr{selectedPlan && selectedPlan?.duration / 60 > 1 ? "s" : ""}</div>
-              <div className="text-sm text-gray-600">Average Duration</div>
-            </CardContent>
-          </Card>
-          <Card className="bg-white shadow-sm border-0 rounded-md">
-            <CardContent className="p-6 text-center">
-              <div className="text-3xl font-bold text-green-600 mb-2">{selectedPlan && selectedPlan.features.length-1}+</div>
-              <div className="text-sm text-gray-600">Check Points</div>
-            </CardContent>
-          </Card>
-          <Card className="bg-white shadow-sm border-0 rounded-md">
-            <CardContent className="p-6 text-center">
-              <div className="text-3xl font-bold text-yellow-500 mb-2">★4.9</div>
-              <div className="text-sm text-gray-600">Service Rating</div>
-            </CardContent>
-          </Card>
-        </div>
+          {/* Pricing & Stats Sidebar */}
+          <div className="space-y-6">
+            {/* Pricing Card */}
+            <Card className="bg-white shadow-sm border-slate-200 rounded-xl overflow-hidden">
+              <CardContent className="p-6">
+                <div className="text-center space-y-4">
+                  <div className="space-y-2">
+                    <div className="text-3xl font-bold text-slate-900">
+                      ₹{selectedPlan?.price || 0}
+                    </div>
+                    {selectedPlan?.originalPrice && selectedPlan.originalPrice > selectedPlan.price && (
+                      <>
+                        <div className="text-slate-500 line-through text-lg">
+                          ₹{selectedPlan.originalPrice}
+                        </div>
+                        <div className="bg-emerald-50 text-emerald-700 px-3 py-1 rounded-lg text-sm font-medium inline-block">
+                          Save ₹{selectedPlan.originalPrice - selectedPlan.price}
+                        </div>
+                      </>
+                    )}
+                  </div>
+                  
+                  <div className="border-t border-slate-200 pt-4">
+                    <div className="flex items-center justify-center gap-2 text-slate-600">
+                      <Clock className="w-4 h-4" />
+                      <span className="text-sm">
+                        {selectedPlan ? Math.floor(selectedPlan.duration / 60) : 0} hour
+                        {selectedPlan && Math.floor(selectedPlan.duration / 60) !== 1 ? 's' : ''} duration
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
 
-        <LocationPicker coords={coords} setCoord={setCoords} />
-
-        {/* Available Service Centers */}
-        {coords && (
-          <SlotBooking
-            setSelectedSlot={setSelectedSlot}
-            coords={coords}
-            durationMinutes={selectedPlan?.duration || 0}
-            selectedMechanic={selectedMechanic}
-            setSelectedMechanic={setSelectedMechanic}
-            selectedDate={selectedDate}
-            setSelectedDate={setSelectedDate}
-          />
-        )}
-
-        <VehicleSelectionCard selectedVehicle={selectedVehicle} setSelectedVehicle={setSelectedVehicle} />
-
-        {/* Book Service Button */}
-        <div className="text-center">
-          <Button
-            onClick={handleBooking}
-            size="lg"
-            className="bg-blue-600 hover:bg-blue-700 text-white px-12 py-4 text-lg font-semibold rounded-md shadow-sm"
-            disabled={!isBookingEnabled || !isLoading}
-          >
-            {!isLoading ? (
-              <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-            ) : (
-              <>
-                <CheckCircle className="w-5 h-5 mr-2" />
-                Book Pre-Trip Checkup - ₹{selectedPlan && selectedPlan.price}
-              </>
-            )}
-          </Button>
-        </div>
-        {isBookingEnabled && (
-          <div className="text-center mt-3">
-            <p className="text-sm text-gray-600">Your appointment will be confirmed within 5 minutes</p>
+            {/* Quick Stats */}
+            <div className="grid grid-cols-1 gap-4">
+              <Card className="bg-white shadow-sm border-slate-200 rounded-xl">
+                <CardContent className="p-4 text-center">
+                  <div className="text-2xl font-bold text-slate-900 mb-1">
+                    {selectedPlan?.features?.length ? selectedPlan.features.length - 1 : 0}+
+                  </div>
+                  <div className="text-sm text-slate-600">Check Points</div>
+                </CardContent>
+              </Card>
+              
+              <Card className="bg-white shadow-sm border-slate-200 rounded-xl">
+                <CardContent className="p-4 text-center">
+                  <div className="flex items-center justify-center gap-1 text-2xl font-bold text-amber-500 mb-1">
+                    <Star className="w-5 h-5 fill-current" />
+                    4.9
+                  </div>
+                  <div className="text-sm text-slate-600">Service Rating</div>
+                </CardContent>
+              </Card>
+            </div>
           </div>
-        )}
+        </div>
+
+        {/* Booking Steps */}
+        <div className="space-y-8">
+          {/* Location */}
+          <LocationPicker coords={coords} setCoord={setCoords} />
+
+          {/* Schedule */}
+          {coords && (
+            <SlotBooking
+              setSelectedSlot={setSelectedSlot}
+              coords={coords}
+              durationMinutes={selectedPlan?.duration || 0}
+              selectedMechanic={selectedMechanic}
+              setSelectedMechanic={setSelectedMechanic}
+              selectedDate={selectedDate}
+              setSelectedDate={setSelectedDate}
+            />
+          )}
+
+          {/* Vehicle */}
+          <VehicleSelectionCard 
+            selectedVehicle={selectedVehicle} 
+            setSelectedVehicle={setSelectedVehicle} 
+          />
+        </div>
+
+        {/* Booking Button */}
+        <div className="mt-12">
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-8 text-center">
+            <Button
+              onClick={handleBooking}
+              size="lg"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-12 py-4 text-lg font-semibold rounded-lg shadow-sm transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={!isBookingEnabled || isLoading}
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="w-5 h-5 mr-3 animate-spin" />
+                  Processing...
+                </>
+              ) : (
+                <>
+                  <CheckCircle className="w-5 h-5 mr-3" />
+                  Book Inspection - ₹{selectedPlan?.price || 0}
+                </>
+              )}
+            </Button>
+            
+            {isBookingEnabled && !isLoading && (
+              <p className="text-slate-600 text-sm mt-4">
+                ✓ Instant confirmation • ✓ Professional mechanics • ✓ Detailed report
+              </p>
+            )}
+            
+            {!isBookingEnabled && (
+              <p className="text-slate-500 text-sm mt-4">
+                Please complete all steps above to continue
+              </p>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   )

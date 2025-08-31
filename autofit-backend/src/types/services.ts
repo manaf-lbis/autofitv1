@@ -31,7 +31,7 @@ export interface Quotation {
     serviceId: Types.ObjectId;
     items: Array<{
         name: string;
-        qty: number;
+        quantity: number;
         price: number;
     }>;
     total: number;

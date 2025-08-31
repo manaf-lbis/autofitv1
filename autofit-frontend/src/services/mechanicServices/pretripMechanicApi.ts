@@ -96,6 +96,44 @@ export const pretripMechanicApi = createApi({
     }),
 
 
+    pretripHistroy: builder.query<any, { page: number }>({
+      query: (page) => ({
+        url: `/mechanic/pretrip/service-history`,
+        method: "GET",
+        params:  page 
+      }),
+      serializeQueryArgs: ({ endpointName }) => endpointName,
+      merge: (currentCache, newCache) => {
+        currentCache.history.push(...newCache.history);
+        currentCache.hasMore = newCache.hasMore;
+        currentCache.totalDocuments = newCache.totalDocuments;
+      },
+      forceRefetch({ currentArg, previousArg }) {
+        return currentArg?.page !== previousArg?.page;
+      },
+
+      transformResponse: (response: { data: { totalDocuments: number; hasMore: boolean; history: any[] } }) => ({
+        totalDocuments: response.data.totalDocuments,
+        hasMore: response.data.hasMore,
+        history: response.data.history.map((item) => ({
+          _id: item._id,
+          vehicle: {
+            regNo: item.vehicleId?.regNo,
+            brand: item.vehicleId?.brand,
+            modelName: item.vehicleId?.modelName,
+            owner: item.vehicleId?.owner || "Unknown Owner",
+          },
+          planName: item?.serviceReportId?.servicePlan.name || "Unknown Plan",
+          description: item.serviceReportId?.servicePlan?.description || "No description available",
+          status: item?.status,
+          startedAt: item.schedule?.start,
+          endedAt: item.schedule?.end,
+        })),
+      }),
+
+    })
+
+
 
 
   })
@@ -108,5 +146,6 @@ export const {
   useUnblockScheduleMutation,
   useUpdatePretripStatusMutation,
   usePretripDetailsQuery,
-  useCreateReportMutation
+  useCreateReportMutation,
+  usePretripHistroyQuery
 } = pretripMechanicApi;

@@ -75,10 +75,17 @@ export class PretripBookingRepository extends BaseRepository<PretripBookingDocum
 
         const query = role === Role.MECHANIC ? { mechanicId: userId } : { userId };
         const sort = sortBy === 'asc' ? 1 : -1;
-        const data = await PretripBookingModel.find(query).sort({ createdAt: sort }).skip(start).limit(end)
+
+        const queryData = PretripBookingModel.find(query).sort({ createdAt: sort }).skip(start).limit(end)
             .populate('vehicleId', 'regNo brand modelName owner')
             .populate('serviceReportId', 'servicePlan.name servicePlan.description -_id')
             .select('status vehicleId schedule serviceReportId').lean();
+
+        if(Role.MECHANIC === 'mechanic'){
+            queryData.populate('userId', 'name email mobile')
+        }
+        
+        const data = await queryData.lean()
         const count = await PretripBookingModel.countDocuments(query)
         return {
             history: data,

@@ -1,12 +1,12 @@
-import { ICreateBookingParams, IPretripService, Report } from "./interface/IPretripService";
+import { ICreateBookingParams, IPretripService, PretripServiceHistoryResponse, Report } from "./interface/IPretripService";
 import { IMechanicProfileRepository } from "../../repositories/interfaces/IMechanicProfileRepository";
 import { IGoogleMapRepository } from "../../repositories/interfaces/IGoogleMapRepository";
 import { IPretripBookingRepository } from "../../repositories/interfaces/IPretripBookingRepository";
 import { IPretripPlanRepository } from "../../repositories/interfaces/IPretripPlanRepository";
 import { IWorkingHoursRepository } from "../../repositories/interfaces/IWorkingHoursRepository";
-import { addDays, format, getHours, getMinutes, isToday, startOfDay } from "date-fns";
+import { addDays, format, formatDate, getHours, getMinutes, isToday, startOfDay } from "date-fns";
 import { convertHHMMToMinutes, convertMinutesToHHMM, dateAndTimeToDateString, findDayByISODate } from "../../utils/dateAndTimeFormater";
-import { DAYS_OF_WEEK } from "../../utils/constants";
+import { COMPANY_ADDRESS, COMPANY_EMAIL, DAYS_OF_WEEK } from "../../utils/constants";
 import { ITimeBlockRepository } from "../../repositories/interfaces/ITimeBlockRepository";
 import { ApiError } from "../../utils/apiError";
 import { BlockType } from "../../models/timeBlock";
@@ -21,6 +21,9 @@ import { TransactionStatus } from "../../types/transaction";
 import { generateTransactionId, getDeductionRate } from "../../utils/transactionUtils";
 import { ServiceType } from "../../types/services";
 import { IPaymentRepository } from "../../repositories/interfaces/IPaymentRepository";
+import { Role } from "../../types/role";
+import { generateReceiptPDF } from "../../utils/templates/receiptTemplate";
+import { generateInspectionReportPDF } from "../../utils/templates/serviceReportTeplate";
 
 
 
@@ -142,7 +145,7 @@ export class PretripService implements IPretripService {
             date,
             startMinutes: startingMinute,
             endMinutes: endingMinute,
-            blockType: BlockType.USER_BOOKING,
+            blockType: BlockType.PAYMENT_DELAY,
             userId,
             reason: `Booking for ${name}`
         });
@@ -324,15 +327,15 @@ export class PretripService implements IPretripService {
                 serviceId: serviceId,
                 mechanicId: mechanicId,
                 status: TransactionStatus.RECEIVED,
-                deductionAmount: (deductionRate * paymentdetais?.amount)/100,
-                deductionRate : deductionRate,
-                grossAmount : paymentdetais?.amount,
-                netAmount : paymentdetais?.amount - (deductionRate * paymentdetais?.amount)/100,
-                description : 'Pretrip Checkup',
-                transactionId : generateTransactionId(ServiceType.PRETRIP),
-                paymentId : paymentdetais._id,
-                userId : booking.userId,
-                serviceType : ServiceType.PRETRIP,
+                deductionAmount: (deductionRate * paymentdetais?.amount) / 100,
+                deductionRate: deductionRate,
+                grossAmount: paymentdetais?.amount,
+                netAmount: paymentdetais?.amount - (deductionRate * paymentdetais?.amount) / 100,
+                description: 'Pretrip Checkup',
+                transactionId: generateTransactionId(ServiceType.PRETRIP),
+                paymentId: paymentdetais._id,
+                userId: booking.userId,
+                serviceType: ServiceType.PRETRIP,
             })
         }
 
@@ -370,13 +373,103 @@ export class PretripService implements IPretripService {
 
     }
 
-    async getDetails(serviceId: Types.ObjectId,userId:Types.ObjectId): Promise<any> {
+    async getDetails(serviceId: Types.ObjectId, userId: Types.ObjectId): Promise<any> {
         const booking = await this._pretripBookingRepository.detailedBooking(serviceId);
-        if (!booking || booking.userId._id.toString() !== userId.toString() ) throw new ApiError('Invalid Service', HttpStatus.BAD_REQUEST);
+        if (!booking || booking.userId._id.toString() !== userId.toString()) throw new ApiError('Invalid Service', HttpStatus.BAD_REQUEST);
         return booking
     }
 
 
+    async pretripServiceHistory(userId: Types.ObjectId, page: number): Promise<PretripServiceHistoryResponse> {
+        const itemsPerPage = Number(process.env.ITEMS_PER_PAGE);
+        const start = Number(page) <= 0 ? 0 : (page - 1) * itemsPerPage;
+        const end = start + itemsPerPage;
+
+        const response = await this._pretripBookingRepository.pagenatedPretripHistory({ end, start, userId, role: Role.MECHANIC, sortBy: 'desc' })
+
+        return {
+            totalDocuments: response.totalDocuments,
+            hasMore: response.totalDocuments > end,
+            history: response.history
+        }
+    }
+
+    async getInvoice(serviceId: Types.ObjectId, userId: Types.ObjectId): Promise<any> {
+
+        if (!Types.ObjectId.isValid(serviceId) || !Types.ObjectId.isValid(userId)) {
+            throw new Error("Invalid service ID or user ID format");
+        }
+
+        const booking = await this._pretripBookingRepository.detailedBooking(serviceId);
+        if (!booking) throw new ApiError('Invalid Service', HttpStatus.BAD_REQUEST)
+        if (booking.status !== PretripStatus.VEHICLE_RETURNED) throw new ApiError('Service is not completed', HttpStatus.BAD_REQUEST)
+
+
+        return generateReceiptPDF({
+            customer: {
+                name: booking.userId.name,
+                email: booking.userId.email,
+                phone: booking.userId.phone
+            },
+            items: [{
+                description: `${booking.serviceReportId?.servicePlan?.name} Checkup`,
+                qty: 1,
+                rate: booking.serviceReportId?.servicePlan?.price
+            }],
+            serviceDate: formatDate(booking.createdAt, "dd MMM yyyy"),
+            discount: booking.serviceReportId?.servicePlan?.originalPrice,
+            documentType: 'RECEIPT',
+            tax: {
+                type: 'percent',
+                value: Number(process.env.TAX)
+            }
+        })
+    }
+
+    async generateReport(serviceId: Types.ObjectId): Promise<any> {
+        const service = await this._pretripBookingRepository.detailedBooking(serviceId);
+        if(!service) throw new ApiError('Invalid Service', HttpStatus.BAD_REQUEST)
+        if(service.status !== PretripStatus.VEHICLE_RETURNED) throw new ApiError('Report is not created', HttpStatus.BAD_REQUEST)
+
+       const checks = service.serviceReportId.reportItems.map((item:any)=>{
+            return {
+                condition : item?.condition,
+                feature : item?.feature,
+                needsAction : item?.needsAction,
+                remarks : item?.remarks
+            }
+        });
+
+
+        return generateInspectionReportPDF({
+            checks,
+            reference: service._id,
+            customer :{
+                name : service.userId?.name,
+                email : service.userId?.email,
+                mobile : service.userId.mobile
+            },
+            overallReport : service.serviceReportId?.mechanicNotes,
+            plan :{
+                description : service.serviceReportId?.servicePlan?.description,
+                price : service.serviceReportId?.servicePlan?.price,
+                name : service.serviceReportId?.servicePlan?.name
+            },
+            preparedBy:{
+                address : COMPANY_ADDRESS,
+                email : COMPANY_EMAIL,
+                mechanicName : 'mechnaic nae'
+            },
+            reportDate : formatDate(service.createdAt, "dd MMM yyyy"),
+            vehicle :{
+                brand : service.vehicleId?.brand,
+                model : service.vehicleId?.modelName,
+                ownerName : service.vehicleId?.ownerName,
+                regNo : service.vehicleId?.regNo
+            }
+        })
+
+    }
 
 
 }

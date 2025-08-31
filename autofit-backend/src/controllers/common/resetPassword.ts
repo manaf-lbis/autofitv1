@@ -10,7 +10,7 @@ import { IOtpService } from "../../services/otp/IOtpService";
 import { ITokenService } from "../../services/token/ITokenService";
 
 
-class ResetPassword {
+export class ResetPasswordController {
     constructor(
         private _resetPasswordService: IResetPasswordService,
         private _otpService: IOtpService,
@@ -147,4 +147,3 @@ class ResetPassword {
 
 }
 
-export default ResetPassword

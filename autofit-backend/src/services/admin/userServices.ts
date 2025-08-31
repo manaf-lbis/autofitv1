@@ -14,7 +14,6 @@ export class UserServices implements IUserService {
     ) { }
 
     async allUsers(data:{page: number; limit: number;search?: string;sortField?: keyof User;sortOrder?: "asc" | "desc";}) {
-      
        return await this._userRepository.findUsersWithPagination(data)
     }
 
@@ -22,8 +21,8 @@ export class UserServices implements IUserService {
         await this._userRepository.update(userId,data)
     }
 
-    async userDetails({ userId }: { userId: Types.ObjectId }) {
-
+    async userDetailss({ userId }: { userId: Types.ObjectId }) {
+        
         const [vehicles, user] = await Promise.all([
             this._vehicleRepository.findWithUserId(userId),
             this._userRepository.findById(userId)

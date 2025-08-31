@@ -33,10 +33,10 @@ app.use(cookieParser());
 
 connectDB();
 
-app.use((req, res, next) => {
-  const delay = 1500; 
-  setTimeout(() => next(), delay);
-});
+// app.use((req, res, next) => {
+//   const delay = 1500; 
+//   setTimeout(() => next(), delay);
+// });
 
 app.use(
   morgan(':method :url :status :res[content-length] - :response-time ms', {
@@ -58,7 +58,6 @@ app.use("/mechanic", mechanicRoute );
 app.use("/admin",adminRoute)
 app.use("/chat",chatRoute)
 app.use("/assets",assetRoute)
-
 
 app.use(errorHandler);
 

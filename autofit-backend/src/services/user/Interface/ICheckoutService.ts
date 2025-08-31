@@ -6,7 +6,7 @@ import { PaymentGateway } from "../../../types/payment";
 export interface ICheckoutResponse {
   orderId: Types.ObjectId;
   serviceType: ServiceType;
-  vehicleRegNo: string;
+  vehicleRegNo?: string;
   date: Date
   price: Number
   originalPrice?: Number

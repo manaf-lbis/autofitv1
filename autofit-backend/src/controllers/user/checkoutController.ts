@@ -22,14 +22,14 @@ export class CheckoutController {
     async checkoutDetails(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const { service_type, id } = req.params;
-
             if(!service_type || !id) throw new ApiError('Invalid Parameter',HttpStatus.BAD_REQUEST)
-
-            let response: any;
-            if (service_type === ServiceType.PRETRIP) {
-                response = await this._checkoutService.checkoutDetails(new Types.ObjectId(id), ServiceType.PRETRIP);
-            }
-
+            
+            if(!Object.values(ServiceType).includes(service_type as ServiceType)){
+              throw new ApiError('Invalid Service Type',HttpStatus.BAD_REQUEST)  
+            } 
+                     
+            const response = await this._checkoutService.checkoutDetails(new Types.ObjectId(id), service_type as ServiceType);
+ 
             sendSuccess(res, 'Success', response);
 
         } catch (error) {

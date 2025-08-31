@@ -1,14 +1,13 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
-import { useDebounce } from "@/hooks/useDebounce";
-import { MoreHorizontal, ArrowUpDown, Eye, Ban, CheckCircle,Search,Circle } from "lucide-react";
+import { MoreHorizontal, ArrowUpDown, Eye, Ban, CheckCircle, Search, Circle } from "lucide-react";
 import { useDispatch } from "react-redux";
-import { setBreadcrumbs } from "../slices/adminSlice";
+import { setBreadcrumbs } from "../slices/adminSlice"; 
 import { useNavigate } from "react-router-dom";
-import { useGetAllUsersQuery, useUpdateUserStatusMutation } from "../../../services/adminServices/userManagement";
+import { useDebounce } from "@/hooks/useDebounce";
 
 type Status = "active" | "inactive" | "blocked";
 
-interface User {
+interface BaseEntity {
   id: string;
   name: string;
   email: string;
@@ -35,12 +34,31 @@ const UserTableShimmer: React.FC = () => (
   </>
 );
 
-const UserDashboard: React.FC = () => {
+interface InfiniteScrollTableProps<Entity extends BaseEntity> {
+  entityName: string;
+  useGetAllQuery: any;
+  useUpdateStatusMutation: any;
+  detailPathPrefix: string;
+  breadcrumbs: { page: string; href: string }[];
+  mapToEntity: (data: any[]) => Entity[];
+  responseDataKey?: string;
+}
+
+const InfiniteScrollTable = <Entity extends BaseEntity>({
+  entityName,
+  useGetAllQuery,
+  useUpdateStatusMutation,
+  detailPathPrefix,
+  breadcrumbs,
+  mapToEntity,
+  responseDataKey = 'users',
+}: InfiniteScrollTableProps<Entity>) => {
+  const uiPlural = `${entityName.toLowerCase()}s`;
   const [searchTerm, setSearchTerm] = useState<string>("");
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [page, setPage] = useState(1);
-  const [allUsers, setAllUsers] = useState<User[]>([]);
+  const [allEntities, setAllEntities] = useState<Entity[]>([]);
   const [hasMore, setHasMore] = useState(true);
   const [sortField, setSortField] = useState("name");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
@@ -51,13 +69,13 @@ const UserDashboard: React.FC = () => {
   const navigate = useNavigate();
   const observerRef = useRef<IntersectionObserver | null>(null);
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
-  const [updateUserStatus, { isLoading: isUpdatingStatus }] = useUpdateUserStatusMutation();
+  const [updateStatus, { isLoading: isUpdatingStatus }] = useUpdateStatusMutation();
 
   useEffect(() => {
-    dispatch(setBreadcrumbs([{ page: "User", href: "/users" }, { page: "User Management", href: "/users" }]));
-  }, [dispatch]);
+    dispatch(setBreadcrumbs(breadcrumbs));
+  }, [dispatch, breadcrumbs]);
 
-  const { data: response, isFetching } = useGetAllUsersQuery({
+  const { data: response, isFetching } = useGetAllQuery({
     page,
     limit,
     search: debouncedSearchTerm,
@@ -66,20 +84,21 @@ const UserDashboard: React.FC = () => {
   });
 
   useEffect(() => {
-    if (response?.data.users) {
-      setAllUsers((prev) => [
-        ...prev,
-        ...response.data.users.map((user) => ({
-          id: user._id,
-          name: user.name,
-          email: user.email,
-          phone: user.mobile || "N/A",
-          status: user.status,
-        })),
-      ]);
+    if (response?.data[responseDataKey]) {
+      const newEntities = mapToEntity(response.data[responseDataKey]);
+      setAllEntities((prev) => {
+        const existingIds = new Set(prev.map((e) => e.id));
+        const filteredNew = newEntities.filter((e) => !existingIds.has(e.id));
+        return [...prev, ...filteredNew];
+      });
       setHasMore(response.data.page < response.data.totalPages);
+      if (newEntities.length === 0) {
+        setHasMore(false);
+      }
+    } else {
+      setHasMore(false);
     }
-  }, [response]);
+  }, [response, mapToEntity, responseDataKey]);
 
   useEffect(() => {
     if (observerRef.current) observerRef.current.disconnect();
@@ -95,7 +114,7 @@ const UserDashboard: React.FC = () => {
   const handleSearch = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
     setPage(1);
-    setAllUsers([]);
+    setAllEntities([]);
     setErrorMessage(null);
   }, []);
 
@@ -103,27 +122,27 @@ const UserDashboard: React.FC = () => {
     setSortField(field);
     setSortOrder(sortField === field && sortOrder === "asc" ? "desc" : "asc");
     setPage(1);
-    setAllUsers([]);
+    setAllEntities([]);
     setErrorMessage(null);
   }, [sortField, sortOrder]);
 
-  const toggleDropdown = useCallback((userId: string) => {
-    setOpenDropdown(openDropdown === userId ? null : userId);
+  const toggleDropdown = useCallback((entityId: string) => {
+    setOpenDropdown(openDropdown === entityId ? null : entityId);
   }, [openDropdown]);
 
-  const handleStatusUpdate = useCallback(async (userId: string, newStatus: 'active' | 'blocked') => {
+  const handleStatusUpdate = useCallback(async (entityId: string, newStatus: 'active' | 'blocked') => {
     try {
-      await updateUserStatus({ id: userId, status: newStatus }).unwrap();
-      setAllUsers((prev) =>
-        prev.map((user) =>
-          user.id === userId ? { ...user, status: newStatus } : user
+      await updateStatus({ id: entityId, status: newStatus }).unwrap();
+      setAllEntities((prev) =>
+        prev.map((entity) =>
+          entity.id === entityId ? { ...entity, status: newStatus } : entity
         )
       );
       setOpenDropdown(null);
     } catch (error: any) {
-      setErrorMessage(`Failed to ${newStatus === 'blocked' ? 'block' : 'unblock'} user: ${error?.data?.message || 'Unknown error'}`);
+      setErrorMessage(`Failed to ${newStatus === 'blocked' ? 'block' : 'unblock'} ${entityName.toLowerCase()}: ${error?.data?.message || 'Unknown error'}`);
     }
-  }, [updateUserStatus]);
+  }, [updateStatus, entityName]);
 
   const getStatusIcon = (status: Status) => {
     const statusStyles: Record<Status, StatusStyle> = {
@@ -140,52 +159,52 @@ const UserDashboard: React.FC = () => {
     );
   };
 
-  const renderUserRow = (user: User) => (
-    <tr key={user.id} className="hover:bg-gray-50 transition-all duration-200">
+  const renderEntityRow = (entity: Entity) => (
+    <tr key={entity.id} className="hover:bg-gray-50 transition-all duration-200">
       <td className="px-4 sm:px-6 py-3 sm:py-4 min-w-[150px] sm:min-w-[200px]">
-        <span className="text-gray-800 font-medium text-xs sm:text-sm">{user.name}</span>
+        <span className="text-gray-800 font-medium text-xs sm:text-sm">{entity.name}</span>
       </td>
-      <td className="px-4 sm:px-6 py-3 sm:py-4 min-w-[200px] sm:min-w-[250px] text-gray-600 text-xs sm:text-sm">{user.email}</td>
-      <td className="px-4 sm:px-6 py-3 sm:py-4 min-w-[150px] sm:min-w-[180px] text-gray-600 font-mono text-xs sm:text-sm">{user.phone}</td>
-      <td className="px-4 sm:px-6 py-3 sm:py-4 min-w-[120px] sm:min-w-[150px]">{getStatusIcon(user.status)}</td>
+      <td className="px-4 sm:px-6 py-3 sm:py-4 min-w-[200px] sm:min-w-[250px] text-gray-600 text-xs sm:text-sm">{entity.email}</td>
+      <td className="px-4 sm:px-6 py-3 sm:py-4 min-w-[150px] sm:min-w-[180px] text-gray-600 font-mono text-xs sm:text-sm">{entity.phone}</td>
+      <td className="px-4 sm:px-6 py-3 sm:py-4 min-w-[120px] sm:min-w-[150px]">{getStatusIcon(entity.status)}</td>
       <td className="px-4 sm:px-6 py-3 sm:py-4 w-16 sm:w-20 relative">
         <button
-          onClick={() => toggleDropdown(user.id)}
+          onClick={() => toggleDropdown(entity.id)}
           className="h-7 sm:h-8 w-7 sm:w-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
           aria-label="Open menu"
           disabled={isUpdatingStatus}
         >
           <MoreHorizontal className="h-4 w-4 text-gray-500" />
         </button>
-        {openDropdown === user.id && (
+        {openDropdown === entity.id && (
           <>
             <div className="fixed inset-0 z-10" onClick={() => setOpenDropdown(null)} />
             <div className="absolute right-2 sm:right-4 top-8 sm:top-10 z-20 w-40 sm:w-48 bg-white rounded-lg shadow-lg border border-gray-100 py-1">
               <button
-                onClick={() => navigate(`/admin/user-details/${user.id}`)}
+                onClick={() => navigate(`${detailPathPrefix}/${entity.id}`)}
                 className="w-full px-3 sm:px-4 py-2 text-left text-xs sm:text-sm hover:bg-gray-50 flex items-center gap-2 text-gray-700"
                 disabled={isUpdatingStatus}
               >
                 <Eye className="h-4 w-4" />
                 View Details
               </button>
-              {user.status === "blocked" ? (
+              {entity.status === "blocked" ? (
                 <button
-                  onClick={() => handleStatusUpdate(user.id, 'active')}
+                  onClick={() => handleStatusUpdate(entity.id, 'active')}
                   className="w-full px-3 sm:px-4 py-2 text-left text-xs sm:text-sm hover:bg-gray-50 flex items-center gap-2 text-green-600"
                   disabled={isUpdatingStatus}
                 >
                   <CheckCircle className="h-4 w-4" />
-                  Unblock User
+                  Unblock {entityName}
                 </button>
               ) : (
                 <button
-                  onClick={() => handleStatusUpdate(user.id, 'blocked')}
+                  onClick={() => handleStatusUpdate(entity.id, 'blocked')}
                   className="w-full px-3 sm:px-4 py-2 text-left text-xs sm:text-sm hover:bg-gray-50 flex items-center gap-2 text-red-600"
                   disabled={isUpdatingStatus}
                 >
                   <Ban className="h-4 w-4" />
-                  Block User
+                  Block {entityName}
                 </button>
               )}
             </div>
@@ -199,14 +218,14 @@ const UserDashboard: React.FC = () => {
     <div className="w-full space-y-6 p-4 sm:p-6 bg-gray-100 min-h-screen font-sans rounded-lg">
       <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
         <div>
-          <h1 className="text-xl sm:text-2xl font-semibold text-gray-800">User Management</h1>
-          <p className="text-gray-500 text-xs sm:text-sm mt-1">Manage and monitor user accounts</p>
+          <h1 className="text-xl sm:text-2xl font-semibold text-gray-800">{entityName} Management</h1>
+          <p className="text-gray-500 text-xs sm:text-sm mt-1">Manage and monitor {uiPlural} accounts</p>
         </div>
         <div className="relative w-full sm:w-80">
           <Search className="absolute z-10 left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
           <input
             type="text"
-            placeholder="Search users..."
+            placeholder={`Search ${uiPlural}...`}
             value={searchTerm}
             onChange={handleSearch}
             className="pl-10 pr-4 py-2 w-full rounded-lg bg-white/80 backdrop-blur-sm border border-gray-200 shadow-sm focus:ring-2 focus:ring-blue-300 focus:border-transparent outline-none transition-all placeholder-gray-400 text-sm"
@@ -256,15 +275,15 @@ const UserDashboard: React.FC = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
-              {allUsers.length === 0 && isFetching ? (
+              {allEntities.length === 0 && isFetching ? (
                 <UserTableShimmer />
-              ) : allUsers.length === 0 ? (
+              ) : allEntities.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="px-4 sm:px-6 py-16 text-center text-gray-500">
                     <div className="flex flex-col items-center gap-3">
                       <Search className="h-10 sm:h-12 w-10 sm:w-12 text-gray-300" />
                       <div>
-                        <p className="text-base sm:text-lg font-medium">No users found</p>
+                        <p className="text-base sm:text-lg font-medium">No {uiPlural} found</p>
                         <p className="text-xs sm:text-sm mt-1">Try adjusting your search terms</p>
                       </div>
                     </div>
@@ -272,7 +291,7 @@ const UserDashboard: React.FC = () => {
                 </tr>
               ) : (
                 <>
-                  {allUsers.map(renderUserRow)}
+                  {allEntities.map(renderEntityRow)}
                   {isFetching && (
                     <tr>
                       <td colSpan={5} className="text-center py-4">
@@ -288,16 +307,16 @@ const UserDashboard: React.FC = () => {
             </tbody>
           </table>
         </div>
-        {allUsers.length > 0 && (
+        {allEntities.length > 0 && (
           <div className="px-4 sm:px-6 py-3 sm:py-4 border-t border-gray-100 bg-gray-50 shrink-0">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between text-xs sm:text-sm text-gray-600 gap-2">
-              <p>Total {response?.data.total || 0} users</p>
+              <p>Total {response?.data.total || 0} {uiPlural}</p>
               <div className="flex items-center gap-2 flex-wrap">
                 <span className="text-xs bg-white px-2 py-1 rounded-full border border-gray-100">
-                  {allUsers.filter((u) => u.status === "active").length} Active
+                  {allEntities.filter((u) => u.status === "active").length} Active
                 </span>
                 <span className="text-xs bg-white px-2 py-1 rounded-full border border-gray-100">
-                  {allUsers.filter((u) => u.status === "blocked").length} Blocked
+                  {allEntities.filter((u) => u.status === "blocked").length} Blocked
                 </span>
               </div>
             </div>
@@ -308,4 +327,4 @@ const UserDashboard: React.FC = () => {
   );
 };
 
-export default UserDashboard;
+export default InfiniteScrollTable;

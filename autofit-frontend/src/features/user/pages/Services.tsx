@@ -31,7 +31,7 @@ const services = [
     buttonColor: "bg-teal-600 hover:bg-teal-700",
     cardBg: "bg-teal-50/30",
     borderColor: "border-teal-200/50",
-    href : '/pretrip-checkup/plans'
+    href : '/user/live-assistance/booking'
   },
   {
     id: "pretrip",

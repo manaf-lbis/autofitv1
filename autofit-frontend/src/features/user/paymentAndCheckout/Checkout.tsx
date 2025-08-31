@@ -32,6 +32,7 @@ export default function PaymentGatewaySelection() {
 
   const { data, isLoading } = useGetCheckoutQuery({ serviceId: params.id!, serviceType: params.service! as ServiceType });
 
+
   const handleSuccess = async (data: any) => {
     try {
       await verifyPayment({
@@ -42,7 +43,9 @@ export default function PaymentGatewaySelection() {
         status: "success",  
         gateway: paymentData?.data.gateway,
       }).unwrap();
-      navigate('/user/payment/status/success')
+      // navigate('/user/payment/status/success');
+      navigate(`/user/${params.service === 'liveAssistance' ? 'live-assistance' : 'pretrip-checkup'}/${params.id}/details`,{replace: true});
+
     } catch (error: any) {
       toast.error(error.message);
       navigate('/user/payment/status/failed')
@@ -70,9 +73,33 @@ export default function PaymentGatewaySelection() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen mt-14 bg-gray-100 p-8 flex justify-center items-start">
-        <div className="w-full max-w-5xl bg-white shadow-xl rounded-xl overflow-hidden flex flex-col md:flex-row">
-          <div className="md:w-2/5 p-8 bg-gray-50 border-r border-gray-100">
+      <div className="min-h-screen mt-14 bg-gray-100 flex justify-center items-start">
+        {/* Mobile Loading */}
+        <div className="block md:hidden w-full bg-white">
+          <div className="p-4 bg-gray-50 border-b border-gray-100">
+            <Shimmer className="mb-4" />
+            <div className="space-y-4">
+              <Shimmer />
+              <Shimmer />
+              <Shimmer />
+            </div>
+            <Shimmer className="mt-6" />
+          </div>
+          <div className="p-4">
+            <Shimmer className="mb-4" />
+            <Shimmer className="mb-4" />
+            <div className="space-y-3">
+              <Shimmer />
+              <Shimmer />
+              <Shimmer />
+            </div>
+            <Shimmer className="mt-6" />
+          </div>
+        </div>
+        
+        {/* Desktop Loading */}
+        <div className="hidden md:flex w-full max-w-5xl bg-white shadow-xl rounded-xl overflow-hidden flex-row">
+          <div className="w-2/5 p-8 bg-gray-50 border-r border-gray-100">
             <Shimmer className="mb-8" />
             <div className="space-y-6">
               <Shimmer />
@@ -81,7 +108,7 @@ export default function PaymentGatewaySelection() {
             </div>
             <Shimmer className="mt-auto" />
           </div>
-          <div className="md:w-3/5 p-8">
+          <div className="w-3/5 p-8">
             <Shimmer className="mb-6" />
             <Shimmer className="mb-6" />
             <div className="space-y-4">
@@ -126,14 +153,173 @@ export default function PaymentGatewaySelection() {
   const originalPrice = orderData.originalPrice ?? orderData.price;
 
   return (
-    <div className="min-h-screen mt-14 bg-gray-100 p-8 flex justify-center items-start relative">
+    <div className="min-h-screen mt-14 bg-gray-100 md:p-8 flex justify-center items-start relative">
       {(paymentLoading || verifyLoading) && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 pointer-events-none">
           <div className="w-12 h-12 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
         </div>
       )}
-      <div className="w-full max-w-5xl bg-white shadow-xl rounded-xl overflow-hidden flex flex-col md:flex-row">
-        <div className="md:w-2/5 p-8 bg-gray-50 border-r border-gray-100 flex flex-col justify-between">
+      
+      {/* Mobile Layout */}
+      <div className="block md:hidden w-full bg-white min-h-screen">
+        {/* Mobile Header */}
+        <div className="sticky top-0 bg-white border-b border-gray-200 px-4 py-3 z-10">
+          <div className="flex items-center">
+            <Button onClick={handleGoBack} variant="ghost" size="icon" className="text-gray-600 hover:text-gray-900 -ml-2">
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+            <h1 className="text-lg font-bold text-gray-900 ml-2">Payment</h1>
+          </div>
+        </div>
+
+        {/* Mobile Order Summary */}
+        <div className="p-4 bg-gray-50 border-b border-gray-100">
+          <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                <CreditCard className="w-5 h-5 text-blue-600" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <h2 className="text-base font-semibold text-gray-900 truncate">{orderData.serviceType}</h2>
+                <p className="text-xs text-gray-500 truncate">Order ID: {orderData.orderId}</p>
+              </div>
+            </div>
+
+            <div className="space-y-3 text-sm mb-4">
+              <div className="flex items-center gap-2">
+                <Car className="w-4 h-4 text-gray-500 flex-shrink-0" />
+                <span className="text-gray-700">Vehicle:</span>
+                <span className="font-medium text-gray-900 ml-auto">{orderData.vehicleRegNo}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Calendar className="w-4 h-4 text-gray-500 flex-shrink-0" />
+                <span className="text-gray-700">Date:</span>
+                <span className="font-medium text-gray-900 ml-auto text-right">{formattedDate}</span>
+              </div>
+            </div>
+
+            <Separator className="my-4" />
+
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-gray-600">Service Amount</span>
+                <span className="text-gray-500 line-through">₹{originalPrice}</span>
+              </div>
+              {originalPrice > orderData.price && (
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Discount</span>
+                  <span className="text-green-600">-₹{originalPrice - orderData.price}</span>
+                </div>
+              )}
+              <div className="flex justify-between font-medium pt-2 border-t border-gray-100">
+                <span className="text-gray-800">Subtotal</span>
+                <span className="text-gray-900">₹{orderData.price}</span>
+              </div>
+              {gatewayCharge > 0 && (
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">Gateway Charge</span>
+                  <span className="text-orange-600">₹{gatewayCharge}</span>
+                </div>
+              )}
+              <div className="flex justify-between items-center pt-2 border-t border-gray-100">
+                <p className="text-base font-semibold text-gray-600">Total</p>
+                <p className="text-xl font-bold text-gray-900">₹{totalAmount}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Mobile Payment Methods */}
+        <div className="flex-1 p-4">
+          <h2 className="text-lg font-bold text-gray-900 mb-3">Select Payment Method</h2>
+
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 flex items-start gap-3 mb-4">
+            <AlertTriangle className="w-4 h-4 text-yellow-600 flex-shrink-0 mt-0.5" />
+            <div className="flex-1 min-w-0">
+              <h4 className="font-medium text-yellow-800 text-sm">Gateway Charges</h4>
+              <p className="text-xs text-yellow-700 mt-1">Additional charges may apply based on your payment method.</p>
+            </div>
+          </div>
+
+          <div className="space-y-3 mb-4">
+            {paymentGateways.map((gateway) => (
+              <div
+                key={gateway.id}
+                onClick={() => gateway.available && setSelectedGateway(gateway.id)}
+                className={`flex items-center gap-3 p-3 rounded-lg border-2 transition-all duration-200 ${!gateway.available
+                    ? "border-gray-200 bg-gray-50 cursor-not-allowed opacity-60"
+                    : selectedGateway === gateway.id
+                    ? "border-blue-500 bg-blue-50 shadow-md cursor-pointer"
+                    : "border-gray-200 hover:border-gray-300 bg-white cursor-pointer hover:shadow-sm"
+                  }`}
+              >
+                <img src={gateway.icon || "/placeholder.svg"} alt={`${gateway.name} logo`} className="w-8 h-8 object-contain flex-shrink-0" />
+
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="font-semibold text-gray-900 text-sm truncate">{gateway.name}</h3>
+                    {gateway.primary && gateway.available && (
+                      <span className="bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full text-xs font-medium flex items-center gap-1 flex-shrink-0">
+                        <Star className="w-2.5 h-2.5" /> Best
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-xs text-gray-600 line-clamp-2">{gateway.description}</p>
+                  {gateway.gatewayCharge > 0 && gateway.available && (
+                    <p className="text-xs text-orange-600 mt-1 flex items-center gap-1">
+                      <DollarSign className="w-3 h-3" /> +₹{gateway.gatewayCharge} charge
+                    </p>
+                  )}
+                </div>
+
+                {!gateway.available && (
+                  <span className="text-xs font-medium text-gray-700 flex items-center gap-1 flex-shrink-0">
+                    <X className="w-3 h-3" /> Unavailable
+                  </span>
+                )}
+              </div>
+            ))}
+          </div>
+
+          <div className="bg-green-50 border border-green-200 rounded-lg p-3 flex items-start gap-3">
+            <div className="w-6 h-6 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
+              <Lock className="w-3 h-3 text-green-600" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <h4 className="font-medium text-green-800 text-sm">Secure Payment</h4>
+              <p className="text-xs text-green-700">Your payment information is encrypted and secure.</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Mobile Payment Button - Fixed at bottom */}
+        <div className="sticky bottom-0 bg-white border-t border-gray-200 p-4">
+          <Button
+            onClick={handlePayment}
+            size="lg"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 text-base font-semibold rounded-lg shadow-md"
+            disabled={!selectedGateway || paymentLoading || !paymentGateways.find((g) => g.id === selectedGateway)?.available}
+          >
+            {paymentLoading ? (
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                Processing...
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">Pay ₹{totalAmount} Securely</div>
+            )}
+          </Button>
+          <p className="text-center text-xs text-gray-500 mt-2">
+            By proceeding, you agree to our{" "}
+            <span className="text-blue-600 hover:underline cursor-pointer">Terms</span> &{" "}
+            <span className="text-blue-600 hover:underline cursor-pointer">Privacy Policy</span>
+          </p>
+        </div>
+      </div>
+
+      {/* Desktop Layout - Unchanged */}
+      <div className="hidden md:flex w-full max-w-5xl bg-white shadow-xl rounded-xl overflow-hidden flex-row">
+        <div className="w-2/5 p-8 bg-gray-50 border-r border-gray-100 flex flex-col justify-between">
           <div>
             <div className="flex items-center mb-8">
               <Button onClick={handleGoBack} variant="ghost" size="icon" className="text-gray-600 hover:text-gray-900">
@@ -211,7 +397,7 @@ export default function PaymentGatewaySelection() {
           </div>
         </div>
 
-        <div className="md:w-3/5 p-8 flex flex-col">
+        <div className="w-3/5 p-8 flex flex-col">
           <h1 className="text-xl font-bold text-gray-900 mb-6">Select Payment Method</h1>
 
           <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 flex items-start gap-3 mb-6">
@@ -289,4 +475,3 @@ export default function PaymentGatewaySelection() {
     </div>
   );
 }
-
