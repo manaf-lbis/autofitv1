@@ -14,4 +14,5 @@ export interface IWorkingHoursRepository extends IBaseRepository<WorkingHoursDoc
     updateWorkingHours(mechanicId: Types.ObjectId, workingHours: any): Promise<any>;
     workingHoursOfMultipleMechanics(mechanicIds: Types.ObjectId[]): Promise<any>;
     checkAvailablity({ mechanicId, day, startingMinute, endingMinute}:CheckAvailablityParams):Promise<any>
+    findAvailabelMechanicsByday(day: string, startingMinute: number, endingMinute: number): Promise<any>;
 }

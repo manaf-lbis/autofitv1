@@ -40,7 +40,7 @@ export const pretripUserApi = createApi({
       providesTags: ['MechanicShops'],
     }),
 
-    createBooking: builder.mutation<any, { planId: string; mechanicId: string , vehicleId: string, slot: {date: string, time: string}, coords: { lat: number; lng: number }}>({
+    createBooking: builder.mutation<any, { planId: string; mechanicId: string, vehicleId: string, slot: { date: string, time: string }, coords: { lat: number; lng: number } }>({
       query: (data) => ({
         url: 'user/pretrip/booking',
         method: 'POST',
@@ -48,9 +48,47 @@ export const pretripUserApi = createApi({
       })
     }),
 
-    pretripDetails: builder.query<any, {id:string}>({
-      query: ({id}) => `user/pretrip/${id}/details`,
+    pretripDetails: builder.query<any, { id: string }>({
+      query: ({ id }) => `user/pretrip/${id}/details`,
       transformResponse: (response: ApiResponse<Plan>) => response.data ?? {},
+    }),
+
+    generateInvoice: builder.mutation<void, { serviceId: string }>({
+      query: ({ serviceId }) => ({
+        url: `user/pretrip/invoice`,
+        method: "POST",
+        body: { serviceId },
+        responseType: "blob",
+      }),
+      transformResponse: (response: Blob, meta, arg) => {
+        const url = window.URL.createObjectURL(response);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `invoice-${arg.serviceId}.pdf`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+      },
+    }),
+
+    generateReport: builder.mutation<void, { serviceId: string }>({
+      query: ({ serviceId }) => ({
+        url: `user/pretrip/report`,
+        method: "POST",
+        body: { serviceId },
+        responseType: "blob",
+      }),
+      transformResponse: (response: Blob, meta, arg) => {
+        const url = window.URL.createObjectURL(response);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `invoice-${arg.serviceId}.pdf`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+      },
     }),
 
   }),
@@ -61,5 +99,7 @@ export const {
   useGetPlanForBookingQuery,
   useGetNearbyMechanicShopsQuery,
   useCreateBookingMutation,
-  usePretripDetailsQuery
+  usePretripDetailsQuery,
+  useGenerateInvoiceMutation,
+  useGenerateReportMutation
 } = pretripUserApi;

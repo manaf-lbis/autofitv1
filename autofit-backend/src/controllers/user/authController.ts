@@ -149,9 +149,9 @@ export class AuthController {
 
             const userId = req.user?.id
             console.log(userId);
-            
-            if(!userId) throw new ApiError("Not authenticated!", HttpStatus.BAD_REQUEST);
-            
+
+            if (!userId) throw new ApiError("Not authenticated!", HttpStatus.BAD_REQUEST);
+
             await this._authService.logout(userId)
             res.clearCookie('jwt', {
                 httpOnly: true,
@@ -211,7 +211,7 @@ export class AuthController {
                 secure: process.env.NODE_ENV === "production",
                 sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
                 path: '/',
-                maxAge:Number(process.env.JWT_COOKIE_MAX_AGE)
+                maxAge: Number(process.env.JWT_COOKIE_MAX_AGE)
             });
 
             sendSuccess(res, "Token refreshed");

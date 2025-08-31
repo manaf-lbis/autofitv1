@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import FormInput from "@/components/shared/formInput/FormInput";
 import SelectInput from "@/components/shared/selectInput/SelectInput";
 import { useForm } from "react-hook-form";
@@ -53,7 +53,6 @@ const VehicleModal = ({ isOpen, setIsOpen, vehicle }: { isOpen: boolean; setIsOp
       if(vehicle){
         await updateVehicle({ ...data, id: vehicle._id } as any)
       }else{
-
         await addVehicle(data);
       }
       reset();
@@ -70,23 +69,102 @@ const VehicleModal = ({ isOpen, setIsOpen, vehicle }: { isOpen: boolean; setIsOp
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-[800px] w-full">
-        <DialogHeader>
-          <DialogTitle>{vehicle ? "Edit Vehicle" : "Add New Vehicle"}</DialogTitle>
-          <DialogDescription>Please fill in the vehicle details below.</DialogDescription>
+      <DialogContent className="max-w-md w-[90%] sm:max-w-lg sm:w-full mx-auto rounded-xl border-0 shadow-xl p-0 gap-0">
+        {/* Header */}
+        <DialogHeader className="px-4 sm:px-6 pt-6 pb-4">
+          <DialogTitle className="text-xl font-semibold text-gray-900">
+            {vehicle ? "Edit Vehicle" : "Add New Vehicle"}
+          </DialogTitle>
+          <DialogDescription className="text-gray-600 mt-2">
+            Please fill in the vehicle details below.
+          </DialogDescription>
         </DialogHeader>
-        <div className="max-h-[60vh] overflow-auto p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormInput id="regNo" label="Registration No" name="regNo" placeholder="KL 00 AA 0000" type="text" register={register} error={errors.regNo} validationRule="regNo" />
-          <SelectInput id="brand" label="Select Brand" name="brand" options={brands} placeholder="Vehicle Brand" control={control} error={errors.brand} />
-          <SelectInput id="modelName" label="Select Vehicle" name="modelName" options={models} placeholder="Vehicle Model" control={control} error={errors.modelName} />
-          <SelectInput  id="fuel" label="Fuel Type" name="fuelType" options={["Petrol", "Diesel"]} placeholder="Fuel Type" control={control} error={errors.fuelType} />
-          <FormInput  id="owner" label="Owner Name" name="owner" placeholder="eg: John" type="text" register={register} error={errors.owner} validationRule="name" />
+
+        {/* Form Content */}
+        <div className="px-4 sm:px-6 pb-6 space-y-5 max-h-[65vh] overflow-y-auto">
+          <div className="space-y-5">
+            <FormInput 
+              id="regNo" 
+              label="Registration Number" 
+              name="regNo" 
+              placeholder="KL 00 AA 0000" 
+              type="text" 
+              register={register} 
+              error={errors.regNo} 
+              validationRule="regNo" 
+            />
+            
+            <SelectInput 
+              id="brand" 
+              label="Vehicle Brand" 
+              name="brand" 
+              options={brands} 
+              placeholder="Select Brand" 
+              control={control} 
+              error={errors.brand} 
+            />
+            
+            <SelectInput 
+              id="modelName" 
+              label="Vehicle Model" 
+              name="modelName" 
+              options={models} 
+              placeholder={selectedBrand ? "Select Model" : "First select brand"} 
+              control={control} 
+              error={errors.modelName} 
+            />
+            
+            <SelectInput 
+              id="fuel" 
+              label="Fuel Type" 
+              name="fuelType" 
+              options={["Petrol", "Diesel"]} 
+              placeholder="Select Fuel Type" 
+              control={control} 
+              error={errors.fuelType} 
+            />
+            
+            <FormInput 
+              id="owner" 
+              label="Owner Name" 
+              name="owner" 
+              placeholder="Enter owner name" 
+              type="text" 
+              register={register} 
+              error={errors.owner} 
+              validationRule="name" 
+            />
+          </div>
         </div>
-        <DialogFooter>
-          <Button disabled={onLoading}    className="w-[150px] h-[40px] bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium shadow-lg flex items-center justify-center" onClick={handleSubmit(onSubmit)} type="submit">
-           { onLoading ? <LoaderCircle size={24} className="animate-spin "  /> :'Save changes'}
-          </Button>
-        </DialogFooter>
+
+        {/* Footer */}
+        <div className="px-4 sm:px-6 py-4 border-t bg-gray-50/50">
+          <div className="flex flex-col sm:flex-row gap-3 sm:justify-end">
+            <Button 
+              variant="outline" 
+              onClick={handleClose}
+              disabled={onLoading}
+              className="sm:w-auto px-8 py-2.5 rounded-lg border-gray-300 hover:bg-gray-50 font-medium"
+            >
+              Cancel
+            </Button>
+            <Button 
+              disabled={onLoading}    
+              className="sm:w-auto px-8 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium shadow-sm flex items-center justify-center" 
+              onClick={handleSubmit(onSubmit)} 
+              type="submit"
+            >
+              {onLoading ? (
+                <>
+                  <LoaderCircle size={16} className="animate-spin mr-2" />
+                  {vehicle ? 'Updating...' : 'Adding...'}
+                </>
+              ) : (
+                vehicle ? 'Update Vehicle' : 'Add Vehicle'
+              )}
+            </Button>
+          </div>
+        </div>
       </DialogContent>
     </Dialog>
   );

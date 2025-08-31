@@ -1,20 +1,21 @@
 import { Router } from "express";
-import { ServicesController } from "../../controllers/mechanic/roadsideController";
-import { RoadsideService } from "../../services/roadsideAssistance/roadsideService";
-import { RoadsideAssistanceRepository } from "../../repositories/roadsideAssistanceRepo";
-import { QuotationRepository } from "../../repositories/quotationRepository";
-import { MechanicProfileRepository } from "../../repositories/mechanicProfileRepository";
-import { TransactionRepository } from "../../repositories/TransactionRepository";
-import { PaymentRepository } from "../../repositories/PaymentRepository";
+import { servicesController } from "../../di/mechnaicDI";
+// import { ServicesController } from "../../controllers/mechanic/roadsideController";
+// import { RoadsideService } from "../../services/roadsideAssistance/roadsideService";
+// import { RoadsideAssistanceRepository } from "../../repositories/roadsideAssistanceRepo";
+// import { QuotationRepository } from "../../repositories/quotationRepository";
+// import { MechanicProfileRepository } from "../../repositories/mechanicProfileRepository";
+// import { TransactionRepository } from "../../repositories/transactionRepository";
+// import { PaymentRepository } from "../../repositories/paymentRepository";
 
 
-const roadsideAssistanceRepo = new RoadsideAssistanceRepository()
-const quotationRepo = new QuotationRepository()
-const mechanicProfileRepo = new MechanicProfileRepository();
-const transactionRepo = new TransactionRepository()
-const paymentRepo = new PaymentRepository()
-const roadsideService = new RoadsideService(roadsideAssistanceRepo,quotationRepo,mechanicProfileRepo,transactionRepo,paymentRepo)
-const servicesController = new ServicesController(roadsideService)
+// const roadsideAssistanceRepo = new RoadsideAssistanceRepository()
+// const quotationRepo = new QuotationRepository()
+// const mechanicProfileRepo = new MechanicProfileRepository();
+// const transactionRepo = new TransactionRepository()
+// const paymentRepo = new PaymentRepository()
+// const roadsideService = new RoadsideService(roadsideAssistanceRepo,quotationRepo,mechanicProfileRepo,transactionRepo,paymentRepo)
+// const servicesController = new ServicesController(roadsideService)
 
 const router = Router();
  

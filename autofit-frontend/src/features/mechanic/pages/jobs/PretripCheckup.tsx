@@ -29,7 +29,7 @@ export default function PretripCheckup() {
           <ScheduleManagement/>
         </div>
 
-        <ServiceHistory loading={loading} />
+        <ServiceHistory mode="pretrip" loading={loading}/>
       </div>
     </div>
   )

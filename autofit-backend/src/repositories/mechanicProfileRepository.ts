@@ -108,60 +108,6 @@ export class MechanicProfileRepository extends BaseRepository<MechanicProfileDoc
     return await MechanicProfileModel.findOne({ mechanicId }, { availability: 1, _id: 0 })
   }
 
-  // async findMechnaicWithRadius({ radius, lat, lng , checkAvailablity}: { radius: number; lat: number; lng: number; checkAvailablity:boolean }) {
-  //   const EARTH_RADIUS_KM = 6371;
-  //   const radiusInRadians = radius / EARTH_RADIUS_KM;
-
-  //   const mechanics = await MechanicProfileModel.aggregate([
-  //     {
-  //       $match: {
-  //         availability: 'available',
-  //         "registration.status": "approved",
-  //         location: {
-  //           $geoWithin: {
-  //             $centerSphere: [[lng, lat], radiusInRadians],
-  //           },
-  //         },
-  //       },
-  //     },
-  //     {
-  //       $lookup: {
-  //         from: "mechanics",
-  //         localField: "mechanicId",
-  //         foreignField: "_id",
-  //         as: "mechanic",
-  //       },
-  //     },
-  //     {
-  //       $unwind: "$mechanic",
-  //     },
-  //     {
-  //       $match: {
-  //         "mechanic.status": "active",
-  //       },
-  //     },
-  //     {
-  //       $project: {
-  //         name: "$mechanic.name",
-  //         mobile: "$mechanic.mobile",
-  //         shopName: 1,
-  //         place: 1,
-  //         "location.coordinates": 1,
-  //         specialised: 1,
-  //         experience: 1,
-  //         status: "$registration.status",
-  //         photo: 1,
-  //         mechanicId: "$mechanic._id",
-  //         _id: 0
-  //       },
-  //     },
-  //   ]);
-
-  //   return mechanics;
-  // }
-
-
-
   async findMechnaicWithRadius({radius,lat,lng,checkAvailablity = true}: { radius: number;lat: number;  lng: number; checkAvailablity: boolean}) {
   const EARTH_RADIUS_KM = 6371;
   const radiusInRadians = radius / EARTH_RADIUS_KM;

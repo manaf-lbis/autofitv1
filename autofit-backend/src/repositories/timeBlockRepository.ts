@@ -16,18 +16,31 @@ export class TimeBlockRepository extends BaseRepository<TimeBlockDocument> imple
     };
 
     async findOverlappingBlocks(mechanicId: Types.ObjectId, date: Date, startMinutes: number, endMinutes: number): Promise<TimeBlockDocument[]> {
-        return await TimeBlockModel.find({ mechanicId, date, startMinutes: { $lt: endMinutes }, endMinutes: { $gt: startMinutes } }); 
+        return await TimeBlockModel.find({ mechanicId, date, startMinutes: { $lt: endMinutes }, endMinutes: { $gt: startMinutes } });
     }
 
 
-    async findBlockingByDateRange(mechanicId: Types.ObjectId, start: Date, end: Date ,type: BlockType): Promise<TimeBlockDocument[]> {
-        const searchParameter:any = {
+    async findBlockingByDateRange(mechanicId: Types.ObjectId, start: Date, end: Date, type: BlockType): Promise<TimeBlockDocument[]> {
+        const searchParameter: any = {
             mechanicId,
             date: { $gte: start, $lte: end }
         }
-        if(type) searchParameter.blockType = type
+        if (type) searchParameter.blockType = type
         return await TimeBlockModel.find(searchParameter)
     }
 
-    
+    async checkIsBlocked(mechanicId: Types.ObjectId[], startMinutes: number, endMinutes: number, date: Date = new Date()): Promise<any> {
+        return await TimeBlockModel.find({
+            mechanicId: { $in: mechanicId },
+            date: {
+                $gte: new Date(date.setHours(0, 0, 0, 0)),
+                $lt: new Date(date.setHours(23, 59, 59, 999))
+            },
+            startMinutes: { $lt: endMinutes },
+            endMinutes: { $gt: startMinutes }
+        }).distinct("mechanicId");
+
+    }
+
+
 }

@@ -12,6 +12,7 @@ import PretripCheckup from "@/features/mechanic/pages/jobs/PretripCheckup";
 import NotFound from "@/features/mechanic/pages/NotFound";
 import PretripDetails from "@/features/mechanic/pages/PretripDetails";
 import Earnings from "@/features/mechanic/pages/Earnings";
+import { LiveAssistance } from "@/features/mechanic/pages/jobs/LiveAssistance";
 
 
 
@@ -31,6 +32,7 @@ const MechanicRoutes: React.FC = () => {
               <Route path="earnings" element={<Earnings/>} />
               
               <Route path="jobs/pre-trip-checkup" element={<PretripCheckup/>} />
+              <Route path="jobs/live-assistance" element={<LiveAssistance/>} />
               <Route path="pre-trip-checkup/:id/details" element={<PretripDetails/>} />
 
               

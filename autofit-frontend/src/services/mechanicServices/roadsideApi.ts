@@ -32,15 +32,6 @@ export const roadsideApi = createApi({
       }),
     }),
 
-     
-
-
-
-
-
-
-
-
   }),
 
 });

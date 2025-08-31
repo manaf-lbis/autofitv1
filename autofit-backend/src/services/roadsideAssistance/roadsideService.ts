@@ -10,6 +10,8 @@ import { TransactionStatus } from "../../types/transaction";
 import { generateTransactionId, getDeductionRate } from "../../utils/transactionUtils";
 import { ServiceType } from "../../types/services";
 import { IPaymentRepository } from "../../repositories/interfaces/IPaymentRepository";
+import { generateReceiptPDF } from "../../utils/templates/receiptTemplate";
+import { formatDate } from "date-fns";
 
 export class RoadsideService implements IRoadsideService {
   constructor(
@@ -17,7 +19,7 @@ export class RoadsideService implements IRoadsideService {
     private _quotationRepo: IQuotationRepository,
     private _mechanicProfileRepo: IMechanicProfileRepository,
     private _transactionRepo: ITransactionRepository,
-    private _paymentRepo : IPaymentRepository
+    private _paymentRepo: IPaymentRepository
 
   ) { }
 
@@ -84,6 +86,52 @@ export class RoadsideService implements IRoadsideService {
       await this._mechanicProfileRepo.findByMechanicIdAndUpdate(response?.mechanicId, { availability: 'available' })
     }
   }
+
+   async getInvoice(params: { serviceId: Types.ObjectId; userId: Types.ObjectId }): Promise<Buffer> {
+    const { serviceId, userId } = params;
+
+    if (!Types.ObjectId.isValid(serviceId) || !Types.ObjectId.isValid(userId)) {
+      throw new Error("Invalid service ID or user ID format");
+    }
+
+    const service = await this._roadsideAssistanceRepo.findById(serviceId);
+    if (!service) throw new Error("Service not found");
+    if (service.status !== "completed") throw new Error("Service not completed");
+
+    if(!service.quotationId) throw new Error("No Serive Updated");
+    const quotation = await this._quotationRepo.findById(service.quotationId);
+
+    if(!quotation) throw new Error("No Serive Updated");
+    if (quotation.status !== "approved") throw new Error("Quotation not approved");
+
+    const items = quotation.items.map((item) => {
+      return {
+        description :item.name,
+        rate :item.price,
+        qty : item.quantity
+      }
+    })
+
+    
+   
+    return generateReceiptPDF({
+      customer: { 
+        name: 'sanitizedCustomerName',
+         email: "manaf@gmail.com",
+          phone: "1234567890"
+         },
+      items:items,
+      serviceDate: formatDate(service?.endedAt!, "dd MMM yyyy") ?? new Date().toISOString(),
+      discount: { type: "percent", value: 0 },
+      notes: `Service For the ${service.description} Completed Successfully! Thank you for using Autofit!!`,
+      tax: { type: "percent", value: 5 },
+      documentType: "INVOICE",
+      reference: serviceId.toString(),
+    });
+  }
+
+
+
 
 
 }

@@ -6,6 +6,7 @@ import { baseQueryWithRefresh } from "@/utils/baseQuery";
 export const servicesApi = createApi({
     reducerPath: "servicesApi",
     baseQuery: baseQueryWithRefresh,
+    tagTypes: ['Services'],
 
     endpoints: (builder) => ({
 
@@ -31,7 +32,8 @@ export const servicesApi = createApi({
             query: (id: string) => ({
                 url: `user/services/roadside-assistance/${id}/details`,
                 method: 'GET'
-            })
+            }),
+            providesTags: ['Services'],
         }),
 
         approveQuoteAndPay: builder.mutation<any, { serviceId: string, quotationId: string }>({
@@ -49,21 +51,42 @@ export const servicesApi = createApi({
                 body: data
             })
         }),
-        
-        cancelBooking: builder.mutation<any,{serviceId:string}>({
-            query: ({serviceId}) => ({
+
+        cancelBooking: builder.mutation<any, { serviceId: string }>({
+            query: ({ serviceId }) => ({
                 url: `user/services/roadside-assistance/cancel`,
                 method: 'POST',
-                body:{serviceId}
-            })
+                body: { serviceId },
+            }),
+            invalidatesTags: ['Services'],
         }),
 
-        rejectQuotation: builder.mutation<any,{serviceId:string}>({
+        rejectQuotation: builder.mutation<any, { serviceId: string }>({
             query: (data) => ({
                 url: `user/services/roadside-assistance/quotation/reject`,
                 method: 'POST',
                 body: data
-            })
+            }),
+            invalidatesTags: ['Services'],
+        }),
+
+        generateInvoice: builder.mutation<void, { serviceId: string }>({
+            query: ({ serviceId }) => ({
+                url: `user/services/roadside-assistance/invoice`,
+                method: "POST",
+                body: { serviceId },
+                responseType: "blob", 
+            }),
+            transformResponse: (response: Blob, meta, arg) => {
+                const url = window.URL.createObjectURL(response);
+                const link = document.createElement("a");
+                link.href = url;
+                link.download = `invoice-${arg.serviceId}.pdf`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                window.URL.revokeObjectURL(url);
+            },
         }),
 
     }),
@@ -78,4 +101,5 @@ export const {
     useCancelBookingMutation,
     useRejectQuotationMutation,
     useVerifyPaymentMutation,
+    useGenerateInvoiceMutation
 } = servicesApi;

@@ -40,6 +40,7 @@ export default function RoadsideDetails() {
   const [approveAndPay, { isLoading: isPaymentLoading, isError: isPaymentError, error: paymentError }] = useApproveQuoteAndPayMutation();
   const [cancelBooking] = useCancelBookingMutation();
   const [rejectQuotation] = useRejectQuotationMutation();
+  
 
   const bookingData = data?.data;
 
@@ -106,6 +107,33 @@ export default function RoadsideDetails() {
     }
   };
 
+
+  const getDynamicTitle = (status: string) => {
+    switch (status) {
+      case "assigned": return "Booking Confirmed!";
+      case "on_the_way": return "Mechanic On The Way!";
+      case "analysing": return "Analysing Your Vehicle";
+      case "quotation_sent": return "Quotation Ready";
+      case "in_progress": return "Service In Progress";
+      case "completed": return "Service Completed Successfully";
+      case "canceled": return "Service Cancelled";
+      default: return "Processing Your Request";
+    }
+  };
+
+  const getDynamicDescription = (status: string) => {
+    switch (status) {
+      case "assigned": return "An efficient mechanic has been assigned to serve you promptly.";
+      case "on_the_way": return "Your mechanic is en route to assist you right away.";
+      case "analysing": return "Our expert is carefully analysing the issue.";
+      case "quotation_sent": return "Review the quotation and let's proceed.";
+      case "in_progress": return "Work is underway to get you back on the road.";
+      case "completed": return "All done! Safe travels.";
+      case "canceled": return "This service has been cancelled.";
+      default: return "We're processing your request.";
+    }
+  };
+
   const getStatusTitle = (status: string) => {
     switch (status) {
       case "assigned": return "Booking Confirmed";
@@ -169,12 +197,12 @@ export default function RoadsideDetails() {
         </div>
 
         <HeadingSection
-          title="Booking Confirmed!"
-          description="Your mechanic is on the way to help you."
+          title={getDynamicTitle(bookingData?.status || "Processing")}
+          description={getDynamicDescription(bookingData?.status || "Processing")}
           status={getStatusTitle(bookingData?.status || "Processing")}
           bookingId={bookingData?._id || ""}
           onMessageClick={() => console.log("Message clicked")}
-          onCancelClick={() => setShowCancelModal(true)}
+          onCancelClick={handleCancelBooking}
           isCancelled={isCancelled}
           isCompleted={bookingData?.status === "completed"}
         />

@@ -4,6 +4,7 @@ import { notificationHandler } from "./socketHandlers/notificationHandler";
 import { roadsideChatHandler } from "./socketHandlers/roadsideChatHandler";
 import { socketAuthMiddleware } from "./middlewares/socketAuthMiddleware";
 import { liveLocationHandler } from "./socketHandlers/liveLocationHandler";
+import { liveAssistanceHandler } from "./socketHandlers/liveAssistanceHandler";
 
 
 export const userSocketMap = new Map<string, { role: string; name: string; socketIds: Set<string> }>();
@@ -25,8 +26,6 @@ export const initSocket = (server: http.Server): Server => {
 
   try {
     const { id: userId, role: userRole, name } = await socketAuthMiddleware(socket);
-    console.log(name);
-    
 
     if (!userSocketMap.has(userId)) {
       userSocketMap.set(userId, { role: userRole, name, socketIds: new Set() });
@@ -52,10 +51,10 @@ export const initSocket = (server: http.Server): Server => {
     notificationHandler(socket);
     roadsideChatHandler(socket);
     liveLocationHandler(socket);
+    liveAssistanceHandler(socket);
 
   } catch (err: any) {
     console.error("Socket Auth Error:", err.message);
-
     socket.emit("unauthorized", { message: "Unauthorized: Invalid or expired token" });
     socket.disconnect();
   }

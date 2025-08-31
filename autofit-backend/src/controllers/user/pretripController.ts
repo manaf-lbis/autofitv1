@@ -81,5 +81,45 @@ export class PretripController {
         }
     }
 
+    async invoice(req: Request, res: Response, next: NextFunction) {
+        try {
+            const { serviceId } = req.body;
+            const userId = req.user?.id;
+            if (!serviceId || !userId) throw new ApiError("Invalid Service ID or User ID", HttpStatus.BAD_REQUEST);
+            if (!Types.ObjectId.isValid(serviceId) || !Types.ObjectId.isValid(userId)) {
+                throw new ApiError("Invalid ID format", HttpStatus.BAD_REQUEST);
+            }
+
+            const pdfBuffer = await this._pretripService.getInvoice(
+                 new Types.ObjectId(serviceId),
+                 new Types.ObjectId(userId),
+            );
+
+            res.setHeader("Content-Type", "application/pdf");
+            res.setHeader("Content-Disposition", `attachment; filename=invoice-${serviceId}.pdf`);
+            res.send(pdfBuffer);
+        } catch (error) {
+            console.error("Invoice error:", error);
+            next(error);
+        }
+    }
+
+    async report(req: Request, res: Response, next: NextFunction) {
+        try {
+            const { serviceId } = req.body;
+            
+            if (!serviceId) throw new ApiError('Invalid Request Body', HttpStatus.BAD_REQUEST);
+            const pdfBuffer = await this._pretripService.generateReport(new Types.ObjectId(serviceId));
+
+            res.setHeader("Content-Type", "application/pdf");
+            res.setHeader("Content-Disposition", `attachment; filename=report-${serviceId}.pdf`);
+            res.send(pdfBuffer);
+
+        } catch (error) {
+            next(error)
+        }
+    }
+        
+
 
 }

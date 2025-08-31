@@ -5,6 +5,7 @@ import serviceRoute from './roadsideRoute'
 import pretripRoute from './pretripRoute'
 import { authorize } from "../../middlewares/authorize";
 import { authenticate } from "../../middlewares/authenticate";
+import liveAssistanceRoute from './liveAssistanceRoute'
 
 const router = Router()
 
@@ -12,6 +13,7 @@ router.use('/profile', authenticate, authorize(['mechanic']), profileRoute)
 router.use('/pages', authenticate, authorize(['mechanic']), pagesRoute)
 router.use('/services',authenticate, authorize(['mechanic']), serviceRoute)
 router.use('/pretrip',authenticate, authorize(['mechanic']),pretripRoute )
+router.use('/live-assistance',authenticate, authorize(['mechanic']),liveAssistanceRoute )
 
 
 export default router
