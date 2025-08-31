@@ -10,6 +10,7 @@ import { IOtpService } from "../../services/otp/IOtpService";
 import { ITokenService } from "../../services/token/ITokenService";
 import { IMechanicRegistrationService } from "../../services/mechanic/interface/IMechanicRegistrationService";
 import { IGoogleAuthService } from "../../services/auth/mechanic/interface/IGoogleAuthService";
+import { ZodError } from "zod";
 
 export class AuthController {
     constructor(
@@ -93,6 +94,10 @@ export class AuthController {
             sendSuccess(res, result.message)
 
         } catch (error: any) {
+            if (error instanceof ZodError) {
+                next(new ApiError(error.issues[0].message, HttpStatus.BAD_REQUEST));
+                return
+            }
             next(error);
         }
     }
