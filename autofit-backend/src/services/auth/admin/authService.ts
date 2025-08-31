@@ -71,7 +71,7 @@ export class AdminAuthService implements IAdminAuthService {
     try {
       const payload = this._tokenService.verifyToken(token);
       const storedToken = await this._adminRepository.getRefreshToken(payload.id);
-      if (storedToken !== token) {
+      if (!storedToken) {
         throw new ApiError("Invalid refresh token", HttpStatus.UNAUTHORIZED);
       }
       return payload.id;

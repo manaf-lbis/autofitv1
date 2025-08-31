@@ -21,8 +21,8 @@ export class UserServices implements IUserService {
         await this._userRepository.update(userId,data)
     }
 
-    async userDetails({ userId }: { userId: Types.ObjectId }) {
-
+    async userDetailss({ userId }: { userId: Types.ObjectId }) {
+        
         const [vehicles, user] = await Promise.all([
             this._vehicleRepository.findWithUserId(userId),
             this._userRepository.findById(userId)

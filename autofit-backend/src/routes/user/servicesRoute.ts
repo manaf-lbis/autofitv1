@@ -1,37 +1,38 @@
 import { Router } from "express";
-import { ServicesController } from "../../controllers/user/servicesController";
-import { UserRoadsideService } from "../../services/roadsideAssistance/userRoadsideService";
-import { MechanicProfileRepository } from "../../repositories/mechanicProfileRepository";
-import { RoadsideAssistanceRepository } from "../../repositories/roadsideAssistanceRepo";
-import { VehicleRepository } from "../../repositories/vehicleRepository";
-import { NotificationRepository } from "../../repositories/notificationRepository";
-import { RoadsideService } from "../../services/roadsideAssistance/roadsideService";
-import { QuotationRepository } from "../../repositories/quotationRepository";
-import { RazorpayRepository } from "../../repositories/razorpayRepository";
-import { PaymentRepository } from "../../repositories/paymentRepository";
-import { TransactionRepository } from "../../repositories/transactionRepository";
-import { GoogleMapRepository } from "../../repositories/googleMapRepository";
+import { servicesController } from "../../di/userDI";
+// import { ServicesController } from "../../controllers/user/servicesController";
+// import { UserRoadsideService } from "../../services/roadsideAssistance/userRoadsideService";
+// import { MechanicProfileRepository } from "../../repositories/mechanicProfileRepository";
+// import { RoadsideAssistanceRepository } from "../../repositories/roadsideAssistanceRepo";
+// import { VehicleRepository } from "../../repositories/vehicleRepository";
+// import { NotificationRepository } from "../../repositories/notificationRepository";
+// import { RoadsideService } from "../../services/roadsideAssistance/roadsideService";
+// import { QuotationRepository } from "../../repositories/quotationRepository";
+// import { RazorpayRepository } from "../../repositories/razorpayRepository";
+// import { PaymentRepository } from "../../repositories/paymentRepository";
+// import { TransactionRepository } from "../../repositories/transactionRepository";
+// import { GoogleMapRepository } from "../../repositories/googleMapRepository";
 
-const mechanicProfileRepo = new MechanicProfileRepository()
-const googleMapRepo = new GoogleMapRepository()
-const roadsideAssistanceRepo = new RoadsideAssistanceRepository()
-const vehicleRepository = new VehicleRepository()
-const quotationRepo = new QuotationRepository()
-const transactionRepo = new TransactionRepository()
-const notificationRepository = new NotificationRepository()
-const paymentRepo = new PaymentRepository()
-const roadsideService = new RoadsideService(roadsideAssistanceRepo, quotationRepo,mechanicProfileRepo,transactionRepo,paymentRepo)
-const razorpayRepository = new RazorpayRepository()
-const roadsideAssistanceService = new UserRoadsideService(mechanicProfileRepo,
-    googleMapRepo,
-    roadsideAssistanceRepo,
-    vehicleRepository,
-    notificationRepository,
-    razorpayRepository,
-    quotationRepo,
-    paymentRepo
-)
-const servicesController = new ServicesController(roadsideAssistanceService, roadsideService)
+// const mechanicProfileRepo = new MechanicProfileRepository()
+// const googleMapRepo = new GoogleMapRepository()
+// const roadsideAssistanceRepo = new RoadsideAssistanceRepository()
+// const vehicleRepository = new VehicleRepository()
+// const quotationRepo = new QuotationRepository()
+// const transactionRepo = new TransactionRepository()
+// const notificationRepository = new NotificationRepository()
+// const paymentRepo = new PaymentRepository()
+// const roadsideService = new RoadsideService(roadsideAssistanceRepo, quotationRepo,mechanicProfileRepo,transactionRepo,paymentRepo)
+// const razorpayRepository = new RazorpayRepository()
+// const roadsideAssistanceService = new UserRoadsideService(mechanicProfileRepo,
+//     googleMapRepo,
+//     roadsideAssistanceRepo,
+//     vehicleRepository,
+//     notificationRepository,
+//     razorpayRepository,
+//     quotationRepo,
+//     paymentRepo
+// )
+// const servicesController = new ServicesController(roadsideAssistanceService, roadsideService)
 
 const router = Router();
 

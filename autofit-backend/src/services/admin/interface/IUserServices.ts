@@ -22,10 +22,11 @@ export interface IUserService {
     data: Partial<User>;
   }): Promise<void>;
 
-  userDetails(data: {
+  userDetailss(data: {
     userId: Types.ObjectId;
   }): Promise<{
     userData: Pick<User, "email" | "mobile" | "name" | "status" | "createdAt" | "_id">;
     vehicles: VehicleDocument[];
   }>;
+
 }

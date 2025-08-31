@@ -1,28 +1,5 @@
 import { Router } from "express";
-import { MechanicController } from "../../controllers/admin/mechanicController";
-import { MechanicService } from "../../services/admin/mechanicSevice";
-import { MechanicRepository } from "../../repositories/mechanicRepository";
-import { MechanicProfileRepository } from "../../repositories/mechanicProfileRepository";
-import { ProfileService } from "../../services/mechanic/profileService";
-import { NotificationRepository } from "../../repositories/notificationRepository";
-import { WorkingHoursRepository } from "../../repositories/workingHoursRepository";
-import { TimeBlockRepository } from "../../repositories/timeBlockRepository";
-
-const mechanicProfileRepository = new MechanicProfileRepository()
-const mechanicRepository = new MechanicRepository()
-const mechanicService = new MechanicService(mechanicRepository, mechanicProfileRepository)
-const notificationRepository = new NotificationRepository()
-const workingHoursRepository = new WorkingHoursRepository()
-const timeBlockingRepo = new TimeBlockRepository()
-const profileService = new ProfileService(
-    mechanicProfileRepository,
-    mechanicRepository,
-    notificationRepository,
-    workingHoursRepository,
-    timeBlockingRepo
-)
-const mechanicController = new MechanicController(mechanicService, profileService)
-
+import { mechanicController } from "../../di/adminDI";
 
 const router = Router()
 

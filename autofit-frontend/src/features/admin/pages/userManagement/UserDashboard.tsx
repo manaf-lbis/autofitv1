@@ -1,13 +1,25 @@
-import UserDashboard from '@/features/admin/components/UsersDashboard'
-import React from 'react'
+import React from "react";
+import InfiniteScrollTable from "../../components/InfiniteScrollTable"; 
+import { useGetAllUsersQuery, useUpdateUserStatusMutation} from  "../../../../services/adminServices/userManagement"
 
-const Dashboard = () => {
+const mapToEntity = (data: any[]) => data.map(user => ({
+  id: user._id,
+  name: user.name,
+  email: user.email,
+  phone: user.mobile || "N/A",
+  status: user.status,
+}));
 
-  return (
-    <UserDashboard />
-  )
-}
+const UserDashboard: React.FC = () => (
+  <InfiniteScrollTable
+    entityName="User"
+    useGetAllQuery={useGetAllUsersQuery}
+    useUpdateStatusMutation={useUpdateUserStatusMutation}
+    detailPathPrefix="/admin/user-details"
+    breadcrumbs={[{ page: "User", href: "/users" }, { page: "User Management", href: "/users" }]}
+    mapToEntity={mapToEntity}
+    responseDataKey="users"
+  />
+);
 
-export default Dashboard
-
-
+export default UserDashboard
