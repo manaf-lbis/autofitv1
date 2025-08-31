@@ -2,7 +2,6 @@ import React from 'react'
 import { AnimatePresence,motion } from 'framer-motion'
 import { Address } from '../AddressCard'
 import { X } from 'lucide-react'
-import FormInput from '@/components/shared/formInput/FormInput'
 
 interface InputProp{
     setModalOpen:React.Dispatch<React.SetStateAction<boolean>>;

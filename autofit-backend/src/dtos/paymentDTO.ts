@@ -7,10 +7,7 @@ export interface PaymentAmountDTO {
 
 export interface PaymentInfoDTO {
 
-
 }
-
-
 
 export class PaymentMapper {
 
@@ -20,37 +17,5 @@ export class PaymentMapper {
         };
     };
 
-
-
 }
 
-
-//     userId: {
-//       type: Schema.Types.ObjectId,
-//       ref: "user",
-//       required: true,
-//     },
-//     serviceId: {
-//       type: Schema.Types.ObjectId,
-//       required: true,
-//     },
-//     paymentId: {
-//       type: String,
-//     },
-//     amount: {
-//       type: Number,
-//       required: true,
-//     },
-//     method: {
-//       type: String,
-//     },
-//     status: {
-//       type: String,
-//       enum: ["success", "failed", "cancelled", "pending"],
-//       required: true,
-//       default: "pending",
-//     },
-//     receipt: {
-//       type: String,
-//     },
-//   },

@@ -24,7 +24,7 @@ export class RoadsideService implements IRoadsideService {
   ) { }
 
   async serviceDetails(serviceId: Types.ObjectId) {
-    return await this._roadsideAssistanceRepo.findById(serviceId)
+    return await this._roadsideAssistanceRepo.findById(serviceId);
   }
 
   async updateStatus(userId: Types.ObjectId, serviceId: Types.ObjectId, entity: Partial<RoadsideAssistanceDocument>) {
@@ -77,7 +77,7 @@ export class RoadsideService implements IRoadsideService {
 
   async cancelService({ serviceId }: { serviceId: Types.ObjectId }) {
 
-    const response = await this._roadsideAssistanceRepo.update(serviceId, { status: RoadsideAssistanceStatus.CANCELED})
+    const response = await this._roadsideAssistanceRepo.update(serviceId, { status: RoadsideAssistanceStatus.CANCELED })
     if (response?.quotationId) {
       await this._quotationRepo.update(response?.quotationId as Types.ObjectId, { status: RoadsideQuotationStatus.REJECTED });
     }
@@ -87,7 +87,7 @@ export class RoadsideService implements IRoadsideService {
     }
   }
 
-   async getInvoice(params: { serviceId: Types.ObjectId; userId: Types.ObjectId }): Promise<Buffer> {
+  async getInvoice(params: { serviceId: Types.ObjectId; userId: Types.ObjectId }): Promise<Buffer> {
     const { serviceId, userId } = params;
 
     if (!Types.ObjectId.isValid(serviceId) || !Types.ObjectId.isValid(userId)) {
@@ -98,29 +98,29 @@ export class RoadsideService implements IRoadsideService {
     if (!service) throw new Error("Service not found");
     if (service.status !== "completed") throw new Error("Service not completed");
 
-    if(!service.quotationId) throw new Error("No Serive Updated");
+    if (!service.quotationId) throw new Error("No Serive Updated");
     const quotation = await this._quotationRepo.findById(service.quotationId);
 
-    if(!quotation) throw new Error("No Serive Updated");
+    if (!quotation) throw new Error("No Serive Updated");
     if (quotation.status !== "approved") throw new Error("Quotation not approved");
 
     const items = quotation.items.map((item) => {
       return {
-        description :item.name,
-        rate :item.price,
-        qty : item.quantity
+        description: item.name,
+        rate: item.price,
+        qty: item.quantity
       }
     })
 
-    
-   
+
+
     return generateReceiptPDF({
-      customer: { 
+      customer: {
         name: 'sanitizedCustomerName',
-         email: "manaf@gmail.com",
-          phone: "1234567890"
-         },
-      items:items,
+        email: "manaf@gmail.com",
+        phone: "1234567890"
+      },
+      items: items,
       serviceDate: formatDate(service?.endedAt!, "dd MMM yyyy") ?? new Date().toISOString(),
       discount: { type: "percent", value: 0 },
       notes: `Service For the ${service.description} Completed Successfully! Thank you for using Autofit!!`,

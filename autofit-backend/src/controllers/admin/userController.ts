@@ -35,7 +35,7 @@ export class UserController {
     async getUserById(req: Request, res: Response, next: NextFunction) {
         try {
             const userId = new Types.ObjectId(req.params.id);
-            const result = await this._userServices.userDetailss({ userId })
+            const result = await this._userServices.userDetails({ userId })
 
             sendSuccess(res, 'Fetched Successfully', result)
 

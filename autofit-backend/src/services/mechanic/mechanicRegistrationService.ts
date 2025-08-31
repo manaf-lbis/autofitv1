@@ -4,6 +4,7 @@ import { CreateUserInput } from "../../types/user/userInput";
 import { IMechanicRegistrationService } from "./interface/IMechanicRegistrationService";
 import { HttpStatus } from "../../types/responseCode";
 import { Role } from "../../types/role";
+import { MechanicMapper } from "../../dtos/mechnaicDTO";
 
 
 export class MechanicRegistrationService implements IMechanicRegistrationService {
@@ -12,19 +13,12 @@ export class MechanicRegistrationService implements IMechanicRegistrationService
 
     async registerUser(userData:CreateUserInput ) {
         const { email, password, name, mobile } = userData;
-
-        if (!email || !password || !name || !mobile) {
-            throw new ApiError("Incomplete user data", HttpStatus.BAD_REQUEST);
-        }
-
+        if (!email || !password || !name || !mobile) throw new ApiError("Incomplete user data", HttpStatus.BAD_REQUEST);
         const existingUser = await this._mechanicRepository.findByEmail(email);
-        
-        if (existingUser) {
-            throw new ApiError("User already exists", HttpStatus.BAD_REQUEST);
-        }
+        if (existingUser) throw new ApiError("User already exists", HttpStatus.BAD_REQUEST);
+        const mechanic = await this._mechanicRepository.save({email,password,mobile,name,role:Role.MECHANIC});
+        return MechanicMapper.toMechanicDetailsWithId(mechanic)
 
-        const {role,_id} = await this._mechanicRepository.save({email,password,mobile,name,role:Role.MECHANIC});
-        return {_id:_id.toString(),name,role}
           
     }
 

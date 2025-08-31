@@ -1,7 +1,7 @@
 import type React from "react"
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Home, User, Wrench, Lock,CarFront, Bell, Settings, ChevronRight } from "lucide-react"
+import { Home, User, Wrench, CarFront, Bell, Settings, ChevronRight } from "lucide-react"
 import { useLocation, useNavigate } from "react-router-dom"
 
 

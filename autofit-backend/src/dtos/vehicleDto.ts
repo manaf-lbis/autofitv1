@@ -1,15 +1,27 @@
+import { VehicleDocument } from "../models/vehicleModel";
 
-
-export interface VehicleDTO {
+export interface BasicVehicleDTO {
     regNo: string;
     brand: string;
     modelName: string;
-    fuelType: string;
     owner: string
+}
+
+export interface VehicleDTO extends BasicVehicleDTO {
+    fuelType: string;
 };
 
 
 export class VehicleMapper {
+
+    static toBasicVehicleDto(vehicle: VehicleDocument): BasicVehicleDTO {
+        return {
+            regNo: vehicle.regNo,
+            brand: vehicle.brand,
+            modelName: vehicle.modelName,
+            owner: vehicle.owner
+        };
+    }
     static toVehicleDto(vehicle: any): VehicleDTO {
         return {
             regNo: vehicle.regNo,
@@ -19,6 +31,8 @@ export class VehicleMapper {
             owner: vehicle.owner
         };
     }
+
+
 
 
 }

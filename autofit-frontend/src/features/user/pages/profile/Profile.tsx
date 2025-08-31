@@ -1,5 +1,4 @@
 import { motion } from "framer-motion";
-import AddressCard from "../../components/profile/AddressCard";
 import ProfileCard from "../../components/profile/ProfileCard";
 
 const Profile = () => {

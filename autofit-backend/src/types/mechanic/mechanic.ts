@@ -42,7 +42,7 @@ export interface MechanicProfile {
   shopImage: string,
   qualification: string,
   workingHours: Types.ObjectId
-  createdAt?: Date,
+  createdAt: Date,
   updatedAt?: Date
 }
 

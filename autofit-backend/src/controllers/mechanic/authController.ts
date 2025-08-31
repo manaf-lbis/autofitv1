@@ -123,14 +123,14 @@ export class AuthController {
 
             await this._otpService.verifyOtp(otp, email)
 
-            const { _id } = await this._mechanicRegistrationService.registerUser({
+            const { id } = await this._mechanicRegistrationService.registerUser({
                 name,
                 email,
                 password,
                 mobile,
                 role: role || Role.MECHANIC
             });
-            const token = this._tokenService.generateAccessToken({ id: _id, role })
+            const token = this._tokenService.generateAccessToken({ id, role })
 
             res.cookie('jwt', token, {
                 httpOnly: true,

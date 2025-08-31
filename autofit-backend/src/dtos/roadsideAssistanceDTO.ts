@@ -1,16 +1,13 @@
 import { RoadsideAssistanceDocument } from "../models/roadsideAssistanceModel";
+import { VehicleDocument } from "../models/vehicleModel";
 import { RoadsideAssistanceStatus } from "../types/services";
+import { BasicVehicleDTO, VehicleMapper } from "./vehicleDto";
 
 export interface RoadsideAssistanceDTO {
     id: string,
     issue: string,
     description: string,
-    vehicle: {
-        regNo: string,
-        brand: string,
-        modelName: string,
-        owner: string,
-    },
+    vehicle: BasicVehicleDTO,
     status: RoadsideAssistanceStatus,
     startedAt: Date | null,
     endedAt: Date | null
@@ -25,23 +22,13 @@ export class RoadsideAssistanceMapper {
             id: assistance._id.toString(),
             issue: assistance.issue,
             description: assistance.description,
-            vehicle: {
-                regNo: assistance.vehicle.regNo,
-                brand: assistance.vehicle.brand,
-                modelName: assistance.vehicle.modelName,
-                owner: assistance.vehicle.owner,
-            },
+            vehicle: VehicleMapper.toBasicVehicleDto(assistance.vehicle as VehicleDocument),
             status: assistance.status,
             startedAt: assistance.startedAt,
             endedAt: assistance.endedAt
 
         };
     };
-
-
-
-
-
 }
 
 

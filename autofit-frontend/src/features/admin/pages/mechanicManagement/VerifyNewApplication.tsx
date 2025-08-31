@@ -99,7 +99,7 @@ export default function MechanicDetails() {
   const handleApprove = async () => {
     if (!data?.data.mechanicProfile) return;
     try {
-      await updateApplicationStatus({ id: data.data.mechanicProfile._id, status: "approved" }).unwrap();
+      await updateApplicationStatus({ id: data.data.mechanicProfile.id, status: "approved" }).unwrap();
       setShowApproveDialog(false);
       toast.success("Application approved successfully");
       refetch();
@@ -113,7 +113,7 @@ export default function MechanicDetails() {
     if (!data?.data.mechanicProfile) return;
     try {
       await updateApplicationStatus({
-        id: data.data.mechanicProfile._id,
+        id: data.data.mechanicProfile.id,
         status: "rejected",
         rejectionReason: formData.reason,
       }).unwrap();

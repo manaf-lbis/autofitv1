@@ -3,7 +3,7 @@ import InfiniteScrollTable from "../../components/InfiniteScrollTable";
 import { useGetAllUsersQuery, useUpdateUserStatusMutation} from  "../../../../services/adminServices/userManagement"
 
 const mapToEntity = (data: any[]) => data.map(user => ({
-  id: user._id,
+  id: user.id,
   name: user.name,
   email: user.email,
   phone: user.mobile || "N/A",

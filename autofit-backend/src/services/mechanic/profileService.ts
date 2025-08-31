@@ -46,8 +46,6 @@ export class ProfileService implements IProfileService {
       mechanicId,
     };
 
-    console.log('Service File IDs:', { photoId, shopImageId, qualificationId });
-
     await this._mechanicRepository.update(mech._id, { avatar: photoId });
     await this._mechanicProfileRepository.save(toCreate);
   }
@@ -77,6 +75,7 @@ export class ProfileService implements IProfileService {
   async getAvailablity(mechanicId: Types.ObjectId) {
     const response = await this._mechanicProfileRepository.getAvailablity(mechanicId)
     const availability = response?.availability ?? 'notAvailable'
+    
     return availability
   }
 
