@@ -1,6 +1,7 @@
 import { IPaymentRepository } from "./interfaces/IPaymentRepository";
 import { PaymentDocument, PaymentModel } from "../models/paymentModel";
 import { BaseRepository } from "./baseRepository";
+import { DashboardRange } from "../services/admin/interface/IPageService";
 
 
 
@@ -25,5 +26,7 @@ export class PaymentRepository extends BaseRepository<PaymentDocument> implement
     async updatePayemtStatus( entity: Partial<PaymentDocument>  ): Promise<PaymentDocument |null> {
         return await PaymentModel.findOneAndUpdate({ serviceId: entity.serviceId }, {...entity },{new: true});
     }
+
+
 
 }

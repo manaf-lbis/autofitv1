@@ -95,5 +95,13 @@ export class MechanicRepository extends BaseRepository<MechanicDocument> impleme
     }
 
 
+    async overallMechanicStatusSummary(): Promise<any> {
+        return await MechanicModel.aggregate([
+            { $group: { _id: "$status", count: { $sum: 1 } } },
+        ]);
+        
+    }
+
+
 }
 

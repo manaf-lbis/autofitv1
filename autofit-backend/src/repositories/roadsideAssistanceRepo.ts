@@ -5,6 +5,8 @@ import { CreateRoadsideAssistanceDTO } from "../types/services";
 import { ApiError } from "../utils/apiError";
 import { BaseRepository } from "./baseRepository";
 import { HttpStatus } from "../types/responseCode"; import { Role } from "../types/role";
+import { DashboardRange } from "../services/admin/interface/IPageService";
+import { startOfDay, startOfYear, subDays, subYears } from "date-fns";
 ;
 
 export class RoadsideAssistanceRepository extends BaseRepository<RoadsideAssistanceDocument> implements IRoadsideAssistanceRepo {
@@ -84,6 +86,80 @@ export class RoadsideAssistanceRepository extends BaseRepository<RoadsideAssista
         }
     }
 
+    async roadsideAssistanceDetailsByRange( range: DashboardRange): Promise<any[]> {
+        let startDate: Date;
+        let groupId: any;
+
+        switch (range) {
+            case DashboardRange.DAY:
+                startDate = startOfDay(new Date());
+                break;
+
+            case DashboardRange.MONTH:
+                startDate = subDays(new Date(), 30);
+                groupId = {
+                    day: { $dayOfMonth: "$createdAt" },
+                    month: { $month: "$createdAt" },
+                    year: { $year: "$createdAt" }
+                };
+                break;
+
+            case DashboardRange.YEAR:
+                startDate = subYears(startOfYear(new Date()), 4);
+                groupId = { year: { $year: "$createdAt" } };
+                break;
+
+            default:
+                throw new Error("Invalid range");
+        }
+
+
+        const basePipeline: any[] = [
+            {
+                $match: {
+                    createdAt: { $gte: startDate }
+                }
+            },
+            {
+                $lookup: {
+                    from: "payments",
+                    localField: "paymentId",
+                    foreignField: "_id",
+                    as: "payment"
+                }
+            },
+            { $unwind: { path: "$payment", preserveNullAndEmptyArrays: true } }
+        ];
+
+        if (range === DashboardRange.DAY) {
+            const todayResult = await RoadsideAssistanceModel.aggregate([
+                ...basePipeline,
+                {
+                    $group: {
+                        _id: null,
+                        totalOrders: { $sum: 1 },
+                        totalAmount: { $sum: "$payment.amount" }
+                    }
+                }
+            ]);
+
+            return todayResult[0] || { totalOrders: 0, totalAmount: 0 };
+        }
+
+        const result = await RoadsideAssistanceModel.aggregate([
+            ...basePipeline,
+            {
+                $group: {
+                    _id: groupId,
+                    totalOrders: { $sum: 1 },
+                    totalAmount: { $sum: "$payment.amount" }
+                }
+            },
+            { $sort: { "_id.year": 1, "_id.month": 1, "_id.day": 1 } }
+        ]);
+
+        return result;
+    }
 
 
 }

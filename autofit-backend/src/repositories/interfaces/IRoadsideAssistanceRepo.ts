@@ -3,6 +3,7 @@ import { RoadsideAssistanceDocument } from "../../models/roadsideAssistanceModel
 import { IBaseRepository } from "./IBaseRepository";
 import { CreateRoadsideAssistanceDTO } from "../../types/services";
 import { Role } from "../../types/role";
+import { DashboardRange } from "../../services/admin/interface/IPageService";
 
 export interface PagenatedResponse {
     totalDocuments: number;
@@ -23,4 +24,5 @@ export interface IRoadsideAssistanceRepo extends IBaseRepository<RoadsideAssista
     ongoingServiceByMechanicId(mechanicId: Types.ObjectId): Promise<RoadsideAssistanceDocument | null>;
     getActiveServiceId(userId: Types.ObjectId): Promise<Types.ObjectId[]>;
     pagenatedRoadsideHistory(params: PagenatedHistoryParams): Promise<PagenatedResponse>
+    roadsideAssistanceDetailsByRange(range: DashboardRange): Promise<any>
 }

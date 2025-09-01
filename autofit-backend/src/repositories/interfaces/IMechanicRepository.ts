@@ -20,4 +20,5 @@ export interface IMechanicRepository extends IBaseRepository<MechanicDocument> {
         totalPages: number;
     }>;
     getBasicUserById(id: Types.ObjectId): Promise<MechanicDocument| null>;
+    overallMechanicStatusSummary(): Promise<any>;
 }

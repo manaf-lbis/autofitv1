@@ -3,8 +3,9 @@ import { PretripBookingDocument, PretripBookingModel } from "../models/pretripBo
 import { BaseRepository } from "./baseRepository";
 import { IPretripBookingRepository, PagenatedHistoryParams, PagenatedResponse } from "./interfaces/IPretripBookingRepository";
 import { PaymentStatus, PretripStatus } from "../types/pretrip";
-import { addDays, endOfDay, startOfDay } from "date-fns";
+import { addDays, endOfDay, startOfDay, startOfYear, subDays, subYears } from "date-fns";
 import { Role } from "../types/role";
+import { DashboardRange } from "../services/admin/interface/IPageService";
 
 export class PretripBookingRepository extends BaseRepository<PretripBookingDocument> implements IPretripBookingRepository {
     constructor() {
@@ -81,10 +82,10 @@ export class PretripBookingRepository extends BaseRepository<PretripBookingDocum
             .populate('serviceReportId', 'servicePlan.name servicePlan.description -_id')
             .select('status vehicleId schedule serviceReportId').lean();
 
-        if(Role.MECHANIC === 'mechanic'){
+        if (Role.MECHANIC === 'mechanic') {
             queryData.populate('userId', 'name email mobile')
         }
-        
+
         const data = await queryData.lean()
         const count = await PretripBookingModel.countDocuments(query)
         return {
@@ -92,6 +93,81 @@ export class PretripBookingRepository extends BaseRepository<PretripBookingDocum
             totalDocuments: count
         }
 
+    }
+
+    async pretripBookingDetailsByRange(range: DashboardRange): Promise<any[]> {
+        let startDate: Date;
+        let groupId: any;
+
+        switch (range) {
+            case DashboardRange.DAY:
+                startDate = startOfDay(new Date());
+                break;
+
+            case DashboardRange.MONTH:
+                startDate = subDays(new Date(), 30);
+                groupId = {
+                    day: { $dayOfMonth: "$createdAt" },
+                    month: { $month: "$createdAt" },
+                    year: { $year: "$createdAt" }
+                };
+                break;
+
+            case DashboardRange.YEAR:
+                startDate = subYears(startOfYear(new Date()), 4); 
+                groupId = { year: { $year: "$createdAt" } };
+                break;
+
+            default:
+                throw new Error("Invalid range");
+        }
+
+        const basePipeline: any[] = [
+            {
+                $match: { createdAt: { $gte: startDate } }
+            },
+            {
+                $lookup: {
+                    from: "payments",
+                    localField: "payment.paymentId",
+                    foreignField: "_id",
+                    as: "paymentDetails"
+                }
+            },
+            { $unwind: { path: "$paymentDetails", preserveNullAndEmptyArrays: true } },
+            {
+                $match: { "paymentDetails.status": "success" } 
+            }
+        ];
+
+        if (range === DashboardRange.DAY) {
+            const todayResult = await PretripBookingModel.aggregate([
+                ...basePipeline,
+                {
+                    $group: {
+                        _id: null,
+                        totalOrders: { $sum: 1 },
+                        totalAmount: { $sum: "$paymentDetails.amount" }
+                    }
+                }
+            ]);
+
+            return todayResult[0] || { totalOrders: 0, totalAmount: 0 };
+        }
+
+        const result = await PretripBookingModel.aggregate([
+            ...basePipeline,
+            {
+                $group: {
+                    _id: groupId,
+                    totalOrders: { $sum: 1 },
+                    totalAmount: { $sum: "$paymentDetails.amount" }
+                }
+            },
+            { $sort: { "_id.year": 1, "_id.month": 1, "_id.day": 1 } }
+        ]);
+
+        return result;
     }
 
 

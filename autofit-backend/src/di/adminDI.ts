@@ -1,18 +1,24 @@
 import { AdminAuthController } from "../controllers/admin/authController"
 import { MechanicController } from "../controllers/admin/mechanicController"
+import { AdminPagesController } from "../controllers/admin/pagesController"
 import { PretripController } from "../controllers/admin/pretripController"
 import { UserController } from "../controllers/admin/userController"
 import { AdminRepository } from "../repositories/adminRepository"
+import { LiveAsistanceRepository } from "../repositories/liveAssistanceRepository"
 import { MechanicProfileRepository } from "../repositories/mechanicProfileRepository"
 import { MechanicRepository } from "../repositories/mechanicRepository"
 import { NotificationRepository } from "../repositories/notificationRepository"
+import { PretripBookingRepository } from "../repositories/pretripBookingRepository"
 import { PretripFeatureRepository } from "../repositories/pretripFeatureRepository"
 import { PretripPlanRepository } from "../repositories/pretripPlanRepository"
+import { RoadsideAssistanceRepository } from "../repositories/roadsideAssistanceRepo"
 import { TimeBlockRepository } from "../repositories/timeBlockRepository"
+import { TransactionRepository } from "../repositories/transactionRepository"
 import { UserRepository } from "../repositories/userRepository"
 import { VehicleRepository } from "../repositories/vehicleRepository"
 import { WorkingHoursRepository } from "../repositories/workingHoursRepository"
 import { MechanicService } from "../services/admin/mechanicSevice"
+import { PageService } from "../services/admin/pageService"
 import { UserServices } from "../services/admin/userServices"
 import { AdminAuthService } from "../services/auth/admin/authService"
 import { AdminGoogleAuthService } from "../services/auth/admin/googleAuthService"
@@ -39,6 +45,11 @@ const pretripPlanService = new PretripPlanService(pretripFeatureRepository,pretr
 const userRepository = new UserRepository()
 const vehicleRepository = new VehicleRepository()
 const userServices = new UserServices(userRepository, vehicleRepository)
+const liveAssistanceRepository = new LiveAsistanceRepository();
+const roadsideAssistanceRepo = new RoadsideAssistanceRepository()
+const pretripBookingRepository = new PretripBookingRepository()
+const transactionRepo = new TransactionRepository()
+const adminPageService = new PageService(mechanicRepository,userRepository,liveAssistanceRepository,roadsideAssistanceRepo,pretripBookingRepository,transactionRepo)
 
 
 
@@ -46,3 +57,4 @@ export const userController = new UserController(userServices)
 export const pretripController = new PretripController(pretripPlanService)
 export const mechanicController = new MechanicController(mechanicService, profileService)
 export const authController = new AdminAuthController(adminAuthService,googleAuthService)
+export const pagesController = new AdminPagesController(adminPageService)

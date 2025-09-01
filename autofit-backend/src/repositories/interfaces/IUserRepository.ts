@@ -25,4 +25,6 @@ export interface IUserRepository extends IBaseRepository<UserDocument> {
     storeRefreshToken(userId: Types.ObjectId, token: string): Promise<void>
     findUsersWithPagination(params: PagenateParams): Promise<PagenatedResult>;
     getBasicUserById(id: Types.ObjectId): Promise<UserDocument | null>;
+    overallUserStatusSummary(): Promise<any>
+
 }
