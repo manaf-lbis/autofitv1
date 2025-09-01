@@ -1,8 +1,6 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
-import SignupForm from '@/features/auth/components/Forms/SignupForm';
 import { Role } from '../components/Layouts/AuthLayout';
-import AnimatedPage from '@/components/Animations/AnimatedPage';
 import PasswordReset from '../components/Forms/PasswordReset';
 
 const RoleForgotPassword: React.FC = () => {

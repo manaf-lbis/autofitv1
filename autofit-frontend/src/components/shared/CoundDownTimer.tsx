@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 
 interface CountdownTimerProps {
   remainingTime: number;
@@ -48,15 +48,6 @@ const CountdownTimer: React.FC<CountdownTimerProps> = ({
   };
 
   const { minutes, seconds } = formatTime(secondsLeft);
-
-  const hourglassVariants = {
-    initial: { scale: 1, rotate: 0 },
-    animate: {
-      scale: [1, 1.1, 1],
-      rotate: [0, 15, 0],
-      transition: { duration: 0.4, times: [0, 0.5, 1], ease: "easeInOut" },
-    },
-  };
 
   const digitVariants = {
     initial: { y: -8, opacity: 0, scale: 0.95 },

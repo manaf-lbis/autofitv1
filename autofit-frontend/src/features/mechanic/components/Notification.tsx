@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Bell, X, User, Clock } from "lucide-react";
+import { Bell, User, Clock } from "lucide-react";
 import React, { useState, useRef, useEffect } from "react";
 import { initSocket } from "@/lib/socket";
 import { useNotification } from "@/hooks/useNotification";
