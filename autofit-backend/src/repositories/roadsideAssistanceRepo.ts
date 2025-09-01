@@ -1,4 +1,4 @@
-import { Types } from "mongoose";
+import { FilterQuery, Types } from "mongoose";
 import { RoadsideAssistanceDocument, RoadsideAssistanceModel } from "../models/roadsideAssistanceModel";
 import { IRoadsideAssistanceRepo, PagenatedHistoryParams, PagenatedResponse } from "./interfaces/IRoadsideAssistanceRepo";
 import { CreateRoadsideAssistanceDTO } from "../types/services";
@@ -73,20 +73,64 @@ export class RoadsideAssistanceRepository extends BaseRepository<RoadsideAssista
         return services.map(service => service._id);
     }
 
-    async pagenatedRoadsideHistory({ end, start, userId, role, sortBy }: PagenatedHistoryParams): Promise<PagenatedResponse> {
+    // async pagenatedRoadsideHistory({ end, start, userId, role, sortBy }: PagenatedHistoryParams): Promise<PagenatedResponse> {
 
-        const query = role === Role.MECHANIC ? { mechanicId: userId } : { userId };
-        const sort = sortBy === 'asc' ? 1 : -1;
-        const data = await RoadsideAssistanceModel.find(query).sort({ createdAt: sort }).skip(start).limit(end)
-            .select('issue description vehicle status startedAt endedAt location.coordinates').lean();
-        const count = await RoadsideAssistanceModel.countDocuments(query)
+    //     const query = role === Role.MECHANIC ? { mechanicId: userId } : { userId };
+    //     const sort = sortBy === 'asc' ? 1 : -1;
+    //     const data = await RoadsideAssistanceModel.find(query).sort({ createdAt: sort }).skip(start).limit(end)
+    //         .select('issue description vehicle status startedAt endedAt location.coordinates').lean();
+    //     const count = await RoadsideAssistanceModel.countDocuments(query)
+
+    //     return {
+    //         history: data,
+    //         totalDocuments: count
+    //     }
+    // }
+
+    async pagenatedRoadsideHistory({ end, start, userId, role, sortBy, search }: PagenatedHistoryParams): Promise<PagenatedResponse> {
+
+        const query: FilterQuery<RoadsideAssistanceDocument> =
+            role === Role.MECHANIC ? { mechanicId: userId } : { userId };
+
+        const sort = sortBy === "asc" ? 1 : -1;
+
+        if (search && search.trim() !== "") {
+            const regex = new RegExp(search, "i");
+            query.$or = [
+                { "vehicle.regNo": regex },
+                { "vehicle.brand": regex },
+                { "vehicle.modelName": regex },
+                { "vehicle.owner": regex },
+                { status: regex },
+                { issue: regex },
+                { description: regex },
+            ];
+        }
+
+        const queryData = RoadsideAssistanceModel.find(query)
+            .sort({ createdAt: sort })
+            .skip(start)
+            .limit(end)
+            .select(
+                "issue description vehicle status startedAt endedAt serviceLocation.coordinates"
+            )
+            .lean();
+
+        if (role === Role.MECHANIC) {
+            queryData.populate("userId", "name email mobile");
+        }
+
+        const data = await queryData.lean();
+        const count = await RoadsideAssistanceModel.countDocuments(query);
+
         return {
             history: data,
-            totalDocuments: count
-        }
+            totalDocuments: count,
+        };
     }
 
-    async roadsideAssistanceDetailsByRange( range: DashboardRange): Promise<any[]> {
+
+    async roadsideAssistanceDetailsByRange(range: DashboardRange): Promise<any[]> {
         let startDate: Date;
         let groupId: any;
 

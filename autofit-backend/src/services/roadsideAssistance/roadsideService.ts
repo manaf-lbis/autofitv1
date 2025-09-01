@@ -4,7 +4,7 @@ import { RoadsideAssistanceDocument } from "../../models/roadsideAssistanceModel
 import { IQuotationRepository } from "../../repositories/interfaces/IQuotationRepository";
 import { QuotationDocument } from "../../models/quotationModel";
 import { IMechanicProfileRepository } from "../../repositories/interfaces/IMechanicProfileRepository";
-import { IRoadsideService } from "./interface/IRoadsideService";
+import { IRoadsideService, LiveAssistanceHistoryResponse } from "./interface/IRoadsideService";
 import { ITransactionRepository } from "../../repositories/interfaces/ITransactionRepository";
 import { TransactionStatus } from "../../types/transaction";
 import { generateTransactionId, getDeductionRate } from "../../utils/transactionUtils";
@@ -12,6 +12,7 @@ import { RoadsideAssistanceStatus, RoadsideQuotationStatus, ServiceType } from "
 import { IPaymentRepository } from "../../repositories/interfaces/IPaymentRepository";
 import { generateReceiptPDF } from "../../utils/templates/receiptTemplate";
 import { formatDate } from "date-fns";
+import { Role } from "../../types/role";
 
 export class RoadsideService implements IRoadsideService {
   constructor(
@@ -112,8 +113,6 @@ export class RoadsideService implements IRoadsideService {
       }
     })
 
-
-
     return generateReceiptPDF({
       customer: {
         name: 'sanitizedCustomerName',
@@ -128,6 +127,22 @@ export class RoadsideService implements IRoadsideService {
       documentType: "INVOICE",
       reference: serviceId.toString(),
     });
+  };
+
+
+  async serviceHistory(mechanicId: Types.ObjectId, page: number, search?: string): Promise<LiveAssistanceHistoryResponse> {
+
+    const itemsPerPage = Number(process.env.ITEMS_PER_PAGE);
+    const start = Number(page) <= 0 ? 0 : (page - 1) * itemsPerPage;
+    const end = start + itemsPerPage;
+
+    const response = await this._roadsideAssistanceRepo.pagenatedRoadsideHistory({ end, start, role: Role.MECHANIC, userId: mechanicId, search });
+    return {
+      totalDocuments: response.totalDocuments,
+      hasMore: response.totalDocuments > end,
+      history: response.history
+    }
+
   }
 
 

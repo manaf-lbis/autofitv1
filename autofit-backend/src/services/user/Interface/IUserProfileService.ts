@@ -1,5 +1,4 @@
 import { Types } from "mongoose";
-import { LiveAssistanceDocument } from "../../../models/liveAssistanceModel";
 import { UserBasicInfoDTO } from "../../../dtos/userDto";
 import { RoadsideAssistanceDTO } from "../../../dtos/roadsideAssistanceDTO"; 
 import { PretripDTO } from "../../../dtos/pretripDto";

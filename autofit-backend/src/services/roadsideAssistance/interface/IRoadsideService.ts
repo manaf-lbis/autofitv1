@@ -2,6 +2,17 @@ import { Types } from "mongoose";
 import { RoadsideAssistanceDocument } from "../../../models/roadsideAssistanceModel";
 import { QuotationDocument } from "../../../models/quotationModel";
 
+interface PagenationInfo{
+  totalDocuments: number,
+  hasMore: boolean
+}
+
+export interface LiveAssistanceHistoryResponse extends PagenationInfo{
+  history: RoadsideAssistanceDocument[]
+}
+
+
+
 export interface IRoadsideService {
 
   serviceDetails(serviceId: Types.ObjectId): Promise<RoadsideAssistanceDocument | null>;
@@ -10,4 +21,5 @@ export interface IRoadsideService {
   cancelQuotation(params: { serviceId: Types.ObjectId }): Promise<void>;
   cancelService(params: { serviceId: Types.ObjectId }): Promise<void>;
   getInvoice(params: { serviceId: Types.ObjectId, userId: Types.ObjectId }): Promise<any>;
+  serviceHistory(mechanicId:Types.ObjectId,page:number,search?:string): Promise<LiveAssistanceHistoryResponse>
 }

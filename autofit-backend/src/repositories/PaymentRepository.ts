@@ -1,7 +1,6 @@
 import { IPaymentRepository } from "./interfaces/IPaymentRepository";
 import { PaymentDocument, PaymentModel } from "../models/paymentModel";
 import { BaseRepository } from "./baseRepository";
-import { DashboardRange } from "../services/admin/interface/IPageService";
 
 
 

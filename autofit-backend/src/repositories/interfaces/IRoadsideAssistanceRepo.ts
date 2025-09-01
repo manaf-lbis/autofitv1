@@ -15,7 +15,10 @@ export interface PagenatedHistoryParams {
     userId: Types.ObjectId;
     role: Role;
     sortBy?: 'asc' | 'desc'
+    search?: string
 }
+
+
 
 export interface IRoadsideAssistanceRepo extends IBaseRepository<RoadsideAssistanceDocument> {
     findByUserId(userId: Types.ObjectId): Promise<RoadsideAssistanceDocument[] | []>;

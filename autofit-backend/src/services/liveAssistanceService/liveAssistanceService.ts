@@ -102,7 +102,7 @@ export class LiveAssistanceService implements ILiveAssistanceService {
         }
     }
 
-    async getInvoice(serviceId: Types.ObjectId ,userId:Types.ObjectId): Promise<any> {
+    async getInvoice(serviceId: Types.ObjectId ): Promise<any> {
         const booking = await this._liveAssistanceRepo.detailedBooking(serviceId);
         if (!booking ) throw new ApiError('Invalid Service', HttpStatus.BAD_REQUEST);
         if(booking.status !== LiveAssistanceStatus.COMPLETED) throw new ApiError('Service is not completed', HttpStatus.BAD_REQUEST);
