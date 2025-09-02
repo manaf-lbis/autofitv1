@@ -12,6 +12,9 @@ import { IUserRoadsideService } from "./interface/IUserRoadsideService";
 import { Role } from "../../types/role";
 import logger from "../../utils/logger";
 import { RoadsideAssistanceStatus, RoadsideQuotationStatus } from "../../types/services";
+import { ITimeBlockRepository } from "../../repositories/interfaces/ITimeBlockRepository";
+import { differenceInMinutes, startOfDay } from "date-fns";
+import { HttpStatus } from "../../types/responseCode";
 
 export class UserRoadsideService implements IUserRoadsideService {
   constructor(
@@ -22,7 +25,8 @@ export class UserRoadsideService implements IUserRoadsideService {
     private _notificationRepository: INotificationRepository,
     private _razorpayRepository: IPaymentGateayRepository,
     private _quotaionRepo: IQuotationRepository,
-    private _paymentRepo: IPaymentRepository
+    private _paymentRepo: IPaymentRepository,
+    private _timeBlockingRepo: ITimeBlockRepository
   ) { }
 
   async getNearByMechanic({ lat, lng }: { lat: number; lng: number }) {
@@ -52,6 +56,16 @@ export class UserRoadsideService implements IUserRoadsideService {
 
     const vehicle = await this._vehicleRepository.findById(vehicleId)
     if (!vehicle) throw new ApiError('Invalid Vehicle Vehicle Details')
+
+    const now = new Date();
+    const start = startOfDay(now);
+    const currentMinutes = differenceInMinutes(now, start);
+    const blockings = await this._timeBlockingRepo.timeBlockByTimeRange(mechanicId, currentMinutes, currentMinutes+30 ,now)
+
+    console.log(blockings);
+    
+    if(blockings) throw new ApiError('Sorry Selected Mechnaic is busy', HttpStatus.BAD_REQUEST)
+
 
     const emergencyAssistance = await this._roadsideAssistanceRepo.create({
       mechanicId,
@@ -89,10 +103,10 @@ export class UserRoadsideService implements IUserRoadsideService {
     const quotation = await this._quotaionRepo.findById(quotationId);
     const payment = await this._paymentRepo.veryfyPaymentStatus(serviceId.toString());
 
-    if (payment?.status === 'success'){
+    if (payment?.status === 'success') {
       logger.info('Payment Already Done')
       throw new ApiError('Payment Already Done')
-    } 
+    }
 
     if (payment?.createdAt) {
       const createdAt = new Date(payment.createdAt).getTime();
@@ -143,14 +157,14 @@ export class UserRoadsideService implements IUserRoadsideService {
       receipt: order.receipt
     });
 
-    if (!paymentDoc){
+    if (!paymentDoc) {
       logger.info('Invalid Payment Details')
       throw new ApiError('Invalid Payment')
-    } 
+    }
 
     const response = await this._roadsideAssistanceRepo.update(order.notes.serviceId, { status: RoadsideAssistanceStatus.IN_PROGRESS, startedAt: new Date(), paymentId: paymentDoc._id })
     if (!response?.quotationId) throw new ApiError('Invalid Service')
-    await this._quotaionRepo.update(response.quotationId, { status: RoadsideQuotationStatus.APPROVED})
+    await this._quotaionRepo.update(response.quotationId, { status: RoadsideQuotationStatus.APPROVED })
 
     logger.info(`payment verified for ${response._id}`)
     return { mechanicId: response.mechanicId }

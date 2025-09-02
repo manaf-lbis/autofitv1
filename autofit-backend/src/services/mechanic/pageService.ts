@@ -55,8 +55,9 @@ export class PageService implements IPageService {
     return { recentActivities, emergencyRequest, pickupSchedules, workOnProgress, workCompleted };
   }
 
+
   async transactions(mechanicId: Types.ObjectId, duration: TransactionDurations): Promise<any> {
- 
+
     const now = new Date();
     let from: Date;
     let groupStage: any;
@@ -65,22 +66,19 @@ export class PageService implements IPageService {
 
     switch (duration) {
       case TransactionDurations.DAY:
-        from = new Date(now.setDate(now.getDate() - 7));
+        from = new Date();
+        from.setHours(0, 0, 0, 0); 
+
         groupStage = {
-          _id: { day: { $dayOfWeek: "$createdAt" } },
+          _id: { hour: { $hour: "$createdAt" } }, 
           net: { $sum: "$netAmount" }
         };
         projectStage = {
           _id: 0,
-          param: {
-            $arrayElemAt: [
-              ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
-              { $subtract: ["$_id.day", 1] }
-            ]
-          },
+          param: { $concat: [{ $toString: "$_id.hour" }, ":00"] },
           net: 1
         };
-        sortStage = { "_id.day": 1 };
+        sortStage = { "_id.hour": 1 };
         break;
 
       case TransactionDurations.WEEK:

@@ -73,20 +73,6 @@ export class RoadsideAssistanceRepository extends BaseRepository<RoadsideAssista
         return services.map(service => service._id);
     }
 
-    // async pagenatedRoadsideHistory({ end, start, userId, role, sortBy }: PagenatedHistoryParams): Promise<PagenatedResponse> {
-
-    //     const query = role === Role.MECHANIC ? { mechanicId: userId } : { userId };
-    //     const sort = sortBy === 'asc' ? 1 : -1;
-    //     const data = await RoadsideAssistanceModel.find(query).sort({ createdAt: sort }).skip(start).limit(end)
-    //         .select('issue description vehicle status startedAt endedAt location.coordinates').lean();
-    //     const count = await RoadsideAssistanceModel.countDocuments(query)
-
-    //     return {
-    //         history: data,
-    //         totalDocuments: count
-    //     }
-    // }
-
     async pagenatedRoadsideHistory({ end, start, userId, role, sortBy, search }: PagenatedHistoryParams): Promise<PagenatedResponse> {
 
         const query: FilterQuery<RoadsideAssistanceDocument> =

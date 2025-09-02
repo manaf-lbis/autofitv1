@@ -42,5 +42,15 @@ export class TimeBlockRepository extends BaseRepository<TimeBlockDocument> imple
 
     }
 
+    async timeBlockByTimeRange(mechanicId: Types.ObjectId, startMinutes: number, endMinutes: number, date?: Date): Promise<TimeBlockDocument | null> {
+        const targetDate = date ? new Date(date) : new Date();
+        targetDate.setHours(0, 0, 0, 0);
+        return await TimeBlockModel.findOne({
+            mechanicId,
+            date: targetDate,
+            startMinutes: { $lt: endMinutes }, endMinutes: { $gt: startMinutes }
+        });
+    }
+
 
 }

@@ -8,13 +8,18 @@ import { LiveAssistanceStatus } from "../../../types/liveAssistance";
 import { IPaymentRepository } from "../../../repositories/interfaces/IPaymentRepository";
 import { ITimeBlockRepository } from "../../../repositories/interfaces/ITimeBlockRepository";
 import { BlockType } from "../../../models/timeBlock";
+import { ITransactionRepository } from "../../../repositories/interfaces/ITransactionRepository";
+import { TransactionStatus } from "../../../types/transaction";
+import { generateTransactionId, getDeductionRate } from "../../../utils/transactionUtils";
+import { ServiceType } from "../../../types/services";
 
 export class LiveAssistancePaymentHandler implements IServicePaymentHandler {
 
     constructor(
         private _liveAssistanceRepository: ILiveAssistanceRepository,
         private _paymentRepository: IPaymentRepository,
-        private _timeBlockingRepo: ITimeBlockRepository
+        private _timeBlockingRepo: ITimeBlockRepository,
+        private _transactionRepo: ITransactionRepository
     ) { }
 
     async makeReadyForPayment(serviceId: Types.ObjectId): Promise<PaymentData> {
@@ -69,9 +74,10 @@ export class LiveAssistancePaymentHandler implements IServicePaymentHandler {
     }
     async verifyPayment(serviceId: Types.ObjectId, verifiedDetails: PaymentVerificationResult): Promise<any> {
 
-        if(verifiedDetails.status !== 'success') throw new ApiError('Payment Failed Try Again', HttpStatus.BAD_REQUEST)
+        if (verifiedDetails.status !== 'success') throw new ApiError('Payment Failed Try Again', HttpStatus.BAD_REQUEST);
+        const deductionRate = getDeductionRate(ServiceType.LIVE);
 
-        await this._paymentRepository.updatePayemtStatus({
+        const paymentDetais = await this._paymentRepository.updatePayemtStatus({
             serviceId: serviceId,
             paymentId: verifiedDetails.paymentId,
             method: verifiedDetails.method,
@@ -79,9 +85,27 @@ export class LiveAssistancePaymentHandler implements IServicePaymentHandler {
             receipt: verifiedDetails.receipt
         });
 
-        const response = await this._liveAssistanceRepository.update(serviceId, { status: LiveAssistanceStatus.ONGOING});
+        if (!paymentDetais) throw new ApiError('Invalid Payment', HttpStatus.BAD_REQUEST)
+        const response = await this._liveAssistanceRepository.update(serviceId, { status: LiveAssistanceStatus.ONGOING });
         if(!response) throw new ApiError('Invalid Service', HttpStatus.BAD_REQUEST)
-        await this._timeBlockingRepo.update(response?.blockedTimeId, {blockType:BlockType.USER_BOOKING});
+
+        await this._transactionRepo.save({
+            serviceId: serviceId,
+            mechanicId: response?.mechanicId,
+            status: TransactionStatus.RECEIVED,
+            deductionAmount: (deductionRate * paymentDetais?.amount) / 100,
+            deductionRate: deductionRate,
+            grossAmount: paymentDetais?.amount,
+            netAmount: paymentDetais?.amount - (deductionRate * paymentDetais?.amount) / 100,
+            description: 'Pretrip Checkup',
+            transactionId: generateTransactionId(ServiceType.PRETRIP),
+            paymentId: paymentDetais._id,
+            userId: response.userId,
+            serviceType: ServiceType.PRETRIP,
+        })
+
+        if (!response) throw new ApiError('Invalid Service', HttpStatus.BAD_REQUEST)
+        await this._timeBlockingRepo.update(response?.blockedTimeId, { blockType: BlockType.USER_BOOKING });
     }
 
 

@@ -35,7 +35,7 @@ export class LiveAssistanceService implements ILiveAssistanceService {
         const blockedMechnaicList = await this._timeBlockingRepo.checkIsBlocked(mechanicIds, currentMinutes, currentMinutes + totalDurationWithBuffer);
 
         const availableMechanics = mechanicIds.filter(
-            (id: Types.ObjectId) => !blockedMechnaicList.map((b:Types.ObjectId) => b.toString()).includes(id.toString())
+            (id: Types.ObjectId) => !blockedMechnaicList.map((b: Types.ObjectId) => b.toString()).includes(id.toString())
         );
 
         if (!availableMechanics.length) throw new ApiError('No Mechanic is available at this time', HttpStatus.BAD_REQUEST);
@@ -61,22 +61,23 @@ export class LiveAssistanceService implements ILiveAssistanceService {
             userId,
         });
 
+
         return {
             bookingId: booking._id,
             mechanicId: randomAvailableMechnaic
         }
     }
 
-    async getDetails(serviceId: Types.ObjectId,userId:Types.ObjectId): Promise<any> {
+    async getDetails(serviceId: Types.ObjectId, userId: Types.ObjectId): Promise<any> {
         const booking = await this._liveAssistanceRepo.getServiceDetails(serviceId);
-        if (!booking || booking.userId.toString() !== userId.toString() ) throw new ApiError('Invalid Service', HttpStatus.BAD_REQUEST);
+        if (!booking || booking.userId.toString() !== userId.toString()) throw new ApiError('Invalid Service', HttpStatus.BAD_REQUEST);
         return booking
     }
 
     async getSessionDetails(serviceId: Types.ObjectId, userId: Types.ObjectId): Promise<any> {
         const booking = await this._liveAssistanceRepo.findById(serviceId);
-        if (!booking || booking.userId.toString() !== userId.toString() ) throw new ApiError('Invalid Service', HttpStatus.BAD_REQUEST);
-        if(booking.endTime <= new Date()) throw new ApiError('Service is already completed', HttpStatus.BAD_REQUEST);
+        if (!booking || booking.userId.toString() !== userId.toString()) throw new ApiError('Invalid Service', HttpStatus.BAD_REQUEST);
+        if (booking.endTime <= new Date()) throw new ApiError('Service is already completed', HttpStatus.BAD_REQUEST);
 
         return {
             userId,
@@ -91,56 +92,56 @@ export class LiveAssistanceService implements ILiveAssistanceService {
 
     async serviceHistory(userId: Types.ObjectId, page: number): Promise<LiveAssistanceHistoryResponse> {
         const itemsPerPage = Number(process.env.ITEMS_PER_PAGE);
-        const start = Number(page) <= 0 ?  0 : (page - 1) * itemsPerPage;
+        const start = Number(page) <= 0 ? 0 : (page - 1) * itemsPerPage;
         const end = start + itemsPerPage;
-        const response = await this._liveAssistanceRepo.pagenatedLiveAssistanceHistory({end,start,userId,role:Role.MECHANIC,sortBy:'desc'})
-        
+        const response = await this._liveAssistanceRepo.pagenatedLiveAssistanceHistory({ end, start, userId, role: Role.MECHANIC, sortBy: 'desc' })
+
         return {
             totalDocuments: response.totalDocuments,
-            hasMore : response.totalDocuments > end,
+            hasMore: response.totalDocuments > end,
             history: response.history
         }
     }
 
-    async getInvoice(serviceId: Types.ObjectId ): Promise<any> {
+    async getInvoice(serviceId: Types.ObjectId): Promise<any> {
         const booking = await this._liveAssistanceRepo.detailedBooking(serviceId);
-        if (!booking ) throw new ApiError('Invalid Service', HttpStatus.BAD_REQUEST);
-        if(booking.status !== LiveAssistanceStatus.COMPLETED) throw new ApiError('Service is not completed', HttpStatus.BAD_REQUEST);
-     
+        if (!booking) throw new ApiError('Invalid Service', HttpStatus.BAD_REQUEST);
+        if (booking.status !== LiveAssistanceStatus.COMPLETED) throw new ApiError('Service is not completed', HttpStatus.BAD_REQUEST);
+
         return generateReceiptPDF({
-            customer:{
+            customer: {
                 name: booking.userId.name,
                 email: booking.userId.email,
                 phone: booking.userId.phone
             },
-            items:[{
-                description : 'Live Assistance',
+            items: [{
+                description: 'Live Assistance',
                 rate: Number(process.env.LIVE_ASSISTANCE_PRICE),
-                qty :1
+                qty: 1
             }],
-            serviceDate :formatDate(booking.createdAt,"dd MMM yyyy"),
-            documentType : 'RECEIPT',
-            notes : `Assistance For the Issue Was Completed on ${formatDate(booking.updatedAt,"dd MMM yyyy")}`,
-            reference : booking._id.toString(),
-            tax:{
-                type : 'percent',
+            serviceDate: formatDate(booking.createdAt, "dd MMM yyyy"),
+            documentType: 'RECEIPT',
+            notes: `Assistance For the Issue Was Completed on ${formatDate(booking.updatedAt, "dd MMM yyyy")}`,
+            reference: booking._id.toString(),
+            tax: {
+                type: 'percent',
                 value: Number(process.env.TAX)
             }
         })
     }
 
-    async markAsCompleted(serviceId: Types.ObjectId, userId: Types.ObjectId, role : Role): Promise<any> {
+    async markAsCompleted(serviceId: Types.ObjectId, userId: Types.ObjectId, role: Role): Promise<any> {
         const booking = await this._liveAssistanceRepo.findById(serviceId);
-        if(role === Role.USER){
-            if (!booking || booking.userId.toString() !== userId.toString() ) throw new ApiError('Invalid Service', HttpStatus.BAD_REQUEST);
-        }else if(role === Role.MECHANIC){
-            if (!booking || booking.mechanicId.toString() !== userId.toString() ) throw new ApiError('Invalid Service', HttpStatus.BAD_REQUEST);
+        if (role === Role.USER) {
+            if (!booking || booking.userId.toString() !== userId.toString()) throw new ApiError('Invalid Service', HttpStatus.BAD_REQUEST);
+        } else if (role === Role.MECHANIC) {
+            if (!booking || booking.mechanicId.toString() !== userId.toString()) throw new ApiError('Invalid Service', HttpStatus.BAD_REQUEST);
         } else {
             throw new ApiError('Invalid User')
         }
 
         await this._timeBlockingRepo.delete(booking.blockedTimeId)
-        await this._liveAssistanceRepo.update(serviceId, {status:LiveAssistanceStatus.COMPLETED});
+        await this._liveAssistanceRepo.update(serviceId, { status: LiveAssistanceStatus.COMPLETED });
 
     }
 

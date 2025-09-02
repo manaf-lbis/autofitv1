@@ -158,11 +158,9 @@ export default function RoadsideAssistance({
     setPage(1)
     setAllItems([])
     setHasMore(true)
-    // Always refetch when query changes, even if page is already 1
     refetch()
   }, [debouncedQuery, refetch])
 
-  // Trigger refetch when page changes (but not for page 1 as it's handled above)
   React.useEffect(() => {
     if (page > 1) {
       refetch()
@@ -321,7 +319,6 @@ export default function RoadsideAssistance({
                 </TableRow>
               ))}
 
-              {/* Loading Skeletons */}
               {isLoadingInitial && (
                 <>
                   {Array.from({ length: 8 }).map((_, i) => (
@@ -330,7 +327,6 @@ export default function RoadsideAssistance({
                 </>
               )}
 
-              {/* Empty State */}
               {!isLoadingInitial && allItems.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={5} className="py-12 text-center">
@@ -353,7 +349,6 @@ export default function RoadsideAssistance({
         </div>
       </div>
 
-      {/* Intersection Observer Target & Load More Indicator */}
       <div ref={loadMoreRef} className="py-4">
         {hasMore ? (
           isLoadingMore ? (

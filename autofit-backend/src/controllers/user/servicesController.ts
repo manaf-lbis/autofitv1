@@ -13,7 +13,7 @@ import { HttpStatus } from '../../types/responseCode';
 export class ServicesController {
     constructor(
         private _userRoadsideService: IUserRoadsideService,
-        private _roadsideService: IRoadsideService
+        private _roadsideService: IRoadsideService,
     ) { }
 
 

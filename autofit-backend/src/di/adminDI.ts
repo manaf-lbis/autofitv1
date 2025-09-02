@@ -56,5 +56,5 @@ const adminPageService = new PageService(mechanicRepository,userRepository,liveA
 export const userController = new UserController(userServices)
 export const pretripController = new PretripController(pretripPlanService)
 export const mechanicController = new MechanicController(mechanicService, profileService)
-export const authController = new AdminAuthController(adminAuthService,googleAuthService)
+export const authController = new AdminAuthController(adminAuthService,googleAuthService,tokenService)
 export const pagesController = new AdminPagesController(adminPageService)
