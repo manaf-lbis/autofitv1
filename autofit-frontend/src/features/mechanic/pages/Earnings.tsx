@@ -8,8 +8,6 @@ import { EarningsDuration, useEarningsQuery } from "@/services/mechanicServices/
 import {
   TrendingUp,
   DollarSign,
-  Download,
-  Filter,
   Minus,
   CreditCard,
   Wallet,
@@ -393,24 +391,7 @@ export default function Earnings() {
                   {selectedPeriod === EarningsDuration.DAY ? "Today's" : "Recent"} • {recentTransactions.length} transactions
                 </CardDescription>
               </div>
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="text-xs px-4 py-2.5 rounded-lg border-slate-200 hover:bg-slate-50 bg-white font-medium transition-colors"
-                >
-                  <Filter className="h-3.5 w-3.5 mr-2" />
-                  Filter
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="text-xs px-4 py-2.5 rounded-lg border-slate-200 hover:bg-slate-50 bg-white font-medium transition-colors"
-                >
-                  <Download className="h-3.5 w-3.5 mr-2" />
-                  Export
-                </Button>
-              </div>
+              
             </div>
           </CardHeader>
           <CardContent className="pt-0">

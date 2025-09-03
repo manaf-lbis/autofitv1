@@ -12,7 +12,7 @@ import { DashboardShimmer } from "../components/dashboard/DashboardShimer"
 
 type Range = "day" | "month" | "year"
 
-export function AdminDashboard() {
+ const  AdminDashboard = ()=> {
   const [range, setRange] = useState<Range>("day")
   const { data, isLoading } = useAdminDashboardQuery({ range })
 
@@ -113,3 +113,6 @@ export function AdminDashboard() {
     </div>
   )
 }
+
+
+export default AdminDashboard
