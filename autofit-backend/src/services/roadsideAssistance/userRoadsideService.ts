@@ -61,8 +61,6 @@ export class UserRoadsideService implements IUserRoadsideService {
     const start = startOfDay(now);
     const currentMinutes = differenceInMinutes(now, start);
     const blockings = await this._timeBlockingRepo.timeBlockByTimeRange(mechanicId, currentMinutes, currentMinutes+30 ,now)
-
-    console.log(blockings);
     
     if(blockings) throw new ApiError('Sorry Selected Mechnaic is busy', HttpStatus.BAD_REQUEST)
 

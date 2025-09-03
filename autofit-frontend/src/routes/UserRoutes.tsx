@@ -14,7 +14,8 @@ import PretripCheckupBooking from "@/features/user/pages/PreTripCheckup/PretripC
 import Checkout from "@/features/user/paymentAndCheckout/Checkout";
 import PretripDetails from "@/features/user/pages/PreTripCheckup/PretripDetails";
 import LiveAssistanceBookingPage from "@/features/user/pages/liveAssistance/LiveAssistanceBookingPage";
-import BookingDetailsPage from "@/features/user/pages/liveAssistance/bookingDetails";
+import BookingDetailsPage from "@/features/user/pages/liveAssistance/BookingDetails";
+
 
 const UserRoutes: React.FC = () => {
   return (
