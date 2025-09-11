@@ -51,7 +51,6 @@ export default function UserProfileDropdown({
       icon: Settings,
       label: "Settings",
       onClick: () => {
-        console.log("Navigate to settings");
         setIsOpen(false);
       },
     },

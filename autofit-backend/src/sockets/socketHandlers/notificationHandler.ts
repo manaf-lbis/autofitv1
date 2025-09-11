@@ -11,8 +11,6 @@ interface NotificationData {
 export const notificationHandler = (socket:Socket)=>{
 
     socket.on('sendNotification',(data:NotificationData)=>{
-        console.log(data);
-
         getIO().emit('newNotification',data)
     })
 

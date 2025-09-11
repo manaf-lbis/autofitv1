@@ -1,4 +1,3 @@
-// useGetMedia.ts
 import { useState, useEffect, useRef } from "react";
 import toast from "react-hot-toast";
 
@@ -88,7 +87,6 @@ export const useGetMedia = (isOpen: boolean): UseGetMediaReturn => {
         streamRef.current = videoStream;
         videoStream.getVideoTracks().forEach((track) => (track.enabled = true));
         if (!mediaState.isMuted) videoStream.getAudioTracks().forEach((track) => (track.enabled = true));
-        console.log("Video stream active:", videoStream.active); // Debug
         updateState({
           stream: videoStream,
           isVideoOn: true,

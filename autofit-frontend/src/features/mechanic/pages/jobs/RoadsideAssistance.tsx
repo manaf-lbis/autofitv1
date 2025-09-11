@@ -194,7 +194,6 @@ export default function RoadsideAssistance({
           !isLoadingMore &&
           allItems.length > 0 
         ) {
-          console.log('Loading more items, current page:', page)
           setPage(prevPage => prevPage + 1)
         }
       },

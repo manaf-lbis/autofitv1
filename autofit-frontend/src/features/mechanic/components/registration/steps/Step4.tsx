@@ -73,9 +73,8 @@ const Step4: React.FC = () => {
       dispatch(setCurrentStep(4))
       location.href = '/admin/dashboard'
 
-    } catch (error) {
+    } catch  {
       dispatch(stopLoading())
-      console.log(error);
     }
   };
 

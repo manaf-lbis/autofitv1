@@ -153,8 +153,6 @@ export class AuthController {
         try {
 
             const userId = req.user?.id
-            console.log(userId);
-
             if (!userId) throw new ApiError("Not authenticated!", HttpStatus.BAD_REQUEST);
 
             await this._authService.logout(userId)
@@ -209,8 +207,6 @@ export class AuthController {
 
             const result = await this._authService.refreshAccessToken(userId);
 
-            console.log('token refreshed');
-
             res.cookie("jwt", result.accessToken, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === "production",
@@ -225,16 +221,6 @@ export class AuthController {
         }
     }
 
-
-    // async allusers(req: Request, res: Response, next: NextFunction): Promise<void> {
-    //     try {
-    //         const result = await this._userRegistrationService.allUsers()
-    //         sendSuccess(res, 'success', result)
-
-    //     } catch (error: any) {
-    //         next(error);
-    //     }
-    // }
 
 }
 

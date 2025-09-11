@@ -4,9 +4,7 @@ type GoogleMapProps = {
   coordinates: [number, number];
 };
 
-const GoogleMapForLocation: React.FC<GoogleMapProps> = ({ coordinates = [0, 0] }) => {
-  console.log(coordinates,'asdasd');
-  
+const GoogleMapForLocation: React.FC<GoogleMapProps> = ({ coordinates = [0, 0] }) => {  
   const position = { lat: coordinates[1], lng: coordinates[0] };
 
   const mapContainerStyle = {

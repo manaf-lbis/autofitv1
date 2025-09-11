@@ -143,8 +143,6 @@ export default function PaymentPage() {
                     onSuccess: paymentSuccess,
                     onFailure: handleFailedPayment,
                 });
-            } else {
-                console.log(`Payment gateway ${selectedGateway} not implemented yet.`);
             }
         } catch (error) {
             console.error("Error initiating payment:", error);

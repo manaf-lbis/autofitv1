@@ -40,7 +40,6 @@ export class AuthController {
             sendSuccess(res, 'Login Successful', result.user);
 
         } catch (error: any) {
-            console.log('here');
             next(error);
         }
     }
@@ -58,8 +57,6 @@ export class AuthController {
             const userId = decoded.id;
 
             const result = await this._authService.refreshAccessToken(userId);
-
-            console.log('token refreshed');
 
             res.cookie("jwt", result.accessToken, {
                 httpOnly: true,

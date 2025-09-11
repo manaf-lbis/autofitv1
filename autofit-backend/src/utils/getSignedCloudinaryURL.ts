@@ -21,9 +21,6 @@ export const getSignedUrl = async (publicId: string, resourceType: 'image' | 'ra
   };
 
   const signature = cloudinary.utils.api_sign_request(params, process.env.CLOUDINARY_API_SECRET);
-  console.log('Current Server Time (Unix):', timestamp);
-  console.log('Signature Params:', params);
-  console.log('Generated Signature:', signature);
 
   const uniqueParam = Date.now();
   const url = cloudinary.url(publicId, {
@@ -36,6 +33,5 @@ export const getSignedUrl = async (publicId: string, resourceType: 'image' | 'ra
     private_cdn: false,
     queryParams: { _t: uniqueParam },
   });
-  console.log('Generated URL with Unique Param:', `${url}&_t=${uniqueParam}`);
   return `${url}&_t=${uniqueParam}`;
 };

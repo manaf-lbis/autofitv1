@@ -43,7 +43,6 @@ export default function PaymentGatewaySelection() {
         status: "success",  
         gateway: paymentData?.data.gateway,
       }).unwrap();
-      // navigate('/user/payment/status/success');
       navigate(`/user/${params.service === 'liveAssistance' ? 'live-assistance' : 'pretrip-checkup'}/${params.id}/details`,{replace: true});
 
     } catch (error: any) {
