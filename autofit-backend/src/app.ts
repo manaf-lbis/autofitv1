@@ -15,6 +15,7 @@ import chatRoute from './routes/common/chatRoutes'
 import assetRoute from './routes/common/assetsRoute'
 import httpLogger from "./utils/httpLogger";
 import morgan from 'morgan'
+import rateLimit from "express-rate-limit";
 
 
 dotenv.config();
@@ -28,15 +29,17 @@ app.use(
   })
 );
 
+const limiter = rateLimit({
+  windowMs: 5 * 60 * 1000, 
+  max: 150, 
+  message: "Too many requests, please try again later."
+});
+
+app.use(limiter);
 app.use(express.json());
 app.use(cookieParser());
 
 connectDB();
-
-// app.use((req, res, next) => {
-//   const delay = 1500; 
-//   setTimeout(() => next(), delay);
-// });
 
 app.use(
   morgan(':method :url :status :res[content-length] - :response-time ms', {
