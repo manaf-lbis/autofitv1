@@ -1,16 +1,16 @@
 import type React from "react"
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Home, User, Wrench, CarFront, Bell, Settings, ChevronRight } from "lucide-react"
+import { User, Wrench, CarFront, Bell, ChevronRight } from "lucide-react"
 import { useLocation, useNavigate } from "react-router-dom"
 
 
 const navItems = [
-  { label: "Dashboard", icon: Home, path: "/user/dashboard" },
+  // { label: "Dashboard", icon: Home, path: "/user/dashboard" },
   { label: "Profile", icon: User, path: "/user/profile", },
   { label: "My Vehicle", icon: CarFront, path: "/user/my-vehicles" },
   { label: "Service History", icon: Wrench, path: "/user/service-history" },
-  { label: "Settings", icon: Settings, path: "/user/settings"},
+  // { label: "Settings", icon: Settings, path: "/user/settings"},
   
 ]
 

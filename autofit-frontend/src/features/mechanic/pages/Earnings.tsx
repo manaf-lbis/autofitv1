@@ -14,7 +14,11 @@ import {
   PieChartIcon,
   BarChart3,
   Activity,
+  CalendarIcon,
 } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { format } from "date-fns";
 
 const useAnimatedCounter = (end: number, duration = 1000) => {
   const [count, setCount] = useState(0);
@@ -68,7 +72,16 @@ const dayOrder = { Mon: 0, Tue: 1, Wed: 2, Thu: 3, Fri: 4, Sat: 5, Sun: 6 };
 
 export default function Earnings() {
   const [selectedPeriod, setSelectedPeriod] = useState<EarningsDuration>(EarningsDuration.YEAR);
-  const { data: earningsData } = useEarningsQuery({ duration: selectedPeriod });
+  const [range, setRange] = useState<{ from?: Date; to?: Date }>({});
+  const { data: earningsData } = useEarningsQuery({
+    duration: selectedPeriod,
+    ...(selectedPeriod === EarningsDuration.CUSTOM && range.from && range.to
+      ? { customFrom: format(range.from, "yyyy-MM-dd"), customTo: format(range.to, "yyyy-MM-dd") }
+      : {}),
+  },{
+    refetchOnMountOrArgChange :true,
+    refetchOnReconnect: true,  
+  });
 
   const processedData = useMemo(() => {
     if (!earningsData) return { data: [], earningsTypeData: [], recentEarnings: [] };
@@ -79,10 +92,11 @@ export default function Earnings() {
       if (selectedPeriod === EarningsDuration.YEAR) return parseInt(param, 10);
       if (selectedPeriod === EarningsDuration.MONTH) return monthOrder[param as keyof typeof monthOrder];
       if (selectedPeriod === EarningsDuration.WEEK) return dayOrder[param as keyof typeof dayOrder];
+      if (selectedPeriod === EarningsDuration.CUSTOM) return new Date(param).getTime();
       return 0;
     };
 
-    chartData.sort((a:any, b:any) => getOrder(a.param) - getOrder(b.param));
+    chartData.sort((a: any, b: any) => getOrder(a.param) - getOrder(b.param));
 
     if (selectedPeriod === EarningsDuration.DAY && chartData.length > 0) {
       chartData[0].param = "Today";
@@ -119,7 +133,11 @@ export default function Earnings() {
   const animatedDeductions = useAnimatedCounter(totalDeductions);
   const animatedGrowth = useAnimatedCounter(Math.abs(growthRate) * 10) / 10;
 
-  const recentTransactions = processedData.recentEarnings.slice(0, selectedPeriod === EarningsDuration.DAY ? 20 : 7);
+  const isDetailedView = selectedPeriod === EarningsDuration.DAY || selectedPeriod === EarningsDuration.CUSTOM;
+  const recentTransactions = processedData.recentEarnings.slice(0, isDetailedView ? 20 : 7);
+
+  const periodLabel = selectedPeriod === EarningsDuration.DAY ? "today" : selectedPeriod === EarningsDuration.CUSTOM ? "selected range" : `this ${selectedPeriod}`;
+  const recentLabel = selectedPeriod === EarningsDuration.DAY ? "Today's" : selectedPeriod === EarningsDuration.CUSTOM ? "Custom Range's" : "Recent";
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -145,6 +163,38 @@ export default function Earnings() {
               {period.label}
             </Button>
           ))}
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant={selectedPeriod === EarningsDuration.CUSTOM ? "default" : "outline"}
+                size="sm"
+                className={`rounded-lg px-4 py-2 text-sm font-medium transition-all ${
+                  selectedPeriod === EarningsDuration.CUSTOM
+                    ? "bg-blue-600 text-white shadow-sm hover:bg-blue-700"
+                    : "bg-white border-slate-200 text-slate-700 hover:bg-slate-50 hover:border-slate-300"
+                }`}
+              >
+                {range.from && range.to ? `${format(range.from, "MMM dd")} - ${format(range.to, "MMM dd")}` : "Custom Range"}
+                <CalendarIcon className="ml-2 h-4 w-4" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0">
+              <Calendar
+                mode="range"
+                selected={{ from: range.from, to: range.to }}
+                onSelect={(selectedRange) => {
+                  if (selectedRange?.from && selectedRange?.to && selectedRange.to <= new Date()) {
+                    setRange({ from: selectedRange.from, to: selectedRange.to });
+                    setSelectedPeriod(EarningsDuration.CUSTOM);
+                  } else if (selectedRange?.from && !selectedRange.to) {
+                    setRange({ from: selectedRange.from, to: undefined });
+                  }
+                }}
+                disabled={(date: Date) => date > new Date()}
+                initialFocus
+              />
+            </PopoverContent>
+          </Popover>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
@@ -260,8 +310,7 @@ export default function Earnings() {
                   </div>
                   <h3 className="text-lg font-semibold text-slate-900 mb-2">No earnings data</h3>
                   <p className="text-sm text-slate-500 max-w-xs">
-                    No earnings recorded for {selectedPeriod === EarningsDuration.DAY ? "today" : `this ${selectedPeriod}`}. Your
-                    earnings chart will appear here once you have transactions.
+                    No earnings recorded for {periodLabel}. Your earnings chart will appear here once you have transactions.
                   </p>
                 </div>
               ) : (
@@ -325,7 +374,7 @@ export default function Earnings() {
                   </div>
                   <h3 className="text-lg font-semibold text-slate-900 mb-2">No income sources</h3>
                   <p className="text-sm text-slate-500 max-w-xs">
-                    No income data available for {selectedPeriod === EarningsDuration.DAY ? "today" : `this ${selectedPeriod}`}.
+                    No income data available for {periodLabel}.
                     Income breakdown will show here once you have earnings.
                   </p>
                 </div>
@@ -336,7 +385,7 @@ export default function Earnings() {
                       <ResponsiveContainer width="100%" height="100%">
                         <PieChart margin={{ top: 10, right: 10, bottom: 10, left: 10 }}>
                           <Pie
-                            data={processedData.earningsTypeData.map((item:any) => ({ ...item, totalNet: totalNetEarnings }))}
+                            data={processedData.earningsTypeData.map((item: any) => ({ ...item, totalNet: totalNetEarnings }))}
                             cx="50%"
                             cy="50%"
                             innerRadius={45}
@@ -344,7 +393,7 @@ export default function Earnings() {
                             paddingAngle={2}
                             dataKey="net"
                           >
-                            {processedData.earningsTypeData.map((entry :any, index:any) => (
+                            {processedData.earningsTypeData.map((entry: any, index: any) => (
                               <Cell key={`cell-${index}`} fill={entry.color} stroke="#ffffff" strokeWidth={2} />
                             ))}
                           </Pie>
@@ -388,10 +437,9 @@ export default function Earnings() {
                   Recent Transactions
                 </CardTitle>
                 <CardDescription className="text-slate-600 text-sm">
-                  {selectedPeriod === EarningsDuration.DAY ? "Today's" : "Recent"} • {recentTransactions.length} transactions
+                  {recentLabel} • {recentTransactions.length} transactions
                 </CardDescription>
               </div>
-              
             </div>
           </CardHeader>
           <CardContent className="pt-0">
@@ -460,13 +508,7 @@ export default function Earnings() {
                 </div>
                 <h3 className="text-xl font-semibold text-slate-900 mb-2">No transactions yet</h3>
                 <p className="text-sm text-slate-500 mb-4 max-w-md mx-auto">
-                  {selectedPeriod === EarningsDuration.DAY
-                    ? "No earnings recorded for today. Your transactions will appear here once you receive payments."
-                    : selectedPeriod === EarningsDuration.WEEK
-                      ? "No transactions found for this week. Check back later or try a different time period."
-                      : selectedPeriod === EarningsDuration.MONTH
-                        ? "No transactions recorded for this month. Your monthly earnings will show up here."
-                        : `No transactions available for the selected ${selectedPeriod} period.`}
+                  No transactions available for the selected period.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-2 justify-center">
                   <Button

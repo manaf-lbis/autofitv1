@@ -6,6 +6,8 @@ import { IPageService } from "./interface/IPageService";
 import { IPretripBookingRepository } from "../../repositories/interfaces/IPretripBookingRepository";
 import { TransactionDurations } from "../../types/transaction";
 import { ITransactionRepository } from "../../repositories/interfaces/ITransactionRepository";
+import { ApiError } from "../../utils/apiError";
+import { HttpStatus } from "../../types/responseCode";
 
 
 
@@ -56,91 +58,128 @@ export class PageService implements IPageService {
   }
 
 
-  async transactions(mechanicId: Types.ObjectId, duration: TransactionDurations): Promise<any> {
 
+  async transactions(mechanicId: Types.ObjectId, duration: TransactionDurations, fromStr?: string, toStr?: string): Promise<any> {
     const now = new Date();
     let from: Date;
+    let to: Date = now;
     let groupStage: any;
     let projectStage: any;
     let sortStage: any;
 
-    switch (duration) {
-      case TransactionDurations.DAY:
-        from = new Date();
-        from.setHours(0, 0, 0, 0); 
+    if (duration === TransactionDurations.CUSTOM) {
+      if (!fromStr || !toStr) {
+        throw new ApiError('From and To dates required', HttpStatus.BAD_REQUEST);
+      }
+      from = new Date(fromStr + 'T00:00:00.000Z');
+      to = new Date(toStr + 'T23:59:59.999Z');
+      if (isNaN(from.getTime()) || isNaN(to.getTime()) || to < from) {
+        throw new ApiError('Invalid date format or range', HttpStatus.BAD_REQUEST);
+      }
+      groupStage = {
+        _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+        net: { $sum: "$netAmount" }
+      };
+      projectStage = {
+        _id: 0,
+        param: "$_id",
+        net: 1
+      };
+      sortStage = { param: 1 };
+    } else {
+      switch (duration) {
+        case TransactionDurations.DAY:
+          from = new Date(now);
+          from.setHours(0, 0, 0, 0);
+          groupStage = {
+            _id: { hour: { $hour: "$createdAt" } },
+            net: { $sum: "$netAmount" }
+          };
+          projectStage = {
+            _id: 0,
+            param: { $concat: [{ $toString: "$_id.hour" }, ":00"] },
+            net: 1
+          };
+          sortStage = { "_id.hour": 1 };
+          break;
 
-        groupStage = {
-          _id: { hour: { $hour: "$createdAt" } }, 
-          net: { $sum: "$netAmount" }
-        };
-        projectStage = {
-          _id: 0,
-          param: { $concat: [{ $toString: "$_id.hour" }, ":00"] },
-          net: 1
-        };
-        sortStage = { "_id.hour": 1 };
-        break;
+        case TransactionDurations.WEEK:
+          from = new Date(now.getFullYear(), now.getMonth(), 1);
+          groupStage = {
+            _id: { week: { $ceil: { $divide: [{ $dayOfMonth: "$createdAt" }, 7] } } },
+            net: { $sum: "$netAmount" }
+          };
+          projectStage = {
+            _id: 0,
+            param: { $concat: ["Week ", { $toString: "$_id.week" }] },
+            net: 1
+          };
+          sortStage = { "_id.week": 1 };
+          break;
 
-      case TransactionDurations.WEEK:
-        from = new Date(now.getFullYear(), now.getMonth(), 1);
-        groupStage = {
-          _id: { week: { $ceil: { $divide: [{ $dayOfMonth: "$createdAt" }, 7] } } },
-          net: { $sum: "$netAmount" }
-        };
-        projectStage = {
-          _id: 0,
-          param: { $concat: ["Week ", { $toString: "$_id.week" }] },
-          net: 1
-        };
-        sortStage = { "_id.week": 1 };
-        break;
+        case TransactionDurations.MONTH: {
+          const fromMonth = new Date(now);
+          fromMonth.setMonth(fromMonth.getMonth() - 11);
+          from = fromMonth;
+          groupStage = {
+            _id: {
+              year: { $year: "$createdAt" },
+              month: { $month: "$createdAt" }
+            },
+            net: { $sum: "$netAmount" }
+          };
+          projectStage = {
+            _id: 0,
+            param: {
+              $concat: [
+                {
+                  $arrayElemAt: [
+                    ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+                    { $subtract: ["$_id.month", 1] }
+                  ]
+                },
+                " ",
+                { $toString: "$_id.year" }
+              ]
+            },
+            net: 1
+          };
+          sortStage = { "_id.year": 1, "_id.month": 1 };
+          break;
+        }
 
-      case TransactionDurations.MONTH:
-        from = new Date(now.setMonth(now.getMonth() - 11));
-        groupStage = {
-          _id: { month: { $month: "$createdAt" } },
-          net: { $sum: "$netAmount" }
-        };
-        projectStage = {
-          _id: 0,
-          param: {
-            $arrayElemAt: [
-              ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
-                "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-              { $subtract: ["$_id.month", 1] }
-            ]
-          },
-          net: 1
-        };
-        sortStage = { "_id.month": 1 };
-        break;
-
-      case TransactionDurations.YEAR:
-        from = new Date(now.setFullYear(now.getFullYear() - 4));
-        groupStage = {
-          _id: { year: { $year: "$createdAt" } },
-          net: { $sum: "$netAmount" }
-        };
-        projectStage = {
-          _id: 0,
-          param: { $toString: "$_id.year" },
-          net: 1
-        };
-        sortStage = { "_id.year": 1 };
-        break;
+        case TransactionDurations.YEAR: {
+          const fromYear = new Date(now);
+          fromYear.setFullYear(fromYear.getFullYear() - 4);
+          from = fromYear;
+          groupStage = {
+            _id: { year: { $year: "$createdAt" } },
+            net: { $sum: "$netAmount" }
+          };
+          projectStage = {
+            _id: 0,
+            param: { $toString: "$_id.year" },
+            net: 1
+          };
+          sortStage = { "_id.year": 1 };
+          break;
+        }
+      }
     }
 
-
-    const earnings = await this._transactionRepo.earnings(mechanicId, from);
-    const data = await this._transactionRepo.durationWiseEarnings(mechanicId, groupStage, projectStage, sortStage, from);
-    const recentEarnings = await this._transactionRepo.recentTransactions(mechanicId)
+    const earnings = await this._transactionRepo.earnings(mechanicId, from, to);
+    const data = await this._transactionRepo.durationWiseEarnings(mechanicId, groupStage, projectStage, sortStage, from, to);
+    const recentEarnings = duration === TransactionDurations.CUSTOM
+      ? await this._transactionRepo.recentTransactions(mechanicId, from, to)
+      : await this._transactionRepo.recentTransactions(mechanicId);
 
     return {
       earnings,
       data,
       recentEarnings
-    }
+    };
   }
+
 
 
 

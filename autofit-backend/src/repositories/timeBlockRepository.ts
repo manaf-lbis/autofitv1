@@ -52,5 +52,14 @@ export class TimeBlockRepository extends BaseRepository<TimeBlockDocument> imple
         });
     }
 
+    async slotCleanup() {
+        const PAYMENT_BUFFER = Number(process.env.PAYMENT_BUFFER) * 60 * 1000;
+        const cutoff = new Date(Date.now() - PAYMENT_BUFFER);
+        return await TimeBlockModel.deleteMany({
+            blockType: BlockType.PAYMENT_DELAY,
+            createdAt: { $lte: cutoff } 
+        });
+    }
+
 
 }

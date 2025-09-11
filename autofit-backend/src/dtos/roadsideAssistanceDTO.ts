@@ -13,8 +13,6 @@ export interface RoadsideAssistanceDTO {
     endedAt: Date | null
 }
 
-
-
 export class RoadsideAssistanceMapper {
 
     static toRoadsideAssistanceInfo(assistance: RoadsideAssistanceDocument): RoadsideAssistanceDTO {
