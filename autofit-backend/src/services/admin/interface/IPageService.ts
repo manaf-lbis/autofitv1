@@ -1,9 +1,25 @@
+// export enum DashboardRange {
+//   DAY = "day",
+//   MONTH = "month",
+//   YEAR = "year",
+//   CUSTOM = "custom"
+// }
+
+
+// export interface IPageService {
+//     dashboard(range:DashboardRange): Promise<any>
+// }
+
+
 export enum DashboardRange {
-  DAY = "day" , MONTH = "month" , YEAR = "year"
-} 
+  DAY = "day",
+  MONTH = "month",
+  YEAR = "year",
+  CUSTOM = "custom"
+}
 
-
+export type GroupBy = 'none' | 'day' | 'month' | 'year'
 
 export interface IPageService {
-    dashboard(range:DashboardRange): Promise<any>
+    dashboard(range: DashboardRange, from?: Date, to?: Date): Promise<any>
 }

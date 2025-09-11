@@ -1,17 +1,18 @@
 import { cn } from "@/lib/utils"
+import { DashboardRange } from "@/services/adminServices/adminApi" 
 
-type Range = "day" | "month" | "year"
+
 
 export function RangeToggle({
   value,
   onChange,
   className,
 }: {
-  value: Range
-  onChange: (next: Range) => void
+  value: DashboardRange
+  onChange: (next: DashboardRange) => void
   className?: string
 }) {
-  const options: Range[] = ["day", "month", "year"]
+  const options: DashboardRange[] = Object.values(DashboardRange)
   return (
     <div
       className={cn(
@@ -42,6 +43,80 @@ export function RangeToggle({
           </button>
         )
       })}
+    </div>
+  )
+}
+
+
+
+
+
+
+
+import { useState } from "react"
+import { Button } from "@/components/ui/button"
+import { Calendar } from "@/components/ui/calendar"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { format } from "date-fns"
+import { CalendarIcon } from "lucide-react"
+
+interface DateRange {
+  from: Date
+  to: Date
+}
+
+interface DateRangePickerProps {
+  value: DateRange | undefined
+  onChange: (range: DateRange | undefined) => void
+  className?: string
+}
+
+export function DateRangePicker({ value, onChange, className }: DateRangePickerProps) {
+  const [open, setOpen] = useState(false)
+
+  return (
+    <div className={cn("grid gap-2", className)}>
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <Button
+            id="date"
+            variant={"outline"}
+            className={cn(
+              "w-[300px] justify-start text-left font-normal",
+              !value && "text-muted-foreground"
+            )}
+          >
+            <CalendarIcon className="mr-2 h-4 w-4" />
+            {value?.from ? (
+              value.to ? (
+                <>
+                  {format(value.from, "LLL dd, y")} - {format(value.to, "LLL dd, y")}
+                </>
+              ) : (
+                format(value.from, "LLL dd, y")
+              )
+            ) : (
+              <span>Pick a date range</span>
+            )}
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-auto p-0" align="start">
+          <Calendar
+            initialFocus
+            mode="range"
+            defaultMonth={value?.from}
+            selected={{ from: value?.from, to: value?.to }}
+            onSelect={(selected) => {
+              if (selected?.from && selected?.to) {
+                onChange({ from: selected.from, to: selected.to })
+                setOpen(false)
+              }
+            }}
+            numberOfMonths={2}
+            disabled={(date) => date > new Date() || date < new Date("1900-01-01")} 
+          />
+        </PopoverContent>
+      </Popover>
     </div>
   )
 }

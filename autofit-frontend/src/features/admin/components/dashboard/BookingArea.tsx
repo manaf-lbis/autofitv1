@@ -1,4 +1,5 @@
 import { Area, AreaChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
+import { DashboardRange } from "@/services/adminServices/adminApi"
 
 const COLORS = {
   live: "#2563eb",
@@ -18,7 +19,7 @@ export function BookingsArea({
   range,
 }: {
   data: BookingsPoint[]
-  range: "day" | "month" | "year"
+  range: DashboardRange
 }) {
   const singlePoint = range === "day"
   return (
