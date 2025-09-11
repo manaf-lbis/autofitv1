@@ -71,9 +71,7 @@ export const roadsideChatHandler = (socket: Socket) => {
 
     });
     
-  } catch (error) {
-    console.log(error);
-
+  } catch  {
     socket.emit("error", { message: "Failed to send message" });
   }
 };

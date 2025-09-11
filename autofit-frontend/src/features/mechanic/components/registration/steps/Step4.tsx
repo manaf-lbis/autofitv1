@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 import { prevStep,setCurrentStep,setLoading,stopLoading } from "../../../slices/registrationSlice";
@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RootState } from "@/store/store";
 import { useRegisterMechanicMutation } from "../../../../../services/mechanicServices/mechanicApi";
-import { useNavigate } from "react-router-dom";
+
 
 
 interface FormData {
@@ -20,9 +20,8 @@ interface FormData {
 const Step4: React.FC = () => {
   const dispatch = useDispatch();
   const { register, handleSubmit, watch, formState: { errors },} = useForm<FormData>();
-  const { currentStep, formData } = useSelector((state: RootState) => state.mechRegistration);
-  const [mechRegistration,{isLoading}] = useRegisterMechanicMutation()
-  const navigate = useNavigate()
+  const { formData } = useSelector((state: RootState) => state.mechRegistration);
+  const [mechRegistration,] = useRegisterMechanicMutation()
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const photoFile = watch("photo")?.[0];
@@ -69,14 +68,13 @@ const Step4: React.FC = () => {
 
     try {
       dispatch(setLoading())
-      const data = await mechRegistration(form)
+      await mechRegistration(form)
       dispatch(stopLoading())
       dispatch(setCurrentStep(4))
       location.href = '/admin/dashboard'
 
-    } catch (error) {
+    } catch  {
       dispatch(stopLoading())
-      console.log(error);
     }
   };
 

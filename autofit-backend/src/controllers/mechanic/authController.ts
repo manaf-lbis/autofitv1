@@ -10,6 +10,7 @@ import { IOtpService } from "../../services/otp/IOtpService";
 import { ITokenService } from "../../services/token/ITokenService";
 import { IMechanicRegistrationService } from "../../services/mechanic/interface/IMechanicRegistrationService";
 import { IGoogleAuthService } from "../../services/auth/mechanic/interface/IGoogleAuthService";
+import { ZodError } from "zod";
 
 export class AuthController {
     constructor(
@@ -39,7 +40,6 @@ export class AuthController {
             sendSuccess(res, 'Login Successful', result.user);
 
         } catch (error: any) {
-            console.log('here');
             next(error);
         }
     }
@@ -57,8 +57,6 @@ export class AuthController {
             const userId = decoded.id;
 
             const result = await this._authService.refreshAccessToken(userId);
-
-            console.log('token refreshed');
 
             res.cookie("jwt", result.accessToken, {
                 httpOnly: true,
@@ -93,6 +91,10 @@ export class AuthController {
             sendSuccess(res, result.message)
 
         } catch (error: any) {
+            if (error instanceof ZodError) {
+                next(new ApiError(error.issues[0].message, HttpStatus.BAD_REQUEST));
+                return
+            }
             next(error);
         }
     }
@@ -118,14 +120,14 @@ export class AuthController {
 
             await this._otpService.verifyOtp(otp, email)
 
-            const { _id } = await this._mechanicRegistrationService.registerUser({
+            const { id } = await this._mechanicRegistrationService.registerUser({
                 name,
                 email,
                 password,
                 mobile,
                 role: role || Role.MECHANIC
             });
-            const token = this._tokenService.generateAccessToken({ id: _id, role })
+            const token = this._tokenService.generateAccessToken({ id, role })
 
             res.cookie('jwt', token, {
                 httpOnly: true,

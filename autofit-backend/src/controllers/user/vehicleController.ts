@@ -30,19 +30,15 @@ export class VehicleController {
         }
     }
 
-    async getVehicles(req: Request, res: Response): Promise<void> {
+    async getVehicles(req: Request, res: Response,next:NextFunction): Promise<void> {
         try {
-
             const userId = new Types.ObjectId(req.user?.id);
             if (!userId) throw new ApiError('user Unauthenticated', HttpStatus.UNAUTHORIZED);
-
             const response = await this._vehicleService.getVehicle(userId)
             sendSuccess(res, 'vehicle Fetch Success', response)
 
-
         } catch (error) {
-            console.log(error);
-
+           next(error)
         }
     }
 

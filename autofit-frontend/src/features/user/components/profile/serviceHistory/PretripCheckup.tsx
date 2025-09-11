@@ -27,7 +27,7 @@ interface Vehicle {
 }
 
 interface PretripRequest {
-  _id: string;
+  id: string;
   vehicle: Vehicle;
   planName: string;
   description: string;
@@ -99,7 +99,7 @@ export default function PretripCheckup() {
         const startTime = formatDateTime(request.startedAt);
         const endTime = request.endedAt ? formatDateTime(request.endedAt) : null;
         return (
-          <Card key={request._id} onClick={() => handleViewDetails(request._id)} className="border border-gray-200 hover:shadow-md transition-all duration-200 bg-white rounded-lg">
+          <Card key={request.id} onClick={() => handleViewDetails(request.id)} className="border border-gray-200 hover:shadow-md transition-all duration-200 bg-white rounded-lg">
             <CardContent className="p-3 sm:p-4 lg:p-5">
               <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4">
                 <div className="flex-1 min-w-0">

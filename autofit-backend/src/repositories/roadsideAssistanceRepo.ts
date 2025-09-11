@@ -1,11 +1,11 @@
-import { Types } from "mongoose";
+import { FilterQuery, Types } from "mongoose";
 import { RoadsideAssistanceDocument, RoadsideAssistanceModel } from "../models/roadsideAssistanceModel";
 import { IRoadsideAssistanceRepo, PagenatedHistoryParams, PagenatedResponse } from "./interfaces/IRoadsideAssistanceRepo";
 import { CreateRoadsideAssistanceDTO } from "../types/services";
 import { ApiError } from "../utils/apiError";
 import { BaseRepository } from "./baseRepository";
 import { HttpStatus } from "../types/responseCode"; import { Role } from "../types/role";
-;
+import { GroupBy } from "../services/admin/interface/IPageService";
 
 export class RoadsideAssistanceRepository extends BaseRepository<RoadsideAssistanceDocument> implements IRoadsideAssistanceRepo {
 
@@ -71,19 +71,104 @@ export class RoadsideAssistanceRepository extends BaseRepository<RoadsideAssista
         return services.map(service => service._id);
     }
 
-    async pagenatedRoadsideHistory({ end, start, userId, role, sortBy }: PagenatedHistoryParams): Promise<PagenatedResponse> {
+    async pagenatedRoadsideHistory({ end, start, userId, role, sortBy, search }: PagenatedHistoryParams): Promise<PagenatedResponse> {
 
-        const query = role === Role.MECHANIC ? { mechanicId: userId } : { userId };
-        const sort = sortBy === 'asc' ? 1 : -1;
-        const data = await RoadsideAssistanceModel.find(query).sort({ createdAt: sort }).skip(start).limit(end)
-            .select('issue description vehicle status startedAt endedAt location.coordinates').lean();
-        const count = await RoadsideAssistanceModel.countDocuments(query)
+        const query: FilterQuery<RoadsideAssistanceDocument> =
+            role === Role.MECHANIC ? { mechanicId: userId } : { userId };
+
+        const sort = sortBy === "asc" ? 1 : -1;
+
+        if (search && search.trim() !== "") {
+            const regex = new RegExp(search, "i");
+            query.$or = [
+                { "vehicle.regNo": regex },
+                { "vehicle.brand": regex },
+                { "vehicle.modelName": regex },
+                { "vehicle.owner": regex },
+                { status: regex },
+                { issue: regex },
+                { description: regex },
+            ];
+        }
+
+        const queryData = RoadsideAssistanceModel.find(query)
+            .sort({ createdAt: sort })
+            .skip(start)
+            .limit(end)
+            .select(
+                "issue description vehicle status startedAt endedAt serviceLocation.coordinates"
+            )
+            .lean();
+
+        if (role === Role.MECHANIC) {
+            queryData.populate("userId", "name email mobile");
+        }
+
+        const data = await queryData.lean();
+        const count = await RoadsideAssistanceModel.countDocuments(query);
+
         return {
             history: data,
-            totalDocuments: count
-        }
+            totalDocuments: count,
+        };
     }
 
 
+    async roadsideAssistanceDetails(start: Date, end: Date, groupBy: GroupBy): Promise<any> {
+        let groupId: any = null
+        let sort: any = {}
+        if (groupBy === 'day') {
+            groupId = {
+                day: { $dayOfMonth: "$createdAt" },
+                month: { $month: "$createdAt" },
+                year: { $year: "$createdAt" }
+            }
+            sort = { "_id.year": 1, "_id.month": 1, "_id.day": 1 }
+        } else if (groupBy === 'month') {
+            groupId = {
+                month: { $month: "$createdAt" },
+                year: { $year: "$createdAt" }
+            }
+            sort = { "_id.year": 1, "_id.month": 1 }
+        } else if (groupBy === 'year') {
+            groupId = { year: { $year: "$createdAt" } }
+            sort = { "_id.year": 1 }
+        }
+
+        const pipeline: any[] = [
+            {
+                $match: {
+                    createdAt: { $gte: start, $lte: end }
+                }
+            },
+            {
+                $lookup: {
+                    from: "payments",
+                    localField: "paymentId",
+                    foreignField: "_id",
+                    as: "payment"
+                }
+            },
+            { $unwind: { path: "$payment", preserveNullAndEmptyArrays: true } },
+            {
+                $group: {
+                    _id: groupId,
+                    totalOrders: { $sum: 1 },
+                    totalAmount: { $sum: "$payment.amount" }
+                }
+            }
+        ]
+
+        if (Object.keys(sort).length > 0) {
+            pipeline.push({ $sort: sort })
+        }
+
+        const result = await RoadsideAssistanceModel.aggregate(pipeline)
+
+        if (groupBy === 'none') {
+            return result[0] || { totalOrders: 0, totalAmount: 0 }
+        }
+        return result
+    }
 
 }

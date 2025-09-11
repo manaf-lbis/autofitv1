@@ -1,4 +1,4 @@
-import React, { SetStateAction, useEffect } from "react";
+import React, { useEffect } from "react";
 import { X,Loader2 } from "lucide-react";
 import FormInput from "@/components/shared/formInput/FormInput";
 import { useUpdateProfileMutation,ProfileData } from "@/services/userServices/profileApi";

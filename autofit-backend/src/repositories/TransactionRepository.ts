@@ -2,16 +2,16 @@ import { Types } from "mongoose";
 import { TransactionDocument, TransactionModel } from "../models/transactionModel";
 import { BaseRepository } from "./baseRepository";
 import { ITransactionRepository } from "./interfaces/ITransactionRepository";
+import { TransactionStatus } from "../types/transaction";
 
 export class TransactionRepository extends BaseRepository<TransactionDocument> implements ITransactionRepository {
     constructor() {
         super(TransactionModel);
     };
 
-    async earnings(mechanicId: Types.ObjectId, from: Date): Promise<any> {
-
+    async earnings(mechanicId: Types.ObjectId, from: Date, to: Date = new Date()): Promise<any> {
         return await TransactionModel.aggregate([
-            { $match: { mechanicId, createdAt: { $gte: from } } },
+            { $match: { mechanicId, createdAt: { $gte: from, $lte: to } } },
             {
                 $group: {
                     _id: '$serviceType',
@@ -26,24 +26,58 @@ export class TransactionRepository extends BaseRepository<TransactionDocument> i
         ]);
     }
 
-    async durationWiseEarnings(mechanicId: Types.ObjectId, groupStage: any, projectStage: any, sortStage: any,from:Date): Promise<any> {
+    async durationWiseEarnings(mechanicId: Types.ObjectId, groupStage: any, projectStage: any, sortStage: any, from: Date, to: Date = new Date()): Promise<any> {
         return await TransactionModel.aggregate([
-            { $match: { mechanicId, createdAt: { $gte: from } } },
+            { $match: { mechanicId, createdAt: { $gte: from, $lte: to } } },
             { $group: groupStage },
             { $project: projectStage },
             { $sort: sortStage }
         ]);
-
     }
 
-    async recentTransactions(mechanicId: Types.ObjectId): Promise<TransactionDocument[]> {
-        return await TransactionModel.find({ mechanicId }).sort({ createdAt: -1 }).limit(20)
-        .select('-_id serviceType netAmount grossAmount description deductionAmount deductionRate status date transactionId');
+    async recentTransactions(mechanicId: Types.ObjectId, from?: Date, to?: Date): Promise<TransactionDocument[]> {
+        const match: any = { mechanicId };
+        if (from || to) {
+            match.createdAt = {};
+            if (from) match.createdAt.$gte = from;
+            if (to) match.createdAt.$lte = to;
+        }
+        return await TransactionModel.find(match).sort({ createdAt: -1 }).limit(20)
+            .select('-_id serviceType netAmount grossAmount description deductionAmount deductionRate status date transactionId');
     }
 
+    async transactionDetails(start: Date, end: Date): Promise<any> {
+        const result = await TransactionModel.aggregate([
+            {
+                $match: {
+                    date: { $gte: start, $lte: end },
+                    status: TransactionStatus.RECEIVED
+                }
+            },
+            {
+                $group: {
+                    _id: null,
+                    revenue: { $sum: "$grossAmount" },
+                    deductions: { $sum: "$deductionAmount" },
+                    net: { $sum: "$netAmount" }
+                }
+            },
+            {
+                $addFields: {
+                    paid: "$net"
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    revenue: 1,
+                    paid: 1,
+                    deductions: 1,
+                    net: 1
+                }
+            }
+        ])
 
-
-
-
-
+        return result[0] || { revenue: 0, paid: 0, deductions: 0, net: 0 }
+    }
 }

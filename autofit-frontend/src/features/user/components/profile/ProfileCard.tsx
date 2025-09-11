@@ -13,7 +13,6 @@ interface UserProfile {
   lastActive: string
 }
 
-// Mock data with more addresses for demo
 const initialProfile: UserProfile = {
   name: "John Doe",
   email: "john.doe@example.com",
@@ -21,20 +20,15 @@ const initialProfile: UserProfile = {
   lastActive: "2 hours ago",
 }
 
-
-
 const ProfileCard = () => {
  
-  const [profile, setProfile] = useState<UserProfile>(initialProfile)
+  const [profile] = useState<UserProfile>(initialProfile)
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false)
-  const [profileForm, setProfileForm] = useState<UserProfile>(initialProfile)
   const {user} = useSelector((state:RootState)=>state.auth)
   
-
   
 
   const handleEditProfile = () => {
-    setProfileForm(profile)
     setIsProfileModalOpen(true)
   }
 

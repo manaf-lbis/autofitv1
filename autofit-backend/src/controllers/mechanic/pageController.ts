@@ -38,21 +38,36 @@ export class PageController {
         }
     }
 
+
     async transactions(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const mechanicId = req.user?.id;
-            const duration = req.query.duration
-            
-            if(!Object.values(TransactionDurations).includes(duration as TransactionDurations)){
-                throw new ApiError('Invalid Duration',HttpStatus.BAD_REQUEST)
+            const duration = req.query.duration as TransactionDurations;
+
+            if (!Object.values(TransactionDurations).includes(duration)) {
+                throw new ApiError('Invalid Duration', HttpStatus.BAD_REQUEST);
             }
 
-            if (!mechanicId) throw new ApiError('Invalid User')
+            let fromStr: string | undefined;
+            let toStr: string | undefined;
+            if (duration === TransactionDurations.CUSTOM) {
+                fromStr = req.query.from as string;
+                toStr = req.query.to as string;
+                if (!fromStr || !toStr) {
+                    throw new ApiError('From and To dates required for custom duration', HttpStatus.BAD_REQUEST);
+                }
+            }
 
-            const transactions = await this._pageService.transactions(new Types.ObjectId(mechanicId), duration as TransactionDurations);
+            if (!mechanicId) throw new ApiError('Invalid User', HttpStatus.BAD_REQUEST);
 
-            sendSuccess(res, 'Successfully Fetched', transactions);
+            const transactionsData = await this._pageService.transactions(
+                new Types.ObjectId(mechanicId),
+                duration,
+                fromStr,
+                toStr
+            );
 
+            sendSuccess(res, 'Successfully Fetched', transactionsData);
         } catch (error: any) {
             next(error);
         }

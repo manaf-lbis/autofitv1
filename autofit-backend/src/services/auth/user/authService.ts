@@ -67,7 +67,7 @@ export class AuthService implements IAuthService {
     const refreshToken = this._tokenService.generateRefreshToken(payload);
 
     await this._userRepository.storeRefreshToken(user._id, refreshToken);
-    return { token: accessToken, user: { name: user.name, role: user.role } };
+    return { token: accessToken, user: { name: user.name, role: user.role, email: user.email } };
   }
 
 

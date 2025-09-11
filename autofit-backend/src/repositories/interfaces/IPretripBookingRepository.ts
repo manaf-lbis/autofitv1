@@ -3,6 +3,7 @@ import { PretripBookingDocument } from "../../models/pretripBooking";
 import { IBaseRepository } from "./IBaseRepository";
 import { PaymentStatus } from "../../types/pretrip";
 import { Role } from "../../types/role";
+import { GroupBy } from "../../services/admin/interface/IPageService";
 
 export interface PagenatedResponse {
     totalDocuments: number;
@@ -27,4 +28,5 @@ export interface IPretripBookingRepository extends IBaseRepository<PretripBookin
     activeWorks(mechanicId: Types.ObjectId): Promise<any>
     completedWorks(mechanicId: Types.ObjectId): Promise<PretripBookingDocument[]>
     pagenatedPretripHistory(params: PagenatedHistoryParams): Promise<PagenatedResponse>
+    pretripBookingDetails(start: Date, end: Date, groupBy: GroupBy): Promise<any>
 }

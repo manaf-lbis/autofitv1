@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 
 
 const LogoutButton = () => {
-    const [logout,{isLoading}] = useLogoutMutation()
+    const [logout] = useLogoutMutation()
     const navigate = useNavigate()
     const [isLoggingOut, setIsLoggingOut] = useState(false);
 
@@ -17,7 +17,7 @@ const LogoutButton = () => {
          await logout().unwrap()
           navigate('/auth/mechanic/login',{replace:true})
           toast.success('Logouted Successfully')
-        } catch (error) {
+        } catch {
           toast.error('Logout Failed ')
         } finally {
           setIsLoggingOut(false);

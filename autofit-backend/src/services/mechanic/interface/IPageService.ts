@@ -23,5 +23,5 @@ export interface IPageService {
     } | null;
   }>;
 
-  transactions(mechanicId: Types.ObjectId,duration:TransactionDurations): Promise<any>;
+  transactions(mechanicId: Types.ObjectId, duration: TransactionDurations, fromStr?: string, toStr?: string): Promise<any>
 }

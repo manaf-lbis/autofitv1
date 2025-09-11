@@ -1,7 +1,7 @@
 import z from 'zod'
 
 export const signupValidation = z.object({
-    name: z.string().min(3, 'Name Requires'),
+    name: z.string().min(3, 'Name Requires').regex(/^[A-Za-z\s]+$/, 'Name must contain only letters'),
     email: z.string().email('Invalid Email'),
     password: z.string().min(6, 'Password must be 6+ characters'),
     mobile: z.string().regex(/^\d{10}$/, 'Mobile must be 10 digits'),

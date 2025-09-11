@@ -5,13 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import StatsCards from "../../components/roadsideAssistance/StatCards";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import ShowNearByMechanic from "@/components/shared/ShowNearByMechanic";
 import { useBookEmergencyAssistanceMutation } from "../../../../services/userServices/servicesApi";
 import { useNavigate } from "react-router-dom";
@@ -51,7 +45,7 @@ export default function MechanicBooking() {
       }).unwrap();
       navigate(`/user/roadside-assistance/${data.id}/details`)
     } catch (error: any) {
-      toast.error(error.message);
+      toast.error(error.data.message);
     }
   };
 

@@ -16,7 +16,7 @@ export interface Vehicle {
 }
 
 export interface PretripRequest {
-    _id: string;
+    id: string;
     vehicle: Vehicle;
     planName: string;
     description: string;
@@ -32,13 +32,11 @@ export interface Mechanic {
 
 export interface Payment {
     amount: number;
-    status: string;
-    paymentId: string;
-    receipt: string;
+
 }
 
 export interface LiveAssistanceRequest {
-    _id: string;
+    id: string;
     mechanic: Mechanic;
     issue: string;
     description: string;
@@ -56,23 +54,23 @@ export interface ServiceHistoryResponse<T = PretripRequest | LiveAssistanceReque
 }
 
 interface ServerPretripRequest {
-    _id: string;
+    id: string;
     vehicleId: { _id: string; regNo: string; brand: string; modelName: string; owner: string };
     schedule: { start: string; end?: string };
-    serviceReportId: { servicePlan: { name: string; description?: string } };
+    servicePlan: { name: string; description?: string } 
     status: PretripRequest["status"];
 }
 
 interface ServerLiveAssistanceRequest {
-    _id: string;
-    mechanicId: { _id: string; name: string; email: string };
+    id: string;
+    mechanicId: { id: string; name: string; email: string };
     issue: string;
     description: string;
     status: LiveAssistanceStatus;
     price: number;
     startTime: string;
     endTime?: string;
-    paymentId: { _id: string; amount: number; status: string; paymentId: string; receipt: string };
+    paymentId: {  amount: number };
 }
 
 export const profileApi = createApi({
@@ -124,15 +122,15 @@ export const profileApi = createApi({
                 totalDocuments: response.data.totalDocuments,
                 hasMore: response.data.hasMore,
                 history: response.data.history.map((item) => ({
-                    _id: item._id,
+                    id: item.id,
                     vehicle: {
                         regNo: item.vehicleId.regNo,
                         brand: item.vehicleId.brand,
                         modelName: item.vehicleId.modelName,
                         owner: item.vehicleId.owner || "Unknown Owner",
                     },
-                    planName: item.serviceReportId.servicePlan.name || "Unknown Plan",
-                    description: item.serviceReportId.servicePlan.description || "No description available",
+                    planName: item.servicePlan.name || "Unknown Plan",
+                    description: item.servicePlan.description || "No description available",
                     status: item.status,
                     startedAt: item.schedule.start,
                     endedAt: item.schedule.end,
@@ -159,7 +157,7 @@ export const profileApi = createApi({
                 totalDocuments: response.data.totalDocuments,
                 hasMore: response.data.hasMore,
                 history: response.data.history.map((item) => ({
-                    _id: item._id,
+                    id: item.id,
                     mechanic: {
                         name: item.mechanicId.name,
                         email: item.mechanicId.email,
@@ -172,9 +170,7 @@ export const profileApi = createApi({
                     endedAt: item.endTime,
                     payment: {
                         amount: item.paymentId.amount,
-                        status: item.paymentId.status,
-                        paymentId: item.paymentId.paymentId,
-                        receipt: item.paymentId.receipt,
+              
                     },
                 })),
             }),

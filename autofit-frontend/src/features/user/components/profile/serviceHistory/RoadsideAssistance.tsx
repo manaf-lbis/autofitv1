@@ -133,9 +133,9 @@ export default function RoadsideAssistance() {
 
         return (
           <Card
-            key={request._id}
+            key={request.id}
             className="border border-gray-200 hover:shadow-md transition-all duration-200 bg-white rounded-lg"
-            onClick={() => handleViewDetails(request._id)}
+            onClick={() => handleViewDetails(request.id)}
           >
             <CardContent className="p-3 sm:p-4 lg:p-5">
               <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4">

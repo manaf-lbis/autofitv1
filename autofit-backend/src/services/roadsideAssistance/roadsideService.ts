@@ -4,14 +4,15 @@ import { RoadsideAssistanceDocument } from "../../models/roadsideAssistanceModel
 import { IQuotationRepository } from "../../repositories/interfaces/IQuotationRepository";
 import { QuotationDocument } from "../../models/quotationModel";
 import { IMechanicProfileRepository } from "../../repositories/interfaces/IMechanicProfileRepository";
-import { IRoadsideService } from "./interface/IRoadsideService";
+import { IRoadsideService, LiveAssistanceHistoryResponse } from "./interface/IRoadsideService";
 import { ITransactionRepository } from "../../repositories/interfaces/ITransactionRepository";
 import { TransactionStatus } from "../../types/transaction";
 import { generateTransactionId, getDeductionRate } from "../../utils/transactionUtils";
-import { ServiceType } from "../../types/services";
+import { RoadsideAssistanceStatus, RoadsideQuotationStatus, ServiceType } from "../../types/services";
 import { IPaymentRepository } from "../../repositories/interfaces/IPaymentRepository";
 import { generateReceiptPDF } from "../../utils/templates/receiptTemplate";
 import { formatDate } from "date-fns";
+import { Role } from "../../types/role";
 
 export class RoadsideService implements IRoadsideService {
   constructor(
@@ -24,7 +25,7 @@ export class RoadsideService implements IRoadsideService {
   ) { }
 
   async serviceDetails(serviceId: Types.ObjectId) {
-    return await this._roadsideAssistanceRepo.findById(serviceId)
+    return await this._roadsideAssistanceRepo.findById(serviceId);
   }
 
   async updateStatus(userId: Types.ObjectId, serviceId: Types.ObjectId, entity: Partial<RoadsideAssistanceDocument>) {
@@ -64,22 +65,22 @@ export class RoadsideService implements IRoadsideService {
 
   async createQuotation(entity: Partial<QuotationDocument>) {
     const { _id, serviceId } = await this._quotationRepo.save(entity);
-    return await this._roadsideAssistanceRepo.update(serviceId, { quotationId: _id, status: "quotation_sent" });
+    return await this._roadsideAssistanceRepo.update(serviceId, { quotationId: _id, status: RoadsideAssistanceStatus.QUOTATION_SENT });
   }
 
   async cancelQuotation({ serviceId }: { serviceId: Types.ObjectId }) {
-    const response = await this._roadsideAssistanceRepo.update(serviceId, { status: 'canceled' })
+    const response = await this._roadsideAssistanceRepo.update(serviceId, { status: RoadsideAssistanceStatus.CANCELED })
     if (response) {
-      await this._quotationRepo.update(response?.quotationId as Types.ObjectId, { status: 'rejected' });
+      await this._quotationRepo.update(response?.quotationId as Types.ObjectId, { status: RoadsideQuotationStatus.REJECTED });
       await this._mechanicProfileRepo.findByMechanicIdAndUpdate(response?.mechanicId, { availability: 'available' })
     }
   }
 
   async cancelService({ serviceId }: { serviceId: Types.ObjectId }) {
 
-    const response = await this._roadsideAssistanceRepo.update(serviceId, { status: 'canceled' })
+    const response = await this._roadsideAssistanceRepo.update(serviceId, { status: RoadsideAssistanceStatus.CANCELED })
     if (response?.quotationId) {
-      await this._quotationRepo.update(response?.quotationId as Types.ObjectId, { status: 'rejected' });
+      await this._quotationRepo.update(response?.quotationId as Types.ObjectId, { status: RoadsideQuotationStatus.REJECTED });
     }
 
     if (response) {
@@ -87,7 +88,7 @@ export class RoadsideService implements IRoadsideService {
     }
   }
 
-   async getInvoice(params: { serviceId: Types.ObjectId; userId: Types.ObjectId }): Promise<Buffer> {
+  async getInvoice(params: { serviceId: Types.ObjectId; userId: Types.ObjectId }): Promise<Buffer> {
     const { serviceId, userId } = params;
 
     if (!Types.ObjectId.isValid(serviceId) || !Types.ObjectId.isValid(userId)) {
@@ -98,29 +99,27 @@ export class RoadsideService implements IRoadsideService {
     if (!service) throw new Error("Service not found");
     if (service.status !== "completed") throw new Error("Service not completed");
 
-    if(!service.quotationId) throw new Error("No Serive Updated");
+    if (!service.quotationId) throw new Error("No Serive Updated");
     const quotation = await this._quotationRepo.findById(service.quotationId);
 
-    if(!quotation) throw new Error("No Serive Updated");
+    if (!quotation) throw new Error("No Serive Updated");
     if (quotation.status !== "approved") throw new Error("Quotation not approved");
 
     const items = quotation.items.map((item) => {
       return {
-        description :item.name,
-        rate :item.price,
-        qty : item.quantity
+        description: item.name,
+        rate: item.price,
+        qty: item.quantity
       }
     })
 
-    
-   
     return generateReceiptPDF({
-      customer: { 
+      customer: {
         name: 'sanitizedCustomerName',
-         email: "manaf@gmail.com",
-          phone: "1234567890"
-         },
-      items:items,
+        email: "manaf@gmail.com",
+        phone: "1234567890"
+      },
+      items: items,
       serviceDate: formatDate(service?.endedAt!, "dd MMM yyyy") ?? new Date().toISOString(),
       discount: { type: "percent", value: 0 },
       notes: `Service For the ${service.description} Completed Successfully! Thank you for using Autofit!!`,
@@ -128,6 +127,22 @@ export class RoadsideService implements IRoadsideService {
       documentType: "INVOICE",
       reference: serviceId.toString(),
     });
+  };
+
+
+  async serviceHistory(mechanicId: Types.ObjectId, page: number, search?: string): Promise<LiveAssistanceHistoryResponse> {
+
+    const itemsPerPage = Number(process.env.ITEMS_PER_PAGE);
+    const start = Number(page) <= 0 ? 0 : (page - 1) * itemsPerPage;
+    const end = start + itemsPerPage;
+
+    const response = await this._roadsideAssistanceRepo.pagenatedRoadsideHistory({ end, start, role: Role.MECHANIC, userId: mechanicId, search });
+    return {
+      totalDocuments: response.totalDocuments,
+      hasMore: response.totalDocuments > end,
+      history: response.history
+    }
+
   }
 
 

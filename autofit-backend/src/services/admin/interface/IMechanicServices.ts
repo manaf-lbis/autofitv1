@@ -1,9 +1,11 @@
 import { Types } from "mongoose";
 import { MechanicDocument } from "../../../models/mechanicModel";
 import { MechanicProfileDocument } from "../../../models/mechanicProfileModel";
+import { AdminMechanicDTO } from "../../../dtos/mechnaicDTO";
+import { MechanicProfileDetails } from "../../../dtos/mechanicProfileDTO";
 
 export interface PaginationResponse {
-  users: MechanicProfileDocument[];
+  users: AdminMechanicDTO[];
   total: number;
   page: number;
   totalPages: number;
@@ -17,10 +19,14 @@ export interface PagenateParams<T> {
   sortField?: keyof T
 }
 
+export interface MechanicDetails {
+  mechanic: AdminMechanicDTO,
+  mechanicProfile: MechanicProfileDetails | null
+}
 
 export interface IMechanicService {
-  allUsers(params: PagenateParams<MechanicDocument>): Promise<{ users: MechanicDocument[]; total: number; page: number; totalPages: number}>;
-  updataUser(data: { userId: Types.ObjectId; data: Partial<MechanicDocument>; }): Promise<void>;
-  mechanicDetails(data: { userId: Types.ObjectId; }): Promise<{ mechanic: MechanicDocument | null; mechanicProfile: MechanicProfileDocument | null; }>;
-  mechanicApplications(params: PagenateParams<MechanicProfileDocument>): Promise<{ users: MechanicProfileDocument[]; total: number; page: number; totalPages: number }>;
+  allUsers(params: PagenateParams<MechanicDocument>): Promise<PaginationResponse>;
+  updataUser(data: { userId: Types.ObjectId; data: Partial<MechanicDocument> }): Promise<void>;
+  mechanicDetails(data: { userId: Types.ObjectId; }): Promise<MechanicDetails>;
+  mechanicApplications(params: PagenateParams<MechanicProfileDocument>): Promise<any>;
 }

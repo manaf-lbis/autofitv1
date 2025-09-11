@@ -7,11 +7,13 @@ import { HttpStatus } from "../../types/responseCode";
 import { Role } from "../../types/role";
 import { IAdminAuthService } from "../../services/auth/admin/interface/IAdminAuthService";
 import { IAdminGoogleAuthService } from "../../services/auth/admin/interface/IAdminGoogleAuthService";
+import { ITokenService } from "../../services/token/ITokenService";
 
 export class AdminAuthController {
   constructor(
     private _adminAuthService: IAdminAuthService,
-    private _googleAuthService: IAdminGoogleAuthService
+    private _googleAuthService: IAdminGoogleAuthService,
+    private _tokenService: ITokenService
   ) {}
 
   async login(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -102,7 +104,9 @@ export class AdminAuthController {
       const token = req.cookies.jwt || req.headers.authorization?.split(" ")[1];
       if (!token) throw new ApiError("No token provided", HttpStatus.UNAUTHORIZED);
 
-      const userId = await this._adminAuthService.validateRefreshToken(token);
+      const decoded = this._tokenService.verifyToken(token, true);
+      const userId = decoded.id;
+
       const result = await this._adminAuthService.refreshAccessToken(userId);
 
       res.cookie("jwt", result.accessToken, {

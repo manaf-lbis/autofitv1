@@ -2,6 +2,7 @@ import { Types } from "mongoose";
 import { LiveAssistanceDocument } from "../../models/liveAssistanceModel";
 import { IBaseRepository } from "./IBaseRepository";
 import { Role } from "../../types/role";
+import { GroupBy } from "../../services/admin/interface/IPageService";
 
 export interface PagenatedResponse {
     totalDocuments: number;
@@ -22,5 +23,7 @@ export interface ILiveAssistanceRepository extends IBaseRepository<LiveAssistanc
     pagenatedLiveAssistanceHistory(params: PagenatedHistoryParams): Promise<PagenatedResponse>
     getServiceDetails(serviceId: Types.ObjectId): Promise<any>
     activeBookingsByMechanicId(mechanicId: Types.ObjectId): Promise<LiveAssistanceDocument | null>
+    findLatest(start?: Date, end?: Date): Promise<LiveAssistanceDocument[]>
+    liveAssistanceDetails(start: Date, end: Date, groupBy: GroupBy): Promise<any>
     
 }   

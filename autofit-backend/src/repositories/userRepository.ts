@@ -96,5 +96,13 @@ export class UserRepository extends BaseRepository<UserDocument> implements IUse
             .exec();
     }
 
+    async overallUserStatusSummary(): Promise<any> {
+        return await UserModel.aggregate([
+            { $group: { _id: '$status', count: { $sum: 1 } } }
+        ]);
+
+    }
+
+
 
 }

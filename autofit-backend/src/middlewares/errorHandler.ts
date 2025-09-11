@@ -3,7 +3,7 @@ import { ApiError } from '../utils/apiError';
 import { HttpStatus } from '../types/responseCode';
 import logger from '../utils/logger';
 
-export const errorHandler = (err: ApiError, req: Request, res: Response, next:NextFunction ) => {
+export const errorHandler = (err: ApiError, req: Request, res: Response, _next:NextFunction ) => {
 
   logger.error(err.message);
   console.log(err);

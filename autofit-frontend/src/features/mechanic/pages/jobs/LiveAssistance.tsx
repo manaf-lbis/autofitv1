@@ -21,7 +21,7 @@ interface ActiveCall {
   mechanicId: string;
 }
 
-export function LiveAssistance() {
+const LiveAssistance = () => {
   const { data, isFetching } = useGetActiveCallsQuery(undefined, {
     refetchOnMountOrArgChange: true,
     refetchOnFocus: true,
@@ -169,3 +169,7 @@ export function LiveAssistance() {
     </div>
   );
 }
+
+
+
+export default LiveAssistance

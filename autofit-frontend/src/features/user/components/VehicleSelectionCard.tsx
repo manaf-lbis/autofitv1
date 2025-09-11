@@ -81,10 +81,10 @@ const VehicleSelectionCard: React.FC<Props> = ({ selectedVehicle, setSelectedVeh
 
             {vehicleData?.data?.map((vehicle: any) => (
               <div
-                key={vehicle._id}
-                onClick={() => handleVehicleSelect(vehicle._id)}
+                key={vehicle.id}
+                onClick={() => handleVehicleSelect(vehicle.id)}
                 className={`p-5 sm:p-6 rounded-lg border-2 cursor-pointer transition-all ${
-                  selectedVehicle === vehicle._id
+                  selectedVehicle === vehicle.id
                     ? "border-blue-400 bg-blue-50/50"
                     : "border-gray-100 bg-gray-50 hover:border-gray-200"
                 }`}

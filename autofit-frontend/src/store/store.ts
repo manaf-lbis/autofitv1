@@ -18,6 +18,7 @@ import { pretripMechanicApi } from "@/services/mechanicServices/pretripMechanicA
 import { paymentApi } from "@/services/userServices/paymentApi";
 import { liveAssistanceApi } from "@/services/userServices/liveAssistanceApi";
 import { mechanicLiveAssistanceApi } from "@/services/mechanicServices/mechanicLiveAssistanceApi";
+import { adminApi } from "@/services/adminServices/adminApi";
 
 
 import authReducer from "../features/auth/slices/authSlice";
@@ -55,7 +56,8 @@ export const store = configureStore({
     [pretripMechanicApi.reducerPath]: pretripMechanicApi.reducer,
     [paymentApi.reducerPath]: paymentApi.reducer,
     [liveAssistanceApi.reducerPath]: liveAssistanceApi.reducer,
-    [mechanicLiveAssistanceApi.reducerPath]: mechanicLiveAssistanceApi.reducer
+    [mechanicLiveAssistanceApi.reducerPath]: mechanicLiveAssistanceApi.reducer,
+    [adminApi.reducerPath]: adminApi.reducer
 
 
   },
@@ -80,7 +82,8 @@ export const store = configureStore({
       pretripMechanicApi.middleware,
       paymentApi.middleware,
       liveAssistanceApi.middleware,
-      mechanicLiveAssistanceApi.middleware
+      mechanicLiveAssistanceApi.middleware,
+      adminApi.middleware
     ),
 });
 

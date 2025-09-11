@@ -17,6 +17,7 @@ import { motion } from "framer-motion";
 import { formatDateTime } from "@/lib/dateFormater";
 import { initSocket } from "@/lib/socket";
 import ChatBubble from "../../components/ChatBubble";
+import toast from "react-hot-toast";
 
 type ServiceStatus = "assigned" | "on_the_way" | "analysing" | "quotation_sent" | "in_progress" | "completed" | "canceled";
 
@@ -69,8 +70,8 @@ export default function RoadsideDetails() {
       await rejectQuotation({ serviceId: params.id as string }).unwrap();
       setIsCancelled(true);
       setShowQuotationModal(false);
-    } catch (error) {
-      console.log("Rejection error:", error);
+    } catch {
+      toast.error("Failed to reject quotation");
     }
     setIsRejecting(false);
   };
@@ -80,8 +81,8 @@ export default function RoadsideDetails() {
     try {
       await cancelBooking({ serviceId: params.id as string }).unwrap();
       setIsCancelled(true);
-    } catch (error) {
-      console.log("Cancellation error:", error);
+    } catch {
+      toast.error("Failed to cancel booking");
     }
     setIsCancelling(false);
     setShowCancelModal(false);
@@ -102,8 +103,8 @@ export default function RoadsideDetails() {
       };
       const queryString = new URLSearchParams(query).toString();
       navigate(`/user/payment/${data.orderId}?${queryString}`);
-    } catch (error) {
-      console.log("Payment initiation error:", error);
+    } catch {
+      toast.error("Failed to initiate payment");
     }
   };
 

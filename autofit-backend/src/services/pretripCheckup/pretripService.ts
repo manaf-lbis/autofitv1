@@ -235,6 +235,7 @@ export class PretripService implements IPretripService {
     }
 
     async getNearbyMechanics(params: { lat: number; lng: number }): Promise<any> {
+        await this._timeBlockingRepo.slotCleanup()
         const nearestMechanics = await this._mechanicProfileRepository.findMechnaicWithRadius({
             radius: 10,
             lat: params.lat,
@@ -346,7 +347,6 @@ export class PretripService implements IPretripService {
 
     async createReport(mechanicId: Types.ObjectId, serviceId: Types.ObjectId, report: Report[], mechanicNotes: string): Promise<any> {
         try {
-            console.log(report, mechanicNotes, serviceId);
             reportItemsSchema.parse(report);
             const booking = await this._pretripBookingRepository.findById(serviceId);
 
