@@ -5,7 +5,8 @@ import { PretripController } from "../controllers/user/pretripController";
 import { ProfileController } from "../controllers/user/profileController";
 import { ServicesController } from "../controllers/user/servicesController";
 import { VehicleController } from "../controllers/user/vehicleController";
-import { GoogleMapRepository } from "../repositories/googleMapRepository";
+import { GoogleMapRepository } from "../repositories/GoogleMapRepository";
+// import { GoogleMapRepository } from "../repositories/googleMapRepository";
 import { LiveAsistanceRepository } from "../repositories/liveAssistanceRepository";
 import { MechanicProfileRepository } from "../repositories/mechanicProfileRepository";
 import { NotificationRepository } from "../repositories/notificationRepository";
@@ -48,6 +49,7 @@ import { ServiceType } from "../types/services";
 
 
 
+
 const userRepository = new UserRepository();
 const otpRepository = new OtpRepository();
 const tokenService = new TokenService();
@@ -62,8 +64,9 @@ const paymentGatewayResolver = new PaymentGatewayResolver([{ name:PaymentGateway
 const paymentRepository = new PaymentRepository()
 const liveAssistanceRepo = new LiveAsistanceRepository()
 const timeBlockingRepository = new TimeBlockRepository()
+const transactionRepo = new TransactionRepository()
 const pretripPaymentHandler = new PretripPaymentHandler(pretripBookingRepository,paymentRepository,timeBlockingRepository);
-const liveAssistancePaymentHandler = new LiveAssistancePaymentHandler(liveAssistanceRepo,paymentRepository,timeBlockingRepository)
+const liveAssistancePaymentHandler = new LiveAssistancePaymentHandler(liveAssistanceRepo,paymentRepository,timeBlockingRepository,transactionRepo)
 const servicePaymentHanleResolver = new ServicePaymentHandleResolver([{type:ServiceType.PRETRIP,handler:pretripPaymentHandler},{type:ServiceType.LIVE,handler:liveAssistancePaymentHandler}]);
 const checkoutService = new CheckoutService(pretripBookingRepository,paymentGatewayResolver,servicePaymentHanleResolver,paymentRepository,liveAssistanceRepo)
 const workingHoursRepository = new WorkingHoursRepository()
@@ -74,7 +77,6 @@ const pretripPlanService = new PretripPlanService(pretripFeaterRepository,pretri
 const mechanicProfileRepository = new MechanicProfileRepository()
 const googleMapRepo = new GoogleMapRepository()
 const pretripReportRepository = new PretripReportRepository()
-const transactionRepo = new TransactionRepository()
 const pretripService = new PretripService(mechanicProfileRepository,googleMapRepo,pretripBookingRepository,pretripPlanRepository,workingHoursRepository,timeBlockingRepository,pretripReportRepository, transactionRepo,paymentRepository)
 const roadsideAssistanceRepo = new RoadsideAssistanceRepository()
 const profileService = new UserProfileService(userRepository,roadsideAssistanceRepo, pretripBookingRepository,liveAssistanceRepo)
@@ -83,7 +85,7 @@ const quotationRepo = new QuotationRepository()
 const notificationRepository = new NotificationRepository()
 const roadsideService = new RoadsideService(roadsideAssistanceRepo, quotationRepo,mechanicProfileRepository,transactionRepo,paymentRepository)
 const razorpayRepository = new RazorpayRepository()
-const roadsideAssistanceService = new UserRoadsideService(mechanicProfileRepository,googleMapRepo,roadsideAssistanceRepo,vehicleRepository,notificationRepository,razorpayRepository,quotationRepo,paymentRepository)
+const roadsideAssistanceService = new UserRoadsideService(mechanicProfileRepository,googleMapRepo,roadsideAssistanceRepo,vehicleRepository,notificationRepository,razorpayRepository,quotationRepo,paymentRepository,timeBlockingRepository)
 const vehicleBrands = new VehicleBrandRepository()
 const vehicleService = new VehicleService(vehicleRepository,vehicleBrands)
 

@@ -8,6 +8,7 @@ import { PaymentVerificationResult } from "../interface/IPaymentGateway";
 import { IPaymentRepository } from "../../../repositories/interfaces/IPaymentRepository";
 import { ITimeBlockRepository } from "../../../repositories/interfaces/ITimeBlockRepository";
 import { BlockType } from "../../../models/timeBlock";
+import logger from "../../../utils/logger";
 
 
 export class PretripPaymentHandler implements IServicePaymentHandler {
@@ -55,7 +56,7 @@ export class PretripPaymentHandler implements IServicePaymentHandler {
   async verifyPayment(serviceId: Types.ObjectId, verificationDetails: PaymentVerificationResult): Promise<any> {
 
     if (verificationDetails.status !== 'success') {
-      console.log('Payment failed');
+      logger.error('payment failed')
     } else {
 
       await this._paymentRepository.updatePayemtStatus({

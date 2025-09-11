@@ -19,7 +19,6 @@ export class MechanicController {
     async getAllMechanic(req: Request, res: Response, next: NextFunction) {
         try {
             const { page = '1', limit = '10', search, sortField = 'createdAt', sortOrder = 'desc' } = req.query;
-console.log('heoooooooooo');
 
             const result = await this._mechanicService.allUsers({
                 page: parseInt(page as string),

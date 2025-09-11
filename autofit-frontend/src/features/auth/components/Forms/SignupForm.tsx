@@ -4,7 +4,6 @@ import { Link } from 'react-router-dom';
 import FormInput from '@/components/shared/formInput/FormInput';
 import { useForm } from 'react-hook-form';
 import { useSignupMutation } from '@/services/authServices/authApi';
-import { toast } from 'react-toastify';
 import OtpForm from '@/features/auth/components/Forms/OtpForm';
 import { Loader2, X } from 'lucide-react';
 import { ApiError } from '@/types/apiError';

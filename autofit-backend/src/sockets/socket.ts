@@ -22,7 +22,6 @@ export const initSocket = (server: http.Server): Server => {
   });
 
   io.on("connection", async (socket: Socket) => {
-  console.log("connected");
 
   try {
     const { id: userId, role: userRole, name } = await socketAuthMiddleware(socket);
@@ -34,7 +33,6 @@ export const initSocket = (server: http.Server): Server => {
     userSocketMap.get(userId)!.socketIds.add(socket.id);
 
     socket.on("disconnect", () => {
-      console.log("disconnected");
       const userData = userSocketMap.get(userId);
       if (userData) {
         userData.socketIds.delete(socket.id);

@@ -1,5 +1,5 @@
 import mongoose, { Schema, Types, Document } from "mongoose";
-import { Quotation } from "../types/services";
+import { Quotation, RoadsideQuotationStatus } from "../types/services";
 
 
 export interface QuotationDocument extends Quotation, Document<Types.ObjectId> {}
@@ -37,8 +37,8 @@ const quotationSchema: Schema<QuotationDocument> = new Schema({
     },
     status: {
         type: String,
-        enum: ['pending', 'approved', 'rejected'],
-        default: 'pending',
+        enum: Object.values(RoadsideQuotationStatus),
+        default: RoadsideQuotationStatus.PENDING,
         required: true
     },
     rejectedAt: {

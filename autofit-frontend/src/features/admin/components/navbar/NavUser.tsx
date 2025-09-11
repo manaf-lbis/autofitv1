@@ -8,7 +8,6 @@ import toast from "react-hot-toast";
 import { clearUser } from "@/features/auth/slices/authSlice";
 import { useLogoutMutation } from "@/services/authServices/authApi";
 import { useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
 
 
 export function NavUser({ user,}: {
@@ -20,9 +19,8 @@ export function NavUser({ user,}: {
 }) {
 
   const { isMobile } = useSidebar();
-  const [logout,{isLoading}] = useLogoutMutation()
+  const [logout] = useLogoutMutation()
   const dispatch = useDispatch()
-  const navigate = useNavigate()
 
    const handleLogout = async () => {
       try {
@@ -30,7 +28,7 @@ export function NavUser({ user,}: {
         dispatch(clearUser());
         window.location.href = '/auth/admin/login'
         toast.success("Logged out successfully");
-      } catch (error) {
+      } catch {
         toast.error("Logout failed");
       }
     };

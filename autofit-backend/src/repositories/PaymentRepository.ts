@@ -26,4 +26,6 @@ export class PaymentRepository extends BaseRepository<PaymentDocument> implement
         return await PaymentModel.findOneAndUpdate({ serviceId: entity.serviceId }, {...entity },{new: true});
     }
 
+
+
 }

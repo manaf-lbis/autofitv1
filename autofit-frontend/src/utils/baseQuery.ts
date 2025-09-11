@@ -48,8 +48,6 @@ export const baseQueryWithRefresh = async (args: any, api: any, extraOptions: an
       document.cookie = 'jwt=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/';
       return { error: { status: 401, data: "Token refresh failed" } };
     }
-  } else if (result?.error?.status === 401 && isLoginRequest) {
-    console.log('Login request 401, preserving server error:', result.error);
   }
 
   if ('invalidatesTags' in result && result.invalidatesTags === undefined) {

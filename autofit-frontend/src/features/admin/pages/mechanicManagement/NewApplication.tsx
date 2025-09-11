@@ -1,17 +1,5 @@
 import { useState, useEffect, useRef } from "react"
-import {
-  MoreHorizontal,
-  ArrowUpDown,
-  Eye,
-  CheckCircle,
-  X,
-  Search,
-  Calendar,
-  Mail,
-  Phone,
-  User,
-  FileText,
-} from "lucide-react"
+import { MoreHorizontal, ArrowUpDown, Eye, CheckCircle, X, Search, Calendar, Mail, Phone, User, FileText } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { useNavigate } from "react-router-dom"
@@ -20,9 +8,9 @@ import { useGetMechanicApplicationsQuery } from "../../../../services/adminServi
 type ApplicationStatus = "pending" | "approved" | "rejected" | "under_review"
 
 interface MechanicApplication {
-  _id: string
+  id: string
   mechanicId: {
-    _id: string
+    id: string
     name: string
     email: string
     mobile: string
@@ -57,7 +45,7 @@ const NewApplication: React.FC = () => {
     if (data?.data?.users) {
       setAllApplications((prev) => {
         const newApplications = data.data.users.filter(
-          (newApp: MechanicApplication) => !prev.some((app) => app._id === newApp._id)
+          (newApp: MechanicApplication) => !prev.some((app) => app.id === newApp.id)
         )
         return [...prev, ...newApplications]
       })
@@ -246,7 +234,7 @@ const NewApplication: React.FC = () => {
                 </tr>
               ) : (
                 filteredData.map((application) => (
-                  <tr key={application._id} className="hover:bg-gray-50 transition-all duration-200">
+                  <tr key={application.id} className="hover:bg-gray-50 transition-all duration-200">
                     <td className="px-4 sm:px-6 py-3 sm:py-4 min-w-[180px] sm:min-w-[200px]">
                       <div>
                         <span className="text-gray-800 font-medium text-xs sm:text-sm">{application.mechanicId.name}</span>
@@ -268,7 +256,7 @@ const NewApplication: React.FC = () => {
                     <td className="px-4 sm:px-6 py-3 sm:py-4 w-16 sm:w-20 relative">
                       <div className="flex items-center gap-2">
                         <Button
-                          onClick={() => navigate(`/admin/mechanic-application/${application?.mechanicId._id}`)}
+                          onClick={() => navigate(`/admin/mechanic-application/${application?.mechanicId.id}`)}
                           variant="outline"
                           size="sm"
                           className="h-7 px-2 text-xs"
@@ -277,14 +265,14 @@ const NewApplication: React.FC = () => {
                           View
                         </Button>
                         <button
-                          onClick={() => toggleDropdown(application._id)}
+                          onClick={() => toggleDropdown(application.id)}
                           className="h-7 w-7 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
                           aria-label="Open menu"
                         >
                           <MoreHorizontal className="h-4 w-4 text-gray-500" />
                         </button>
                       </div>
-                      {openDropdown === application._id && (
+                      {openDropdown === application.id && (
                         <>
                           <div className="fixed inset-0 z-10" onClick={() => setOpenDropdown(null)} />
                           <div className="absolute right-2 sm:right-4 top-8 sm:top-10 z-20 w-40 sm:w-48 bg-white rounded-lg shadow-lg border border-gray-100 py-1">

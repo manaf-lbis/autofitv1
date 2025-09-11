@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { motion,AnimatePresence } from "framer-motion";
-import { X ,Edit,Plus,MapPin,Star,Trash,Home,Building} from "lucide-react";
+import { motion } from "framer-motion";
+import { Edit,Plus,MapPin,Star,Trash,Home,Building} from "lucide-react";
 import AddressModal from "./modal/AddressModal";
 
 
@@ -46,36 +46,14 @@ const AddressCard = () => {
   const [editingAddress, setEditingAddress] = useState<Address | null>(null);
   const [isAddressModalOpen, setIsAddressModalOpen] = useState(false)
 
-  const [addressForm, setAddressForm] = useState<Partial<Address>>({
-    type: "home",
-    label: "",
-    street: "",
-    city: "",
-    state: "",
-    zipCode: "",
-    country: "United States",
-    isDefault: false,
-  });
-
   // Address handlers
   const handleAddAddress = () => {
     setEditingAddress(null)
-    setAddressForm({
-      type: "home",
-      label: "",
-      street: "",
-      city: "",
-      state: "",
-      zipCode: "",
-      country: "United States",
-      isDefault: false,
-    })
     setIsAddressModalOpen(true)
   }
 
   const handleEditAddress = (address: Address) => {
     setEditingAddress(address)
-    setAddressForm(address)
     setIsAddressModalOpen(true)
   }
 

@@ -5,6 +5,7 @@ import { IPretripBookingRepository, PagenatedHistoryParams, PagenatedResponse } 
 import { PaymentStatus, PretripStatus } from "../types/pretrip";
 import { addDays, endOfDay, startOfDay } from "date-fns";
 import { Role } from "../types/role";
+import { GroupBy } from "../services/admin/interface/IPageService";
 
 export class PretripBookingRepository extends BaseRepository<PretripBookingDocument> implements IPretripBookingRepository {
     constructor() {
@@ -81,10 +82,10 @@ export class PretripBookingRepository extends BaseRepository<PretripBookingDocum
             .populate('serviceReportId', 'servicePlan.name servicePlan.description -_id')
             .select('status vehicleId schedule serviceReportId').lean();
 
-        if(Role.MECHANIC === 'mechanic'){
+        if (Role.MECHANIC === 'mechanic') {
             queryData.populate('userId', 'name email mobile')
         }
-        
+
         const data = await queryData.lean()
         const count = await PretripBookingModel.countDocuments(query)
         return {
@@ -92,6 +93,64 @@ export class PretripBookingRepository extends BaseRepository<PretripBookingDocum
             totalDocuments: count
         }
 
+    }
+
+    async pretripBookingDetails(start: Date, end: Date, groupBy: GroupBy): Promise<any> {
+        let groupId: any = null
+        let sort: any = {}
+        if (groupBy === 'day') {
+            groupId = {
+                day: { $dayOfMonth: "$createdAt" },
+                month: { $month: "$createdAt" },
+                year: { $year: "$createdAt" }
+            }
+            sort = { "_id.year": 1, "_id.month": 1, "_id.day": 1 }
+        } else if (groupBy === 'month') {
+            groupId = {
+                month: { $month: "$createdAt" },
+                year: { $year: "$createdAt" }
+            }
+            sort = { "_id.year": 1, "_id.month": 1 }
+        } else if (groupBy === 'year') {
+            groupId = { year: { $year: "$createdAt" } }
+            sort = { "_id.year": 1 }
+        }
+
+        const pipeline: any[] = [
+            {
+                $match: { createdAt: { $gte: start, $lte: end } }
+            },
+            {
+                $lookup: {
+                    from: "payments",
+                    localField: "payment.paymentId",
+                    foreignField: "_id",
+                    as: "paymentDetails"
+                }
+            },
+            { $unwind: { path: "$paymentDetails", preserveNullAndEmptyArrays: true } },
+            {
+                $match: { "paymentDetails.status": "success" }
+            },
+            {
+                $group: {
+                    _id: groupId,
+                    totalOrders: { $sum: 1 },
+                    totalAmount: { $sum: "$paymentDetails.amount" }
+                }
+            }
+        ]
+
+        if (Object.keys(sort).length > 0) {
+            pipeline.push({ $sort: sort })
+        }
+
+        const result = await PretripBookingModel.aggregate(pipeline)
+
+        if (groupBy === 'none') {
+            return result[0] || { totalOrders: 0, totalAmount: 0 }
+        }
+        return result
     }
 
 

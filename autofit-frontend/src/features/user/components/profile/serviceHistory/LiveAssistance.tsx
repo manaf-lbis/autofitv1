@@ -3,15 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useLiveAssistServiceHistoryQuery } from "@/services/userServices/profileApi";
-import {
-  CheckCircle2,
-  ChevronRight,
-  Video,
-  Clock,
-  XCircle,
-  Loader2,
-  AlertCircle,
-} from "lucide-react";
+import { CheckCircle2, ChevronRight, Video, Clock, XCircle, Loader2, AlertCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { LiveAssistanceStatus } from "@/types/liveAssistance";
 
@@ -22,13 +14,10 @@ interface Mechanic {
 
 interface Payment {
   amount: number;
-  status: string;
-  paymentId: string;
-  receipt: string;
 }
 
 interface LiveAssistanceRequest {
-  _id: string;
+  id: string;
   mechanic: Mechanic;
   issue: string;
   description: string;
@@ -104,8 +93,8 @@ export default function LiveAssistanceHistory() {
         const endTime = request.endedAt ? formatDateTime(request.endedAt) : null;
         return (
           <Card
-            key={request._id}
-            onClick={() => handleViewDetails(request._id)}
+            key={request.id}
+            onClick={() => handleViewDetails(request.id)}
             className="border border-gray-200 hover:shadow-md transition-all duration-200 bg-white rounded-lg"
           >
             <CardContent className="p-3 sm:p-4 lg:p-5">

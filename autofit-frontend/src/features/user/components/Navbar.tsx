@@ -54,9 +54,9 @@ export default function NavbarWithProfile() {
   const navItems = [
     { name: "Home", href: "/", icon: Home },
     { name: "Services", href: "/services", icon: Settings },
-    { name: "How it Works", href: "#how-it-works", icon: HelpCircle },
-    { name: "Pricing", href: "#pricing", icon: DollarSign },
-    { name: "Support", href: "#support", icon: MessageCircle },
+    { name: "How it Works", href: "/how-it-works", icon: HelpCircle },
+    { name: "Pricing", href: "/pretrip-checkup/plans", icon: DollarSign },
+    { name: "Our Vision", href: "/vision", icon: MessageCircle },
   ]
 
   const handleMobileSearchToggle = () => {

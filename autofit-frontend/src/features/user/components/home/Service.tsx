@@ -17,7 +17,7 @@ import {
 import { useNavigate } from "react-router-dom"
 
 const Service = () => {
-  const [userCount, setUserCount] = useState(0)
+  const [userCount] = useState(0)
   const navigate = useNavigate()
 
   return (

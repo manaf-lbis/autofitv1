@@ -50,7 +50,7 @@ export class MechanicRepository extends BaseRepository<MechanicDocument> impleme
     async findMechanicWithPagination(params: { page: number; limit: number; search?: string; sortField?: keyof MechanicDocument; sortOrder?: "asc" | "desc"; }): Promise<{ users: MechanicDocument[]; total: number; page: number; totalPages: number; }> {
         const { page = 1, limit = 10, search, sortField = 'createdAt', sortOrder = 'desc' } = params;
 
-        const safeLimit = Math.min(Math.max(limit, 1), 5);
+        const safeLimit = Math.min(Math.max(limit, 1), Number(process.env.ITEMS_PER_PAGE));
         const skip = (page - 1) * safeLimit;
 
 
@@ -92,6 +92,14 @@ export class MechanicRepository extends BaseRepository<MechanicDocument> impleme
          return await MechanicModel.findById(id)
             .select("name email mobile role status")
             .exec();
+    }
+
+
+    async overallMechanicStatusSummary(): Promise<any> {
+        return await MechanicModel.aggregate([
+            { $group: { _id: "$status", count: { $sum: 1 } } },
+        ]);
+        
     }
 
 

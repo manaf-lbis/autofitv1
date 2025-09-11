@@ -42,5 +42,24 @@ export class TimeBlockRepository extends BaseRepository<TimeBlockDocument> imple
 
     }
 
+    async timeBlockByTimeRange(mechanicId: Types.ObjectId, startMinutes: number, endMinutes: number, date?: Date): Promise<TimeBlockDocument | null> {
+        const targetDate = date ? new Date(date) : new Date();
+        targetDate.setHours(0, 0, 0, 0);
+        return await TimeBlockModel.findOne({
+            mechanicId,
+            date: targetDate,
+            startMinutes: { $lt: endMinutes }, endMinutes: { $gt: startMinutes }
+        });
+    }
+
+    async slotCleanup() {
+        const PAYMENT_BUFFER = Number(process.env.PAYMENT_BUFFER) * 60 * 1000;
+        const cutoff = new Date(Date.now() - PAYMENT_BUFFER);
+        return await TimeBlockModel.deleteMany({
+            blockType: BlockType.PAYMENT_DELAY,
+            createdAt: { $lte: cutoff } 
+        });
+    }
+
 
 }

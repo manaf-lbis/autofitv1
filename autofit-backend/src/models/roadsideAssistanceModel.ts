@@ -1,5 +1,5 @@
 import mongoose, { Types, Document, Schema } from "mongoose";
-import { RoadsideAssistance } from "../types/services";
+import { RoadsideAssistance, RoadsideAssistanceStatus } from "../types/services";
 
 
 export interface RoadsideAssistanceDocument extends RoadsideAssistance, Document<Types.ObjectId> { }
@@ -56,8 +56,8 @@ const roadsideAssistanceSchema: Schema<RoadsideAssistanceDocument> = new Schema<
     },
     status: {
         type: String,
-        enum: ['assigned','on_the_way','analysing','quotation_sent', 'in_progress',  'completed', 'canceled'],
-        default: 'assigned',
+        enum: Object.values(RoadsideAssistanceStatus),
+        default: RoadsideAssistanceStatus.ASSIGNED,
         required: true
     },
     quotationId: {

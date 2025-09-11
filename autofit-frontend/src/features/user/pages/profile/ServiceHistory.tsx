@@ -16,7 +16,6 @@ export default function ServiceHistoryPage() {
       const scrolledToBottom = scrollTop + clientHeight >= scrollHeight - 200
 
       if (scrolledToBottom) {
-        console.log("Dispatching nearBottom event")
         window.dispatchEvent(new CustomEvent("nearBottom"))
       }
     }

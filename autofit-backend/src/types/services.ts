@@ -1,5 +1,23 @@
 import { Types } from "mongoose";
 
+
+export enum RoadsideAssistanceStatus {
+  ASSIGNED = 'assigned',
+  ON_THE_WAY = 'on_the_way',
+  ANALYSING = 'analysing',
+  QUOTATION_SENT = 'quotation_sent',
+  IN_PROGRESS = 'in_progress',
+  COMPLETED = 'completed',
+  CANCELED = 'canceled'
+}
+
+export enum RoadsideQuotationStatus {
+  PENDING = 'pending',
+  APPROVED = 'approved',
+  REJECTED = 'rejected'
+}
+
+
 export interface RoadsideAssistance {
     _id: Types.ObjectId;
     userId: Types.ObjectId;
@@ -16,12 +34,12 @@ export interface RoadsideAssistance {
         coordinates: [number, number];
     };
     mechanicId: Types.ObjectId;
-    status: 'assigned'|'on_the_way'|'analysing'|'quotation_sent'| 'in_progress'| 'completed'| 'canceled';
+    status: RoadsideAssistanceStatus;
     quotationId?: Types.ObjectId;
     paymentId?: Types.ObjectId;
-    startedAt?: Date;
+    startedAt: Date;
     arrivedAt?:Date;
-    endedAt?: Date;
+    endedAt: Date;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -36,7 +54,7 @@ export interface Quotation {
     }>;
     total: number;
     notes:string;
-    status: 'pending' | 'approved' | 'rejected';
+    status: RoadsideQuotationStatus;
     createdAt: Date;
     updatedAt: Date;
     rejectedAt?: Date;

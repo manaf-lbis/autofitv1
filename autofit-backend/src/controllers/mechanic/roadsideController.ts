@@ -4,6 +4,7 @@ import { Types } from "mongoose";
 import { ApiError } from "../../utils/apiError";
 import { getIO, userSocketMap } from "../../sockets/socket";
 import { IRoadsideService } from "../../services/roadsideAssistance/interface/IRoadsideService";
+import { HttpStatus } from "../../types/responseCode";
 
 
 
@@ -70,6 +71,22 @@ export class ServicesController {
             sendSuccess(res, 'Successfully Fetched');
         } catch (error: any) {
             next(error);
+        }
+    }
+
+    async serviceHistory(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const mechanicId = new Types.ObjectId(req.user?.id)
+            const {page,search} = req.query;
+
+            if(!page || isNaN(Number(page))) throw new ApiError('Invalid page number',HttpStatus.BAD_REQUEST)
+            if(!mechanicId) throw new ApiError('Invalid user')
+                
+            const serviceHistory = await this._roadsideService.serviceHistory(mechanicId,Number(page),search as string)
+            sendSuccess(res, 'Success', serviceHistory);
+    
+        } catch (err) {
+            next(err);
         }
     }
 }

@@ -1,13 +1,13 @@
-import React from 'react'
+// import React from 'react'
 
-export const useHandleRoadsidePayment = () => {
+// export const useHandleRoadsidePayment = () => {
 
-    const handlePayment = (data:any) =>{
+//     const handlePayment = (data:any) =>{
 
-    }
+//     }
 
 
 
-  return {}
-}
+//   return {}
+// }
 

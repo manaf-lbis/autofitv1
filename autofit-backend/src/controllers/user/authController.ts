@@ -11,6 +11,7 @@ import { IUserRegistrationService } from "../../services/user/Interface/IUserReg
 import { IGoogleAuthService } from "../../services/auth/user/interface/IGoogleAuthService";
 import { ITokenService } from "../../services/token/ITokenService";
 import { IOtpService } from "../../services/otp/IOtpService";
+import { ZodError } from "zod";
 
 export class AuthController {
 
@@ -61,6 +62,10 @@ export class AuthController {
             sendSuccess(res, result.message)
 
         } catch (error: any) {
+            if(error instanceof ZodError){
+                next(new ApiError(error.issues[0].message, HttpStatus.BAD_REQUEST));
+                return
+            }
             next(error);
         }
     }
@@ -83,14 +88,14 @@ export class AuthController {
 
             await this._otpService.verifyOtp(otp, email)
 
-            const { _id } = await this._userRegistrationService.registerUser({
+            const { id } = await this._userRegistrationService.registerUser({
                 name,
                 email,
                 password,
                 mobile,
                 role: role || Role.USER
             });
-            const token = this._tokenService.generateAccessToken({ id: _id, role })
+            const token = this._tokenService.generateAccessToken({ id, role })
 
             res.cookie('jwt', token, {
                 httpOnly: true,
@@ -148,8 +153,6 @@ export class AuthController {
         try {
 
             const userId = req.user?.id
-            console.log(userId);
-
             if (!userId) throw new ApiError("Not authenticated!", HttpStatus.BAD_REQUEST);
 
             await this._authService.logout(userId)
@@ -204,8 +207,6 @@ export class AuthController {
 
             const result = await this._authService.refreshAccessToken(userId);
 
-            console.log('token refreshed');
-
             res.cookie("jwt", result.accessToken, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === "production",
@@ -220,16 +221,6 @@ export class AuthController {
         }
     }
 
-
-    async allusers(req: Request, res: Response, next: NextFunction): Promise<void> {
-        try {
-            const result = await this._userRegistrationService.allUsers()
-            sendSuccess(res, 'success', result)
-
-        } catch (error: any) {
-            next(error);
-        }
-    }
 
 }
 

@@ -2,7 +2,6 @@ import {
   Wrench,
   Users,
   Settings2,
-  MessageSquare,
   LayoutDashboard,
   Handshake
 } from "lucide-react"
@@ -19,11 +18,7 @@ const data = {
       url: "/admin/dashboard",
       icon: LayoutDashboard,
     },
-    {
-      title: "Messages",
-      url: "/admin/messages",
-      icon: MessageSquare,
-    },
+   
     {
       title: "User",
       url: "",
@@ -48,10 +43,6 @@ const data = {
           title: "Mechanics",
           url: "/admin/mechanics",
         },
-         {
-          title: "Update Requests",
-          url: "/admin/update-requests",
-        },
       ],
     },
     {
@@ -59,10 +50,6 @@ const data = {
       url: "#",
       icon: Handshake,
       items: [
-        {
-          title: "All Services",
-          url: "#",
-        },
          {
           title: "Pretrip Plans",
           url: "/admin/pretrip-plans",

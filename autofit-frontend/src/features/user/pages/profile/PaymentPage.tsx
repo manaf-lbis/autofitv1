@@ -119,7 +119,8 @@ export default function PaymentPage() {
                     signature: data.razorpay_signature,
                 };
                 await verifyPayment(verificationData).unwrap();
-                navigate('/user/payment/status/success');
+                // navigate('/user/payment/status/success');
+                navigate(`/user/roadside-assistance/${serviceId}/details`, { replace: true });
             }
         } catch (error) {
             console.error("Payment verification failed:", error);
@@ -129,7 +130,6 @@ export default function PaymentPage() {
 
     const handleFailedPayment = (error: string) => {
         console.error('Payment failed:', error);
-        // Optionally, show a toast notification to the user
     };
 
     const handlePayment = async () => {
@@ -143,8 +143,6 @@ export default function PaymentPage() {
                     onSuccess: paymentSuccess,
                     onFailure: handleFailedPayment,
                 });
-            } else {
-                console.log(`Payment gateway ${selectedGateway} not implemented yet.`);
             }
         } catch (error) {
             console.error("Error initiating payment:", error);
