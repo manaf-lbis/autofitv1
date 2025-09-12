@@ -32,11 +32,11 @@ export class ResetPasswordController {
 
             const token = this._tokenService.generateAccessToken({ email, role, otpResent : 0, _id:user._id })
 
-
+            const isProd = process.env.NODE_ENV === 'production';
             res.cookie('resetToken', token, {
                 httpOnly: true,
-                secure: process.env.NODE_ENV === 'production',
-                sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+                secure: isProd,
+                sameSite: isProd? 'none' : 'lax',
                 path: '/',
                 maxAge: Number(process.env.RESET_COOKIE_MAX_AGE)
             });
@@ -98,10 +98,11 @@ export class ResetPasswordController {
 
             const token = this._tokenService.generateAccessToken({ email, role, otpResent:otpResent+1 })
 
+            const isProd = process.env.NODE_ENV === 'production';
             res.cookie('resetToken', token, {
                 httpOnly: true,
-                secure: process.env.NODE_ENV === 'production',
-                sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+                secure: isProd,
+                sameSite: isProd ? 'none' : 'lax',
                 path: '/',
                 maxAge: Number(process.env.RESET_COOKIE_MAX_AGE)
             });
