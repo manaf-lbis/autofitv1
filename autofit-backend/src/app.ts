@@ -50,7 +50,6 @@ app.use(
   })
 );
 
-
 app.use("/auth/:role/reset-password",resetPassword)
 app.use("/auth/user", userAuth);
 app.use("/auth/admin", adminAuth);
