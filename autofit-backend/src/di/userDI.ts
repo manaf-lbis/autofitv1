@@ -16,7 +16,7 @@ import { PretripFeatureRepository } from "../repositories/pretripFeatureReposito
 import { PretripPlanRepository } from "../repositories/pretripPlanRepository";
 import { PretripReportRepository } from "../repositories/pretripReportRepository";
 import { QuotationRepository } from "../repositories/quotationRepository";
-import { RazorpayRepository } from "../repositories/razorPayRepository"; 
+import { RazorpayRepository } from "../repositories/razorPayRepo"; 
 import { RoadsideAssistanceRepository } from "../repositories/roadsideAssistanceRepo";
 import { TimeBlockRepository } from "../repositories/timeBlockRepository";
 import { TransactionRepository } from "../repositories/transactionsRepository"; 
