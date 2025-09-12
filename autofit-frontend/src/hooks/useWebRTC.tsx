@@ -179,7 +179,7 @@ export const useWebRTC = ({
       pc.createOffer().then((offer) => pc.setLocalDescription(offer)).then(() => {
         socketRef.current.emit("signal", { sessionId, offer: pc.localDescription });
       }).catch((err) => console.error("[WebRTC] Negotiation error", err))
-      .finally(() => negotiationPending.current = false);
+        .finally(() => negotiationPending.current = false);
     }
   };
 
@@ -213,7 +213,21 @@ export const useWebRTC = ({
   };
 
   useEffect(() => {
-    const pc = new RTCPeerConnection({ iceServers: [{ urls: "stun:stun.l.google.com:19302" }] });
+    const pc = new RTCPeerConnection({
+      iceServers: [
+        { urls: "stun:stun.l.google.com:19302" }, 
+        {
+          urls: [
+            "turn:turn.manaf.live:3478?transport=udp",
+            "turn:turn.manaf.live:3478?transport=tcp",
+            "turns:turn.manaf.live:5349?transport=tcp"
+          ],
+          username: "webrtcuser",
+          credential: "webrtcpass"
+        }
+      ]
+    });
+
     peerRef.current = pc;
 
     audioTransceiverRef.current = pc.addTransceiver("audio", { direction: "recvonly" });
