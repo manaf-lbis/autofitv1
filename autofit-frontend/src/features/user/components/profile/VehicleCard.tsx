@@ -125,7 +125,7 @@ const VehicleCard: React.FC = () => {
         </CardContent>)
       }
 
-      <VehicleModal isOpen={isOpen} setIsOpen={setIsOpen} vehicle={vehicle} refetchVehicles={refetch} />
+      <VehicleModal isOpen={isOpen} setIsOpen={setIsOpen} vehicle={vehicle}  />
     </Card>
   );
 };

@@ -1,19 +1,17 @@
-import { DotLottiePlayer } from "@dotlottie/react-player";
-import formAnimation from "@/assets/lottieFiles/mechanic/registratioForm.lottie";
+import React from "react";
+import Lottie from "lottie-react";
+import formAnimation from "@/assets/lottieFiles/mechanic/registratioForm.json";
 
-import React from 'react'
-
-const RegistrationFormAnimation : React.FC = () => {
+const RegistrationFormAnimation: React.FC = () => {
   return (
     <div className="w-full">
-      <DotLottiePlayer
-        src={formAnimation} 
-        autoplay
-        loop
+      <Lottie
+        animationData={formAnimation}
+        loop={true}
         className="mx-auto w-full h-auto"
       />
     </div>
-  )
-}
+  );
+};
 
-export default RegistrationFormAnimation
+export default RegistrationFormAnimation;
