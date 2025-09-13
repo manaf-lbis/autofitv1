@@ -27,7 +27,7 @@ const slides = [
     image: realTimeAss,
     accent: "emerald",
     icon: Video,
-    link :'/services'
+    link :'/user/live-assistance/booking'
   },
   {
     id: 3,
