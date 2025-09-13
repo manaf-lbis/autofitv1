@@ -15,9 +15,7 @@ const Home :React.FC = () => {
     <div className="bg-white" ref={containerRef}>
       <Hero />
       <Service />
-
       <FeatureShowcase />
-
       <HowItWorks />
       <Testimonials />
       <FAQ />
@@ -28,4 +26,5 @@ const Home :React.FC = () => {
 };
 
 export default Home;
+
 
