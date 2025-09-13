@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import OtpInput from '@/components/Auth/OtpInput'
 import { Button } from '@/components/ui/button'
 import { toast } from 'react-hot-toast'
@@ -15,48 +15,50 @@ import { roleConfig } from '@/utils/roleConfig'
 
 const RESEND_WAIT_TIME = 30
 
-const OtpForm = ({role}:{role:Role}) => {
-
+const OtpForm = ({role}: {role: Role}) => {
   const [otp, setOtp] = useState('')
   const [verifyOtp, { isLoading }] = useVerifyOtpMutation()
   const [resentOtp, { isLoading: resentLoading }] = useResentOtpMutation()
   const [error, setError] = useState<any | null>(null)
-  const [countdown, setCountdown] = useState(0)
+  const [countdown, setCountdown] = useState(RESEND_WAIT_TIME) // Start with 30s
   const navigate = useNavigate()
   const dispatch = useDispatch()
 
+  useEffect(() => {
+    setCountdown(RESEND_WAIT_TIME) // Initialize timer on mount
+  }, [])
+
   const submitOtp = async () => {
     try {
-      setError(null) 
+      setError(null)
       if (otp.length !== 6) return toast.error('Invalid OTP')
-
-      const response = await verifyOtp({otp,role}).unwrap()
-
+      const response = await verifyOtp({otp, role}).unwrap()
       if (response) {
-        const { name, role,email,mobile,avatar } = response.data
+        const { name, role, email, mobile, avatar } = response.data
         toast.success('OTP Verified Successfully!')
-        dispatch(setUser({ name, role ,email , mobile,avatar}))
-        localStorage.setItem('userRole',role)
+        dispatch(setUser({ name, role, email, mobile, avatar }))
+        localStorage.setItem('userRole', role)
         navigate(roleConfig[role].defaultRoute, { replace: true })
       }
     } catch (error) {
       const err = error as ApiError
-      setError(err.data) 
+      setError(err.data)
     }
   }
 
   const handleResend = async () => {
     try {
-      setError(null) 
+      setError(null)
       const res = await resentOtp({role}).unwrap()
       toast.success(res.message || 'OTP resent successfully!')
-      setCountdown(RESEND_WAIT_TIME)
+      setCountdown(RESEND_WAIT_TIME) // Restart 30s timer
     } catch (error: any) {
       setError(error.data)
       toast.error(error?.data?.message || 'Failed to resend OTP')
     }
   }
-  const handleTimer=()=>{
+
+  const handleTimer = () => {
     setError(null)
   }
 
@@ -75,7 +77,7 @@ const OtpForm = ({role}:{role:Role}) => {
             state={otp}
             setState={(val) => {
               setOtp(val)
-              setError(null) 
+              setError(null)
             }}
           />
         </div>
@@ -83,35 +85,43 @@ const OtpForm = ({role}:{role:Role}) => {
         {error && (
           <Alert variant="destructive" className="mb-4">
             <AlertDescription>
-              {/* {error.message || 'Something went wrong'} */}
               {error.message}
-              {error.data?.remainingTime && <CountdownTimer onComplete={handleTimer} className="text-red-600 font-thin" remainingTime={error.data?.remainingTime}/>}
+              {error.data?.remainingTime && (
+                <CountdownTimer
+                  onComplete={handleTimer}
+                  className="text-red-600 font-thin"
+                  remainingTime={error.data?.remainingTime}
+                />
+              )}
             </AlertDescription>
           </Alert>
         )}
 
         <div className="flex justify-center text-sm mb-4">
           <span className="text-gray-600">Didn't receive the code?</span>
-          <button
-            onClick={handleResend}
-            disabled={resentLoading || countdown > 0}
-            className={`ml-2 font-medium transition-colors ${
-              countdown > 0 || resentLoading
-                ? 'text-gray-400 cursor-not-allowed'
-                : 'text-indigo-600 hover:text-indigo-800'
-            }`}
-          >
-            {resentLoading ? (
-              <Loader2 className="animate-spin w-4 h-4 text-gray-600" />
-            ) : countdown > 0 ? (
-              <CountdownTimer
-                remainingTime={countdown}
-                onComplete={() => setCountdown(0)}
-              />
-            ) : (
-              'Resend'
-            )}
-          </button>
+          {countdown > 0 ? (
+            <CountdownTimer
+              remainingTime={countdown}
+              onComplete={() => setCountdown(0)}
+              className="ml-2 font-medium text-gray-400"
+            />
+          ) : (
+            <button
+              onClick={handleResend}
+              disabled={resentLoading}
+              className={`ml-2 font-medium transition-colors ${
+                resentLoading
+                  ? 'text-gray-400 cursor-not-allowed'
+                  : 'text-indigo-600 hover:text-indigo-800'
+              }`}
+            >
+              {resentLoading ? (
+                <Loader2 className="animate-spin w-4 h-4 text-gray-600" />
+              ) : (
+                'Resend'
+              )}
+            </button>
+          )}
         </div>
 
         <Button

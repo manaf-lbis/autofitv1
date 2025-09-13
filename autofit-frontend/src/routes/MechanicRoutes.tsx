@@ -1,4 +1,3 @@
-
 import { Routes, Route } from "react-router-dom";
 import { lazy, Suspense } from "react";
 import ProtectedRoute from "../components/Routes/ProtectedRoute";
@@ -54,9 +53,6 @@ const MechanicRoutes: React.FC = () => {
 };
 
 export default MechanicRoutes;
-
-
-
 
 
 
