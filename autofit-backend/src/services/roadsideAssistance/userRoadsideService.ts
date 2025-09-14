@@ -15,6 +15,7 @@ import { RoadsideAssistanceStatus, RoadsideQuotationStatus } from "../../types/s
 import { ITimeBlockRepository } from "../../repositories/interfaces/ITimeBlockRepository";
 import { differenceInMinutes, startOfDay } from "date-fns";
 import { HttpStatus } from "../../types/responseCode";
+import { MechanicAvailabilityStatus } from "../../types/mechanic/mechanic";
 
 export class UserRoadsideService implements IUserRoadsideService {
   constructor(
@@ -82,7 +83,7 @@ export class UserRoadsideService implements IUserRoadsideService {
       },
     })
 
-    await this._mechanicProfileRepo.update(mechanicId, { availability: 'busy' })
+    await this._mechanicProfileRepo.update(mechanicId, { availability: MechanicAvailabilityStatus.BUSY })
 
     const notification = await this._notificationRepository.save({
       message: `Emergency - ${vehicle.regNo.toUpperCase()} Requested For RoadSide Assistance.`,

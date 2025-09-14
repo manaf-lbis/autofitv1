@@ -37,6 +37,10 @@ const pretripBookingSchema = new Schema<PretripBookingDocument>({
             required: true
         }
     },
+    timeBlockingId:{
+        type: Schema.Types.ObjectId,
+        ref: "timeBlock",
+    },
     serviceReportId:{
         type: Schema.Types.ObjectId,
         ref: "pretripReport",

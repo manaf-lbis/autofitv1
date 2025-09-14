@@ -18,6 +18,7 @@ import { cn } from "@/lib/utils"
 import { type IPretripSlot, type IBlockedSchedule, SlotStatus } from "@/types/pretrip"
 import { getDateString, formatTime, isTimeOverlap } from "@/utils/utilityFunctions/dateUtils"
 import ScheduleManagementShimer from "../../components/shimmer/jobs/ScheduleManagementShimer"
+import WorkingHoursModal from "../workingHours/WorkingHoursModal"
 import { Separator } from "@/components/ui/separator"
 import {
   Dialog,
@@ -147,6 +148,7 @@ export default function ScheduleManagement() {
   const { data, isLoading } = useWeeklySchedulesQuery() as { data: IApiResponse | undefined; isLoading: boolean }
   const [blockSchedule, { isLoading: blockLoading }] = useBlockScheduleMutation()
   const [unblockSchedule, { isLoading: unblockLoading }] = useUnblockScheduleMutation()
+  const [isModalOpen, setIsModalOpen] = useState(false)
 
   const today = new Date()
   today.setHours(0, 0, 0, 0)
@@ -553,7 +555,7 @@ export default function ScheduleManagement() {
                       <span className="sm:hidden">Block</span>
                     </Button>
                   )}
-                  <Button variant="outline" className="h-8 px-2 sm:px-3 bg-transparent text-xs" size="sm">
+                  <Button onClick={()=>setIsModalOpen(true)} variant="outline" className="h-8 px-2 sm:px-3 bg-transparent text-xs" size="sm">
                     <Settings className="w-3 h-3 mr-1" />
                     <span className="hidden sm:inline">Change Working Hours</span>
                     <span className="sm:hidden">Hours</span>
@@ -856,6 +858,8 @@ export default function ScheduleManagement() {
         {showDetailsModal && selectedSlot && (
           <PretripSlotDetailsModal slot={selectedSlot} onClose={() => setShowDetailsModal(false)} />
         )}
+
+            <WorkingHoursModal isOpen={isModalOpen} onClose={()=>setIsModalOpen(false)} />
       </div>
     </>
   )

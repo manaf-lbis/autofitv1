@@ -47,7 +47,8 @@ export interface IPretripBooking {
   schedule:{
     start: Date;
     end: Date;
-  }
+  },
+  timeBlockingId: Types.ObjectId;
   serviceReportId: Types.ObjectId;
   pickedUpAt?: Date;
   returnedAt?: Date;

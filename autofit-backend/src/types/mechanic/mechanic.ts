@@ -18,11 +18,17 @@ export interface Mechanic {
   updatedAt?: Date
 }
 
+export enum MechanicAvailabilityStatus {
+  AVAILABLE = 'available',
+  NOT_AVAILABLE = 'notAvailable',
+  BUSY = 'busy'
+}
+
 export interface MechanicProfile {
   _id: Types.ObjectId,
   mechanicId: Types.ObjectId
   education: string,
-  availability: 'available' | 'notAvailable' | 'busy'
+  availability: MechanicAvailabilityStatus
   specialised: string,
   experience: number,
   shopName: string,

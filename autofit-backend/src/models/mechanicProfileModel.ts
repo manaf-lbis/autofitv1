@@ -1,5 +1,5 @@
 import mongoose, { Schema, Document, Types } from 'mongoose';
-import { MechanicProfile } from '../types/mechanic/mechanic';
+import { MechanicAvailabilityStatus, MechanicProfile } from '../types/mechanic/mechanic';
 
 
 export interface MechanicProfileDocument extends MechanicProfile, Document<Types.ObjectId> {}
@@ -11,8 +11,8 @@ const mechanicProfileSchema: Schema<MechanicProfileDocument> = new Schema<Mechan
     },
     availability :{
         type : String,
-        enum:['avilable','notAvailable','busy'],
-        default : 'notAvailable' 
+        enum: Object.values(MechanicAvailabilityStatus),
+        default : MechanicAvailabilityStatus.NOT_AVAILABLE 
     },
     registration:{
         status: {

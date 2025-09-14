@@ -54,7 +54,7 @@ const pretripPlanRepository = new PretripPlanRepository()
 const pretripReportRepository = new PretripReportRepository()
 const mechanicProfileService = new ProfileService( mechanicProfileRepository, mechanicRepository,notificationRepository, workingHoursRepo,timeBlockRepo)
 const paymentRepo = new PaymentRepository()
-const pretripService = new PretripService( mechanicProfileRepository,googleMapRepo,pretripBookingRepository,pretripPlanRepository,workingHoursRepo,timeBlockRepo, pretripReportRepository, transactionRepo, paymentRepo)
+const pretripService = new PretripService( mechanicProfileRepository,googleMapRepo,pretripBookingRepository,pretripPlanRepository,workingHoursRepo,timeBlockRepo, pretripReportRepository, transactionRepo, paymentRepo,mechanicProfileRepository)
 const quotationRepo = new QuotationRepository()
 const roadsideService = new RoadsideService(roadsideAssistanceRepo,quotationRepo,mechanicProfileRepository,transactionRepo,paymentRepo)
 

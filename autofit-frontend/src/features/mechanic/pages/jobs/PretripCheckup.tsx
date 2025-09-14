@@ -3,6 +3,7 @@ import ScheduleManagement from "../../components/jobs/ScheduleManagement"
 import { ServiceHistory } from "../../components/jobs/ServiceHistory" 
 
 
+
 export default function PretripCheckup() {
 
   const [loading, setLoading] = useState(true)
@@ -17,6 +18,7 @@ export default function PretripCheckup() {
 
 
   return (
+    <>
     <div className="min-h-screen bg-gray-50">
       <div className="w-full px-4 sm:px-6 py-4 sm:py-6">
         {/* Compact Header */}
@@ -32,5 +34,7 @@ export default function PretripCheckup() {
         <ServiceHistory mode="pretrip" loading={loading}/>
       </div>
     </div>
+
+    </>
   )
 }
