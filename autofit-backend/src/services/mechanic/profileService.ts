@@ -124,6 +124,7 @@ export class ProfileService implements IProfileService {
 
     const isFullDayBlock = scheduleDetails.isFullDayBlock
     const blockDate = new Date(scheduleDetails.date);
+
     const now = new Date();
     if (blockDate < now) throw new ApiError("Cannot block in the past", HttpStatus.BAD_REQUEST);
 
@@ -133,7 +134,7 @@ export class ProfileService implements IProfileService {
 
     const dayStart = startOfDay(blockDate)
     const dayEnd = endOfDay(blockDate)
-
+    
     const blockingOfDay = await this._timeBlockingRepo.findBlockingByDateRange(mechanicId, dayStart, dayEnd);
 
     const hasConflict = blockingOfDay.some(({ startMinutes, endMinutes }) => {

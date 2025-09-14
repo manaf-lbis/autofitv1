@@ -34,6 +34,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Card, CardContent } from "@/components/ui/card"
 import { useWeeklySchedulesQuery, useBlockScheduleMutation, useUnblockScheduleMutation } from "@/services/mechanicServices/pretripMechanicApi"
 import PretripSlotDetailsModal from "./PretripSlotDetailsModal"
+import { format } from "date-fns"
 
 interface IApiResponse {
   status: string
@@ -383,8 +384,10 @@ export default function ScheduleManagement() {
     }
 
     try {
+      console.log(selectedDate);
+      
       await blockSchedule({
-        date: new Date(selectedDate),
+        date: format(selectedDate, "yyyy-MM-dd") ,
         isFullDayBlock: blockType === "fullDay",
         blockedTiming: blockType === "timeRange" ? { from: blockFrom, to: blockTo } : undefined,
         reason: blockReason,

@@ -26,7 +26,6 @@ const navItems = [
     id: "messages",
     label: "Messages",
     icon: MessageSquare,
-    count: 3,
     href: "/mechanic/messages",
   },
   {
@@ -324,7 +323,7 @@ export default function MechanicDashboard() {
               <button
                 onClick={() => {
                   if (item.id === "jobs") {
-                    setIsJobsExpanded(!isJobsExpanded); // Toggle sub-menu
+                    setIsJobsExpanded(!isJobsExpanded);
                   } else {
                     navigate(item.href);
                     setActiveTab(item.id);
@@ -341,11 +340,6 @@ export default function MechanicDashboard() {
               >
                 <item.icon className="w-5 h-5 mr-3" />
                 <span className="flex-1 text-left">{item.label}</span>
-                {item.count && (
-                  <span className="bg-red-500 text-white text-xs font-medium px-2 py-0.5 rounded-full">
-                    {item.count}
-                  </span>
-                )}
                 {item.subItems && (
                   <ChevronRight
                     className={cn(
@@ -362,7 +356,7 @@ export default function MechanicDashboard() {
                       key={subItem.id}
                       onClick={() => {
                         navigate(subItem.href);
-                        setActiveTab(item.id); // Keep Jobs as active tab
+                        setActiveTab(item.id); 
                         setIsSidebarOpen(false);
                       }}
                       className={cn(
@@ -518,7 +512,6 @@ export default function MechanicDashboard() {
           </div>
         </header>
 
-        {/* Conditionally render the heading section only if not on the messages page or jobs sub-pages */}
         {activeTab !== "messages" && (
           <div className="bg-white/95 backdrop-blur-md border-b border-gray-100 px-6 py-6 mt-16">
             <div className="flex items-center justify-between">

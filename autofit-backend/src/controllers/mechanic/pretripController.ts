@@ -12,7 +12,7 @@ export class PretripController {
     constructor(
         private _pretripService: IPretripService,
         private _mechnanicProfileService: IProfileService
-    ) { }
+    ) {}
 
 
     async weeklySchedules(req: Request, res: Response, next: NextFunction): Promise<void> {

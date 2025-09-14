@@ -139,6 +139,7 @@ export class ProfileController {
         try {
             const mechanicId = req.user?.id
             if (!mechanicId) throw new ApiError('Invalid User')
+                
             const { date, isFullDayBlock, blockedTiming, reason } = req.body;
 
             if (!date) throw new ApiError('Date is required');
