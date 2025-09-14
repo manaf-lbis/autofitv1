@@ -1,9 +1,8 @@
 import { useState } from "react"
-import {MapPin,Briefcase, GraduationCap, Store, Calendar, CheckCircle, Eye, FileText, X, Star, Award, Clock, Users, Download,ExternalLink, ClockArrowUp } from "lucide-react"
+import {MapPin, GraduationCap, Store, Calendar, CheckCircle, Eye, FileText, X, Star, Download,ExternalLink, ClockArrowUp } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { format } from "date-fns"
-import { cn } from "@/lib/utils"
 import { useGetMechanicQuery } from "../../../services/mechanicServices/mechanicApi"
 import { useNavigate } from "react-router-dom"
 import toast from "react-hot-toast"
@@ -147,40 +146,7 @@ export default function Account() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left Column - Stats & Quick Info */}
           <div className="space-y-6">
-            {/* Quick Stats */}
-            <div className="bg-white/80 backdrop-blur-xl rounded-2xl border border-gray-200/50 shadow-lg p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Stats</h3>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="text-center p-4 bg-blue-50/80 rounded-xl">
-                  <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center mx-auto mb-2">
-                    <Briefcase className="w-4 h-4 text-white" />
-                  </div>
-                  <p className="text-2xl font-bold text-blue-600">{mechanic.experience}</p>
-                  <p className="text-xs text-gray-600">Years Experience</p>
-                </div>
-                <div className="text-center p-4 bg-green-50/80 rounded-xl">
-                  <div className="w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center mx-auto mb-2">
-                    <Users className="w-4 h-4 text-white" />
-                  </div>
-                  <p className="text-2xl font-bold text-green-600">{dummyData.happyCustomers}</p>
-                  <p className="text-xs text-gray-600">Happy Customers</p>
-                </div>
-                <div className="text-center p-4 bg-purple-50/80 rounded-xl">
-                  <div className="w-8 h-8 bg-purple-600 rounded-lg flex items-center justify-center mx-auto mb-2">
-                    <Award className="w-4 h-4 text-white" />
-                  </div>
-                  <p className="text-2xl font-bold text-purple-600">{dummyData.successRate}%</p>
-                  <p className="text-xs text-gray-600">Success Rate</p>
-                </div>
-                <div className="text-center p-4 bg-orange-50/80 rounded-xl">
-                  <div className="w-8 h-8 bg-orange-600 rounded-lg flex items-center justify-center mx-auto mb-2">
-                    <Clock className="w-4 h-4 text-white" />
-                  </div>
-                  <p className="text-2xl font-bold text-orange-600">{dummyData.avgResponseTime}</p>
-                  <p className="text-xs text-gray-600">Avg Response</p>
-                </div>
-              </div>
-            </div>
+
 
             {/* Personal Information */}
             <div className="bg-white/80 backdrop-blur-xl rounded-2xl border border-gray-200/50 shadow-lg p-6">
@@ -357,31 +323,6 @@ export default function Account() {
               </div>
             )}
 
-            {/* Recent Activity */}
-            <div className="bg-white/80 backdrop-blur-xl rounded-2xl border border-gray-200/50 shadow-lg p-6">
-              <h3 className="text-xl font-semibold text-gray-600 mb-6">Recent Activity</h3>
-              <div className="space-y-4">
-                {[
-                  { action: "Completed service for Honda Civic", time: "2 hours ago", status: "success" },
-                  { action: "New appointment scheduled", time: "4 hours ago", status: "info" },
-                  { action: "Profile updated", time: "1 day ago", status: "warning" },
-                  { action: "Document verified", time: "2 days ago", status: "success" },
-                ].map((item, index) => (
-                  <div key={index} className="flex items-center gap-3 p-0 bg-gray-50 rounded-xl">
-                    <div className={cn(
-                      "w-3 h-3 rounded-full",
-                      item.status === "success" && "bg-green-500",
-                      item.status === "info" && "bg-blue-500",
-                      item.status === "warning" && "bg-yellow-500",
-                    )}></div>
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-gray-900">{item.action}</p>
-                      <p className="text-xs text-gray-500">{item.time}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
             <WorkingHoursModal isOpen={isModalOpen} onClose={()=>setIsModalOpen(false)} />
           </div>
         </div>

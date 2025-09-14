@@ -93,13 +93,13 @@ export const mechanicApi = createApi({
       invalidatesTags: ["WorkingHours"],
     }),
 
-    updateWorkingHours: builder.mutation<WorkingHoursData, WorkingHoursData>({
+    updateWorkingHours: builder.mutation<any, WorkingHoursData>({
       query: (slotData) => ({
         url: "/mechanic/profile/working-hours",
         method: "PATCH",
         body: slotData,
       }),
-      transformResponse: (response: ApiResponse<WorkingHoursData>) => response.data,
+      transformResponse: (response: ApiResponse<WorkingHoursData>) => response,
       invalidatesTags: ["WorkingHours"],
     }),
 
