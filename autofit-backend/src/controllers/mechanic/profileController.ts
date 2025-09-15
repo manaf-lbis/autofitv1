@@ -57,6 +57,20 @@ export class ProfileController {
             next(err);
         }
     }
+    async update(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const mechanicId = req.user?.id;
+            if (!mechanicId) throw new ApiError('Unauthorized', HttpStatus.UNAUTHORIZED);
+
+            const validated = mechanicRegisterValidation.parse(req.body);
+
+            await this._mechanicProfileService.updateUser(mechanicId, validated);
+
+            sendSuccess(res, 'Profile Updated Successfully');
+        } catch (err) {
+            next(err);
+        }
+    }
 
 
     async removeApplication(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -139,7 +153,7 @@ export class ProfileController {
         try {
             const mechanicId = req.user?.id
             if (!mechanicId) throw new ApiError('Invalid User')
-                
+
             const { date, isFullDayBlock, blockedTiming, reason } = req.body;
 
             if (!date) throw new ApiError('Date is required');

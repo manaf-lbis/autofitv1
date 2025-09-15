@@ -1,9 +1,9 @@
 import { useState } from "react"
-import {MapPin, GraduationCap, Store, Calendar, CheckCircle, Eye, FileText, X, Star, Download,ExternalLink, ClockArrowUp } from "lucide-react"
+import { MapPin, GraduationCap, Store, Calendar, CheckCircle, Eye, FileText, X, Download, ExternalLink, ClockArrowUp, PenBox } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { format } from "date-fns"
-import { useGetMechanicQuery } from "../../../services/mechanicServices/mechanicApi"
+import { useGetMechanicQuery, useUpdateProfileMutation } from "../../../services/mechanicServices/mechanicApi"
 import { useNavigate } from "react-router-dom"
 import toast from "react-hot-toast"
 import LatLngToAddress from "@/components/shared/LocationInput/LatLngToAddress"
@@ -11,23 +11,19 @@ import AccountShimmer from "../components/shimmer/AccountShimmer"
 import LazyImage from "@/components/shared/LazyImage"
 import { getAssetURL } from "@/utils/utilityFunctions/getAssetURL"
 import WorkingHoursModal from "../components/workingHours/WorkingHoursModal"
+import { UpdateProfileModal } from "../components/registration/UpdateProfileModal"
+import { useSelector } from "react-redux"
+import { RootState } from "@/store/store"
 
 export default function Account() {
 
   const [showDocument, setShowDocument] = useState(false)
   const { data, isLoading, isError, error } = useGetMechanicQuery()
-  const [isModalOpen,setIsModalOpen] = useState<boolean>(false)
+  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState<boolean>(false)
+  const user = useSelector((state: RootState) => state.auth.user)
+  const [updateProfile] = useUpdateProfileMutation()
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
   const navigate = useNavigate()
-
-  const dummyData = {
-    rating: 5.0,
-    reviews: 248,
-    happyCustomers: 248,
-    successRate: 98,
-    avgResponseTime: "24h",
-    name: "NOUSHAD I",
-  }
-
 
   const handleDownload = () => {
     if (data?.data?.qualification) {
@@ -37,12 +33,23 @@ export default function Account() {
         link.download = "qualification-certificate.pdf"
         link.click()
         toast.success("Download started")
-      } catch  {
+      } catch {
         toast.error("Failed to download document")
       }
     } else {
       toast.error("Document not available")
     }
+  }
+
+  const handleProfileUpdate = async (data: any) => {
+    try {
+      const res = await updateProfile(data).unwrap();
+      toast.success(res?.message);
+      setIsUpdateModalOpen(false)
+    } catch (error: any) {
+      toast.error(error.data.message)
+    }
+    ;
   }
 
   const handleViewOnMap = () => {
@@ -56,7 +63,7 @@ export default function Account() {
   }
 
   if (isLoading) {
-    return ( <AccountShimmer />)
+    return (<AccountShimmer />)
   }
 
   if (isError) {
@@ -97,7 +104,7 @@ export default function Account() {
 
       {/* Content */}
       <div className="container mx-auto px-4 py-8 relative max-w-7xl">
-      
+
         {/* Hero Section */}
         <div className="bg-white/90 backdrop-blur-xl rounded-2xl border border-gray-200/50 shadow-2xl overflow-hidden mb-8">
           <div className="relative bg-slate-800 p-8">
@@ -130,15 +137,14 @@ export default function Account() {
                   </div>
                 </div>
               </div>
-              <div className="text-right text-white">
-                <div className="flex items-center gap-1 mb-1">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                  ))}
-                  <span className="ml-1 text-sm">{dummyData.rating.toFixed(1)}</span>
-                </div>
-                <p className="text-gray-300 text-sm">{dummyData.reviews} Reviews</p>
-              </div>
+
+
+              <Button onClick={() => setIsUpdateModalOpen(true)} variant="outline" size="sm" aria-label="View shop location on map">
+                <PenBox className="w-4 h-4 mr-2" />
+                Update Profile
+              </Button>
+
+
             </div>
           </div>
         </div>
@@ -242,7 +248,7 @@ export default function Account() {
                     <Store className="w-5 h-5" /> Shop Information
                   </h2>
                   <div>
-                    <Button variant="outline" size="sm" className="mr-2" onClick={()=>setIsModalOpen(true)} >
+                    <Button variant="outline" size="sm" className="mr-2" onClick={() => setIsModalOpen(true)} >
                       <ClockArrowUp className="w-4 h-4 mr-2" />
                       Update Working Hours
                     </Button>
@@ -251,7 +257,7 @@ export default function Account() {
                       View on Map
                     </Button>
                   </div>
-                 
+
                 </div>
               </div>
 
@@ -312,7 +318,7 @@ export default function Account() {
                 <div className="p-6">
                   <div className="bg-gray-50/80 rounded-xl p-4">
                     <iframe
-                      src={getAssetURL(mechanic.qualification,'raw')}
+                      src={getAssetURL(mechanic.qualification, 'raw')}
                       className="w-full h-[600px] rounded-lg border border-gray-200 shadow-inner"
                       title="Qualification Document"
                       onError={() => toast.error("Failed to load document")}
@@ -323,7 +329,8 @@ export default function Account() {
               </div>
             )}
 
-            <WorkingHoursModal isOpen={isModalOpen} onClose={()=>setIsModalOpen(false)} />
+            <WorkingHoursModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+            <UpdateProfileModal isOpen={isUpdateModalOpen} onClose={() => setIsUpdateModalOpen(false)} initialData={{ ...mechanic, name: user?.name, email: user?.email, mobile: user?.mobile, location: mechanic?.location?.coordinates?.join(',') }} onSave={handleProfileUpdate} />
           </div>
         </div>
       </div>

@@ -19,7 +19,7 @@ export enum EarningsDuration {
 export const mechanicApi = createApi({
   reducerPath: "mechanicApi",
   baseQuery: baseQueryWithRefresh,
-  tagTypes: ["WorkingHours"],
+  tagTypes: ["WorkingHours",'Profile'],
 
   endpoints: (builder) => ({
 
@@ -29,6 +29,26 @@ export const mechanicApi = createApi({
         method: "POST",
         body: formData,
       }),
+    }),
+
+    updateProfile: builder.mutation<SuccessResponse, FormData>({
+      query: (formData: any) => ({
+        url: "/mechanic/profile/update",
+        method: "POST",
+        body: {
+          name: formData.name,
+          email: formData.email,
+          mobile: formData.mobile,
+          education:formData.education,
+          specialised:formData.specialised,
+          experience:formData.experience,
+          shopName: formData.shopName,
+          place: formData.place,
+          landmark: formData.landmark,
+          location: formData.location
+        },
+      }),
+      invalidatesTags: ["Profile"],
     }),
 
     resubmitRequest: builder.mutation({
@@ -43,6 +63,7 @@ export const mechanicApi = createApi({
         url: "/mechanic/profile/me",
         method: "GET",
       }),
+      providesTags: ["Profile"],
     }),
 
     getDashboard: builder.query<any, void>({
@@ -57,13 +78,14 @@ export const mechanicApi = createApi({
         url: "/mechanic/pages/info",
         method: "GET",
       }),
+      providesTags: ["Profile"],
     }),
 
-    setAvailability: builder.mutation<any, 'available' | 'notAvailable' | 'busy' >({
+    setAvailability: builder.mutation<any, 'available' | 'notAvailable' | 'busy'>({
       query: (availability) => ({
         url: "/mechanic/profile/availability",
         method: "POST",
-        body: {availability}
+        body: { availability }
       }),
     }),
 
@@ -103,11 +125,11 @@ export const mechanicApi = createApi({
       invalidatesTags: ["WorkingHours"],
     }),
 
-    earnings: builder.query<any, {duration: EarningsDuration, customFrom?: string, customTo?: string}>({
-      query: ({duration, customFrom, customTo}) => ({
+    earnings: builder.query<any, { duration: EarningsDuration, customFrom?: string, customTo?: string }>({
+      query: ({ duration, customFrom, customTo }) => ({
         url: "/mechanic/pages/earnings",
         method: "GET",
-        params: {duration, ...(duration === EarningsDuration.CUSTOM ? {from: customFrom, to: customTo} : {})},
+        params: { duration, ...(duration === EarningsDuration.CUSTOM ? { from: customFrom, to: customTo } : {}) },
       }),
       transformResponse: (response: ApiResponse<any>) => response.data
     }),
@@ -119,6 +141,7 @@ export const mechanicApi = createApi({
 
 export const {
   useRegisterMechanicMutation,
+  useUpdateProfileMutation,
   useGetMechanicQuery,
   useGetInfoQuery,
   useResubmitRequestMutation,
