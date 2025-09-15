@@ -109,3 +109,7 @@ const mechanicChatSlice = createSlice({
 export const { setMessages, setNewMessage ,markAsSeen} = mechanicChatSlice.actions;
 
 export default mechanicChatSlice.reducer;
+
+
+
+
