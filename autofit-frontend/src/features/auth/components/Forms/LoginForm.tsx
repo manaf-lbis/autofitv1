@@ -27,12 +27,20 @@ const LoginForm: React.FC<LoginFormProps> = ({ role }) => {
 
   const onValidSubmit = async (data: FormData) => {
     try {
-      setErrorMessage(null); 
+      setErrorMessage(null);
       const res = await login({ ...data, role }).unwrap();
       if (res.status === "success") {
-        dispatch(setUser({ name: res.data.name, role: res.data.role ,email : res.data.email ,mobile : res.data.mobile}));
+        dispatch(setUser({
+          name: res.data.name,
+          role: res.data.role,
+          email: res.data.email,
+          mobile: res.data.mobile,
+          profileStatus: res.data?.profileStatus,
+          avatar: res.data?.avatar
+        }));
         localStorage.setItem('userRole', res.data.role);
         localStorage.setItem('isAuthenticated', 'true');
+        console.log('navigating to ', roleConfig[res.data.role].defaultRoute);
         navigate(roleConfig[res.data.role].defaultRoute, { replace: true });
       }
     } catch (err: any) {
@@ -64,13 +72,12 @@ const LoginForm: React.FC<LoginFormProps> = ({ role }) => {
       </div>
 
       <form onSubmit={handleSubmit(onValidSubmit)} className="grid gap-2">
-        
-        <div 
-          className={`transition-all duration-300 ease-in-out overflow-hidden ${
-            errorMessage 
-              ? 'max-h-20 opacity-100 mb-2' 
+
+        <div
+          className={`transition-all duration-300 ease-in-out overflow-hidden ${errorMessage
+              ? 'max-h-20 opacity-100 mb-2'
               : 'max-h-0 opacity-0 mb-0'
-          }`}
+            }`}
         >
           <div className="flex items-center justify-between bg-red-100 text-red-800 p-3 rounded-md transform transition-transform duration-300">
             <span className="text-sm">{errorMessage}</span>
@@ -83,7 +90,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ role }) => {
             </button>
           </div>
         </div>
-        
+
         <FormInput
           id="email"
           label="Email"

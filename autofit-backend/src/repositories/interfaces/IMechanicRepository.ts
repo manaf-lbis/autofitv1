@@ -5,6 +5,7 @@ import { MechanicDocument } from "../../models/mechanicModel";
 export interface IMechanicRepository extends IBaseRepository<MechanicDocument> {
 
     findByEmail(email: string): Promise<MechanicDocument | null>
+    findAllByEmail(email: string): Promise<MechanicDocument[]>
     getRefreshToken(userId: Types.ObjectId): Promise<string | null>
     storeRefreshToken(userId: Types.ObjectId, token: string): Promise<void>
     findMechanicWithPagination(params: {

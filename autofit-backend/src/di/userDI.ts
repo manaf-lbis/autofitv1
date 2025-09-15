@@ -5,22 +5,21 @@ import { PretripController } from "../controllers/user/pretripController";
 import { ProfileController } from "../controllers/user/profileController";
 import { ServicesController } from "../controllers/user/servicesController";
 import { VehicleController } from "../controllers/user/vehicleController";
-import { GoogleMapRepository } from "../repositories/GoogleMapRepository";
-// import { GoogleMapRepository } from "../repositories/googleMapRepository";
+import { GoogleMapRepository } from "../repositories/mapRepository";
 import { LiveAsistanceRepository } from "../repositories/liveAssistanceRepository";
 import { MechanicProfileRepository } from "../repositories/mechanicProfileRepository";
 import { NotificationRepository } from "../repositories/notificationRepository";
 import { OtpRepository } from "../repositories/otpRepository";
-import { PaymentRepository } from "../repositories/paymentRepository";
+import { PaymentRepository } from "../repositories/paymentsRepository"; 
 import { PretripBookingRepository } from "../repositories/pretripBookingRepository";
 import { PretripFeatureRepository } from "../repositories/pretripFeatureRepository";
 import { PretripPlanRepository } from "../repositories/pretripPlanRepository";
 import { PretripReportRepository } from "../repositories/pretripReportRepository";
 import { QuotationRepository } from "../repositories/quotationRepository";
-import { RazorpayRepository } from "../repositories/razorpayRepository";
+import { RazorpayRepository } from "../repositories/razorPayRepo"; 
 import { RoadsideAssistanceRepository } from "../repositories/roadsideAssistanceRepo";
 import { TimeBlockRepository } from "../repositories/timeBlockRepository";
-import { TransactionRepository } from "../repositories/transactionRepository";
+import { TransactionRepository } from "../repositories/transactionsRepository"; 
 import { UserRepository } from "../repositories/userRepository";
 import { VehicleBrandRepository } from "../repositories/vehicleBrandRepository";
 import { VehicleRepository } from "../repositories/vehicleRepository";
@@ -77,7 +76,7 @@ const pretripPlanService = new PretripPlanService(pretripFeaterRepository,pretri
 const mechanicProfileRepository = new MechanicProfileRepository()
 const googleMapRepo = new GoogleMapRepository()
 const pretripReportRepository = new PretripReportRepository()
-const pretripService = new PretripService(mechanicProfileRepository,googleMapRepo,pretripBookingRepository,pretripPlanRepository,workingHoursRepository,timeBlockingRepository,pretripReportRepository, transactionRepo,paymentRepository)
+const pretripService = new PretripService(mechanicProfileRepository,googleMapRepo,pretripBookingRepository,pretripPlanRepository,workingHoursRepository,timeBlockingRepository,pretripReportRepository, transactionRepo,paymentRepository,mechanicProfileRepository)
 const roadsideAssistanceRepo = new RoadsideAssistanceRepository()
 const profileService = new UserProfileService(userRepository,roadsideAssistanceRepo, pretripBookingRepository,liveAssistanceRepo)
 const vehicleRepository = new VehicleRepository()

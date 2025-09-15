@@ -1,25 +1,14 @@
-import React from "react"
-import { useEffect, useState, useCallback, useRef } from "react"
-import { motion, AnimatePresence } from "framer-motion"
-import {
-  ArrowRight,
-  Play,
-  Shield,
-  Video,
-  MapPin,
-  Star,
-  Users,
-  Clock,
-  Zap,
-  ChevronLeft,
-  ChevronRight,
-} from "lucide-react"
+import type React from "react"
+import { useState, useEffect } from "react"
+import { ArrowRight, Shield, Video, MapPin } from "lucide-react"
 import livetrackingImg from '@/assets/userSide/hero/realtimeTracking.png'
 import roadsideAssImg  from '@/assets/userSide/hero/workigMechHero.png'
 import realTimeAss from '@/assets/userSide/hero/raltimeAssistance.png'
+import { useNavigate } from "react-router-dom"
 
-const heroSlides = [
+const slides = [
   {
+    id: 1,
     title: "Emergency Roadside Assistance",
     subtitle: "24/7 Professional Help",
     description:
@@ -27,8 +16,10 @@ const heroSlides = [
     image: roadsideAssImg,
     accent: "blue",
     icon: Shield,
+    link :'/roadside-assistance'
   },
   {
+    id: 2,
     title: "Live Video Diagnostics",
     subtitle: "Expert Mechanics Online",
     description:
@@ -36,8 +27,10 @@ const heroSlides = [
     image: realTimeAss,
     accent: "emerald",
     icon: Video,
+    link :'/user/live-assistance/booking'
   },
   {
+    id: 3,
     title: "Real-time GPS Tracking",
     subtitle: "Know Where Help Is",
     description:
@@ -45,450 +38,272 @@ const heroSlides = [
     image: livetrackingImg,
     accent: "violet",
     icon: MapPin,
+    link : '/pretrip-checkup/plans'
   },
 ]
+const accentColors = {
+  blue: {
+    gradient: "from-blue-500 to-cyan-500",
+    solid: "bg-blue-500 hover:bg-blue-600",
+    style: { backgroundColor: "#3b82f6" },
+    hoverStyle: { backgroundColor: "#0ea5e9" },
+  },
+  emerald: {
+    gradient: "from-emerald-500 to-teal-500",
+    solid: "bg-emerald-500 hover:bg-emerald-600",
+    style: { backgroundColor: "#10b981" },
+    hoverStyle: { backgroundColor: "#14b8a6" },
+  },
+  violet: {
+    gradient: "from-violet-500 to-purple-500",
+    solid: "bg-violet-500 hover:bg-violet-600",
+    style: { backgroundColor: "#8b5cf6" },
+    hoverStyle: { backgroundColor: "#a855f7" },
+  },
+}
 
-const stats = [
-  { number: "50K+", label: "Happy Customers", icon: Users },
-  { number: "99.9%", label: "Uptime", icon: Zap },
-  { number: "< 15min", label: "Response Time", icon: Clock },
-  { number: "4.9", label: "App Rating", icon: Star },
-]
-
-const Hero = () => {
+const Hero = ()=> {
   const [currentSlide, setCurrentSlide] = useState(0)
-  const [userCount, setUserCount] = useState(0)
-  const slideInterval = useRef<number | null>(null);
+  const [isAutoPlaying, setIsAutoPlaying] = useState(true)
+  const [touchStart, setTouchStart] = useState<number | null>(null)
+  const [touchEnd, setTouchEnd] = useState<number | null>(null)
+  const [isDragging, setIsDragging] = useState(false)
+  const [dragStart, setDragStart] = useState<number | null>(null)
+  const navigate = useNavigate()
 
-  const currentSlideData = heroSlides[currentSlide]
-
-  // Auto-advance slides
   useEffect(() => {
-    slideInterval.current = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % heroSlides.length)
-    }, 5000)
+    if (!isAutoPlaying) return
 
-    return () => {
-      if (slideInterval.current) {
-        clearInterval(slideInterval.current)
-      }
-    }
-  }, [])
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % slides.length)
+    }, 4000) 
 
-  // Animated counter
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setUserCount((prev) => (prev < 50000 ? prev + 1000 : 50000))
-    }, 100)
-    return () => clearInterval(timer)
-  }, [])
+    return () => clearInterval(interval)
+  }, [isAutoPlaying])
 
-  const nextSlide = useCallback(() => {
-    setCurrentSlide((prev) => (prev + 1) % heroSlides.length)
-  }, [])
+  const goToSlide = (index: number) => {
+    setCurrentSlide(index)
+    setIsAutoPlaying(false)
+    setTimeout(() => setIsAutoPlaying(true), 8000) 
+  }
 
-  const prevSlide = useCallback(() => {
-    setCurrentSlide((prev) => (prev - 1 + heroSlides.length) % heroSlides.length)
-  }, [])
+  const nextSlide = () => {
+    setCurrentSlide((prev) => (prev + 1) % slides.length)
+    setIsAutoPlaying(false)
+    setTimeout(() => setIsAutoPlaying(true), 8000)
+  }
 
-  const getAccentColors = (accent: string) => {
-    switch (accent) {
-      case "blue":
-        return {
-          primary: "bg-blue-600",
-          hover: "hover:bg-blue-700",
-          text: "text-blue-600",
-          light: "bg-blue-50",
-          border: "border-blue-200",
-        }
-      case "emerald":
-        return {
-          primary: "bg-emerald-600",
-          hover: "hover:bg-emerald-700",
-          text: "text-emerald-600",
-          light: "bg-emerald-50",
-          border: "border-emerald-200",
-        }
-      case "violet":
-        return {
-          primary: "bg-violet-600",
-          hover: "hover:bg-violet-700",
-          text: "text-violet-600",
-          light: "bg-violet-50",
-          border: "border-violet-200",
-        }
-      default:
-        return {
-          primary: "bg-blue-600",
-          hover: "hover:bg-blue-700",
-          text: "text-blue-600",
-          light: "bg-blue-50",
-          border: "border-blue-200",
-        }
+  const prevSlide = () => {
+    setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length)
+    setIsAutoPlaying(false)
+    setTimeout(() => setIsAutoPlaying(true), 8000)
+  }
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null)
+    setTouchStart(e.targetTouches[0].clientX)
+    setIsAutoPlaying(false)
+  }
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX)
+  }
+
+  const handleTouchEnd = () => {
+    if (!touchStart || !touchEnd) return
+    const distance = touchStart - touchEnd
+    const isLeftSwipe = distance > 50
+    const isRightSwipe = distance < -50
+
+    if (isLeftSwipe) nextSlide()
+    if (isRightSwipe) prevSlide()
+
+    setTimeout(() => setIsAutoPlaying(true), 8000)
+  }
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    setIsDragging(true)
+    setDragStart(e.clientX)
+    setIsAutoPlaying(false)
+    e.preventDefault()
+  }
+
+  const handleNavigate = (link: string) => {
+      navigate(link)
+  }
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging || !dragStart) return
+    e.preventDefault()
+  }
+
+  const handleMouseUp = (e: React.MouseEvent) => {
+    if (!isDragging || !dragStart) return
+
+    const dragEnd = e.clientX
+    const distance = dragStart - dragEnd
+    const isLeftDrag = distance > 75
+    const isRightDrag = distance < -75
+
+    if (isLeftDrag) nextSlide()
+    if (isRightDrag) prevSlide()
+
+    setIsDragging(false)
+    setDragStart(null)
+    setTimeout(() => setIsAutoPlaying(true), 8000)
+  }
+
+  const handleMouseLeave = () => {
+    if (isDragging) {
+      setIsDragging(false)
+      setDragStart(null)
+      setTimeout(() => setIsAutoPlaying(true), 8000)
     }
   }
 
-  const colors = getAccentColors(currentSlideData.accent)
-
   return (
-    <section className="relative min-h-screen flex items-center bg-slate-50 overflow-hidden">
-      {/* Background Pattern */}
-      <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-white/50" />
+    <div className="relative w-full max-w-7xl mx-auto mt-24">
+      <div className="relative overflow-hidden rounded-3xl">
         <div
-          className="absolute inset-0 opacity-[0.02]"
-          style={{
-            backgroundImage: `radial-gradient(circle at 1px 1px, rgb(15 23 42) 1px, transparent 0)`,
-            backgroundSize: "40px 40px",
-          }}
-        />
-      </div>
+          className="flex transition-transform duration-700 ease-out cursor-grab active:cursor-grabbing select-none"
+          style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
+          onMouseLeave={handleMouseLeave}
+        >
+          {slides.map((slide, index) => {
+            const gradientColors = accentColors[slide.accent as keyof typeof accentColors]
+            const IconComponent = slide.icon
+            const isActive = index === currentSlide
 
-      {/* Floating Glass Elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <motion.div
-          className="absolute top-20 left-10 w-80 h-80 bg-white/10 backdrop-blur-3xl rounded-full border border-white/20"
-          animate={{
-            x: [0, 50, 0],
-            y: [0, -30, 0],
-            scale: [1, 1.1, 1],
-          }}
-          transition={{
-            duration: 20,
-            repeat: Number.POSITIVE_INFINITY,
-            ease: "easeInOut",
-          }}
-        />
-        <motion.div
-          className="absolute bottom-20 right-10 w-96 h-96 bg-white/5 backdrop-blur-3xl rounded-full border border-white/10"
-          animate={{
-            x: [0, -40, 0],
-            y: [0, 25, 0],
-            scale: [1, 0.9, 1],
-          }}
-          transition={{
-            duration: 25,
-            repeat: Number.POSITIVE_INFINITY,
-            ease: "easeInOut",
-          }}
-        />
-      </div>
+            return (
+              <div key={slide.id} className="w-full flex-shrink-0">
+                <div className="flex flex-col lg:grid lg:grid-cols-2 gap-0 min-h-[500px] sm:min-h-[550px] lg:min-h-[450px] xl:min-h-[500px] bg-gradient-to-br from-white via-gray-50/50 to-white dark:from-gray-900 dark:via-gray-800/50 dark:to-gray-900">
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full relative z-10">
-        <div className="grid lg:grid-cols-2 gap-16 items-center">
-          {/* Left Content */}
-          <div className="space-y-8">
-            {/* Glass Badge */}
-            <motion.div
-              className="inline-flex items-center gap-3 px-6 py-3 bg-white/20 backdrop-blur-xl rounded-full border border-white/30 shadow-lg"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-            >
-              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-              <span className="text-sm font-medium text-slate-700">Available 24/7</span>
-              <div className="w-1 h-1 bg-slate-400 rounded-full" />
-              <span className="text-sm text-slate-600">{userCount.toLocaleString()}+ served</span>
-            </motion.div>
-
-            {/* Title */}
-            <div className="space-y-6">
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={currentSlide}
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -30 }}
-                  transition={{ duration: 0.6, ease: "easeOut" }}
-                  className="space-y-6"
-                >
-                  <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-slate-900 leading-tight">
-                    <span className={colors.text}>{currentSlideData.title.split(" ")[0]}</span>
-                    <br />
-                    <span className="text-slate-800">{currentSlideData.title.split(" ").slice(1).join(" ")}</span>
-                  </h1>
-                  <p className="text-xl text-slate-600 leading-relaxed max-w-xl">{currentSlideData.description}</p>
-                </motion.div>
-              </AnimatePresence>
-            </div>
-
-            {/* CTA Buttons */}
-            <motion.div
-              className="flex flex-col sm:flex-row gap-4"
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3, duration: 0.6 }}
-            >
-              <motion.button
-                className={`group ${colors.primary} ${colors.hover} text-white px-8 py-4 rounded-2xl font-semibold text-lg shadow-xl hover:shadow-2xl transition-all duration-300 relative overflow-hidden`}
-                whileHover={{ scale: 1.02, y: -2 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <span className="relative z-10 flex items-center justify-center gap-2">
-                  Get Help Now
-                  <ArrowRight className="group-hover:translate-x-1 transition-transform duration-300" size={20} />
-                </span>
-                <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              </motion.button>
-
-              <motion.button
-                className="group bg-white/30 backdrop-blur-xl hover:bg-white/40 text-slate-700 px-8 py-4 rounded-2xl font-semibold text-lg border border-white/40 hover:border-white/60 transition-all duration-300 shadow-lg hover:shadow-xl"
-                whileHover={{ scale: 1.02, y: -2 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <span className="flex items-center justify-center gap-2">
-                  <Play size={18} className="group-hover:scale-110 transition-transform duration-300" />
-                  Watch Demo
-                </span>
-              </motion.button>
-            </motion.div>
-
-            {/* Stats */}
-            <motion.div
-              className="pt-8"
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5, duration: 0.6 }}
-            >
-              {/* Stats Header */}
-              <div className="mb-6">
-                <h3 className="text-lg font-semibold text-slate-800 mb-2">Trusted by thousands</h3>
-                <p className="text-sm text-slate-600">Real-time performance metrics</p>
-              </div>
-
-              {/* Stats Grid - Fixed Desktop Alignment */}
-              <div className="space-y-6">
-                {/* Main Stats - Better Desktop Layout */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-4">
-                  {stats.map((stat, index) => (
-                    <motion.div
-                      key={index}
-                      className="group relative"
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.6 + index * 0.1, duration: 0.5 }}
-                      whileHover={{ y: -5 }}
+                  <div className="relative flex flex-col justify-center px-6 sm:px-8 md:px-12 lg:px-16 xl:px-20 py-8 sm:py-12 lg:py-16 order-2 lg:order-1">
+                    <div
+                      className={`relative space-y-6 sm:space-y-8 max-w-lg mx-auto lg:mx-0 text-center lg:text-left transition-all duration-1000 ${isActive ? "translate-y-0 opacity-100" : "translate-y-4 opacity-70"}`}
                     >
-                      {/* Glass Card */}
-                      <div className="bg-white/30 backdrop-blur-xl rounded-xl p-4 border border-white/40 shadow-lg hover:bg-white/40 hover:shadow-xl transition-all duration-300 h-full min-h-[100px] flex flex-col justify-between">
-                        {/* Icon Container */}
-                        <div className="flex items-center justify-between mb-3">
-                          <div className="w-10 h-10 bg-white/50 backdrop-blur-sm rounded-lg flex items-center justify-center group-hover:bg-white/70 transition-all duration-300">
-                            {React.createElement(stat.icon, {
-                              className: "text-slate-700 group-hover:scale-110 transition-transform duration-300",
-                              size: 18,
-                            })}
-                          </div>
-                          <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse opacity-60" />
+
+                      <div className="flex items-center justify-center lg:justify-start gap-3 group">
+                        <div
+                          className={`relative p-3 sm:p-4 rounded-2xl bg-gradient-to-r ${gradientColors.gradient} shadow-lg group-hover:shadow-xl transition-all duration-500 group-hover:scale-110`}
+                        >
+                          <IconComponent className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+                          <div
+                            className={`absolute inset-0 rounded-2xl bg-gradient-to-r ${gradientColors.gradient} blur-lg opacity-20 group-hover:opacity-30 transition-opacity duration-500`}
+                          />
                         </div>
-
-                        {/* Stats Content */}
-                        <div className="space-y-1">
-                          <div className="text-2xl font-bold text-slate-900 group-hover:text-slate-800 transition-colors duration-300">
-                            {stat.number}
-                          </div>
-                          <div className="text-sm text-slate-600 font-medium leading-tight">{stat.label}</div>
-                        </div>
-
-                        {/* Hover Effect Overlay */}
-                        <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl" />
+                        <span className="text-sm sm:text-base font-semibold text-gray-600 dark:text-gray-300 tracking-wide uppercase">
+                          {slide.subtitle}
+                        </span>
                       </div>
-                    </motion.div>
-                  ))}
-                </div>
 
-                {/* Additional Info Cards - Better Spacing */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-                  <motion.div
-                    className="bg-white/25 backdrop-blur-xl rounded-xl p-4 border border-white/40 shadow-lg hover:bg-white/35 transition-all duration-300"
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 1, duration: 0.5 }}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 bg-blue-500/20 backdrop-blur-sm rounded-lg flex items-center justify-center">
-                        <Users className="text-blue-600" size={16} />
-                      </div>
-                      <div>
-                        <div className="text-lg font-bold text-blue-700">{userCount.toLocaleString()}+</div>
-                        <div className="text-xs text-slate-600 font-medium">Users Helped Today</div>
+                      <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-gray-900 dark:text-white leading-tight tracking-tight text-balance">
+                        <span
+                          className={`inline-block transition-all duration-700 delay-100 ${isActive ? "translate-y-0 opacity-100" : "translate-y-2 opacity-70"}`}
+                        >
+                          {slide.title.split(" ").slice(0, -1).join(" ")}
+                        </span>
+                        <br />
+                        <span
+                          className={`inline-block bg-gradient-to-r ${gradientColors.gradient} bg-clip-text text-transparent transition-all duration-700 delay-200 ${isActive ? "translate-y-0 opacity-100" : "translate-y-2 opacity-70"}`}
+                        >
+                          {slide.title.split(" ").slice(-1)[0]}
+                        </span>
+                      </h1>
+
+
+                      <p
+                        className={`text-sm sm:text-base lg:text-lg text-gray-600 dark:text-gray-300 leading-relaxed max-w-md mx-auto lg:mx-0 transition-all duration-700 delay-300 text-pretty ${isActive ? "translate-y-0 opacity-100" : "translate-y-2 opacity-70"}`}
+                      >
+                        {slide.description}
+                      </p>
+
+
+                      <div
+                        className={`pt-4 sm:pt-6 transition-all duration-700 delay-400 ${isActive ? "translate-y-0 opacity-100" : "translate-y-2 opacity-70"}`} 
+                        onClick={() => handleNavigate(slide.link)}
+                      >
+                        <button
+                          className={`group relative inline-flex items-center gap-2 sm:gap-3 px-6 sm:px-8 lg:px-10 py-3 sm:py-4 lg:py-5 text-white font-semibold rounded-xl sm:rounded-2xl shadow-xl hover:shadow-2xl transform hover:scale-105 active:scale-95 transition-all duration-300 overflow-hidden text-sm sm:text-base`}
+                          style={gradientColors.style}
+                          onMouseEnter={(e) => {
+                            Object.assign(e.currentTarget.style, gradientColors.hoverStyle)
+                          }}
+                          onMouseLeave={(e) => {
+                            Object.assign(e.currentTarget.style, gradientColors.style)
+                          }}
+                        >
+                          <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 ease-out" />
+                          <span className="relative">Get Help Now</span>
+                          <ArrowRight className="relative w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform duration-300" />
+                        </button>
                       </div>
                     </div>
-                  </motion.div>
+                  </div>
 
-                  <motion.div
-                    className="bg-white/25 backdrop-blur-xl rounded-xl p-4 border border-white/40 shadow-lg hover:bg-white/35 transition-all duration-300"
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 1.1, duration: 0.5 }}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 bg-emerald-500/20 backdrop-blur-sm rounded-lg flex items-center justify-center">
-                        <MapPin className="text-emerald-600" size={16} />
-                      </div>
-                      <div>
-                        <div className="text-lg font-bold text-emerald-700">2.5M+</div>
-                        <div className="text-xs text-slate-600 font-medium">Miles Covered</div>
-                      </div>
+                  <div className="relative flex items-center justify-center p-6 sm:p-8 lg:p-12 xl:p-16 order-1 lg:order-2">
+                    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                      <div
+                        className={`absolute top-8 right-8 w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-br ${gradientColors.gradient} opacity-5 rounded-full blur-2xl animate-pulse`}
+                      />
+                      <div
+                        className={`absolute bottom-8 left-8 w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-tr ${gradientColors.gradient} opacity-5 rounded-full blur-2xl animate-pulse delay-1000`}
+                      />
                     </div>
-                  </motion.div>
-                </div>
-              </div>
-            </motion.div>
-          </div>
 
-          {/* Right Content - Image */}
-          <motion.div
-            className="relative"
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8 }}
-          >
-            <div className="relative group">
-              {/* Main Image Container - Improved Effect */}
-              <div className="relative rounded-3xl overflow-hidden shadow-2xl border-2 border-white/50">
-                <AnimatePresence mode="wait">
-                  <motion.div
-                    key={currentSlide}
-                    initial={{ opacity: 0, scale: 1.1 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.9 }}
-                    transition={{ duration: 0.7, ease: "easeOut" }}
-                    className="relative"
-                  >
-                    <img
-                      src={currentSlideData.image || "/placeholder.svg"}
-                      alt={currentSlideData.title}
-                      className="w-full h-auto transform group-hover:scale-105 transition-transform duration-700"
-                    />
-                    {/* Subtle overlay instead of glassmorphism */}
-                    <div className="absolute inset-0 bg-black/5 group-hover:bg-black/0 transition-all duration-500" />
+                    <div
+                      className={`relative w-full h-56 sm:h-72 lg:h-full max-w-sm sm:max-w-md lg:max-w-lg transition-all duration-1000 ${isActive ? "scale-100 rotate-0" : "scale-95 rotate-1"}`}
+                    >
+                      <img
+                        src={
+                          slide.image ||
+                          `/placeholder.svg?height=500&width=500&query=${encodeURIComponent(slide.title) || "/placeholder.svg"}`
+                        }
+                        alt={slide.title}
+                        className="w-full h-full object-cover rounded-2xl sm:rounded-3xl shadow-2xl"
+                        draggable={false}
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/3 via-transparent to-white/3 rounded-2xl sm:rounded-3xl" />
 
-                    {/* Elegant border glow effect */}
-                    <div className="absolute inset-0 rounded-3xl ring-1 ring-white/20 group-hover:ring-white/40 transition-all duration-500" />
-                  </motion.div>
-                </AnimatePresence>
-
-                {/* Navigation Arrows */}
-                <div className="absolute inset-0 flex items-center justify-between px-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <button
-                    onClick={prevSlide}
-                    className="w-12 h-12 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center shadow-lg hover:bg-white transition-all duration-300 hover:scale-110"
-                  >
-                    <ChevronLeft size={20} className="text-slate-700" />
-                  </button>
-                  <button
-                    onClick={nextSlide}
-                    className="w-12 h-12 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center shadow-lg hover:bg-white transition-all duration-300 hover:scale-110"
-                  >
-                    <ChevronRight size={20} className="text-slate-700" />
-                  </button>
-                </div>
-              </div>
-
-              {/* Floating Status Card */}
-              <motion.div
-                className="absolute -top-6 -right-6 bg-white/90 backdrop-blur-xl rounded-2xl p-4 border border-white/50 shadow-xl"
-                animate={{
-                  y: [0, -10, 0],
-                }}
-                transition={{
-                  duration: 4,
-                  repeat: Number.POSITIVE_INFINITY,
-                  ease: "easeInOut",
-                }}
-              >
-                <div className="flex items-center gap-3">
-                  {React.createElement(currentSlideData.icon, {
-                    className: colors.text,
-                    size: 20,
-                  })}
-                  <div>
-                    <div className="text-sm font-semibold text-slate-900">{currentSlideData.subtitle}</div>
-                    <div className="text-xs text-slate-600">Active Now</div>
+                      <div
+                        className={`absolute -top-2 -right-2 sm:-top-3 sm:-right-3 w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-r ${gradientColors.gradient} rounded-full shadow-lg animate-bounce`}
+                      />
+                    </div>
                   </div>
                 </div>
-              </motion.div>
-
-              {/* Bottom Floating Card */}
-              <motion.div
-                className="absolute -bottom-6 -left-6 bg-white/90 backdrop-blur-xl rounded-2xl p-4 border border-white/50 shadow-xl"
-                animate={{
-                  y: [0, 10, 0],
-                }}
-                transition={{
-                  duration: 5,
-                  repeat: Number.POSITIVE_INFINITY,
-                  ease: "easeInOut",
-                  delay: 1,
-                }}
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse" />
-                  <div>
-                    <div className="text-sm font-semibold text-slate-900">Response Time</div>
-                    <div className="text-xs text-slate-600">{"< 15 minutes"}</div>
-                  </div>
-                </div>
-              </motion.div>
-
-              {/* Additional Glass Elements */}
-              <motion.div
-                className="absolute top-1/4 -left-8 bg-white/80 backdrop-blur-xl rounded-xl p-3 border border-white/40 shadow-lg"
-                animate={{
-                  x: [0, 10, 0],
-                  y: [0, -5, 0],
-                }}
-                transition={{
-                  duration: 6,
-                  repeat: Number.POSITIVE_INFINITY,
-                  ease: "easeInOut",
-                  delay: 2,
-                }}
-              >
-                <div className="flex items-center gap-2">
-                  <Users className={colors.text} size={16} />
-                  <span className="text-xs font-medium text-slate-700">50K+ Users</span>
-                </div>
-              </motion.div>
-
-              <motion.div
-                className="absolute bottom-1/3 -right-8 bg-white/80 backdrop-blur-xl rounded-xl p-3 border border-white/40 shadow-lg"
-                animate={{
-                  x: [0, -10, 0],
-                  y: [0, 5, 0],
-                }}
-                transition={{
-                  duration: 7,
-                  repeat: Number.POSITIVE_INFINITY,
-                  ease: "easeInOut",
-                  delay: 3,
-                }}
-              >
-                <div className="flex items-center gap-2">
-                  <Clock className={colors.text} size={16} />
-                  <span className="text-xs font-medium text-slate-700">Fast Response</span>
-                </div>
-              </motion.div>
-            </div>
-          </motion.div>
-        </div>
-
-        {/* Slide Indicators */}
-        <div className="flex items-center justify-center gap-3 mt-16">
-          {heroSlides.map((_, index) => (
-            <button key={index} onClick={() => setCurrentSlide(index)} className="group">
-              <div
-                className={`h-2 rounded-full transition-all duration-300 ${
-                  index === currentSlide ? `w-8 ${colors.primary}` : "w-2 bg-slate-300 hover:bg-slate-400"
-                }`}
-              />
-            </button>
-          ))}
+              </div>
+            )
+          })}
         </div>
       </div>
-    </section>
+
+      <div className="flex justify-center items-center gap-2 sm:gap-3 mt-6 sm:mt-8">
+        {slides.map((_, index) => {
+          const gradientColors = accentColors[slides[currentSlide].accent as keyof typeof accentColors]
+          return (
+            <button
+              key={index}
+              onClick={() => goToSlide(index)}
+              className={`h-2 sm:h-3 rounded-full transition-all duration-500 hover:scale-125 active:scale-95 ${
+                index === currentSlide
+                  ? `w-8 sm:w-12 bg-gradient-to-r ${gradientColors.gradient} shadow-lg`
+                  : "w-2 sm:w-3 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500"
+              }`}
+              aria-label={`Go to slide ${index + 1}`}
+            />
+          )
+        })}
+      </div>
+    </div>
   )
 }
+
+
 
 export default Hero

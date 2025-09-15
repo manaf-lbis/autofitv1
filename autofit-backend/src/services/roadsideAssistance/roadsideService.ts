@@ -13,6 +13,7 @@ import { IPaymentRepository } from "../../repositories/interfaces/IPaymentReposi
 import { generateReceiptPDF } from "../../utils/templates/receiptTemplate";
 import { formatDate } from "date-fns";
 import { Role } from "../../types/role";
+import { MechanicAvailabilityStatus } from "../../types/mechanic/mechanic";
 
 export class RoadsideService implements IRoadsideService {
   constructor(
@@ -34,7 +35,7 @@ export class RoadsideService implements IRoadsideService {
       entity.arrivedAt = new Date()
     } else if (entity.status === 'completed') {
       entity.endedAt = new Date()
-      await this._mechanicProfileRepo.findByMechanicIdAndUpdate(userId, { availability: 'available' });
+      await this._mechanicProfileRepo.findByMechanicIdAndUpdate(userId, { availability: MechanicAvailabilityStatus.AVAILABLE });
 
       const booking = await this._roadsideAssistanceRepo.findById(serviceId);
       if (!booking) throw new Error('Invalid Service');
@@ -72,7 +73,7 @@ export class RoadsideService implements IRoadsideService {
     const response = await this._roadsideAssistanceRepo.update(serviceId, { status: RoadsideAssistanceStatus.CANCELED })
     if (response) {
       await this._quotationRepo.update(response?.quotationId as Types.ObjectId, { status: RoadsideQuotationStatus.REJECTED });
-      await this._mechanicProfileRepo.findByMechanicIdAndUpdate(response?.mechanicId, { availability: 'available' })
+      await this._mechanicProfileRepo.findByMechanicIdAndUpdate(response?.mechanicId, { availability: MechanicAvailabilityStatus.AVAILABLE })
     }
   }
 
@@ -84,7 +85,7 @@ export class RoadsideService implements IRoadsideService {
     }
 
     if (response) {
-      await this._mechanicProfileRepo.findByMechanicIdAndUpdate(response?.mechanicId, { availability: 'available' })
+      await this._mechanicProfileRepo.findByMechanicIdAndUpdate(response?.mechanicId, { availability: MechanicAvailabilityStatus.AVAILABLE })
     }
   }
 

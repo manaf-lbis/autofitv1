@@ -1,11 +1,10 @@
-import { DotLottiePlayer } from "@dotlottie/react-player";
-import carLoading from "@/assets/lottieFiles/carLoading.lottie";
 import React from "react";
-
+import Lottie from "lottie-react";
+import carLoading from "@/assets/lottieFiles/carLoading.json";
 
 const PageLoading: React.FC = () => {
   return (
-    <div className="w-screen h-screen flex flex-col items-center justify-center bg-gray-50">
+    <div className="w-screen h-screen flex flex-col items-center justify-center bg-gray-50 relative">
       {/* App Logo/Name */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-800 tracking-wide">
@@ -15,10 +14,9 @@ const PageLoading: React.FC = () => {
 
       {/* Car Animation */}
       <div className="mb-6">
-        <DotLottiePlayer
-          src={carLoading}
-          autoplay
-          loop
+        <Lottie
+          animationData={carLoading}
+          loop={true}
           style={{ width: "140px", height: "140px" }}
         />
       </div>
@@ -30,8 +28,14 @@ const PageLoading: React.FC = () => {
         </p>
         <div className="flex space-x-1 justify-center">
           <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-          <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-          <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+          <div
+            className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+            style={{ animationDelay: "0.1s" }}
+          ></div>
+          <div
+            className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+            style={{ animationDelay: "0.2s" }}
+          ></div>
         </div>
       </div>
 

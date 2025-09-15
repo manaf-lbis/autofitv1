@@ -22,6 +22,15 @@ export class MechanicRepository extends BaseRepository<MechanicDocument> impleme
         }
     }
 
+    async findAllByEmail(email: string): Promise<MechanicDocument[]> {
+        try {
+            const mechanics = await MechanicModel.find({ email }).exec();
+            return mechanics
+        } catch  {
+            throw new ApiError(`Error finding user`, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     async storeRefreshToken(userId: ObjectId, token: string): Promise<void> {
         try {
             const result = await MechanicModel.updateOne({ _id: userId }, { refreshToken: token }).exec();

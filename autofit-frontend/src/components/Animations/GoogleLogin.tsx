@@ -1,20 +1,17 @@
-import { DotLottiePlayer } from "@dotlottie/react-player";
-import loadingSpinner from "@/assets/lottieFiles/google_loading.lottie";
+import React from "react";
+import Lottie from "lottie-react";
+import loadingSpinner from "@/assets/lottieFiles/google_loading.json";
 
-
-import React from 'react'
-
-const GoogleLoading : React.FC = () => {
+const GoogleLoading: React.FC = () => {
   return (
-    <div >
-      <DotLottiePlayer
-        src={loadingSpinner} 
-        autoplay
-        loop
-        style={{ width: "60px", height: "60px" }} 
+    <div>
+      <Lottie
+        animationData={loadingSpinner}
+        loop={true}
+        style={{ width: "90px", height: "100px" }}
       />
     </div>
-  )
-}
+  );
+};
 
-export default GoogleLoading
+export default GoogleLoading;

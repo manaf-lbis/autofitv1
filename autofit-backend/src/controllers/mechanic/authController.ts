@@ -29,10 +29,11 @@ export class AuthController {
 
             const result = await this._authService.login(email, password);
 
+            const isProd = process.env.NODE_ENV === 'production';
             res.cookie('jwt', result.token, {
                 httpOnly: true,
-                secure: process.env.NODE_ENV === 'production',
-                sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+                secure: isProd,
+                sameSite: isProd ? 'none' : 'lax',
                 path: '/',
                 maxAge: Number(process.env.JWT_COOKIE_MAX_AGE)
             });
@@ -58,10 +59,11 @@ export class AuthController {
 
             const result = await this._authService.refreshAccessToken(userId);
 
+            const isProd = process.env.NODE_ENV === 'production';
             res.cookie("jwt", result.accessToken, {
                 httpOnly: true,
-                secure: process.env.NODE_ENV === "production",
-                sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+                secure: isProd,
+                sameSite: isProd ? "none" : "lax",
                 path: '/',
                 maxAge: Number(process.env.JWT_COOKIE_MAX_AGE)
             });
@@ -81,10 +83,11 @@ export class AuthController {
 
             const result = await this._authService.signup(name.toLowerCase(), email, password, mobile);
 
+            const isProd = process.env.NODE_ENV === 'production';
             res.cookie('jwt', result.token, {
                 httpOnly: true,
-                secure: process.env.NODE_ENV === 'production',
-                sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+                secure: isProd,
+                sameSite: isProd ? 'none' : 'lax',
                 path: '/',
                 maxAge: Number(process.env.SIGNUP_COOKIE_MAX_AGE)
             });
@@ -129,10 +132,11 @@ export class AuthController {
             });
             const token = this._tokenService.generateAccessToken({ id, role })
 
+            const isProd = process.env.NODE_ENV === 'production';
             res.cookie('jwt', token, {
                 httpOnly: true,
-                secure: process.env.NODE_ENV === 'production',
-                sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+                secure: isProd,
+                sameSite: isProd ? 'none' : 'lax',
                 path: '/',
                 maxAge: Number(process.env.JWT_COOKIE_MAX_AGE)
             });
@@ -190,10 +194,12 @@ export class AuthController {
             if (!userId) throw new ApiError("Not authenticated!", HttpStatus.BAD_REQUEST);
 
             await this._authService.logout(userId);
+
+            const isProd = process.env.NODE_ENV === 'production';
             res.clearCookie('jwt', {
                 httpOnly: true,
-                sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-                secure: process.env.NODE_ENV === 'production',
+                sameSite: isProd ? 'none' : 'lax',
+                secure: isProd,
                 path: '/'
             });
 
@@ -210,10 +216,11 @@ export class AuthController {
             const { code } = req.body;
             const result = await this._googleAuthService.googleAuth({ code })
 
+            const isProd = process.env.NODE_ENV === 'production';
             res.cookie('jwt', result.token, {
                 httpOnly: true,
-                secure: process.env.NODE_ENV === 'production',
-                sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+                secure: isProd,
+                sameSite: isProd ? 'none' : 'lax',
                 path: '/',
                 maxAge: Number(process.env.JWT_COOKIE_MAX_AGE)
             });

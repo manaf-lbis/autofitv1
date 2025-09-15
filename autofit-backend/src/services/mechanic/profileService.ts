@@ -5,7 +5,7 @@ import { ApiError } from "../../utils/apiError";
 import { Types } from "mongoose";
 import { MechanicProfileDocument } from "../../models/mechanicProfileModel";
 import { INotificationRepository } from "../../repositories/interfaces/INotificationRepository";
-import { IProfileService, IScheduleDetails } from "./interface/IProfileService";
+import { IProfileService, IScheduleDetails, UpdateProfile } from "./interface/IProfileService";
 import { MechanicRegisterPayload } from "./interface/IProfileService";
 import { HttpStatus } from "../../types/responseCode";
 import { IMechanicTiming } from "../../types/mechanic/mechanic";
@@ -50,6 +50,25 @@ export class ProfileService implements IProfileService {
     await this._mechanicProfileRepository.save(toCreate);
   }
 
+  async updateUser(mechanicId: Types.ObjectId, data: UpdateProfile) {
+    const res = await this._mechanicRepository.findAllByEmail(data.email!);
+    if (res.length > 1) throw new ApiError('Email already exists', HttpStatus.BAD_REQUEST);
+    await this._mechanicRepository.update(mechanicId, {
+      email: data.email,
+      name: data.name,
+      mobile: data.mobile
+    });
+    await this._mechanicProfileRepository.update(mechanicId, {
+      location: data.location,
+      shopName: data.shopName,
+      place: data.place,
+      landmark: data.landmark,
+      education: data.education,
+      specialised: data.specialised,
+      experience: data.experience
+    });
+  }
+
 
   async getProfile(mechanicId: ObjectId) {
     try {
@@ -75,7 +94,7 @@ export class ProfileService implements IProfileService {
   async getAvailablity(mechanicId: Types.ObjectId) {
     const response = await this._mechanicProfileRepository.getAvailablity(mechanicId)
     const availability = response?.availability ?? 'notAvailable'
-    
+
     return availability
   }
 
@@ -124,6 +143,7 @@ export class ProfileService implements IProfileService {
 
     const isFullDayBlock = scheduleDetails.isFullDayBlock
     const blockDate = new Date(scheduleDetails.date);
+
     const now = new Date();
     if (blockDate < now) throw new ApiError("Cannot block in the past", HttpStatus.BAD_REQUEST);
 

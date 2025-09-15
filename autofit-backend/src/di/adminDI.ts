@@ -13,7 +13,7 @@ import { PretripFeatureRepository } from "../repositories/pretripFeatureReposito
 import { PretripPlanRepository } from "../repositories/pretripPlanRepository"
 import { RoadsideAssistanceRepository } from "../repositories/roadsideAssistanceRepo"
 import { TimeBlockRepository } from "../repositories/timeBlockRepository"
-import { TransactionRepository } from "../repositories/transactionRepository"
+import { TransactionRepository } from "../repositories/transactionsRepository"
 import { UserRepository } from "../repositories/userRepository"
 import { VehicleRepository } from "../repositories/vehicleRepository"
 import { WorkingHoursRepository } from "../repositories/workingHoursRepository"

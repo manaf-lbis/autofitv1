@@ -24,10 +24,11 @@ export class AdminAuthController {
 
       const result = await this._adminAuthService.login(email.toLowerCase(), password);
 
+      const isProd = process.env.NODE_ENV === 'production';
       res.cookie("jwt", result.token, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+        secure: isProd,
+        sameSite: isProd ? "none" : "lax",
         path: "/",
         maxAge: Number(process.env.JWT_COOKIE_MAX_AGE), 
       });
@@ -109,10 +110,11 @@ export class AdminAuthController {
 
       const result = await this._adminAuthService.refreshAccessToken(userId);
 
+      const isProd = process.env.NODE_ENV === 'production';
       res.cookie("jwt", result.accessToken, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+        secure: isProd,
+        sameSite: isProd ? 'none' : 'lax',
         path: "/",
         maxAge: Number(process.env.JWT_COOKIE_MAX_AGE),
       });

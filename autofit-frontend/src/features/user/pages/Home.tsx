@@ -2,7 +2,6 @@ import React from "react";
 import { useRef } from "react";
 import Hero from "../components/home/Hero";
 import Footer from "../components/Footer";
-import Testimonials from "../components/home/Testimonials";
 import FAQ from "../components/home/FAQ";
 import HowItWorks from "../components/home/HowItWorks";
 import Service from "../components/home/Service";
@@ -15,17 +14,14 @@ const Home :React.FC = () => {
     <div className="bg-white" ref={containerRef}>
       <Hero />
       <Service />
-
       <FeatureShowcase />
-
       <HowItWorks />
-      <Testimonials />
       <FAQ />
-
       <Footer />
     </div>
   );
 };
 
 export default Home;
+
 

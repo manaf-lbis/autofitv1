@@ -29,6 +29,7 @@ app.use(
   })
 );
 
+app.set("trust proxy", 1);
 const limiter = rateLimit({
   windowMs: 5 * 60 * 1000, 
   max: 150, 
@@ -48,7 +49,6 @@ app.use(
     },
   })
 );
-
 
 app.use("/auth/:role/reset-password",resetPassword)
 app.use("/auth/user", userAuth);

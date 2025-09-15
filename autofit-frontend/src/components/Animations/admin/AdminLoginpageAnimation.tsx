@@ -1,20 +1,17 @@
-import { DotLottiePlayer } from "@dotlottie/react-player";
-import adminLoginPage from "@/assets/lottieFiles/admin/adminLoginPage.lottie";
+import React from "react";
+import Lottie from "lottie-react";
+import adminLoginPage from "@/assets/lottieFiles/admin/adminLoginPage.json";
 
-
-import React from 'react'
-
-const AdminLoginpageAnimation : React.FC = () => {
+const AdminLoginpageAnimation: React.FC = () => {
   return (
-    <div >
-      <DotLottiePlayer
-        src={adminLoginPage} 
-        autoplay
-        loop
-        className="mx-auto max-h-[300px]"
+    <div className="mx-auto max-h-[300px]">
+      <Lottie
+        animationData={adminLoginPage}
+        loop={true}
+        style={{ height: "100%", width: "100%" }} 
       />
     </div>
-  )
-}
+  );
+};
 
-export default AdminLoginpageAnimation
+export default AdminLoginpageAnimation;
