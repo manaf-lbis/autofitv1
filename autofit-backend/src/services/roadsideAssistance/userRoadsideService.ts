@@ -11,7 +11,6 @@ import { IPaymentRepository } from "../../repositories/interfaces/IPaymentReposi
 import { IUserRoadsideService } from "./interface/IUserRoadsideService";
 import { Role } from "../../types/role";
 import logger from "../../utils/logger";
-import { RoadsideAssistanceStatus, RoadsideQuotationStatus } from "../../types/services";
 import { ITimeBlockRepository } from "../../repositories/interfaces/ITimeBlockRepository";
 import { differenceInMinutes, startOfDay } from "date-fns";
 import { HttpStatus } from "../../types/responseCode";
@@ -61,9 +60,9 @@ export class UserRoadsideService implements IUserRoadsideService {
     const now = new Date();
     const start = startOfDay(now);
     const currentMinutes = differenceInMinutes(now, start);
-    const blockings = await this._timeBlockingRepo.timeBlockByTimeRange(mechanicId, currentMinutes, currentMinutes+30 ,now)
-    
-    if(blockings) throw new ApiError('Sorry Selected Mechnaic is busy', HttpStatus.BAD_REQUEST)
+    const blockings = await this._timeBlockingRepo.timeBlockByTimeRange(mechanicId, currentMinutes, currentMinutes + 30, now)
+
+    if (blockings) throw new ApiError('Sorry Selected Mechnaic is busy', HttpStatus.BAD_REQUEST)
 
 
     const emergencyAssistance = await this._roadsideAssistanceRepo.create({
@@ -96,79 +95,9 @@ export class UserRoadsideService implements IUserRoadsideService {
     return { notification, emergencyAssistance }
   }
 
-  async approveQuoteAndPay({ serviceId, quotationId, userId }: { serviceId: Types.ObjectId, quotationId: Types.ObjectId, userId: Types.ObjectId }) {
-
-    const service = await this._roadsideAssistanceRepo.findById(serviceId);
-    const quotation = await this._quotaionRepo.findById(quotationId);
-    const payment = await this._paymentRepo.veryfyPaymentStatus(serviceId.toString());
-
-    if (payment?.status === 'success') {
-      logger.info('Payment Already Done')
-      throw new ApiError('Payment Already Done')
-    }
 
 
-    if (payment?.createdAt) {
-      const createdAt = new Date(payment.createdAt).getTime();
-      const expiry = createdAt + 10 * 60 * 1000;
-      const now = Date.now();
-
-      if (now < expiry) {
-        throw new ApiError(`Previous payment is still processing. Try after 10 Minutes`);
-      } else {
-        await this._paymentRepo.deletePayment(serviceId.toString())
-      }
-    }
-
-    if (!quotation) throw new ApiError('Quotation Not Generated')
-
-    if (!service?.quotationId?._id.equals(quotation._id)) throw new ApiError('Quotation Not Match With Service')
-
-    const { orderId } = await this._razorpayRepository.createOrder(quotation.total, serviceId.toString());
-
-    await this._paymentRepo.createPayment({
-      userId: userId,
-      serviceId,
-      paymentId: '',
-      amount: quotation.total,
-      method: 'razorpay',
-      status: 'pending',
-      receipt: orderId
-    })
-
-    logger.info(`payment created for ${serviceId}`)
-
-    return { orderId, mechanicId: service.mechanicId }
-  }
 
 
-  async VerifyPaymentAndApprove({ paymentId, orderId, signature, userId }: { paymentId: string, orderId: string, signature: string, userId: Types.ObjectId }) {
-    await this._razorpayRepository.verifyPayment(paymentId, orderId, signature)
-
-    const order = await this._razorpayRepository.payloadFromOrderId(orderId)
-    const payment = await this._razorpayRepository.payloadFromPaymentId(paymentId)
-
-    const paymentDoc = await this._paymentRepo.updatePayemtStatus({
-      userId,
-      serviceId: order.notes.serviceId,
-      paymentId: payment.id,
-      method: payment.method,
-      status: "success",
-      receipt: order.receipt
-    });
-
-    if (!paymentDoc) {
-      logger.info('Invalid Payment Details')
-      throw new ApiError('Invalid Payment')
-    }
-
-    const response = await this._roadsideAssistanceRepo.update(order.notes.serviceId, { status: RoadsideAssistanceStatus.IN_PROGRESS, startedAt: new Date(), paymentId: paymentDoc._id })
-    if (!response?.quotationId) throw new ApiError('Invalid Service')
-    await this._quotaionRepo.update(response.quotationId, { status: RoadsideQuotationStatus.APPROVED })
-
-    logger.info(`payment verified for ${response._id}`)
-    return { mechanicId: response.mechanicId }
-
-  }
 
 }

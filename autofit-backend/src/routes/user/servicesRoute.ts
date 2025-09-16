@@ -6,12 +6,8 @@ const router = Router();
 router.get('/mechanics-nearby', servicesController.getNearbyMechanic.bind(servicesController));
 router.post('/roadside-assistance', servicesController.roadsideAssistance.bind(servicesController));
 router.get('/roadside-assistance/:id/details', servicesController.serviceDetails.bind(servicesController));
-router.post('/roadside-assistance/payment', servicesController.makePayment.bind(servicesController));
-router.post('/roadside-assistance/verify-payment', servicesController.verifyPayment.bind(servicesController));
-
 router.post('/roadside-assistance/quotation/reject', servicesController.cancelQuotation.bind(servicesController));
 router.post('/roadside-assistance/cancel', servicesController.cancelQuotation.bind(servicesController));
-
 router.post('/roadside-assistance/invoice', servicesController.getInvoice.bind(servicesController));
 
 export default router

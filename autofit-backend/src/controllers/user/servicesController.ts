@@ -89,46 +89,7 @@ export class ServicesController {
         }
     }
 
-    async makePayment(req: Request, res: Response, next: NextFunction): Promise<void> {
-        try {
-            const { serviceId, quotationId } = req.body;
-            const userId = req.user?.id
 
-            if (!serviceId || !userId) throw new ApiError('Invalid Service Id');
-
-            const response = await this._userRoadsideService.approveQuoteAndPay({ serviceId, quotationId, userId })
-
-            sendSuccess(res, 'Order Created Successfully', { orderId: response.orderId })
-
-        } catch (error) {
-            next(error)
-        }
-    }
-
-    async verifyPayment(req: Request, res: Response, next: NextFunction): Promise<void> {
-        try {
-            const { paymentId, orderId, signature } = req.body;
-            const userId = req.user?.id
-            if (!paymentId || !orderId || !signature) throw new ApiError('Payment Verification Failed');
-            if (!userId) throw new ApiError('Invalid User')
-
-            const { mechanicId } = await this._userRoadsideService.VerifyPaymentAndApprove({ userId, paymentId, orderId, signature })
-
-            const mechData = userSocketMap.get(mechanicId.toString())
-
-            if (mechData && mechData.socketIds.size > 0) {
-                const io = getIO()
-                mechData.socketIds.forEach((id) => {
-                    io.to(id).emit('roadside_assistance_changed', {});
-                })
-            }
-
-            sendSuccess(res, 'Verified')
-
-        } catch (error) {
-            next(error)
-        }
-    }
 
     async cancelQuotation(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
@@ -178,7 +139,7 @@ export class ServicesController {
         }
     }
 
-    
+
 
 
 
