@@ -22,6 +22,18 @@ const paymentGateways = [
   { id: PaymentGateway.PAYPAL, name: "PayPal", description: "Pay with your PayPal account or linked cards", icon: paypal, available: false, primary: false, gatewayCharge: 35 },
 ];
 
+const successNavigation = (servicetype: ServiceType, serviceId: string) => {
+  switch (servicetype) {
+    case ServiceType.LIVE:
+      return `/user/live-assistance/${serviceId}/details`;
+    case ServiceType.PRETRIP:
+      return `/user/pretrip-checkup/${serviceId}/details`;
+    case ServiceType.ROADSIDE:
+      return `/user/roadside-assistance/${serviceId}/details`;
+  }
+
+}
+
 export default function PaymentGatewaySelection() {
   const [selectedGateway, setSelectedGateway] = useState<PaymentGateway>(PaymentGateway.RAZORPAY);
   const userData = useSelector((state: RootState) => state.auth.user);
@@ -40,11 +52,10 @@ export default function PaymentGatewaySelection() {
         serviceType: params.service! as ServiceType,
         data,
         orderId: paymentData?.data.orderId,
-        status: "success",  
+        status: "success",
         gateway: paymentData?.data.gateway,
       }).unwrap();
-      navigate(`/user/${params.service === 'liveAssistance' ? 'live-assistance' : 'pretrip-checkup'}/${params.id}/details`,{replace: true});
-
+      navigate(successNavigation(params.service as ServiceType, params.id!), { replace: true });
     } catch (error: any) {
       toast.error(error.message);
       navigate('/user/payment/status/failed')
@@ -68,7 +79,7 @@ export default function PaymentGatewaySelection() {
         onFailure: handleFail,
       });
     }
-  }, [paymentData,userData]);
+  }, [paymentData, userData]);
 
   if (isLoading) {
     return (
@@ -95,7 +106,7 @@ export default function PaymentGatewaySelection() {
             <Shimmer className="mt-6" />
           </div>
         </div>
-        
+
         {/* Desktop Loading */}
         <div className="hidden md:flex w-full max-w-5xl bg-white shadow-xl rounded-xl overflow-hidden flex-row">
           <div className="w-2/5 p-8 bg-gray-50 border-r border-gray-100">
@@ -129,7 +140,7 @@ export default function PaymentGatewaySelection() {
         serviceId: params.id!,
         serviceType: params.service! as ServiceType,
       }).unwrap();
-    } catch (error:any) {
+    } catch (error: any) {
       toast.error(error.message);
       navigate('/user/service-history')
     }
@@ -158,7 +169,7 @@ export default function PaymentGatewaySelection() {
           <div className="w-12 h-12 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
         </div>
       )}
-      
+
       {/* Mobile Layout */}
       <div className="block md:hidden w-full bg-white min-h-screen">
         {/* Mobile Header */}
@@ -246,8 +257,8 @@ export default function PaymentGatewaySelection() {
                 key={gateway.id}
                 onClick={() => gateway.available && setSelectedGateway(gateway.id)}
                 className={`flex items-center gap-3 p-3 rounded-lg border-2 transition-all duration-200 ${!gateway.available
-                    ? "border-gray-200 bg-gray-50 cursor-not-allowed opacity-60"
-                    : selectedGateway === gateway.id
+                  ? "border-gray-200 bg-gray-50 cursor-not-allowed opacity-60"
+                  : selectedGateway === gateway.id
                     ? "border-blue-500 bg-blue-50 shadow-md cursor-pointer"
                     : "border-gray-200 hover:border-gray-300 bg-white cursor-pointer hover:shadow-sm"
                   }`}
@@ -413,8 +424,8 @@ export default function PaymentGatewaySelection() {
                 key={gateway.id}
                 onClick={() => gateway.available && setSelectedGateway(gateway.id)}
                 className={`flex items-center gap-4 p-4 rounded-lg border-2 transition-all duration-200 ${!gateway.available
-                    ? "border-gray-200 bg-gray-50 cursor-not-allowed opacity-60"
-                    : selectedGateway === gateway.id
+                  ? "border-gray-200 bg-gray-50 cursor-not-allowed opacity-60"
+                  : selectedGateway === gateway.id
                     ? "border-blue-500 bg-blue-50 shadow-md cursor-pointer"
                     : "border-gray-200 hover:border-gray-300 bg-white cursor-pointer hover:shadow-sm"
                   }`}

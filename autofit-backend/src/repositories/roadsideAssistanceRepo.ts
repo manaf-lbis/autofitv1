@@ -171,4 +171,11 @@ export class RoadsideAssistanceRepository extends BaseRepository<RoadsideAssista
         return result
     }
 
+    async detailedBooking(serviceId: Types.ObjectId): Promise<any> {
+        return await RoadsideAssistanceModel.findById(serviceId)
+        .populate('quotationId', '-requestId')
+        .populate('paymentId', '-userId')
+        .populate('userId', 'name email mobile')
+    }
+
 }

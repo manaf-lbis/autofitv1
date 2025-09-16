@@ -9,6 +9,7 @@ interface HeadingSectionProps {
   title: string;
   description: string;
   status: string;
+  statusString: string;
   bookingId: string;
   onMessageClick?: () => void;
   onCancelClick?: () => void;
@@ -22,10 +23,11 @@ export function HeadingSection({
   status,
   bookingId,
   onCancelClick,
-  isCancelled,
   isCompleted,
+  statusString
 }: HeadingSectionProps) {
   const [getInvoice, { isLoading }] = useGenerateInvoiceMutation();
+  
 
   const handleDownloadInvoice = async () => {
     try {
@@ -59,7 +61,7 @@ export function HeadingSection({
         </div>
 
         <div className="flex items-center gap-2">
-          {!isCancelled && !isCompleted && onCancelClick && (
+          { onCancelClick && !["in_progress", "completed" , "canceled"].includes(statusString) && (
             <Button
               variant="outline"
               size="sm"

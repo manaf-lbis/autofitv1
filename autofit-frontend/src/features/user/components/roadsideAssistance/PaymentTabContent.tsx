@@ -48,7 +48,7 @@ export function PaymentTabContent({
             </div>
             <div>
               <h4 className="text-sm font-medium text-gray-900">
-                Payment {isPaymentComplete ? `Completed  - ${paymentDetails.receipt.toUpperCase()}` : "Pending"}
+                Payment {isPaymentComplete ? `Completed  - ${paymentDetails?.receipt?.toUpperCase()}` : "Pending"}
               </h4>
               <p className="text-xs text-gray-600">
                 {!isPaymentComplete && "Payment will be processed after accepting the quotation."}
@@ -57,9 +57,9 @@ export function PaymentTabContent({
                 isPaymentComplete && (
                 <>
                   <div className="mt-2 flex-col ">
-                    <p className="text-xs text-gray-600 mt-2">Method : {paymentDetails.method.toUpperCase()}</p>
+                    <p className="text-xs text-gray-600 mt-2">Method : {paymentDetails?.method?.toUpperCase()}</p>
                     <p className="text-xs text-gray-600 mt-2">Paid At : {formatDateTime(paymentDetails.createdAt)}</p>
-                    <p className="text-xs text-gray-600 mt-2">Amount : {paymentDetails.amount/100}</p>
+                    <p className="text-xs text-gray-600 mt-2">Amount : {paymentDetails.amount}</p>
                   </div>
                 
                 </>)
