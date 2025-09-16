@@ -10,16 +10,16 @@ import { LiveAsistanceRepository } from "../repositories/liveAssistanceRepositor
 import { MechanicProfileRepository } from "../repositories/mechanicProfileRepository";
 import { NotificationRepository } from "../repositories/notificationRepository";
 import { OtpRepository } from "../repositories/otpRepository";
-import { PaymentRepository } from "../repositories/paymentsRepository"; 
+import { PaymentRepository } from "../repositories/paymentsRepository";
 import { PretripBookingRepository } from "../repositories/pretripBookingRepository";
 import { PretripFeatureRepository } from "../repositories/pretripFeatureRepository";
 import { PretripPlanRepository } from "../repositories/pretripPlanRepository";
 import { PretripReportRepository } from "../repositories/pretripReportRepository";
 import { QuotationRepository } from "../repositories/quotationRepository";
-import { RazorpayRepository } from "../repositories/razorPayRepo"; 
+import { RazorpayRepository } from "../repositories/razorPayRepo";
 import { RoadsideAssistanceRepository } from "../repositories/roadsideAssistanceRepo";
 import { TimeBlockRepository } from "../repositories/timeBlockRepository";
-import { TransactionRepository } from "../repositories/transactionsRepository"; 
+import { TransactionRepository } from "../repositories/transactionsRepository";
 import { UserRepository } from "../repositories/userRepository";
 import { VehicleBrandRepository } from "../repositories/vehicleBrandRepository";
 import { VehicleRepository } from "../repositories/vehicleRepository";
@@ -45,6 +45,7 @@ import { UserRegistrationService } from "../services/user/userRegistrationServic
 import { VehicleService } from "../services/vehicle/vehicleService";
 import { PaymentGateway } from "../types/payment";
 import { ServiceType } from "../types/services";
+import { RoadsidePaymentHandler } from "../services/paymentServices/servicePaymentHandler/roadsidePaymentHandler";
 
 
 
@@ -59,38 +60,43 @@ const googleAuthService = new GoogleAuthService(userRepository, tokenService);
 const userRegistrationService = new UserRegistrationService(userRepository);
 const pretripBookingRepository = new PretripBookingRepository()
 const razorpayGateway = new RazorpayGateway()
-const paymentGatewayResolver = new PaymentGatewayResolver([{ name:PaymentGateway.RAZORPAY, instance: razorpayGateway }]);
+const paymentGatewayResolver = new PaymentGatewayResolver([{ name: PaymentGateway.RAZORPAY, instance: razorpayGateway }]);
 const paymentRepository = new PaymentRepository()
 const liveAssistanceRepo = new LiveAsistanceRepository()
 const timeBlockingRepository = new TimeBlockRepository()
 const transactionRepo = new TransactionRepository()
-const pretripPaymentHandler = new PretripPaymentHandler(pretripBookingRepository,paymentRepository,timeBlockingRepository);
-const liveAssistancePaymentHandler = new LiveAssistancePaymentHandler(liveAssistanceRepo,paymentRepository,timeBlockingRepository,transactionRepo)
-const servicePaymentHanleResolver = new ServicePaymentHandleResolver([{type:ServiceType.PRETRIP,handler:pretripPaymentHandler},{type:ServiceType.LIVE,handler:liveAssistancePaymentHandler}]);
-const checkoutService = new CheckoutService(pretripBookingRepository,paymentGatewayResolver,servicePaymentHanleResolver,paymentRepository,liveAssistanceRepo)
+const quotationRepo = new QuotationRepository()
+const roadsideAssistanceRepo = new RoadsideAssistanceRepository()
+const pretripPaymentHandler = new PretripPaymentHandler(pretripBookingRepository, paymentRepository, timeBlockingRepository);
+const liveAssistancePaymentHandler = new LiveAssistancePaymentHandler(liveAssistanceRepo, paymentRepository, timeBlockingRepository, transactionRepo)
+const roadsidePaymentHandler = new RoadsidePaymentHandler(roadsideAssistanceRepo, paymentRepository,quotationRepo)
+const servicePaymentHanleResolver = new ServicePaymentHandleResolver([
+    { type: ServiceType.PRETRIP, handler: pretripPaymentHandler },
+    { type: ServiceType.LIVE, handler: liveAssistancePaymentHandler },
+    { type: ServiceType.ROADSIDE, handler: roadsidePaymentHandler }
+]);
+const checkoutService = new CheckoutService(pretripBookingRepository, paymentGatewayResolver, servicePaymentHanleResolver, paymentRepository, liveAssistanceRepo, roadsideAssistanceRepo)
 const workingHoursRepository = new WorkingHoursRepository()
-const liveAssistanceService = new LiveAssistanceService(workingHoursRepository,timeBlockingRepository,liveAssistanceRepo)
+const liveAssistanceService = new LiveAssistanceService(workingHoursRepository, timeBlockingRepository, liveAssistanceRepo)
 const pretripPlanRepository = new PretripPlanRepository()
 const pretripFeaterRepository = new PretripFeatureRepository()
-const pretripPlanService = new PretripPlanService(pretripFeaterRepository,pretripPlanRepository);
+const pretripPlanService = new PretripPlanService(pretripFeaterRepository, pretripPlanRepository);
 const mechanicProfileRepository = new MechanicProfileRepository()
 const googleMapRepo = new GoogleMapRepository()
 const pretripReportRepository = new PretripReportRepository()
-const pretripService = new PretripService(mechanicProfileRepository,googleMapRepo,pretripBookingRepository,pretripPlanRepository,workingHoursRepository,timeBlockingRepository,pretripReportRepository, transactionRepo,paymentRepository,mechanicProfileRepository)
-const roadsideAssistanceRepo = new RoadsideAssistanceRepository()
-const profileService = new UserProfileService(userRepository,roadsideAssistanceRepo, pretripBookingRepository,liveAssistanceRepo)
+const pretripService = new PretripService(mechanicProfileRepository, googleMapRepo, pretripBookingRepository, pretripPlanRepository, workingHoursRepository, timeBlockingRepository, pretripReportRepository, transactionRepo, paymentRepository, mechanicProfileRepository)
+const profileService = new UserProfileService(userRepository, roadsideAssistanceRepo, pretripBookingRepository, liveAssistanceRepo)
 const vehicleRepository = new VehicleRepository()
-const quotationRepo = new QuotationRepository()
 const notificationRepository = new NotificationRepository()
-const roadsideService = new RoadsideService(roadsideAssistanceRepo, quotationRepo,mechanicProfileRepository,transactionRepo,paymentRepository)
+const roadsideService = new RoadsideService(roadsideAssistanceRepo, quotationRepo, mechanicProfileRepository, transactionRepo, paymentRepository)
 const razorpayRepository = new RazorpayRepository()
-const roadsideAssistanceService = new UserRoadsideService(mechanicProfileRepository,googleMapRepo,roadsideAssistanceRepo,vehicleRepository,notificationRepository,razorpayRepository,quotationRepo,paymentRepository,timeBlockingRepository)
+const roadsideAssistanceService = new UserRoadsideService(mechanicProfileRepository, googleMapRepo, roadsideAssistanceRepo, vehicleRepository, notificationRepository, razorpayRepository, quotationRepo, paymentRepository, timeBlockingRepository)
 const vehicleBrands = new VehicleBrandRepository()
-const vehicleService = new VehicleService(vehicleRepository,vehicleBrands)
+const vehicleService = new VehicleService(vehicleRepository, vehicleBrands)
 
 
 //user controllers
-export const authController = new AuthController(authService, userRegistrationService, googleAuthService,tokenService,otpService);
+export const authController = new AuthController(authService, userRegistrationService, googleAuthService, tokenService, otpService);
 export const checkoutcontroller = new CheckoutController(checkoutService)
 export const liveAssistanceController = new LiveAssistanceController(liveAssistanceService)
 export const pretripController = new PretripController(pretripPlanService, pretripService)

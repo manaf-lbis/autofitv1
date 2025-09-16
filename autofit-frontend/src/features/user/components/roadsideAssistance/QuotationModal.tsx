@@ -20,7 +20,6 @@ interface QuotationModalProps {
   onClose: () => void;
   onAccept: () => void;
   onReject: () => void;
-  isProcessing: boolean;
   isRejecting: boolean;
 }
 
@@ -29,7 +28,6 @@ export function QuotationModal({
   onClose,
   onAccept,
   onReject,
-  isProcessing,
   isRejecting,
 }: QuotationModalProps) {
   return (
@@ -107,22 +105,15 @@ export function QuotationModal({
             <Button
               onClick={onAccept}
               className="flex-1 text-sm h-9"
-              disabled={isProcessing || isRejecting}
+              disabled={ isRejecting}
             >
-              {isProcessing ? (
-                <>
-                  <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                  Processing...
-                </>
-              ) : (
-                "Accept & Pay"
-              )}
+              "Accept & Pay"
             </Button>
             <Button
               onClick={onReject}
               variant="outline"
               className="flex-1 text-sm h-9 text-red-600 border-red-200 hover:bg-red-50"
-              disabled={isRejecting || isProcessing}
+              disabled={isRejecting}
             >
               {isRejecting ? (
                 <>

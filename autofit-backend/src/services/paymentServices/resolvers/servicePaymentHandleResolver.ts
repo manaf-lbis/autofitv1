@@ -1,3 +1,4 @@
+import { ApiError } from "../../../utils/apiError";
 import { IServicePaymentHandler } from "../interface/IServicePaymentHandler"; 
 import { IServicePaymentHandleResolver } from "../interface/IServicePaymentHandleResolver";
 
@@ -13,7 +14,7 @@ export class ServicePaymentHandleResolver implements IServicePaymentHandleResolv
 
   resolve(type: string): IServicePaymentHandler {
     const handler = this.handlerMap.get(type.toLowerCase());
-    if (!handler) throw new Error(`No handler for ${type}`);
+    if (!handler) throw new ApiError(`No handler for ${type}`);
     return handler;
   }
 }

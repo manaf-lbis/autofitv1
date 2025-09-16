@@ -9,6 +9,7 @@ import { IServicePaymentHandleResolver } from "../paymentServices/interface/ISer
 import { PaymentGateway } from "../../types/payment";
 import { IPaymentRepository } from "../../repositories/interfaces/IPaymentRepository";
 import { ILiveAssistanceRepository } from "../../repositories/interfaces/ILiveAssistanceRepository";
+import { IRoadsideAssistanceRepo } from "../../repositories/interfaces/IRoadsideAssistanceRepo";
 
 export class CheckoutService implements ICheckoutService {
 
@@ -17,7 +18,8 @@ export class CheckoutService implements ICheckoutService {
         private _paymentGatewayResolver: IPaymentGatewayResolver,
         private _servicePaymentHanleResolver: IServicePaymentHandleResolver,
         private _paymentRepository: IPaymentRepository,
-        private _liveAssistanceRepository: ILiveAssistanceRepository
+        private _liveAssistanceRepository: ILiveAssistanceRepository,
+        private _roadsideAssistanceRepo: IRoadsideAssistanceRepo
     ) { }
 
     async checkoutDetails(serviceId: Types.ObjectId, serviceType: ServiceType): Promise<ICheckoutResponse> {
@@ -50,6 +52,19 @@ export class CheckoutService implements ICheckoutService {
                 price: response.price,
                 orderId: response._id,
                 serviceType: ServiceType.LIVE,
+            }
+
+        } else if (serviceType === ServiceType.ROADSIDE) {
+
+            const response = await this._roadsideAssistanceRepo.detailedBooking(serviceId);
+            if (!response) throw new ApiError('Booking not found', HttpStatus.NOT_FOUND);
+
+            return {
+                date: response.createdAt,
+                orderId: response._id,
+                price: response.quotationId.total,
+                serviceType: ServiceType.ROADSIDE,
+                vehicleRegNo: response?.vehicle?.regNo
             }
 
         } else {
