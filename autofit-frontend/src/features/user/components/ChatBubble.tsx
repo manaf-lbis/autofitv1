@@ -14,14 +14,15 @@ interface Props {
   serviceId: string;
   mechanicId: string;
   mechanicName: string;
+  status: string
 }
 
-const ChatBubble: React.FC<Props> = ({ serviceId, mechanicId, mechanicName }) => {
+const ChatBubble: React.FC<Props> = ({ serviceId, mechanicId, mechanicName, status }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [newMessage, setNewMessage] = useState("");
   const [hasNewMessage, setHasNewMessage] = useState(false);
-  const [unreadCount, setUnreadCount] = useState(0); 
+  const [unreadCount, setUnreadCount] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const dispatch = useDispatch();
   const messages = useSelector((state: RootState) => state.chatSlice).filter((chat) => chat.serviceId === serviceId);
@@ -32,7 +33,6 @@ const ChatBubble: React.FC<Props> = ({ serviceId, mechanicId, mechanicName }) =>
 
   const socketRef = useRef<Socket | null>(null);
 
-  // Calculate unread message count
   useEffect(() => {
     const count = messages.filter(
       (msg) => msg.senderRole === "mechanic" && !msg.seen
@@ -145,15 +145,13 @@ const ChatBubble: React.FC<Props> = ({ serviceId, mechanicId, mechanicName }) =>
       {isOpen && (
         <div className="fixed inset-4 sm:bottom-6 sm:right-6 sm:inset-auto z-50">
           <div
-            className={`bg-white rounded-lg shadow-2xl border border-gray-200 transition-all duration-300 ${
-              isMinimized ? "w-full sm:w-96 h-14" : "w-full h-full sm:w-96 sm:h-[500px] max-h-[calc(90vh-60px)]"
-            }`}
+            className={`bg-white rounded-lg shadow-2xl border border-gray-200 transition-all duration-300 ${isMinimized ? "w-full sm:w-96 h-14" : "w-full h-full sm:w-96 sm:h-[500px] max-h-[calc(90vh-60px)]"
+              }`}
           >
             {/* Chat Header */}
             <div
-              className={`flex items-center justify-between p-3 sm:p-4 border-b border-gray-200 bg-blue-600 text-white ${
-                isMinimized ? "rounded-lg cursor-pointer hover:bg-blue-700" : "rounded-t-lg"
-              } transition-colors duration-200`}
+              className={`flex items-center justify-between p-3 sm:p-4 border-b border-gray-200 bg-blue-600 text-white ${isMinimized ? "rounded-lg cursor-pointer hover:bg-blue-700" : "rounded-t-lg"
+                } transition-colors duration-200`}
               onClick={isMinimized ? restoreChat : undefined}
             >
               <div className="flex items-center gap-2">
@@ -194,10 +192,8 @@ const ChatBubble: React.FC<Props> = ({ serviceId, mechanicId, mechanicName }) =>
               </div>
             </div>
 
-            {/* Chat Content - Only show when not minimized */}
             {!isMinimized && (
               <>
-                {/* Messages */}
                 <div
                   className="p-3 sm:p-4 bg-gray-50 overflow-y-auto"
                   style={{ height: "calc(100% - 120px)" }}
@@ -206,23 +202,20 @@ const ChatBubble: React.FC<Props> = ({ serviceId, mechanicId, mechanicName }) =>
                     {messages.map((message) => (
                       <div
                         key={message._id}
-                        className={`flex ${
-                          message.senderId !== mechanicId ? "justify-end" : "justify-start"
-                        }`}
+                        className={`flex ${message.senderId !== mechanicId ? "justify-end" : "justify-start"
+                          }`}
                       >
                         <div
-                          className={`max-w-[85%] sm:max-w-xs px-3 py-2 rounded-lg text-sm ${
-                            message.senderId !== mechanicId
+                          className={`max-w-[85%] sm:max-w-xs px-3 py-2 rounded-lg text-sm ${message.senderId !== mechanicId
                               ? "bg-blue-600 text-white rounded-br-sm"
                               : "bg-white border border-gray-200 text-gray-900 rounded-bl-sm"
-                          }`}
+                            }`}
                           style={{ wordBreak: "break-word", whiteSpace: "pre-wrap" }}
                         >
                           <p className="leading-relaxed">{message.message}</p>
                           <div
-                            className={`flex items-center justify-between mt-1 ${
-                              message.senderId !== mechanicId ? "text-blue-100" : "text-gray-500"
-                            } text-xs`}
+                            className={`flex items-center justify-between mt-1 ${message.senderId !== mechanicId ? "text-blue-100" : "text-gray-500"
+                              } text-xs`}
                           >
                             <span>{formatTimeToNow(message.createdAt)}</span>
                             {message.senderId !== mechanicId && (
@@ -242,26 +235,33 @@ const ChatBubble: React.FC<Props> = ({ serviceId, mechanicId, mechanicName }) =>
                   <div ref={messagesEndRef} />
                 </div>
 
-                {/* Message Input */}
                 <div className="p-3 sm:p-4 border-t border-gray-200 bg-white rounded-b-lg">
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      value={newMessage}
-                      onChange={(e) => setNewMessage(e.target.value)}
-                      onKeyPress={handleKeyPress}
-                      placeholder="Type your message..."
-                      className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
-                    />
-                    <Button
-                      onClick={handleSendMessage}
-                      disabled={!newMessage.trim()}
-                      size="sm"
-                      className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 disabled:opacity-50 disabled:cursor-not-allowed min-w-[44px]"
-                    >
-                      <Send className="h-4 w-4" />
-                    </Button>
-                  </div>
+                  {status === "completed" || status === "canceled" ? (
+                    <p className="text-center text-sm text-gray-500">
+                      {status === "completed"
+                        ? "✅ Service is completed. You can no longer continue the chat."
+                        : "❌ Service has been canceled. You can no longer continue the chat."}
+                    </p>
+                  ) : (
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={newMessage}
+                        onChange={(e) => setNewMessage(e.target.value)}
+                        onKeyPress={handleKeyPress}
+                        placeholder="Type your message..."
+                        className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                      />
+                      <Button
+                        onClick={handleSendMessage}
+                        disabled={!newMessage.trim()}
+                        size="sm"
+                        className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 disabled:opacity-50 disabled:cursor-not-allowed min-w-[44px]"
+                      >
+                        <Send className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  )}
                 </div>
               </>
             )}

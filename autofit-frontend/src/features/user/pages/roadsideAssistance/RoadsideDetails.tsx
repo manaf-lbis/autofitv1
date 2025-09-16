@@ -231,6 +231,7 @@ export default function RoadsideDetails() {
                 paymentDetails={bookingData.paymentId}
                 quotationId={bookingData?.quotationId}
                 onViewQuotation={() => setShowQuotationModal(true)}
+                status={bookingData?.status}
               />
             )}
           </motion.div>
@@ -243,7 +244,7 @@ export default function RoadsideDetails() {
           />
         </div>
       </main>
-      <ChatBubble serviceId={serviceId} mechanicId={bookingData.mechanic._id} mechanicName={bookingData.mechanic.name} />
+      <ChatBubble serviceId={serviceId} mechanicId={bookingData.mechanic._id} mechanicName={bookingData.mechanic.name} status={bookingData.status} />
 
       {showQuotationModal && bookingData?.quotationId && (
         <QuotationModal
