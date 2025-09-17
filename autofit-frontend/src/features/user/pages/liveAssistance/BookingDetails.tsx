@@ -73,7 +73,7 @@ export default function BookingDetailsPage() {
   const [timeRemaining, setTimeRemaining] = useState(0);
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
-  const { data, isFetching, refetch } = useLiveBookingDetailsQuery(id!);
+  const { data, isFetching, refetch } = useLiveBookingDetailsQuery(id!, { skip: !id, refetchOnMountOrArgChange: true, refetchOnReconnect: true, refetchOnFocus: true });
   const { data: sessionDetails } = useGetCallSessionIdQuery(id!, { skip: data?.data?.status !== LiveAssistanceStatus.ONGOING });
 
   const bookingData = useMemo<BookingData | undefined>(() => {

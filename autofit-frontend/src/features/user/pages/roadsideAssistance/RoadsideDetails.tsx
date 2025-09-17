@@ -22,7 +22,7 @@ import { ServiceType } from "@/types/user";
 
 type ServiceStatus = "assigned" | "on_the_way" | "analysing" | "quotation_sent" | "in_progress" | "completed" | "canceled";
 
-const queryOptions = { refetchOnMountOrArgChange: true };
+const queryOptions = { refetchOnMountOrArgChange: true , refetchOnReconnect: true , refetchOnFocus: true};
 
 export default function RoadsideDetails() {
   const [activeTab, setActiveTab] = useState("details");

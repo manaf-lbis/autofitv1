@@ -54,27 +54,27 @@ const getOverallStatus = (score: number) => {
 
 export default function PretripDetails() {
   const { id } = useParams();
-  const { data } = usePretripDetailsQuery({ id: id! }, { skip: !id });
-  const [generateInvoice,{isLoading}] = useGenerateInvoiceMutation();
-  const [generateReport,{isLoading:isLoadingReport}] = useGenerateReportMutation();
+  const { data } = usePretripDetailsQuery({ id: id! }, { skip: !id, refetchOnMountOrArgChange: true, refetchOnReconnect: true, refetchOnFocus: true });
+  const [generateInvoice, { isLoading }] = useGenerateInvoiceMutation();
+  const [generateReport, { isLoading: isLoadingReport }] = useGenerateReportMutation();
   const navigate = useNavigate();
 
   const safetyScore = calculateSafetyScore(data?.serviceReportId?.reportItems || []);
   const overallStatus = getOverallStatus(safetyScore);
   const recommendations = (data?.serviceReportId?.reportItems || []).filter((item: any) => item.needsAction).map((item: any) => `Check ${item.feature}`);
 
-  const handleDownloadReceipt = async ()=>{
+  const handleDownloadReceipt = async () => {
     try {
-      await generateInvoice({serviceId:data?._id}).unwrap();
-    } catch (error:any) {
+      await generateInvoice({ serviceId: data?._id }).unwrap();
+    } catch (error: any) {
       toast.error(error.data.message || "Failed to download receipt");
     }
   }
 
-  const handleDownloadReport = async ()=>{
+  const handleDownloadReport = async () => {
     try {
-      await generateReport({serviceId:data?._id}).unwrap();
-    } catch (error:any) {
+      await generateReport({ serviceId: data?._id }).unwrap();
+    } catch (error: any) {
       toast.error(error.data.message || "Failed to download receipt");
     }
   }
@@ -87,10 +87,10 @@ export default function PretripDetails() {
         <div className="sticky top-0 bg-white border-b border-gray-200 px-4 py-3 z-10">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="focus:outline-none -ml-2" 
+              <Button
+                variant="ghost"
+                size="icon"
+                className="focus:outline-none -ml-2"
                 onClick={() => navigate(-1)}
                 aria-label="Go back"
               >
@@ -236,7 +236,7 @@ export default function PretripDetails() {
                 <div className="py-2">
                   <span className="text-sm text-gray-600 block mb-2">Recommendations</span>
                   <ul className="space-y-1">
-                    {recommendations.map((rec:any, index:any) => (
+                    {recommendations.map((rec: any, index: any) => (
                       <li key={index} className="text-sm text-gray-900 flex items-start gap-2">
                         <span className="text-yellow-600 mt-1">•</span>
                         {rec}
@@ -267,13 +267,12 @@ export default function PretripDetails() {
                     <div className="flex flex-col items-end gap-1 ml-2">
                       <Badge
                         variant={item.condition === "excellent" ? "secondary" : "outline"}
-                        className={`text-xs ${
-                          item.condition === "excellent"
+                        className={`text-xs ${item.condition === "excellent"
                             ? "bg-green-100 text-green-800"
                             : item.condition === "good"
                               ? "bg-yellow-100 text-yellow-800"
                               : "bg-red-100 text-red-800"
-                        }`}
+                          }`}
                       >
                         {item.condition}
                       </Badge>
@@ -466,7 +465,7 @@ export default function PretripDetails() {
               <div className="py-2">
                 <span className="text-sm text-gray-600 block mb-2">Recommendations</span>
                 <ul className="space-y-1">
-                  {recommendations.map((rec:any, index:any) => (
+                  {recommendations.map((rec: any, index: any) => (
                     <li key={index} className="text-sm text-gray-900 flex items-start gap-2">
                       <span className="text-yellow-600 mt-1">•</span>
                       {rec}
