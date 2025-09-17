@@ -22,7 +22,7 @@ export const TimePicker: React.FC<TimePickerProps> = ({
   selectedTime,
   onTimeSelect,
   selectedDate,
-  availableWindows = [], // Ensure it's always an array
+  availableWindows = [],
 }) => {
   const [isValidTime, setIsValidTime] = useState(true)
   const [endTime, setEndTime] = useState("")
@@ -32,15 +32,13 @@ export const TimePicker: React.FC<TimePickerProps> = ({
 
   const isInternalTimeSelect = useRef(false)
 
-  // Effect to reset states when availableWindow changes (e.g., new date selected)
   useEffect(() => {
     if (availableWindow) {
       setIsValidTime(true)
       setEndTime("")
       setErrorMessage("")
       setCompletionDetails(null)
-      // Clear parent's selected slot if availableWindow changes
-      // Only clear if it's not already empty to avoid unnecessary re-renders
+
       if (selectedTime !== "") {
         onTimeSelect("")
       }
@@ -79,7 +77,6 @@ export const TimePicker: React.FC<TimePickerProps> = ({
         isValid = false
         error = "Cannot select a time in the past"
       } else {
-        // Use calculateServiceCompletion to check if the service can be completed
         const completion = calculateServiceCompletion(time, durationMinutes, availableWindows)
         currentCompletionDetails = completion
         if (!completion.canComplete) {
