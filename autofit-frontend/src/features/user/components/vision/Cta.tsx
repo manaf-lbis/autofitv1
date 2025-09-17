@@ -16,20 +16,7 @@ export function CTA() {
             in one place.
           </p>
 
-          <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-            <a
-              href="/"
-              className="inline-flex items-center justify-center rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-            >
-              Explore Services
-            </a>
-            <a
-              href="/contact"
-              className="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-900 hover:bg-slate-50"
-            >
-              Talk to an Expert
-            </a>
-          </div>
+         
         </div>
       </div>
     </section>
