@@ -178,4 +178,8 @@ export class RoadsideAssistanceRepository extends BaseRepository<RoadsideAssista
         .populate('userId', 'name email mobile')
     }
 
+    async checkIsCompleted(serviceId: Types.ObjectId[]): Promise<any> {
+        return await RoadsideAssistanceModel.find({ _id: { $in: serviceId }},{status: 1}).lean()
+    }
+
 }

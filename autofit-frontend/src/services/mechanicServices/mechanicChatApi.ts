@@ -26,6 +26,7 @@ interface Message {
 interface ChatData {
   _id: string
   name: string
+  isCompleted: boolean
   messages: Message[]
 }
 

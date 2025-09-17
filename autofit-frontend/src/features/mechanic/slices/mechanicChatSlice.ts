@@ -21,6 +21,7 @@ interface Message {
 interface ChatData {
   _id: string
   name: string
+  isCompleted: boolean
   messages: Message[]
 }
 interface NewMessage {
@@ -83,6 +84,7 @@ const mechanicChatSlice = createSlice({
         state.push({
           _id: serviceId,
           name: senderName,
+          isCompleted: false,
           messages: [{
             _id,
             createdAt,

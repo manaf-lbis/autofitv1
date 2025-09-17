@@ -1,6 +1,5 @@
-
 import { useState, useRef, useEffect } from "react";
-import { Send, Check, CheckCheck, Clock, MessageSquare, Circle, ArrowLeft } from "lucide-react";
+import { Send, Check, CheckCheck, Clock, MessageSquare, Circle, ArrowLeft, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import MessagesShimmer from "../components/shimmer/MessagesShimmer";
 import { useGetMechanicChatsQuery } from "../../../services/mechanicServices/mechanicChatApi";
@@ -49,7 +48,6 @@ export default function MessagesPage() {
 
       setNewMessage("");
       
-      // Auto scroll to bottom after sending message
       setTimeout(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
       }, 100);
@@ -100,7 +98,6 @@ export default function MessagesPage() {
       .slice(0, 2);
   };
 
-  // ✅ Sort chats by latest message time
   const sortedChats = [...chats].sort((a, b) => {
     const lastA = a.messages[a.messages.length - 1];
     const lastB = b.messages[b.messages.length - 1];
@@ -199,7 +196,9 @@ export default function MessagesPage() {
                           <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
                             <span className="text-sm font-medium text-gray-600">{getInitials(chat.name)}</span>
                           </div>
-                          <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-green-500 border-2 border-white rounded-full"></div>
+                          <div className={`absolute -bottom-0.5 -right-0.5 w-4 h-4 border-2 border-white rounded-full ${
+                            chat.isCompleted ? "bg-gray-400" : "bg-green-500"
+                          }`}></div>
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between mb-1">
@@ -207,8 +206,13 @@ export default function MessagesPage() {
                             <span className="text-xs text-gray-500 flex-shrink-0">{lastMessageTime}</span>
                           </div>
                           <div className="flex items-center justify-between mb-2">
-                            <span className="text-xs text-gray-500">{getServiceTypeLabel(serviceType)}</span>
-                            {unreadCount > 0 && (
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs text-gray-500">{getServiceTypeLabel(serviceType)}</span>
+                              {chat.isCompleted && (
+                                <span className="text-xs text-red-500 font-medium">Completed</span>
+                              )}
+                            </div>
+                            {unreadCount > 0 && !chat.isCompleted && (
                               <div className="w-5 h-5 bg-blue-600 text-white text-xs rounded-full flex items-center justify-center font-medium">
                                 {unreadCount}
                               </div>
@@ -232,7 +236,7 @@ export default function MessagesPage() {
               {/* Chat Header */}
               <div className="p-6 border-b border-gray-100">
                 <div className="flex items-center gap-4">
-                  {/* ✅ Back button for mobile */}
+                  {/* Back button for mobile */}
                   <Button
                     variant="ghost"
                     size="sm"
@@ -246,13 +250,17 @@ export default function MessagesPage() {
                       <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
                         <span className="text-sm font-medium text-gray-600">{getInitials(activeChat.name)}</span>
                       </div>
-                      <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-green-500 border-2 border-white rounded-full"></div>
+                      <div className={`absolute -bottom-0.5 -right-0.5 w-4 h-4 border-2 border-white rounded-full ${
+                        activeChat.isCompleted ? "bg-gray-400" : "bg-green-500"
+                      }`}></div>
                     </div>
                     <div>
                       <h2 className="font-semibold text-gray-900">{activeChat.name}</h2>
                       <div className="flex items-center gap-2 mt-1">
-                        <Circle className="w-2 h-2 fill-green-500 text-green-500" />
-                        <span className="text-sm text-gray-500">Online</span>
+                        <Circle className={`w-2 h-2 fill-current ${activeChat.isCompleted ? "text-gray-400" : "text-green-500"}`} />
+                        <span className="text-sm text-gray-500">
+                          {activeChat.isCompleted ? "Service Completed" : "Online"}
+                        </span>
                         <span className="text-sm text-gray-400">•</span>
                         <span className="text-sm text-gray-500">
                           {getServiceTypeLabel(activeMessages[0]?.serviceType)}
@@ -310,51 +318,60 @@ export default function MessagesPage() {
                 <div ref={messagesEndRef} />
               </div>
 
-              {/* Message Input */}
-              <div className="p-6 border-t border-gray-100 bg-white">
-                <div className="flex items-end gap-3">
-                  <div className="flex-1">
-                    <textarea
-                      value={newMessage}
-                      onChange={(e) => setNewMessage(e.target.value)}
-                      onKeyPress={(e) => {
-                        if (e.key === "Enter" && !e.shiftKey) {
-                          e.preventDefault();
-                          sendMessage(activeServiceId, newMessage);
-                        }
-                      }}
-                      placeholder="Type a message..."
-                      disabled={isSending}
-                      rows={1}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50 transition-colors resize-none"
+              {/* Message Input or Completion Notice */}
+              {activeChat.isCompleted ? (
+                <div className="p-6 border-t border-gray-100 bg-gray-50">
+                  <div className="flex items-center justify-center gap-3 text-gray-600">
+                    <XCircle className="h-5 w-5 text-gray-400" />
+                    <span className="text-sm font-medium">This chat is no longer active - Service has been completed</span>
+                  </div>
+                </div>
+              ) : (
+                <div className="p-6 border-t border-gray-100 bg-white">
+                  <div className="flex items-end gap-3">
+                    <div className="flex-1">
+                      <textarea
+                        value={newMessage}
+                        onChange={(e) => setNewMessage(e.target.value)}
+                        onKeyPress={(e) => {
+                          if (e.key === "Enter" && !e.shiftKey) {
+                            e.preventDefault();
+                            sendMessage(activeServiceId, newMessage);
+                          }
+                        }}
+                        placeholder="Type a message..."
+                        disabled={isSending}
+                        rows={1}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50 transition-colors resize-none"
+                        style={{
+                          height: "48px",
+                          minHeight: "48px",
+                          maxHeight: "128px",
+                          lineHeight: "1.5"
+                        }}
+                        onInput={(e) => {
+                          const target = e.target as HTMLTextAreaElement;
+                          target.style.height = "48px";
+                          if (target.scrollHeight > 48) {
+                            target.style.height = Math.min(target.scrollHeight, 128) + "px";
+                          }
+                        }}
+                      />
+                    </div>
+                    <Button
+                      onClick={() => sendMessage(activeServiceId, newMessage)}
+                      disabled={!newMessage.trim() || isSending}
+                      className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 disabled:opacity-50 flex-shrink-0 self-end"
                       style={{
                         height: "48px",
-                        minHeight: "48px",
-                        maxHeight: "128px",
-                        lineHeight: "1.5"
+                        minHeight: "48px"
                       }}
-                      onInput={(e) => {
-                        const target = e.target as HTMLTextAreaElement;
-                        target.style.height = "48px";
-                        if (target.scrollHeight > 48) {
-                          target.style.height = Math.min(target.scrollHeight, 128) + "px";
-                        }
-                      }}
-                    />
+                    >
+                      {isSending ? <Clock className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                    </Button>
                   </div>
-                  <Button
-                    onClick={() => sendMessage(activeServiceId, newMessage)}
-                    disabled={!newMessage.trim() || isSending}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 disabled:opacity-50 flex-shrink-0 self-end"
-                    style={{
-                      height: "48px",
-                      minHeight: "48px"
-                    }}
-                  >
-                    {isSending ? <Clock className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-                  </Button>
                 </div>
-              </div>
+              )}
             </>
           ) : (
             <div className="flex-1 flex items-center justify-center">
