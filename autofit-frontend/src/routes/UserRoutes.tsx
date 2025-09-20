@@ -3,7 +3,7 @@ import { lazy, Suspense } from "react";
 import ProtectedRoute from "../components/Routes/ProtectedRoute";
 import UserSocketContext from "@/context/UserSocketContext";
 import PageLoading from "@/components/Animations/PageLoading";
-import ChangePasswordPage from "@/features/user/pages/profile/ChangePasswordPage";
+import ChangePasswordPage from "@/components/shared/ChangePasswordPage";
 
 const MainLayout = lazy(() => import("../features/user/components/layout/UserLayout"));
 const ProfileLayout = lazy(() => import("@/features/user/components/layout/ProfileLayout"));

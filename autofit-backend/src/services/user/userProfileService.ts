@@ -79,18 +79,7 @@ export class UserProfileService implements IUserProfileService {
         }
     }
 
-    async changePassword(userId: Types.ObjectId, currentPassword: string, newPassword: string): Promise<any> {
-        const user = await this._userRepository.findById(userId)
-        if (!user) throw new ApiError('Invalid User', HttpStatus.UNAUTHORIZED)
 
-        const isMatch = await this._hashService.compare(newPassword, user.password);
-
-        if(isMatch) throw new ApiError('Current password is same as new password', HttpStatus.BAD_REQUEST);
-
-        const hashedPassword = await this._hashService.hash(newPassword)
-        await this._userRepository.update(userId, { password: hashedPassword });        
-        
-    }
 
     
 }

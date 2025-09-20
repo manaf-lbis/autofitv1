@@ -10,6 +10,7 @@ import { Types } from "mongoose";
 import { IResetPasswordService } from "./interface/IResetPasswordService";
 import { IMechanicRepository } from "../../../repositories/interfaces/IMechanicRepository";
 import { Mechanic } from "../../../types/mechanic/mechanic";
+import { HttpStatus } from "../../../types/responseCode";
 
 class ResetPassword implements IResetPasswordService {
     constructor(
@@ -73,7 +74,39 @@ class ResetPassword implements IResetPasswordService {
 
     }
 
+    async changePassword(userId: Types.ObjectId, currentPassword: string, newPassword: string, role: Role): Promise<void> {
 
+        let user: User | Admin | Mechanic | null
+        switch (role) {
+            case Role.USER:
+                user = await this._userRepository.findById(userId)
+                break;
+
+            case Role.ADMIN:
+                user = await this._adminRepository.findById(userId)
+                break;
+
+            case Role.MECHANIC:
+                user = await this._mechnaicRepository.findById(userId)
+                break;
+
+            default:
+                throw new ApiError('User Not found')
+        }
+
+        if (!user) throw new ApiError('User Not found')
+
+        const isCurrentPasswordMatch = await this._hashService.compare(currentPassword, user.password);
+        if (!isCurrentPasswordMatch) {
+            throw new ApiError('Invalid Current Password', HttpStatus.BAD_REQUEST);
+        }
+
+        const isCurrentMatchNew = await this._hashService.compare(newPassword, user.password)
+        if (isCurrentMatchNew) throw new ApiError('Current password is same as new password', HttpStatus.BAD_REQUEST);
+
+        await this.updatePassword(user.email, newPassword, role, userId)
+
+    }
 
 
 }

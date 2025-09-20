@@ -74,21 +74,6 @@ export class ProfileController {
         }
     }
 
-    async changePassword(req: Request, res: Response, next: NextFunction) {
-        try {
-            const { currentPassword, newPassword } = req.body
-            if (!currentPassword || !newPassword) throw new ApiError('Invalid Field', HttpStatus.BAD_REQUEST)
-            if (newPassword.trim().length < 6) throw new ApiError('invalid password')
-
-            const userId = req.user?.id
-            if (!userId) throw new ApiError("Invalid User", HttpStatus.UNAUTHORIZED)
-
-            await this._profileService.changePassword(userId, currentPassword, newPassword)
-            sendSuccess(res, 'Profile Updated');
-        } catch (error: any) {
-            next(error);
-        }
-    }
 
 }
 

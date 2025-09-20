@@ -5,7 +5,9 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Eye, EyeOff, Lock, CheckCircle } from "lucide-react"
-import { useChangePasswordMutation } from "@/services/userServices/profileApi"
+import { useChangePasswordMutation } from "@/services/authServices/passwordResetApi"
+import { useSelector } from "react-redux"
+import { RootState } from "@/store/store"
 
 export default function ChangePasswordPage() {
   const [formData, setFormData] = useState({
@@ -19,6 +21,7 @@ export default function ChangePasswordPage() {
     confirm: false,
   })
   const [changePassword, { isLoading: isLoading }] = useChangePasswordMutation()
+  const user = useSelector((state: RootState) => state.auth)
   const [errors, setErrors] = useState<string[]>([])
   const [success, setSuccess] = useState(false)
 
@@ -66,13 +69,18 @@ export default function ChangePasswordPage() {
 
 
     try {
-      setSuccess(true)
-      await changePassword(formData).unwrap()
       
+      if (!user.user?.role) {
+        setErrors(["User not found"])
+        return
+      }
+      await changePassword({ ...formData, role: user.user?.role }).unwrap()
+
       setFormData({ currentPassword: "", newPassword: "", confirmPassword: "" })
+      setSuccess(true)
     } catch (error: any) {
       setErrors([error.data.message])
-    } 
+    }
   }
 
   const togglePasswordVisibility = (field: keyof typeof showPasswords) => {
@@ -191,9 +199,9 @@ export default function ChangePasswordPage() {
               </div>
             </div>
 
-            <Button 
+            <Button
               onClick={handleSubmit}
-              className="w-full bg-blue-600 hover:bg-blue-700" 
+              className="w-full bg-blue-600 hover:bg-blue-700"
               disabled={isLoading}
             >
               {isLoading ? "Changing Password..." : "Change Password"}

@@ -13,4 +13,5 @@ export interface IResetPasswordService {
     role: Role,
     _id: Types.ObjectId
   ): Promise<void>;
+  changePassword(userId: Types.ObjectId, currentPassword: string, newPassword: string, role: Role): Promise<void>;
 }

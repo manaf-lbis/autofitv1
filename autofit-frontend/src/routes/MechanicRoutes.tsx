@@ -5,6 +5,7 @@ import MechanicInitGuard from "@/features/mechanic/components/MechanicInitGuard"
 import MechanicLayout from "@/features/mechanic/components/layout/MechanicLayout";
 import MechanicSocketContext from "@/context/MechanicSocketContext";
 import PageLoading from "@/components/Animations/PageLoading";
+import ChangePasswordPage from "@/components/shared/ChangePasswordPage";
 
 const Registration = lazy(() => import("@/features/mechanic/pages/Registration"));
 const Dashboard = lazy(() => import("@/features/mechanic/pages/Dashboard"));
@@ -32,6 +33,7 @@ const MechanicRoutes: React.FC = () => {
                 <Route path="account" element={<AccountPage />} />
                 <Route path="messages" element={<Messages />} />
                 <Route path="earnings" element={<Earnings />} />
+                <Route path="change-password" element={<ChangePasswordPage />} />
 
                 <Route path="jobs/pre-trip-checkup" element={<PretripCheckup />} />
                 <Route path="jobs/live-assistance" element={<LiveAssistance />} />

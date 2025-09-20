@@ -30,13 +30,13 @@ export class ResetPasswordController {
             const user = await this._resetPasswordService.verifyEmail(email, role as Role);
             await this._resetPasswordService.saveAndSentOtp(email, role as Role)
 
-            const token = this._tokenService.generateAccessToken({ email, role, otpResent : 0, _id:user._id })
+            const token = this._tokenService.generateAccessToken({ email, role, otpResent: 0, _id: user._id })
 
             const isProd = process.env.NODE_ENV === 'production';
             res.cookie('resetToken', token, {
                 httpOnly: true,
                 secure: isProd,
-                sameSite: isProd? 'none' : 'lax',
+                sameSite: isProd ? 'none' : 'lax',
                 path: '/',
                 maxAge: Number(process.env.RESET_COOKIE_MAX_AGE)
             });
@@ -69,34 +69,34 @@ export class ResetPasswordController {
         }
     }
 
-    async resentOtp(req: Request, res: Response, next: NextFunction){
+    async resentOtp(req: Request, res: Response, next: NextFunction) {
         try {
-            
+
             const resetToken = req.cookies.resetToken;
 
             if (!resetToken) throw new ApiError('Invalid Token, Verify Email Again');
             const validToken = this._tokenService.verifyToken(resetToken);
-          
+
             const { role } = req.params
 
             if (!Object.values(Role).includes(role as Role)) {
                 throw new ApiError('Invalid Role', HttpStatus.BAD_REQUEST);
             }
 
-            const {email,otpResent}:CustomJwtPayload = validToken
+            const { email, otpResent }: CustomJwtPayload = validToken
 
-            if(typeof otpResent !== 'number' || !email) throw new ApiError('Invalid Token, Verify Email Again');
+            if (typeof otpResent !== 'number' || !email) throw new ApiError('Invalid Token, Verify Email Again');
 
-            if(otpResent >= 3 ) throw new ApiError('Attempt Exhausted try after 5 min');
-            
+            if (otpResent >= 3) throw new ApiError('Attempt Exhausted try after 5 min');
+
 
             emailValidation.parse({ email })
-            
+
             await this._resetPasswordService.verifyEmail(email, role as Role);
 
             await this._resetPasswordService.saveAndSentOtp(email, role as Role)
 
-            const token = this._tokenService.generateAccessToken({ email, role, otpResent:otpResent+1 })
+            const token = this._tokenService.generateAccessToken({ email, role, otpResent: otpResent + 1 })
 
             const isProd = process.env.NODE_ENV === 'production';
             res.cookie('resetToken', token, {
@@ -106,7 +106,7 @@ export class ResetPasswordController {
                 path: '/',
                 maxAge: Number(process.env.RESET_COOKIE_MAX_AGE)
             });
-            
+
 
             sendSuccess(res, 'OTP Resent', { email })
 
@@ -116,17 +116,17 @@ export class ResetPasswordController {
 
     }
 
-    async updatePassword(req: Request, res: Response, next: NextFunction){
+    async updatePassword(req: Request, res: Response, next: NextFunction) {
         try {
-            const {password} = req.body;
+            const { password } = req.body;
 
-            if(password.trim().length <6 ) throw new ApiError('invalid password');
+            if (password.trim().length < 6) throw new ApiError('invalid password');
 
             const resetToken = req.cookies.resetToken;
 
             if (!resetToken) throw new ApiError('Invalid Token, Verify Email Again');
             const validToken = this._tokenService.verifyToken(resetToken);
-          
+
             const { role } = req.params
 
 
@@ -134,15 +134,35 @@ export class ResetPasswordController {
                 throw new ApiError('Invalid Role', HttpStatus.BAD_REQUEST);
             }
 
-            const {_id,email,} = validToken
+            const { _id, email, } = validToken
 
-           await this._resetPasswordService.updatePassword(email,password,role as Role,_id)
+            await this._resetPasswordService.updatePassword(email, password, role as Role, _id)
 
-           sendSuccess(res,'Password Updated Successfully')
+            sendSuccess(res, 'Password Updated Successfully')
 
-            
+
         } catch (error) {
             next(error)
+        }
+    }
+
+    async resetPassword(req: Request, res: Response, next: NextFunction) {
+        try {
+            const { currentPassword, newPassword } = req.body;
+
+            if (!currentPassword || !newPassword) throw new ApiError('Invalid Field', HttpStatus.BAD_REQUEST);
+            if (newPassword.trim().length < 6) throw new ApiError('invalid password');
+
+            const userId = req.user?.id;
+            const role = req.user?.role;
+            
+            if (!userId) throw new ApiError("Invalid User", HttpStatus.UNAUTHORIZED)
+
+            await this._resetPasswordService.changePassword(userId, currentPassword, newPassword, role as Role)
+
+            sendSuccess(res, 'Profile Updated');
+        } catch (error: any) {
+            next(error);
         }
     }
 

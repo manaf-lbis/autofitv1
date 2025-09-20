@@ -176,13 +176,6 @@ export const profileApi = createApi({
             }),
         }),
 
-        changePassword: builder.mutation<any, { currentPassword: string, newPassword: string }>({
-            query: ({ currentPassword, newPassword }) => ({
-                url: `user/profile/change-password`,
-                method: 'POST',
-                body: { currentPassword, newPassword }
-            })
-        })
     }),
 });
 
@@ -191,5 +184,4 @@ export const {
     useServiceHistoryQuery,
     usePretripServiceHistoryQuery,
     useLiveAssistServiceHistoryQuery,
-    useChangePasswordMutation
 } = profileApi;
