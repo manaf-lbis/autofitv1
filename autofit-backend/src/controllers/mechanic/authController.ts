@@ -215,7 +215,7 @@ export class AuthController {
 
             const { code } = req.body;
             const result = await this._googleAuthService.googleAuth({ code })
-
+            
             const isProd = process.env.NODE_ENV === 'production';
             res.cookie('jwt', result.token, {
                 httpOnly: true,

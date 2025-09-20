@@ -6,10 +6,11 @@ import { useGoogleLoginMutation } from "@/services/authServices/authApi";
 import { setUser, setError } from "@/features/auth/slices/authSlice";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
+
 import GoogleLoading from "@/components/Animations/GoogleLogin";
 import { Role } from "../Layouts/AuthLayout";
 import { roleConfig } from "@/utils/roleConfig";
+import toast from "react-hot-toast";
 
 type GoogleButtonProps = { role: Role };
 
@@ -25,7 +26,7 @@ const GoogleLoginButton: React.FC<GoogleButtonProps> = ({ role }) => {
     try {
       const res = await googleLogin({ code, role }).unwrap();
       if (res.status === "success") {
-        dispatch(setUser({ name: res.data.name, role: res.data.role ,email:res.data.email,mobile:res.data?.mobile}));
+        dispatch(setUser({ name: res.data.name, role: res.data.role, email: res.data.email, mobile: res.data?.mobile }));
         localStorage.setItem('userRole', res.data.role);
         navigate(roleConfig[res.data.role].defaultRoute, { replace: true });
         toast.success("Logged in with Google!");

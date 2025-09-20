@@ -149,6 +149,8 @@ export class AuthController {
             sendSuccess(res, 'Login Success', result.user)
 
         } catch (error) {
+            console.log(error);
+            
             next(error)
         }
     }
