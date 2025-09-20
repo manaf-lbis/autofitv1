@@ -12,6 +12,7 @@ import { HashService } from "../services/hash/hashService";
 import { OtpService } from "../services/otp/otpService";
 import { TokenService } from "../services/token/tokenService";
 import { ResetPasswordController } from "../controllers/common/resetPassword";
+import { MechanicRepository } from "../repositories/mechanicRepository";
 
 const assetsService = new AssetsService();
 const chatRepository = new ChatRepository();
@@ -19,10 +20,11 @@ const roadsideAssistanceRepo = new RoadsideAssistanceRepository()
 const chatService = new ChatService(chatRepository, roadsideAssistanceRepo);
 const userRepository = new UserRepository()
 const adminRepository = new AdminRepository()
+const mechanicRepo = new MechanicRepository()
 const otpRepository = new OtpRepository()
 const hashService =  new HashService()
 const otpService = new OtpService(otpRepository,hashService)
-const resetPasswordService = new ResetPasswordService(userRepository,adminRepository,otpService,hashService)
+const resetPasswordService = new ResetPasswordService(userRepository,adminRepository,otpService,hashService,mechanicRepo)
 const tokenService = new TokenService()
 
 

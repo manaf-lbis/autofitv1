@@ -11,6 +11,7 @@ import { UserMapper } from "../../dtos/userDto";
 import { RoadsideAssistanceMapper } from "../../dtos/roadsideAssistanceDTO";
 import { PretripMapper } from "../../dtos/pretripDto";
 import { LiveAssistanceMapper } from "../../dtos/liveAssistanceDTO";
+import { HashService } from "../hash/hashService";
 
 
 
@@ -19,7 +20,8 @@ export class UserProfileService implements IUserProfileService {
         private _userRepository: IUserRepository,
         private _roadsideAssistanceRepo : IRoadsideAssistanceRepo,
         private _pretripBookingRepository: IPretripBookingRepository,
-        private _liveAssistanceRepository: ILiveAssistanceRepository
+        private _liveAssistanceRepository: ILiveAssistanceRepository,
+        private _hashService: HashService
     ) { }
 
     async updateUser({ name, email, mobile, userId }: { name: string, email: string, mobile: string, userId: Types.ObjectId }) {
@@ -75,6 +77,19 @@ export class UserProfileService implements IUserProfileService {
                 return LiveAssistanceMapper.toLiveAssistanceInfo(item)
             })
         }
+    }
+
+    async changePassword(userId: Types.ObjectId, currentPassword: string, newPassword: string): Promise<any> {
+        const user = await this._userRepository.findById(userId)
+        if (!user) throw new ApiError('Invalid User', HttpStatus.UNAUTHORIZED)
+
+        const isMatch = await this._hashService.compare(newPassword, user.password);
+
+        if(isMatch) throw new ApiError('Current password is same as new password', HttpStatus.BAD_REQUEST);
+
+        const hashedPassword = await this._hashService.hash(newPassword)
+        await this._userRepository.update(userId, { password: hashedPassword });        
+        
     }
 
     

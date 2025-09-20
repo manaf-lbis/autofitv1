@@ -15,8 +15,6 @@ export function CTA() {
             Join drivers who trust Mechanic Bookik for preventive checks, emergency help, and live expert guidance—all
             in one place.
           </p>
-
-         
         </div>
       </div>
     </section>

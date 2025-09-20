@@ -8,18 +8,21 @@ import { IUserRepository } from "../../../repositories/interfaces/IUserRepositor
 import { IAdminRepository } from "../../../repositories/interfaces/IAdminRepository";
 import { Types } from "mongoose";
 import { IResetPasswordService } from "./interface/IResetPasswordService";
+import { IMechanicRepository } from "../../../repositories/interfaces/IMechanicRepository";
+import { Mechanic } from "../../../types/mechanic/mechanic";
 
 class ResetPassword implements IResetPasswordService {
     constructor(
         private _userRepository: IUserRepository,
         private _adminRepository: IAdminRepository,
         private _otpService: OtpService,
-        private _hashService: HashService
+        private _hashService: HashService,
+        private _mechnaicRepository: IMechanicRepository
     ) { }
 
     async verifyEmail(email: string, role: Role) {
 
-        let user: User | Admin | null
+        let user: User | Admin | Mechanic | null
 
         switch (role) {
             case Role.USER:
@@ -30,8 +33,11 @@ class ResetPassword implements IResetPasswordService {
                 user = await this._adminRepository.findByEmail(email)
                 break;
 
-            default:
+            case Role.MECHANIC:
+                user = await this._mechnaicRepository.findByEmail(email);
+                break;
 
+            default:
                 throw new ApiError('User Not found')
         }
 
@@ -41,23 +47,26 @@ class ResetPassword implements IResetPasswordService {
     }
 
     async saveAndSentOtp(email: string, role: Role) {
-        await this._otpService.saveAndSentOtp(email,role)
+        await this._otpService.saveAndSentOtp(email, role)
         return true
     };
 
-    async updatePassword(email:string,password:string,role:Role,_id:Types.ObjectId){
+    async updatePassword(email: string, password: string, role: Role, _id: Types.ObjectId) {
 
         const hash = await this._hashService.hash(password)
 
         switch (role) {
             case Role.USER:
-                 await this._userRepository.update(_id,{password:hash})
+                await this._userRepository.update(_id, { password: hash })
                 break;
 
             case Role.ADMIN:
-                 await this._adminRepository.update(_id,{password:hash})
+                await this._adminRepository.update(_id, { password: hash })
                 break;
 
+            case Role.MECHANIC:
+                await this._mechnaicRepository.update(_id, { password: hash })
+                break;
             default:
                 throw new ApiError('User Not found')
         }

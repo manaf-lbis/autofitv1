@@ -27,4 +27,5 @@ export interface IUserProfileService {
   roadsideServiceHistory(userId: Types.ObjectId, page: number): Promise<RoadsideServiceHistoryResponse>;
   pretripServiceHistory(userId: Types.ObjectId, page: number): Promise<PretripServiceHistoryResponse>;
   liveAssistanceServiceHistory(userId: Types.ObjectId, page: number): Promise<liveAssistanceServiceHistoryResponse>;
+  changePassword(userId: Types.ObjectId, currentPassword: string, newPassword: string): Promise<any>;
 }
