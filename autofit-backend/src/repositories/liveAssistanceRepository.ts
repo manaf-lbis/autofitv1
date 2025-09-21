@@ -43,11 +43,22 @@ export class LiveAsistanceRepository extends BaseRepository<LiveAssistanceDocume
     }
 
     async activeBookingsByMechanicId(mechanicId: Types.ObjectId): Promise<LiveAssistanceDocument | null> {
-        return await LiveAssistanceModel.findOne({
-            mechanicId, status: { $in: [LiveAssistanceStatus.ONGOING, LiveAssistanceStatus.PENDING] },
+        const res = await LiveAssistanceModel.findOne({
+            mechanicId,
+            status: { $in: [LiveAssistanceStatus.ONGOING, LiveAssistanceStatus.PENDING] },
             startTime: { $lte: new Date() },
             endTime: { $gte: new Date() }
-        }).populate('userId', 'name mobile').select('userId issue description status startTime endTime price sessionId mechanicId')
+        })
+            .populate('userId', 'name mobile')
+            .populate({
+                path: 'paymentId',
+                match: { status: 'success' },
+            })
+            .select('userId issue description status startTime endTime price sessionId mechanicId paymentId')
+
+        if (!res?.paymentId) return null;
+        return res
+
     }
 
     async liveAssistanceDetails(start: Date, end: Date, groupBy: GroupBy): Promise<any> {
