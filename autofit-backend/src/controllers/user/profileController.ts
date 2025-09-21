@@ -7,25 +7,25 @@ import { IUserProfileService } from "../../services/user/Interface/IUserProfileS
 
 export class ProfileController {
 
-    constructor (
-        private _profileService : IUserProfileService
-    ) {}
+    constructor(
+        private _profileService: IUserProfileService
+    ) { }
 
 
     async updateUser(req: Request, res: Response, next: NextFunction) {
-         try {
-            
-            if(!req.body) throw new ApiError('Invalid Field',HttpStatus.BAD_REQUEST)
+        try {
+
+            if (!req.body) throw new ApiError('Invalid Field', HttpStatus.BAD_REQUEST)
             profileValidation.parse(req.body)
 
-            const userId = req.user?.id 
-            if(!userId) throw new ApiError("Invalid User",HttpStatus.UNAUTHORIZED)
+            const userId = req.user?.id
+            if (!userId) throw new ApiError("Invalid User", HttpStatus.UNAUTHORIZED)
 
-            const user =  await this._profileService.updateUser({...req.body,userId})
-            if(!user) throw new ApiError('Invalid User')
-            const {name,email,mobile} = user
+            const user = await this._profileService.updateUser({ ...req.body, userId })
+            if (!user) throw new ApiError('Invalid User')
+            const { name, email, mobile } = user
 
-            sendSuccess(res, 'Profile Updated', {name,email,mobile});
+            sendSuccess(res, 'Profile Updated', { name, email, mobile });
 
         } catch (error: any) {
             next(error);
@@ -33,46 +33,47 @@ export class ProfileController {
     }
 
     async roadsideServiceHistory(req: Request, res: Response, next: NextFunction) {
-         try {
+        try {
             const userId = req.user?.id
-            const {page} = req.query
-            if(!page || isNaN(Number(page))) throw new ApiError('Invalid page number',HttpStatus.BAD_REQUEST)
-            if(!userId) throw new ApiError('Invalid user')
+            const { page } = req.query
+            if (!page || isNaN(Number(page))) throw new ApiError('Invalid page number', HttpStatus.BAD_REQUEST)
+            if (!userId) throw new ApiError('Invalid user')
 
-            const serviceHistory = await this._profileService.roadsideServiceHistory(userId,Number(page));
-            sendSuccess(res, 'Service History',serviceHistory);
+            const serviceHistory = await this._profileService.roadsideServiceHistory(userId, Number(page));
+            sendSuccess(res, 'Service History', serviceHistory);
         } catch (error: any) {
             next(error);
         }
     }
 
     async pretripServiceHistory(req: Request, res: Response, next: NextFunction) {
-         try {
+        try {
             const userId = req.user?.id
-            const {page} = req.query
-            if(!page || isNaN(Number(page))) throw new ApiError('Invalid page number',HttpStatus.BAD_REQUEST)
-            if(!userId) throw new ApiError('Invalid user')
+            const { page } = req.query
+            if (!page || isNaN(Number(page))) throw new ApiError('Invalid page number', HttpStatus.BAD_REQUEST)
+            if (!userId) throw new ApiError('Invalid user')
 
-            const serviceHistory = await this._profileService.pretripServiceHistory(userId,Number(page));
-            sendSuccess(res, 'Service History',serviceHistory);
+            const serviceHistory = await this._profileService.pretripServiceHistory(userId, Number(page));
+            sendSuccess(res, 'Service History', serviceHistory);
         } catch (error: any) {
             next(error);
         }
     }
 
     async liveAssistanceServiceHistory(req: Request, res: Response, next: NextFunction) {
-         try {
+        try {
             const userId = req.user?.id
-            const {page} = req.query
-            if(!page || isNaN(Number(page))) throw new ApiError('Invalid page number',HttpStatus.BAD_REQUEST)
-            if(!userId) throw new ApiError('Invalid user')
+            const { page } = req.query
+            if (!page || isNaN(Number(page))) throw new ApiError('Invalid page number', HttpStatus.BAD_REQUEST)
+            if (!userId) throw new ApiError('Invalid user')
 
-            const serviceHistory = await this._profileService.liveAssistanceServiceHistory(userId,Number(page));
-            sendSuccess(res, 'serviceHistory',serviceHistory);
+            const serviceHistory = await this._profileService.liveAssistanceServiceHistory(userId, Number(page));
+            sendSuccess(res, 'serviceHistory', serviceHistory);
         } catch (error: any) {
             next(error);
         }
     }
+
 
 }
 

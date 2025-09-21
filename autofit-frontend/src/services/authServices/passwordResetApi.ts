@@ -5,17 +5,17 @@ import { Role } from "../../features/auth/components/Layouts/AuthLayout";
 
 export interface VerifyEmail {
   email: string;
-  role:Role
+  role: Role
 }
 
 export interface VerifyOtp {
-  otp:string
-  role:Role
+  otp: string
+  role: Role
 }
 
 export interface UpdatePassword {
-    password:string
-    role:Role
+  password: string
+  role: Role
 }
 
 export interface LoginResponse {
@@ -40,32 +40,46 @@ export const passwordResetApi = createApi({
         body: { email }
       })
     }),
+
     verifyOtp: builder.mutation<any, VerifyOtp>({
       query: ({ otp, role }) => ({
         url: `auth/${role}/reset-password/verify-otp`,
         method: 'POST',
-        body: {otp}
+        body: { otp }
       })
     }),
+
     resentOtp: builder.mutation({
-      query: ({ role }:{role:Role}) => ({
+      query: ({ role }: { role: Role }) => ({
         url: `auth/${role}/reset-password/resent-otp`,
         method: 'POST',
       })
     }),
-    setNewPassword :builder.mutation<any,UpdatePassword>({
-       query:({password,role})=>({
-        url:`auth/${role}/reset-password/updatePassword`,
+
+    setNewPassword: builder.mutation<any, UpdatePassword>({
+      query: ({ password, role }) => ({
+        url: `auth/${role}/reset-password/updatePassword`,
         method: 'POST',
-        body:{password}
-      }) 
+        body: { password }
+      })
+    }),
+
+    changePassword: builder.mutation<any, { role: Role, currentPassword: string, newPassword: string }>({
+      query: ({ currentPassword, newPassword, role }) => ({
+        url: `auth/${role}/reset-password`,
+        method: 'POST',
+        body: { currentPassword, newPassword }
+      })
     })
+
+
   }),
 });
 
 export const {
-    useSetNewPasswordMutation,
-    useVerifyEmailMutation,
-    useVerifyOtpMutation,
-    useResentOtpMutation
+  useSetNewPasswordMutation,
+  useVerifyEmailMutation,
+  useVerifyOtpMutation,
+  useResentOtpMutation,
+  useChangePasswordMutation
 } = passwordResetApi;

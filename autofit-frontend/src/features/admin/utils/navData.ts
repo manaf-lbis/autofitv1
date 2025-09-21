@@ -64,8 +64,8 @@ const data = {
       icon: Settings2,
       items: [
         {
-          title: "General",
-          url: "/admin/settings",
+          title: "Change Password",
+          url: "/admin/change-password",
         },
       ],
     },

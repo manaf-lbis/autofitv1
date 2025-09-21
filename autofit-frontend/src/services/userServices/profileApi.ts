@@ -1,6 +1,6 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { baseQueryWithRefresh } from "@/utils/baseQuery";
-import { LiveAssistanceStatus } from "@/types/liveAssistance"; 
+import { LiveAssistanceStatus } from "@/types/liveAssistance";
 
 export interface ProfileData {
     name: string;
@@ -57,7 +57,7 @@ interface ServerPretripRequest {
     id: string;
     vehicleId: { _id: string; regNo: string; brand: string; modelName: string; owner: string };
     schedule: { start: string; end?: string };
-    servicePlan: { name: string; description?: string } 
+    servicePlan: { name: string; description?: string }
     status: PretripRequest["status"];
 }
 
@@ -70,7 +70,7 @@ interface ServerLiveAssistanceRequest {
     price: number;
     startTime: string;
     endTime?: string;
-    paymentId: {  amount: number };
+    paymentId: { amount: number };
 }
 
 export const profileApi = createApi({
@@ -170,11 +170,12 @@ export const profileApi = createApi({
                     endedAt: item.endTime,
                     payment: {
                         amount: item.paymentId.amount,
-              
+
                     },
                 })),
             }),
         }),
+
     }),
 });
 

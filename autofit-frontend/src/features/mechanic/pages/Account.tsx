@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { MapPin, GraduationCap, Store, Calendar, CheckCircle, Eye, FileText, X, Download, ExternalLink, ClockArrowUp, PenBox } from "lucide-react"
+import { MapPin, GraduationCap, Store, Calendar, CheckCircle, Eye, FileText, X, Download, ExternalLink, ClockArrowUp, PenBox, KeyRound, ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { format } from "date-fns"
@@ -231,6 +231,42 @@ export default function Account() {
                       aria-label="Download qualification document"
                     >
                       <Download className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+
+
+
+
+
+
+             <div className="bg-white/80 backdrop-blur-xl rounded-2xl border border-gray-200/50 shadow-lg p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Change Password</h3>
+              <div className="space-y-3">
+                <div
+                  onClick={()=> navigate('/mechanic/change-password')}
+                 className="flex items-center justify-between p-3 bg-gray-50/80 rounded-lg border border-gray-200/50 cursor-pointer">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-green-50 rounded-lg flex items-center justify-center">
+                      <KeyRound className="w-4 h-4 text-green-600" />
+                    </div>
+                    <div>
+                      <p className="font-medium text-gray-900">Change Password</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                  
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-gray-600 hover:text-gray-800"
+
+                      aria-label="Download qualification document"
+                    >
+                      <ArrowRight className="w-4 h-4" />
                     </Button>
                   </div>
                 </div>
