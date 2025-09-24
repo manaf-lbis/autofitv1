@@ -60,7 +60,8 @@ export interface IPretripBooking {
   payment?: {
     status: PaymentStatus;
     paymentId?: Types.ObjectId;
-  }
+  },
+  ratingId?: Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
 }

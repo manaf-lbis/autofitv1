@@ -22,6 +22,7 @@ export class PretripBookingRepository extends BaseRepository<PretripBookingDocum
             .populate('userId', 'name email mobile')
             .populate('payment.paymentId')
             .populate('serviceReportId')
+            .populate('ratingId', '_id review rating')
     }
 
     async dayWiseBookings(mechanicId: Types.ObjectId, date: Date): Promise<any> {

@@ -17,7 +17,9 @@ export class LiveAsistanceRepository extends BaseRepository<LiveAssistanceDocume
     }
 
     async detailedBooking(serviceId: Types.ObjectId): Promise<any> {
-        return await LiveAssistanceModel.findOne({ _id: serviceId }).populate('paymentId').populate('userId', '_id name email mobile')
+        return await LiveAssistanceModel.findOne({ _id: serviceId })
+        .populate('paymentId')
+        .populate('userId', '_id name email mobile')
     }
 
 
@@ -38,8 +40,11 @@ export class LiveAsistanceRepository extends BaseRepository<LiveAssistanceDocume
 
 
     async getServiceDetails(serviceId: Types.ObjectId): Promise<any> {
-        return await LiveAssistanceModel.findOne({ _id: serviceId }).populate('paymentId', 'status amount methord receipt').populate('mechanicId', 'name email')
-            .select('paymentId mechanicId userId issue description status startTime endTime price')
+        return await LiveAssistanceModel.findOne({ _id: serviceId })
+        .populate('paymentId', 'status amount methord receipt')
+        .populate('mechanicId', 'name email')
+        .populate('ratingId', '_id review rating')
+        .select('paymentId mechanicId userId issue description status startTime endTime price ratingId')
     }
 
     async activeBookingsByMechanicId(mechanicId: Types.ObjectId): Promise<LiveAssistanceDocument | null> {

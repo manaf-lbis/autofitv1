@@ -78,6 +78,11 @@ const pretripBookingSchema = new Schema<PretripBookingDocument>({
             required: true
         }
     },
+    ratingId :{
+        type: Schema.Types.ObjectId,
+        ref: 'rating',
+        default: null
+    }
 
 
 },{ timestamps: true });

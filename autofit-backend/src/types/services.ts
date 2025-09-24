@@ -40,6 +40,7 @@ export interface RoadsideAssistance {
     startedAt: Date;
     arrivedAt?:Date;
     endedAt: Date;
+    ratingId?: Types.ObjectId;
     createdAt: Date;
     updatedAt: Date;
 }

@@ -46,6 +46,7 @@ import { VehicleService } from "../services/vehicle/vehicleService";
 import { PaymentGateway } from "../types/payment";
 import { ServiceType } from "../types/services";
 import { RoadsidePaymentHandler } from "../services/paymentServices/servicePaymentHandler/roadsidePaymentHandler";
+import { RatingRepository } from "../repositories/ratingRepository";
 
 
 
@@ -54,6 +55,7 @@ const userRepository = new UserRepository();
 const otpRepository = new OtpRepository();
 const tokenService = new TokenService();
 const hashService = new HashService();
+const ratingRepo = new RatingRepository()
 const otpService = new OtpService(otpRepository, hashService);
 const authService = new AuthService(userRepository, otpService, tokenService, hashService);
 const googleAuthService = new GoogleAuthService(userRepository, tokenService);
@@ -85,7 +87,7 @@ const mechanicProfileRepository = new MechanicProfileRepository()
 const googleMapRepo = new GoogleMapRepository()
 const pretripReportRepository = new PretripReportRepository()
 const pretripService = new PretripService(mechanicProfileRepository, googleMapRepo, pretripBookingRepository, pretripPlanRepository, workingHoursRepository, timeBlockingRepository, pretripReportRepository, transactionRepo, paymentRepository, mechanicProfileRepository)
-const profileService = new UserProfileService(userRepository, roadsideAssistanceRepo, pretripBookingRepository, liveAssistanceRepo,hashService)
+const profileService = new UserProfileService(userRepository, roadsideAssistanceRepo, pretripBookingRepository, liveAssistanceRepo,hashService,ratingRepo)
 const vehicleRepository = new VehicleRepository()
 const notificationRepository = new NotificationRepository()
 const roadsideService = new RoadsideService(roadsideAssistanceRepo, quotationRepo, mechanicProfileRepository, transactionRepo, paymentRepository)

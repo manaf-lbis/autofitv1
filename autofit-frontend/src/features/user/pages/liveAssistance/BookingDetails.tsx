@@ -11,6 +11,8 @@ import { LiveAssistanceStatus } from "@/types/liveAssistance";
 import { useGenerateInvoiceMutation, useGetCallSessionIdQuery, useLiveBookingDetailsQuery, useMarkAsCompletedMutation } from "@/services/userServices/liveAssistanceApi";
 import { DetailsPageShimer } from "../../components/shimmer/liveAssistance/DetailsPageShimer";
 import toast from "react-hot-toast";
+import { RatingButton } from "@/components/shared/rating/RatingButton";
+import { ServiceType } from "@/types/user";
 
 interface BookingData {
   _id: string;
@@ -84,7 +86,7 @@ export default function BookingDetailsPage() {
       description: data.data.description,
       price: data.data.price,
       startTime: data.data.startTime,
-      endTime: data.data.endTime, 
+      endTime: data.data.endTime,
       status: data.data.status as LiveAssistanceStatus,
       mechanicName: data.data.mechanicId.name,
       mechanicEmail: data.data.mechanicId.email,
@@ -109,7 +111,7 @@ export default function BookingDetailsPage() {
       const currentTime = Date.now();
       const remaining = Math.max(0, endTime - currentTime);
       setTimeRemaining(Math.floor(remaining / 1000));
-      
+
     }, 1000);
 
     return () => clearInterval(timer);
@@ -135,7 +137,7 @@ export default function BookingDetailsPage() {
   const handleMarkAsCompleted = async () => {
     try {
       if (!bookingData) return;
-      
+
       await markAsCompleted({ serviceId: bookingData._id }).unwrap();
       toast.success("Call marked as completed successfully");
     } catch (error: any) {
@@ -161,7 +163,6 @@ export default function BookingDetailsPage() {
     return <DetailsPageShimer />;
   }
 
-  // Use actual status from backend data
   const isJoinButtonVisible = bookingData.status === LiveAssistanceStatus.ONGOING && timeRemaining > 0;
   const isMarkCompleteVisible = bookingData.status === LiveAssistanceStatus.ONGOING;
   const isDownloadVisible = bookingData.status === LiveAssistanceStatus.COMPLETED;
@@ -173,10 +174,10 @@ export default function BookingDetailsPage() {
         <div className="sticky top-0 bg-white border-b border-gray-200 px-4 py-3 z-10">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="focus:outline-none -ml-2" 
+              <Button
+                variant="ghost"
+                size="icon"
+                className="focus:outline-none -ml-2"
                 onClick={() => navigate(-1)}
                 aria-label="Go back"
               >
@@ -215,19 +216,32 @@ export default function BookingDetailsPage() {
                   </div>
                 </div>
               </div>
-              
+
               {isDownloadVisible && (
-                <button 
-                  onClick={handleDownloadInvoice}
-                  disabled={isReceiptLoading}
-                  className="flex items-center gap-2 px-3 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded-md transition-colors disabled:opacity-50"
-                >
-                  <Download className="h-4 w-4" />
-                  <span className="text-sm font-medium">Invoice</span>
-                </button>
+                <>
+                  <button
+                    onClick={handleDownloadInvoice}
+                    disabled={isReceiptLoading}
+                    className="flex items-center gap-2 px-3 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded-md transition-colors disabled:opacity-50"
+                  >
+                    <Download className="h-4 w-4" />
+                    <span className="text-sm font-medium">Invoice</span>
+                  </button>
+                  <RatingButton
+                    size="xs"
+                    serviceId={bookingData._id}
+                    serviceType={ServiceType.LIVE}
+                    displayStyle="single-star"
+                    hasRated={data?.data?.ratingId?._id ? true : false}
+                    refetch={refetch}
+                    serviceName="Live Assistance"
+                    userRating={data.data.ratingId.rating}
+                    userReview={data.data.ratingId.review}
+                  />
+                </>
               )}
             </div>
-            
+
             {isJoinButtonVisible && (
               <div className="space-y-3">
                 <div className="flex items-center justify-center gap-2 bg-red-50 px-3 py-2 rounded-md">
@@ -282,7 +296,7 @@ export default function BookingDetailsPage() {
               </div>
             </div>
           </div>
-          
+
           <div className="bg-white rounded-lg border border-gray-100 p-4">
             <div className="flex items-center gap-2 mb-3">
               <div className="p-1.5 bg-green-100 rounded-md">
@@ -307,7 +321,7 @@ export default function BookingDetailsPage() {
               </div>
             </div>
           </div>
-          
+
           <div className="bg-white rounded-lg border border-gray-100 p-4">
             <div className="flex items-center gap-2 mb-3">
               <div className="p-1.5 bg-purple-100 rounded-md">
@@ -327,7 +341,7 @@ export default function BookingDetailsPage() {
               </div>
             </div>
           </div>
-          
+
           <div className="bg-white rounded-lg border border-gray-100 p-4">
             <div className="flex items-center gap-2 mb-3">
               <div className="p-1.5 bg-orange-100 rounded-md">
@@ -386,7 +400,7 @@ export default function BookingDetailsPage() {
               </Button>
             </div>
           </div>
-          
+
           <div className="grid grid-cols-1 xl:grid-cols-4 gap-6 lg:gap-8">
             <div className="xl:col-span-3 space-y-6">
               <Card className="border-border shadow-sm rounded-md">
@@ -404,9 +418,10 @@ export default function BookingDetailsPage() {
                           </div>
                           <CardDescription>Current status of your consultation</CardDescription>
                         </div>
+
                       </div>
                     </div>
-                    
+
                     <div className="flex items-center gap-3">
                       {isJoinButtonVisible && (
                         <div className="flex items-center gap-2 bg-red-50 px-3 py-1 rounded-md">
@@ -414,21 +429,38 @@ export default function BookingDetailsPage() {
                           <span className="text-red-600 font-mono text-sm">{formatCountdown(timeRemaining)}</span>
                         </div>
                       )}
-                      
+
                       {isDownloadVisible && (
-                        <button 
-                          onClick={handleDownloadInvoice}
-                          disabled={isReceiptLoading}
-                          className="flex items-center gap-2 px-3 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded-md transition-colors disabled:opacity-50"
-                        >
-                          <Download className="h-4 w-4" />
-                          <span className="text-sm font-medium">Invoice</span>
-                        </button>
+                        <>
+                          <button
+                            onClick={handleDownloadInvoice}
+                            disabled={isReceiptLoading}
+                            className="flex items-center gap-2 px-3 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded-md transition-colors disabled:opacity-50"
+                          >
+                            <Download className="h-4 w-4" />
+                            <span className="text-sm font-medium">Invoice</span>
+                          </button>
+
+                          <RatingButton
+                            size="xs"
+                            serviceId={bookingData._id}
+                            serviceType={ServiceType.LIVE}
+                            displayStyle="single-star"
+                            hasRated={data?.data?.ratingId?._id ? true : false}
+                            refetch={refetch}
+                            serviceName="Live Assistance"
+                            userRating={data.data.ratingId.rating}
+                            userReview={data.data.ratingId.review}
+                          />
+                        </>
                       )}
+
+
                     </div>
+
                   </div>
                 </CardHeader>
-                
+
                 {(isJoinButtonVisible || isMarkCompleteVisible) && (
                   <CardContent className="pt-0">
                     <div className="flex gap-3">
@@ -441,7 +473,7 @@ export default function BookingDetailsPage() {
                           Join Video Call
                         </Button>
                       )}
-                      
+
                       {isMarkCompleteVisible && (
                         <Button
                           onClick={handleMarkAsCompleted}
@@ -462,11 +494,13 @@ export default function BookingDetailsPage() {
                           )}
                         </Button>
                       )}
+
                     </div>
+
                   </CardContent>
                 )}
               </Card>
-              
+
               <Card className="border-border shadow-sm rounded-md">
                 <CardHeader>
                   <CardTitle className="text-lg text-card-foreground">Issue Description</CardTitle>
@@ -489,7 +523,7 @@ export default function BookingDetailsPage() {
                   </div>
                 </CardContent>
               </Card>
-              
+
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <Card className="border-border shadow-sm rounded-md">
                   <CardHeader>
@@ -519,7 +553,7 @@ export default function BookingDetailsPage() {
                     </div>
                   </CardContent>
                 </Card>
-                
+
                 <Card className="border-border shadow-sm rounded-md">
                   <CardHeader>
                     <CardTitle className="text-lg text-card-foreground flex items-center gap-2">
@@ -545,7 +579,7 @@ export default function BookingDetailsPage() {
                 </Card>
               </div>
             </div>
-            
+
             <div className="xl:col-span-1">
               <Card className="border-border shadow-sm xl:sticky xl:top-24 rounded-md">
                 <CardHeader>

@@ -65,6 +65,11 @@ const liveAssistanceSchema: Schema<LiveAssistanceDocument> = new Schema<LiveAssi
     duration: {
         type: Number,
         required: true
+    },
+    ratingId :{
+        type: Schema.Types.ObjectId,
+        ref: 'rating',
+        default : null
     }
 }, { timestamps: true })
 

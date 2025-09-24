@@ -3,6 +3,7 @@ import { UserBasicInfoDTO } from "../../../dtos/userDto";
 import { RoadsideAssistanceDTO } from "../../../dtos/roadsideAssistanceDTO"; 
 import { PretripDTO } from "../../../dtos/pretripDto";
 import { LiveAssistanceInfoDTO } from "../../../dtos/liveAssistanceDTO";
+import { ServiceType } from "../../../types/services";
 
 
 interface PagenationInfo {
@@ -27,4 +28,5 @@ export interface IUserProfileService {
   roadsideServiceHistory(userId: Types.ObjectId, page: number): Promise<RoadsideServiceHistoryResponse>;
   pretripServiceHistory(userId: Types.ObjectId, page: number): Promise<PretripServiceHistoryResponse>;
   liveAssistanceServiceHistory(userId: Types.ObjectId, page: number): Promise<liveAssistanceServiceHistoryResponse>;
+  addReview(userId: Types.ObjectId, review: string,rating: number,serviceId: Types.ObjectId,serviceType: ServiceType): Promise<any>;
 }

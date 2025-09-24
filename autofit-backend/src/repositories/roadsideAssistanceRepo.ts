@@ -54,6 +54,7 @@ export class RoadsideAssistanceRepository extends BaseRepository<RoadsideAssista
             .populate('mechanicId', 'name email avatar')
             .populate('quotationId', '-requestId')
             .populate('paymentId', '-userId')
+            .populate('ratingId', '_id review rating')
             .lean();
 
         if (!result) throw new ApiError('No Service Details Found', HttpStatus.NOT_FOUND);

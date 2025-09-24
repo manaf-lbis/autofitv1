@@ -23,6 +23,7 @@ export interface ILiveAssistance {
     issue: string;
     description: string;
     duration: number;
+    ratingId : Types.ObjectId;
     createdAt: Date;
     updatedAt: Date;
 }

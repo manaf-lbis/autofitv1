@@ -81,6 +81,11 @@ const roadsideAssistanceSchema: Schema<RoadsideAssistanceDocument> = new Schema<
     endedAt: {
         type: Date,
         default: null
+    },
+    ratingId :{
+        type: Schema.Types.ObjectId,
+        ref: 'rating',
+        default : null
     }
 }, { timestamps: true });
 

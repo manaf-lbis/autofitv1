@@ -1,6 +1,7 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { baseQueryWithRefresh } from "@/utils/baseQuery";
 import { LiveAssistanceStatus } from "@/types/liveAssistance";
+import { ServiceType } from "@/types/user";
 
 export interface ProfileData {
     name: string;
@@ -176,6 +177,22 @@ export const profileApi = createApi({
             }),
         }),
 
+        review: builder.mutation<any, { serviceId: string, serviceType: ServiceType ,rating:number,review:string}>({
+            query: ({ serviceId, serviceType,rating,review }) => ({
+                url: "user/profile/review",
+                method: "POST",
+                body: {
+                    serviceId,
+                    serviceType,
+                    rating,
+                    review
+                },
+            }),
+            transformResponse: (response: any) => response.data,
+        }),
+
+
+
     }),
 });
 
@@ -184,4 +201,5 @@ export const {
     useServiceHistoryQuery,
     usePretripServiceHistoryQuery,
     useLiveAssistServiceHistoryQuery,
+    useReviewMutation
 } = profileApi;

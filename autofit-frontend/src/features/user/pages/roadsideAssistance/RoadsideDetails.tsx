@@ -189,6 +189,8 @@ export default function RoadsideDetails() {
           isCancelled={isCancelled}
           isCompleted={bookingData?.status === "completed"}
           statusString={bookingData?.status}
+          refetch={refetch}
+          rating={bookingData?.ratingId}
         />
 
         <TabsSection
