@@ -207,9 +207,9 @@ export const profileApi = createApi({
             transformResponse: (response: any) => response.data,
         }),
 
-        listReviews: builder.query<ReviewsResponse, { page: number; mechanic: string; sort: "all" | "top" | "least"; resetId?: number }>({
-            query: ({ page, mechanic, sort }) => ({
-                url: "user/profile/reviews",
+        listReviews: builder.query<ReviewsResponse, { page: number; mechanic: string; sort: "all" | "top" | "least"; resetId?: number; user: 'user' | 'mechanic' }>({
+            query: ({ page, mechanic, sort, user }) => ({
+                url: `${user}/profile/reviews`,
                 method: "GET",
                 params: { page, mechanic, sort },
             }),

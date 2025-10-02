@@ -4,6 +4,8 @@ import { ApiError } from "../../utils/apiError";
 import { mechanicRegisterValidation } from "../../validation/mechanicValidation";
 import { HttpStatus } from "../../types/responseCode";
 import { IProfileService } from "../../services/mechanic/interface/IProfileService";
+import { Sort } from "../../types/rating";
+import { Types } from "mongoose";
 
 
 interface CloudinaryFile extends Express.Multer.File {
@@ -181,6 +183,22 @@ export class ProfileController {
             sendSuccess(res, 'Success', result);
         } catch (err) {
             next(err);
+        }
+    }
+
+    async listReviews(req: Request, res: Response, next: NextFunction) {
+        try {
+            const { page, mechanic, sort } = req.query
+
+            if (!page || isNaN(Number(page)) || Number(page) < 1) throw new ApiError('Invalid page number', HttpStatus.BAD_REQUEST)
+            if (!mechanic) throw new ApiError('Invalid user')
+            if (!Types.ObjectId.isValid(String(mechanic))) throw new ApiError('Invalid mechanic', HttpStatus.BAD_REQUEST)
+            if (!Object.values(Sort).includes(String(sort) as Sort)) throw new ApiError('Invalid sort', HttpStatus.BAD_REQUEST)
+
+            const reviews = await this._mechanicProfileService.listReviews(new Types.ObjectId(String(mechanic)), Number(page),sort as Sort);
+            sendSuccess(res, 'Reviews', reviews);
+        } catch (error: any) {
+            next(error);
         }
     }
 

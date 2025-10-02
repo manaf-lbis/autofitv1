@@ -16,6 +16,8 @@ import { ITimeBlockRepository } from "../../repositories/interfaces/ITimeBlockRe
 import { endOfDay, startOfDay } from "date-fns";
 import { BlockType } from "../../models/timeBlock";
 import { ZodError } from "zod";
+import { IRatingRepository } from "../../repositories/interfaces/IRatingRepository";
+import { Sort } from "../../types/rating";
 
 
 export class ProfileService implements IProfileService {
@@ -24,7 +26,8 @@ export class ProfileService implements IProfileService {
     private _mechanicRepository: IMechanicRepository,
     private _notificationRepository: INotificationRepository,
     private _workingHoursRepository: IWorkingHoursRepository,
-    private _timeBlockingRepo: ITimeBlockRepository
+    private _timeBlockingRepo: ITimeBlockRepository,
+    private _ratingRepo: IRatingRepository
   ) { }
 
 
@@ -74,8 +77,13 @@ export class ProfileService implements IProfileService {
     try {
 
       const profile = await this._mechanicProfileRepository.findByMechanicId(mechanicId);
+      const ratings = await this._ratingRepo.avgRatingOfMechanic(new Types.ObjectId(mechanicId));
+
       if (!profile) return null;
-      return profile;
+      return {
+        ...profile,
+        rating: ratings[0]
+      };
 
     } catch (err) {
       if (err instanceof ApiError) throw err;
@@ -188,6 +196,12 @@ export class ProfileService implements IProfileService {
   }
 
 
+  async listReviews(mechanicId: Types.ObjectId, page: number, sort: string): Promise<any> {
+    const start = Number(page) <= 0 ? 0 : (page - 1) * Number(process.env.ITEMS_PER_PAGE);
+    const end = start + Number(process.env.ITEMS_PER_PAGE);
+
+    return await this._ratingRepo.pagenatedRatings(start, end, mechanicId, sort as Sort);
+  }
 
 
 

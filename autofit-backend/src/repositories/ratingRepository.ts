@@ -13,7 +13,7 @@ export class RatingRepository extends BaseRepository<RatingDocument> implements 
     async avgRatingOfMechanic(mechanicId: Types.ObjectId): Promise<any> {
         return await RatingModel.aggregate([
             { $match: { mechanicId } },
-            { $group: { _id: null, avg: { $avg: "$rating" }, reviews: { $sum: 1 } } }
+            { $group: { _id: '$mechanicId', avg: { $avg: "$rating" }, reviews: { $sum: 1 } } }
         ])
     };
 

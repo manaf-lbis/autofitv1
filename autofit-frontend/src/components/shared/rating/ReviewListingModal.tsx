@@ -44,20 +44,17 @@ function InfoButton(props: React.ComponentProps<"button">) {
   )
 }
 
-export function ReviewListingModal({
-  mechanic,
-  triggerClassName,
-  children,
-}: {
+export function ReviewListingModal({mechanic,triggerClassName,children,userType = 'user'}: {
   mechanic: Mechanic
   triggerClassName?: string
-  children?: React.ReactNode
+  children?: React.ReactNode,
+  userType?: 'user' | 'mechanic'
 }) {
   const [queryArgs, setQueryArgs] = React.useState<{ page: number; sort: "all" | "top" | "least"; resetId: number }>({ page: 1, sort: "all", resetId: 0 })
   const [isChangingSort, setIsChangingSort] = React.useState(false)
 
   const { data, error, isLoading, isFetching } = useListReviewsQuery(
-    { ...queryArgs, mechanic: mechanic.id },
+    { ...queryArgs, mechanic: mechanic.id, user: userType },
     {
       skip: !mechanic.id,
     }
@@ -66,7 +63,7 @@ export function ReviewListingModal({
   const allReviews = React.useMemo(() => data?.reviews ?? [], [data?.reviews])
   const totalCount = data?.totalCount ?? mechanic.reviewsCount ?? 0
   const hasMore = data?.hasMore ?? false
-
+  
   const sentinelRef = React.useRef<HTMLDivElement | null>(null)
   const scrollAreaRef = React.useRef<HTMLDivElement | null>(null)
 
