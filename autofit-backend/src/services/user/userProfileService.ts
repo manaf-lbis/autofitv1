@@ -16,6 +16,7 @@ import { RoadsideAssistance, ServiceType } from "../../types/services";
 import { ILiveAssistance } from "../../types/liveAssistance";
 import { IPretripBooking } from "../../types/pretrip";
 import { IRatingRepository } from "../../repositories/interfaces/IRatingRepository";
+import { Sort } from "../../types/rating";
 
 
 
@@ -104,14 +105,14 @@ export class UserProfileService implements IUserProfileService {
         }
 
         if (service?.ratingId) throw new ApiError('Review Already Added', HttpStatus.BAD_REQUEST);
-        
+
         const reviewResponse = await this._RatingRepository.save({
             userId,
             review,
             rating,
             serviceId,
             serviceType,
-            mechanicId: serviceType === ServiceType.ROADSIDE ? (service as any)?.mechanic?._id :service?.mechanicId,
+            mechanicId: serviceType === ServiceType.ROADSIDE ? (service as any)?.mechanic?._id : service?.mechanicId,
         });
 
         switch (serviceType) {
@@ -130,9 +131,13 @@ export class UserProfileService implements IUserProfileService {
 
         }
 
+    }
 
-
-
+    async listReviews(mechanic: Types.ObjectId, page: number, sort: Sort): Promise<any> {
+        const itemsPerPage = Number(process.env.ITEMS_PER_PAGE);
+        const start = Number(page) <= 0 ? 0 : (page - 1) * itemsPerPage;
+        const end = start + itemsPerPage;
+        return await this._RatingRepository.pagenatedRatings(start, end, mechanic, sort);
     }
 
 

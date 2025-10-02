@@ -1,19 +1,13 @@
 import * as React from "react"
 import { cn } from "@/lib/utils"
-import {
-  Dialog,
-  DialogTrigger,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog"
+import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { Avatar } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
-import { ReviewItem, Review } from "./ReviewItem"
+import { ReviewItem } from "./ReviewItem"
 import { RatingStars } from "./RatingStar"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import LazyImage from "../LazyImage"
+import { useListReviewsQuery } from "@/services/userServices/profileApi"
 
 type Mechanic = {
   id: string
@@ -22,16 +16,6 @@ type Mechanic = {
   averageRating: number
   reviewsCount?: number
 }
-
-type ReviewsResponse = {
-  reviews: Review[]
-  hasMore: boolean
-  nextPage: number | null
-  totalCount: number
-  averageRating: number
-}
-
-const fetcher = (url: string) => fetch(url).then((r) => r.json())
 
 function InfoButton(props: React.ComponentProps<"button">) {
   return (
@@ -42,7 +26,7 @@ function InfoButton(props: React.ComponentProps<"button">) {
       {...props}
       className={cn("rounded-full border bg-card hover:bg-accent", props.className)}
       onClick={(e) => {
-        e.stopPropagation() 
+        e.stopPropagation()
         if (props.onClick) props.onClick(e)
       }}
     >
@@ -69,79 +53,62 @@ export function ReviewListingModal({
   triggerClassName?: string
   children?: React.ReactNode
 }) {
-  const [sort, setSort] = React.useState<"all" | "top" | "least">("all")
+  const [queryArgs, setQueryArgs] = React.useState<{ page: number; sort: "all" | "top" | "least"; resetId: number }>({ page: 1, sort: "all", resetId: 0 })
   const [isChangingSort, setIsChangingSort] = React.useState(false)
-  const [data, setData] = React.useState<ReviewsResponse[]>([])
-  const [error, setError] = React.useState<Error | null>(null)
-  const [page, setPage] = React.useState(1)
-  const [isLoading, setIsLoading] = React.useState(false)
 
-  const pageSize = 8
-
-  const fetchReviews = React.useCallback(
-    async (pageIndex: number, reset: boolean = false) => {
-      setIsLoading(true)
-      try {
-        const url = `/api/reviews?mechanicId=${encodeURIComponent(mechanic.id)}&page=${pageIndex}&pageSize=${pageSize}&sort=${sort}`
-        const response = await fetcher(url)
-        setData((prev) => (reset ? [response] : [...prev, response]))
-        setError(null)
-      } catch (err) {
-        setError(err instanceof Error ? err : new Error("Failed to load reviews"))
-      } finally {
-        setIsLoading(false)
-      }
-    },
-    [mechanic.id, sort]
+  const { data, error, isLoading, isFetching } = useListReviewsQuery(
+    { ...queryArgs, mechanic: mechanic.id },
+    {
+      skip: !mechanic.id,
+    }
   )
 
-  React.useEffect(() => {
-    setIsChangingSort(true)
-    setPage(1)
-    fetchReviews(1, true)
-  }, [sort, fetchReviews])
-
-  const allReviews = React.useMemo(() => (data ? data.flatMap((d: any) => d.reviews) : []), [data])
-
-  const overallAverage = data?.[0]?.averageRating ?? mechanic.averageRating
-  const totalCount = data?.[0]?.totalCount ?? mechanic.reviewsCount ?? 0
-  const hasMore = data?.[data.length - 1]?.hasMore ?? true
+  const allReviews = React.useMemo(() => data?.reviews ?? [], [data?.reviews])
+  const totalCount = data?.totalCount ?? mechanic.reviewsCount ?? 0
+  const hasMore = data?.hasMore ?? false
 
   const sentinelRef = React.useRef<HTMLDivElement | null>(null)
   const scrollAreaRef = React.useRef<HTMLDivElement | null>(null)
 
+  const handleSortChange = (newSort: "all" | "top" | "least") => {
+    if (queryArgs.sort !== newSort) {
+      setIsChangingSort(true)
+      setQueryArgs((prev) => ({
+        page: 1,
+        sort: newSort,
+        resetId: prev.resetId + 1
+      }))
+    }
+  }
+
   React.useEffect(() => {
-    if (isChangingSort && data && data.length > 0) {
+    if (isChangingSort && data && !isFetching) {
       setIsChangingSort(false)
     }
-  }, [data, isChangingSort])
+  }, [data, isChangingSort, isFetching])
 
   React.useEffect(() => {
     if (scrollAreaRef.current) {
       scrollAreaRef.current.scrollTo({ top: 0, behavior: "auto" })
     }
-  }, [sort])
+  }, [queryArgs.sort])
 
-  const isInitialLoading = !data && !error
-  const isFirstPageLoading = isLoading && page === 1 && allReviews.length === 0
+  const isInitialLoading = isLoading && queryArgs.page === 1
+  const isFirstPageLoading = isFetching && queryArgs.page === 1 && allReviews.length === 0
   const showOverlayLoading = isInitialLoading || isChangingSort || isFirstPageLoading
 
   React.useEffect(() => {
-    if (!sentinelRef.current) return
+    if (!sentinelRef.current || !hasMore) return
     const el = sentinelRef.current
     let ticking = false
 
     const observer = new IntersectionObserver(
       (entries) => {
         const entry = entries[0]
-        if (entry.isIntersecting && hasMore && !isLoading && !error) {
+        if (entry.isIntersecting && hasMore && !isFetching && !error) {
           if (!ticking) {
             ticking = true
-            setPage((prev) => {
-              const nextPage = prev + 1
-              fetchReviews(nextPage)
-              return nextPage
-            })
+            setQueryArgs((prev) => ({ ...prev, page: prev.page + 1 }))
             ticking = false
           }
         }
@@ -155,7 +122,13 @@ export function ReviewListingModal({
 
     observer.observe(el)
     return () => observer.disconnect()
-  }, [hasMore, isLoading, error, fetchReviews])
+  }, [hasMore, isFetching, error, queryArgs.sort])
+
+  const loadMore = () => {
+    if (hasMore && !isFetching) {
+      setQueryArgs((prev) => ({ ...prev, page: prev.page + 1 }))
+    }
+  }
 
   return (
     <Dialog>
@@ -164,9 +137,7 @@ export function ReviewListingModal({
         className={cn(
           "p-0 overflow-hidden border bg-card",
           "flex flex-col",
-          // Mobile bottom sheet (only on small screens)
           "fixed inset-x-0 bottom-0 top-auto w-screen max-w-none h-[75vh] max-h-[75vh] rounded-t-2xl translate-x-0 translate-y-0",
-          // Revert to centered dialog on md and up
           "md:inset-auto md:left-1/2 md:top-1/2 md:w-full md:max-w-2xl md:h-auto md:max-h-[80vh] md:rounded-2xl md:-translate-x-1/2 md:-translate-y-1/2"
         )}
         aria-label="Mechanic reviews"
@@ -189,7 +160,7 @@ export function ReviewListingModal({
                 </h2>
                 <div className="mt-1 flex flex-wrap items-center gap-2">
                   <div className="shrink-0">
-                    <RatingStars rating={overallAverage} />
+                    <RatingStars rating={mechanic.averageRating} />
                   </div>
                   <span className="text-xs sm:text-sm text-muted-foreground">
                     {totalCount ? `(${totalCount} ${totalCount === 1 ? "review" : "reviews"})` : ""}
@@ -204,42 +175,27 @@ export function ReviewListingModal({
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="secondary" size="sm" className="h-8">
-                    {sort === "all" ? "All" : sort === "top" ? "Top rated" : "Least rated"}
+                    {queryArgs.sort === "all" ? "All" : queryArgs.sort === "top" ? "Top rated" : "Least rated"}
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="min-w-[160px]">
                   <DropdownMenuItem
-                    onClick={() => {
-                      if (sort !== "all") {
-                        setIsChangingSort(true)
-                        setSort("all")
-                      }
-                    }}
-                    aria-checked={sort === "all"}
+                    onClick={() => handleSortChange("all")}
+                    aria-checked={queryArgs.sort === "all"}
                     role="menuitemradio"
                   >
                     All
                   </DropdownMenuItem>
                   <DropdownMenuItem
-                    onClick={() => {
-                      if (sort !== "top") {
-                        setIsChangingSort(true)
-                        setSort("top")
-                      }
-                    }}
-                    aria-checked={sort === "top"}
+                    onClick={() => handleSortChange("top")}
+                    aria-checked={queryArgs.sort === "top"}
                     role="menuitemradio"
                   >
                     Top rated
                   </DropdownMenuItem>
                   <DropdownMenuItem
-                    onClick={() => {
-                      if (sort !== "least") {
-                        setIsChangingSort(true)
-                        setSort("least")
-                      }
-                    }}
-                    aria-checked={sort === "least"}
+                    onClick={() => handleSortChange("least")}
+                    aria-checked={queryArgs.sort === "least"}
                     role="menuitemradio"
                   >
                     Least rated
@@ -287,26 +243,31 @@ export function ReviewListingModal({
           )}
 
           <div className="grid grid-cols-1 gap-3 sm:gap-4">
-            {allReviews.map((rev: any) => (
-              <ReviewItem key={rev.id} review={rev} />
+            {allReviews.map((rev) => (
+              <ReviewItem key={rev.id} review={{
+                customerName: rev.customerName,
+                dateISO: rev.createdAt,
+                rating: rev.rating,
+                comment: rev.review,
+                id: rev.id
+              }} />
             ))}
           </div>
 
           <div className="mt-3 sm:mt-4 flex items-center justify-center">
             {error ? (
               <p className="text-sm text-destructive">Failed to load reviews.</p>
-            ) : isLoading && allReviews.length === 0 ? (
+            ) : isFetching && allReviews.length === 0 ? (
               <p className="text-sm text-muted-foreground">Loading reviews…</p>
             ) : null}
           </div>
 
-          {/* The sentinel must be inside the scrolling container */}
           <div ref={sentinelRef} aria-hidden className="h-2" />
 
           {hasMore && (
             <div className="mt-2 flex items-center justify-center">
-              <Button variant="secondary" onClick={() => fetchReviews(page + 1)} disabled={isLoading}>
-                {isLoading ? "Loading…" : "Load more"}
+              <Button variant="secondary" onClick={loadMore} disabled={isFetching}>
+                {isFetching ? "Loading…" : "Load more"}
               </Button>
             </div>
           )}

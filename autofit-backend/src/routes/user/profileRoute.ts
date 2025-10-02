@@ -10,6 +10,7 @@ router.get('/service-history/roadside-assistance', profileController.roadsideSer
 router.get('/service-history/pretrip', profileController.pretripServiceHistory.bind(profileController));
 router.get('/service-history/live-assistance', profileController.liveAssistanceServiceHistory.bind(profileController));
 router.post('/review', profileController.addReview.bind(profileController));
+router.get('/reviews', profileController.listReviews.bind(profileController));
 
 
 

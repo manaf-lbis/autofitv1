@@ -74,6 +74,22 @@ interface ServerLiveAssistanceRequest {
     paymentId: { amount: number };
 }
 
+export interface Review {
+    id: string;
+    rating: number;
+    review: string;
+    createdAt: string;
+    customerName: string;
+}
+
+export interface ReviewsResponse {
+    reviews: Review[];
+    hasMore: boolean;
+    nextPage: number | null;
+    totalCount: number;
+    averageRating: number;
+}
+
 export const profileApi = createApi({
     reducerPath: "profileApi",
     baseQuery: baseQueryWithRefresh,
@@ -177,8 +193,8 @@ export const profileApi = createApi({
             }),
         }),
 
-        review: builder.mutation<any, { serviceId: string, serviceType: ServiceType ,rating:number,review:string}>({
-            query: ({ serviceId, serviceType,rating,review }) => ({
+        review: builder.mutation<any, { serviceId: string, serviceType: ServiceType, rating: number, review: string }>({
+            query: ({ serviceId, serviceType, rating, review }) => ({
                 url: "user/profile/review",
                 method: "POST",
                 body: {
@@ -191,6 +207,39 @@ export const profileApi = createApi({
             transformResponse: (response: any) => response.data,
         }),
 
+        listReviews: builder.query<ReviewsResponse, { page: number; mechanic: string; sort: "all" | "top" | "least"; resetId?: number }>({
+            query: ({ page, mechanic, sort }) => ({
+                url: "user/profile/reviews",
+                method: "GET",
+                params: { page, mechanic, sort },
+            }),
+            serializeQueryArgs: ({ endpointName, queryArgs }) => {
+                return `${endpointName}_${queryArgs.sort}_${queryArgs.resetId || 0}`;
+            },
+            merge: (currentCache, newCache) => {
+                currentCache.reviews.push(...newCache.reviews);
+                currentCache.hasMore = newCache.hasMore;
+                currentCache.totalCount = newCache.totalCount;
+                currentCache.averageRating = newCache.averageRating ?? currentCache.averageRating;
+            },
+            forceRefetch({ currentArg, previousArg }) {
+                return currentArg?.page !== previousArg?.page || currentArg?.sort !== previousArg?.sort || currentArg?.resetId !== previousArg?.resetId;
+            },
+            transformResponse: (response: { data: { reviews: Array<{ _id: string; rating: number; review: string; userId: { name: string }; createdAt: string }>; totalDocuments: number; hasMore: boolean } }, meta, arg) => ({
+                reviews: response.data.reviews.map((item) => ({
+                    id: item._id,
+                    rating: item.rating,
+                    review: item.review,
+                    createdAt: item.createdAt,
+                    customerName: item.userId?.name || 'Anonymous',
+                })),
+                hasMore: response.data.hasMore,
+                nextPage: response.data.hasMore ? arg.page + 1 : null,
+                totalCount: response.data.totalDocuments,
+                averageRating: 0,
+            }),
+        }),
+
 
 
     }),
@@ -201,5 +250,6 @@ export const {
     useServiceHistoryQuery,
     usePretripServiceHistoryQuery,
     useLiveAssistServiceHistoryQuery,
-    useReviewMutation
+    useReviewMutation,
+    useListReviewsQuery
 } = profileApi;
