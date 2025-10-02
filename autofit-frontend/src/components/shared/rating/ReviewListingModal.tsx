@@ -12,7 +12,7 @@ import { useListReviewsQuery } from "@/services/userServices/profileApi"
 type Mechanic = {
   id: string
   name: string
-  avatarUrl: string
+  avatarUrl?: string
   averageRating: number
   reviewsCount?: number
 }
@@ -152,7 +152,7 @@ export function ReviewListingModal({
           <div className="flex flex-col gap-2">
             <div className="flex items-start sm:items-center gap-3 sm:gap-4">
               <Avatar className="size-10 sm:size-12">
-                <LazyImage publicId={mechanic.avatarUrl} resourceType="image" alt="Avatar" />
+                {mechanic.avatarUrl && <LazyImage publicId={mechanic.avatarUrl} resourceType="image" alt="Avatar" />}
               </Avatar>
               <div className="min-w-0">
                 <h2 className="text-base sm:text-lg font-semibold text-foreground text-pretty truncate">

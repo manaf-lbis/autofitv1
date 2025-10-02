@@ -16,7 +16,6 @@ import { PretripFeatureRepository } from "../repositories/pretripFeatureReposito
 import { PretripPlanRepository } from "../repositories/pretripPlanRepository";
 import { PretripReportRepository } from "../repositories/pretripReportRepository";
 import { QuotationRepository } from "../repositories/quotationRepository";
-import { RazorpayRepository } from "../repositories/razorPayRepo";
 import { RoadsideAssistanceRepository } from "../repositories/roadsideAssistanceRepo";
 import { TimeBlockRepository } from "../repositories/timeBlockRepository";
 import { TransactionRepository } from "../repositories/transactionsRepository";
@@ -86,12 +85,11 @@ const pretripPlanService = new PretripPlanService(pretripFeaterRepository, pretr
 const mechanicProfileRepository = new MechanicProfileRepository()
 const googleMapRepo = new GoogleMapRepository()
 const pretripReportRepository = new PretripReportRepository()
-const pretripService = new PretripService(mechanicProfileRepository, googleMapRepo, pretripBookingRepository, pretripPlanRepository, workingHoursRepository, timeBlockingRepository, pretripReportRepository, transactionRepo, paymentRepository, mechanicProfileRepository)
+const pretripService = new PretripService(mechanicProfileRepository, googleMapRepo, pretripBookingRepository, pretripPlanRepository, workingHoursRepository, timeBlockingRepository, pretripReportRepository, transactionRepo, paymentRepository, mechanicProfileRepository,ratingRepo)
 const profileService = new UserProfileService(userRepository, roadsideAssistanceRepo, pretripBookingRepository, liveAssistanceRepo,hashService,ratingRepo)
 const vehicleRepository = new VehicleRepository()
 const notificationRepository = new NotificationRepository()
 const roadsideService = new RoadsideService(roadsideAssistanceRepo, quotationRepo, mechanicProfileRepository, transactionRepo, paymentRepository)
-const razorpayRepository = new RazorpayRepository()
 const roadsideAssistanceService = new UserRoadsideService(mechanicProfileRepository, googleMapRepo, roadsideAssistanceRepo, vehicleRepository, notificationRepository, timeBlockingRepository,ratingRepo)
 const vehicleBrands = new VehicleBrandRepository()
 const vehicleService = new VehicleService(vehicleRepository, vehicleBrands)

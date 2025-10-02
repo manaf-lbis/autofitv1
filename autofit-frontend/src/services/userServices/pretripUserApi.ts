@@ -9,8 +9,8 @@ interface MechanicData {
   place: string;
   specialised: string;
   availableWindows: { [date: string]: { start: string; end: string }[] };
+  rating?: { avg: number; review: number; _id: string; };
 }
-
 
 
 export const pretripUserApi = createApi({

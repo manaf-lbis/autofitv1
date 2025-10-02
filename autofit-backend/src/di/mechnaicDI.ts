@@ -30,11 +30,13 @@ import { OtpService } from "../services/otp/otpService"
 import { PretripService } from "../services/pretripCheckup/pretripService"
 import { RoadsideService } from "../services/roadsideAssistance/roadsideService"
 import { TokenService } from "../services/token/tokenService"
+import { RatingRepository } from "../repositories/ratingRepository"
 
 const hashService = new HashService()
 const tokenService = new TokenService()
 const mechanicRepository = new MechanicRepository()
 const otpRepository = new OtpRepository()
+const ratingRepo = new RatingRepository()
 const mechanicProfileRepository = new MechanicProfileRepository()
 const otpService = new OtpService(otpRepository, hashService)
 const authService = new AuthService(hashService, tokenService, mechanicRepository, otpService, mechanicProfileRepository)
@@ -54,7 +56,7 @@ const pretripPlanRepository = new PretripPlanRepository()
 const pretripReportRepository = new PretripReportRepository()
 const mechanicProfileService = new ProfileService( mechanicProfileRepository, mechanicRepository,notificationRepository, workingHoursRepo,timeBlockRepo)
 const paymentRepo = new PaymentRepository()
-const pretripService = new PretripService( mechanicProfileRepository,googleMapRepo,pretripBookingRepository,pretripPlanRepository,workingHoursRepo,timeBlockRepo, pretripReportRepository, transactionRepo, paymentRepo,mechanicProfileRepository)
+const pretripService = new PretripService( mechanicProfileRepository,googleMapRepo,pretripBookingRepository,pretripPlanRepository,workingHoursRepo,timeBlockRepo, pretripReportRepository, transactionRepo, paymentRepo,mechanicProfileRepository,ratingRepo)
 const quotationRepo = new QuotationRepository()
 const roadsideService = new RoadsideService(roadsideAssistanceRepo,quotationRepo,mechanicProfileRepository,transactionRepo,paymentRepo)
 

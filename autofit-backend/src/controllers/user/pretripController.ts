@@ -38,7 +38,7 @@ export class PretripController {
             if (!lat || !lng) throw new ApiError('Invalid Request Body', HttpStatus.BAD_REQUEST);
 
            const mechanics = await this._pretripService.getNearbyMechanics({ lat: parseFloat(lat as string), lng: parseFloat(lng as string) });
-            
+
             sendSuccess(res, 'Mechanics fetched successfully', mechanics);
         } catch (error) {
             next(error)

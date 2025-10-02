@@ -25,6 +25,7 @@ import { Role } from "../../types/role";
 import { generateReceiptPDF } from "../../utils/templates/receiptTemplate";
 import { generateInspectionReportPDF } from "../../utils/templates/serviceReportTeplate";
 import { MechanicAvailabilityStatus } from "../../types/mechanic/mechanic";
+import { IRatingRepository } from "../../repositories/interfaces/IRatingRepository";
 
 
 
@@ -41,7 +42,8 @@ export class PretripService implements IPretripService {
         private _pretripReportRepo: IPretripReportRepository,
         private _transactionRepo: ITransactionRepository,
         private _paymentRepository: IPaymentRepository,
-        private _mechnaicProfileRepo: IMechanicProfileRepository
+        private _mechnaicProfileRepo: IMechanicProfileRepository,
+        private _ratingRepo : IRatingRepository
     ) { }
 
 
@@ -265,7 +267,15 @@ export class PretripService implements IPretripService {
         const mechanicIds = nearestMechanics.map((mechanic) => mechanic.mechanicId);
         const workingHours = await this._workingHoursRepo.workingHoursOfMultipleMechanics(mechanicIds);
 
-        return this.transformMechanicsSchedule(nearestMechanicsWithDistance, workingHours);
+        const mechanic = await this.transformMechanicsSchedule(nearestMechanicsWithDistance, workingHours);
+        const mechanicId = mechanic.map((mech:any)=> new Types.ObjectId(mech.mechanicId));
+
+        const ratings = await this._ratingRepo.avgRatingOfMechanics(mechanicId);
+        
+        return mechanic.map((mech:any, index:number) => ({
+            ...mech,
+            rating: ratings[index]
+        }))
     }
 
     async weeklySchedules(mechanicId: Types.ObjectId): Promise<any> {

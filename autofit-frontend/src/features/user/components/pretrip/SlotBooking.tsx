@@ -4,6 +4,7 @@ import { AlertCircle, Calendar, CheckCircle, MapPin, Star, Wrench, Info } from "
 import { TimePicker } from "./TimePicker";
 import { useGetNearbyMechanicShopsQuery } from "@/services/userServices/pretripUserApi";
 import { generateStartTimeOptions, formatDisplayTime, calculateServiceCompletion, timeToMinutes } from "../../utils/timeSlotUtils";
+import { ReviewListingModal } from "@/components/shared/rating/ReviewListingModal";
 
 interface TimeWindow {
   start: string;
@@ -17,6 +18,11 @@ interface MechanicData {
   place: string;
   specialised: string;
   availableWindows: { [date: string]: TimeWindow[] };
+  rating?: {
+    avg: number;
+    review: number;
+    _id: string;
+  }
 }
 
 interface Props {
@@ -79,6 +85,7 @@ const SlotBooking: React.FC<Props> = ({
       place: mechanic.place,
       specialization: mechanic.specialised,
       availableWindows: mechanic.availableWindows,
+      rating: mechanic?.rating
     })) || [];
   }, [mechanics]);
 
@@ -185,10 +192,10 @@ const SlotBooking: React.FC<Props> = ({
                     key={mechanic.mechanicId}
                     onClick={() => hasAvailability && setSelectedMechanic(mechanic.mechanicId)}
                     className={`p-4 sm:p-6 rounded-lg border-2 transition-all duration-200 relative ${!hasAvailability
-                        ? "border-gray-200 bg-gray-50 opacity-60 cursor-not-allowed"
-                        : selectedMechanic === mechanic.mechanicId
-                          ? "border-blue-600 bg-blue-50 shadow-md cursor-pointer hover:bg-blue-100"
-                          : "border-gray-200 bg-white cursor-pointer hover:border-blue-400 hover:bg-blue-100"
+                      ? "border-gray-200 bg-gray-50 opacity-60 cursor-not-allowed"
+                      : selectedMechanic === mechanic.mechanicId
+                        ? "border-blue-600 bg-blue-50 shadow-md cursor-pointer hover:bg-blue-100"
+                        : "border-gray-200 bg-white cursor-pointer hover:border-blue-400 hover:bg-blue-100"
                       }`}
                   >
                     {selectedMechanic === mechanic.mechanicId && hasAvailability && (
@@ -205,30 +212,34 @@ const SlotBooking: React.FC<Props> = ({
                     )}
                     <div className="space-y-3 pr-16 sm:pr-20">
                       <div>
-                        <h3
-                          className={`font-bold text-base sm:text-lg mb-1 sm:mb-2 ${hasAvailability ? "text-gray-900" : "text-gray-500"
-                            }`}
-                        >
-                          {mechanic.name}
-                        </h3>
-                        <p
-                          className={`font-medium text-xs sm:text-sm ${hasAvailability ? "text-blue-600" : "text-gray-400"
-                            }`}
-                        >
+                        <div className="flex align-center  gap-2 sm:gap-3">
+                          <h3 className={`font-bold uppercase text-sm sm:text-md mb-1 sm:mb-2 ${hasAvailability ? "text-gray-900" : "text-gray-500"}`}>
+                            {mechanic.name}
+                          </h3>
+                          <ReviewListingModal mechanic={{
+                            avatarUrl:  "" ,
+                            name: mechanic.name,
+                            averageRating: mechanic.rating?.avg || 0,
+                            id: mechanic.mechanicId,
+                            reviewsCount: mechanic.rating?.review || 0
+                          }}
+                          triggerClassName="text-xs sm:text-sm text-blue-600  w-3 h-3"
+                          
+                          />
+                        </div>
+
+                        <p className={`font-medium text-xs sm:text-sm ${hasAvailability ? "text-blue-600" : "text-gray-400"}`}>
                           {mechanic.specialization}
                         </p>
                       </div>
                       <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-                        <div
-                          className={`flex items-center gap-1 px-2 py-1 rounded text-xs sm:text-sm ${hasAvailability ? "bg-yellow-50" : "bg-gray-100"
-                            }`}
-                        >
+                        <div className={`flex items-center gap-1 px-2 py-1 rounded text-xs sm:text-sm ${hasAvailability ? "bg-yellow-50" : "bg-gray-100"}`}>
                           <Star
                             className={`w-3 h-3 sm:w-4 sm:h-4 ${hasAvailability ? "fill-yellow-400 text-yellow-400" : "fill-gray-300 text-gray-300"
                               }`}
                           />
                           <span className={`font-medium ${hasAvailability ? "text-gray-900" : "text-gray-400"}`}>
-                            4.8
+                            {mechanic.rating?.avg?.toFixed(1)}
                           </span>
                         </div>
                         <div
@@ -296,10 +307,10 @@ const SlotBooking: React.FC<Props> = ({
                         key={day.date}
                         onClick={() => hasOptions && setSelectedDate(day.date)}
                         className={`flex-shrink-0 w-24 sm:w-28 p-2 sm:p-3 rounded-lg border-2 text-center transition-all duration-200 ${!hasOptions
-                            ? "border-gray-100 bg-gray-50 cursor-not-allowed opacity-50"
-                            : selectedDate === day.date
-                              ? "border-blue-600 bg-blue-50 cursor-pointer hover:bg-blue-100"
-                              : "border-gray-200 bg-white cursor-pointer hover:border-blue-400 hover:bg-blue-100"
+                          ? "border-gray-100 bg-gray-50 cursor-not-allowed opacity-50"
+                          : selectedDate === day.date
+                            ? "border-blue-600 bg-blue-50 cursor-pointer hover:bg-blue-100"
+                            : "border-gray-200 bg-white cursor-pointer hover:border-blue-400 hover:bg-blue-100"
                           }`}
                       >
                         <div className="text-xs text-gray-600 mb-1">{day.day}</div>
