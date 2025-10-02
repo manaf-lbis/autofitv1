@@ -8,6 +8,8 @@ import { TransactionDurations } from "../../types/transaction";
 import { ITransactionRepository } from "../../repositories/interfaces/ITransactionRepository";
 import { ApiError } from "../../utils/apiError";
 import { HttpStatus } from "../../types/responseCode";
+import { IRatingRepository } from "../../repositories/interfaces/IRatingRepository";
+import { Sort } from "../../types/rating";
 
 
 
@@ -17,7 +19,8 @@ export class PageService implements IPageService {
     private _notificationRepository: INotificationRepository,
     private _roadsideAssistanceRepo: IRoadsideAssistanceRepo,
     private _pretripBookingRepository: IPretripBookingRepository,
-    private _transactionRepo: ITransactionRepository
+    private _transactionRepo: ITransactionRepository,
+    private _ratingRepo: IRatingRepository
   ) { }
 
   async primaryInfo(mechanicId: Types.ObjectId) {
@@ -30,7 +33,15 @@ export class PageService implements IPageService {
 
 
   async dashboard(mechanicId: Types.ObjectId) {
-    const recentActivities = [{ id: 1, name: "Saraaah Johnson", action: "Engine overheating resolved", time: "2h ago" }];
+
+    const reviewData = await this._ratingRepo.pagenatedRatings(0,10, mechanicId, Sort.ALL);
+
+    const reviews = reviewData?.reviews?.map((review: any) => ({
+      id: review._id,
+      reviewerName: (review.userId as any).name,
+      rating: review.rating,
+      comment: review.review
+    })) ?? null
 
     const response = await this._roadsideAssistanceRepo.ongoingServiceByMechanicId(mechanicId);
     const pickupSchedules = await this._pretripBookingRepository.todayScheduleOfMechanic(mechanicId);
@@ -54,7 +65,7 @@ export class PageService implements IPageService {
       };
     }
 
-    return { recentActivities, emergencyRequest, pickupSchedules, workOnProgress, workCompleted };
+    return { reviews, emergencyRequest, pickupSchedules, workOnProgress, workCompleted };
   }
 
 
