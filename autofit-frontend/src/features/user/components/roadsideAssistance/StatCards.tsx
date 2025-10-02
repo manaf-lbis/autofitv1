@@ -22,7 +22,7 @@ export default function StatsCards() {
           </div>
           <div className="flex flex-col items-center">
             <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-green-600">24/7</div>
-            <div className="text-xs sm:text-sm text-gray-700 font-medium text-center">Customer Rating</div>
+            <div className="text-xs sm:text-sm text-gray-700 font-medium text-center">Always Available</div>
           </div>
         </div>
       </div>
@@ -34,7 +34,7 @@ export default function StatsCards() {
           </div>
           <div className="flex flex-col items-center">
             <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-yellow-600">4.9</div>
-            <div className="text-xs sm:text-sm text-gray-700 font-medium text-center">Always Available</div>
+            <div className="text-xs sm:text-sm text-gray-700 font-medium text-center">Customer Rating</div>
           </div>
         </div>
       </div>

@@ -92,7 +92,7 @@ const vehicleRepository = new VehicleRepository()
 const notificationRepository = new NotificationRepository()
 const roadsideService = new RoadsideService(roadsideAssistanceRepo, quotationRepo, mechanicProfileRepository, transactionRepo, paymentRepository)
 const razorpayRepository = new RazorpayRepository()
-const roadsideAssistanceService = new UserRoadsideService(mechanicProfileRepository, googleMapRepo, roadsideAssistanceRepo, vehicleRepository, notificationRepository, razorpayRepository, quotationRepo, paymentRepository, timeBlockingRepository)
+const roadsideAssistanceService = new UserRoadsideService(mechanicProfileRepository, googleMapRepo, roadsideAssistanceRepo, vehicleRepository, notificationRepository, timeBlockingRepository,ratingRepo)
 const vehicleBrands = new VehicleBrandRepository()
 const vehicleService = new VehicleService(vehicleRepository, vehicleBrands)
 

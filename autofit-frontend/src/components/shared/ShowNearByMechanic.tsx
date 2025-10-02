@@ -5,6 +5,7 @@ import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { useGetNearByMechanicQuery } from "@/services/userServices/servicesApi";
 import LazyImage from "./LazyImage";
+import { ReviewListingModal } from "./rating/ReviewListingModal";
 
 interface Mechanic {
   mechanicId: string;
@@ -17,6 +18,10 @@ interface Mechanic {
   };
   photo: string;
   name: string;
+  rating: {
+    avg: number;
+    reviews: number
+  },
   mobile: string;
   status: string;
   distanceInMeters: number;
@@ -26,7 +31,10 @@ interface Mechanic {
 interface MechanicWithDistance {
   mechanicId: string;
   name: string;
-  rating: number;
+  rating: {
+    avg: number;
+    reviews: number;
+  };
   distance: string;
   responseTime: string;
   specialised: string;
@@ -76,7 +84,10 @@ const ShowNearByMechanic = ({
         return {
           mechanicId: mechanic.mechanicId,
           name: mechanic.shopName,
-          rating: 4.5,
+          rating: {
+            avg: mechanic?.rating?.avg,
+            reviews: mechanic?.rating?.reviews,
+          },
           distance: `${(mechanic.distanceInMeters / 1000).toFixed(1)} km`,
           responseTime: durationInMinutes > 0 ? `${durationInMinutes} min` : `${mechanic.durationInSeconds} sec`,
           specialised: mechanic.specialised,
@@ -160,11 +171,10 @@ const ShowNearByMechanic = ({
               <div
                 key={mechanic.mechanicId}
                 onClick={() => mechanic.available && handleMechanicSelect(mechanic.mechanicId)}
-                className={`p-5 sm:p-6 rounded-lg border-2 cursor-pointer transition-all ${
-                  selectedMechanic === mechanic.mechanicId
-                    ? "border-blue-400 bg-blue-50/50"
-                    : "border-gray-100 bg-gray-50 hover:border-gray-200"
-                } ${!mechanic.available ? "opacity-50 cursor-not-allowed" : ""}`}
+                className={`p-5 sm:p-6 rounded-lg border-2 cursor-pointer transition-all ${selectedMechanic === mechanic.mechanicId
+                  ? "border-blue-400 bg-blue-50/50"
+                  : "border-gray-100 bg-gray-50 hover:border-gray-200"
+                  } ${!mechanic.available ? "opacity-50 cursor-not-allowed" : ""}`}
               >
                 {selectedMechanic === mechanic.mechanicId && (
                   <div className="absolute top-3 right-3">
@@ -179,21 +189,34 @@ const ShowNearByMechanic = ({
                     alt={mechanic.name}
                     className="w-12 h-12 rounded-full object-cover bg-gray-200 flex-shrink-0"
                   />
-                  
+
                   <div className="flex-1 min-w-0">
                     {/* Header Row */}
                     <div className="flex items-start justify-between gap-2 mb-2">
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-gray-900 text-sm truncate">
-                          {mechanic.name}
-                        </h3>
+                        <div className="flex items-center gap-3">
+                          <h3 className="font-semibold text-gray-900 text-sm truncate">
+                            {mechanic.name}
+                          </h3>
+                          <ReviewListingModal
+                            mechanic={{
+                              id: mechanic.mechanicId,
+                              avatarUrl: mechanic.avatar,
+                              averageRating: mechanic?.rating?.avg ?? 0,
+                              name: mechanic.name,
+                              reviewsCount: mechanic?.rating?.reviews ?? 0
+                            }}
+                            triggerClassName="w-4 h-4 text-blue-500"
+                          />
+                        </div>
+
                         <div className="flex items-center gap-2 mt-1">
                           <div className="flex items-center gap-1">
                             <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                            <span className="text-xs font-medium text-gray-600">{mechanic.rating}</span>
+                            <span className="text-xs font-medium text-gray-600">{mechanic?.rating?.avg?.toFixed(1) || 0} ({mechanic?.rating?.reviews} Reviews)</span>
                           </div>
                           {mechanic.available ? (
-                            <Badge className="bg-green-100 text-green-700 text-xs px-2 py-0.5 h-auto">
+                            <Badge className="bg-green-100 text-green-700 text-xs px-2 py-0.5 h-auto hover:bg-green-200">
                               Available
                             </Badge>
                           ) : (
@@ -232,6 +255,7 @@ const ShowNearByMechanic = ({
                     </div>
                   </div>
                 </div>
+
               </div>
             ))}
           </div>
