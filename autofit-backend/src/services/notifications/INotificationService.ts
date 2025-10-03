@@ -7,7 +7,7 @@ export interface SentParam {
 }
 
 export interface INotificationService {
-    getNotifications(userId: Types.ObjectId): Promise<any>
+    getNotifications(userId: Types.ObjectId, page: number): Promise<any>
     sendNotification(data: SentParam): Promise<any>
-    updateNotificationStatus(userId:Types.ObjectId): Promise<any>
+    updateNotificationStatus(userId: Types.ObjectId): Promise<any>
 }

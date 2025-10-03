@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { LayoutDashboard, MessageSquare, Briefcase, User, DollarSign, Menu, X, ChevronDown, Wrench, Power, Bell, ChevronRight } from "lucide-react";
+import { LayoutDashboard, MessageSquare, Briefcase, User, DollarSign, Menu, X, ChevronDown, Wrench, Power, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -14,7 +14,7 @@ import toast from "react-hot-toast";
 import { useGetInfoQuery, useSetAvailabilityMutation } from "../../../../services/mechanicServices/mechanicApi";
 import { setAvailability } from "../../slices/mechanicSlice";
 import LazyImage from "@/components/shared/LazyImage";
-import { useGetNotitficationsQuery } from "@/services/commonServices/notificationApi";
+
 
 const navItems = [
   {
@@ -72,7 +72,7 @@ export default function MechanicDashboard() {
   const [isNavbarVisible, setIsNavbarVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [isJobsExpanded, setIsJobsExpanded] = useState(false); 
+  const [isJobsExpanded, setIsJobsExpanded] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -81,8 +81,8 @@ export default function MechanicDashboard() {
   const dispatch = useDispatch();
   const mechanic = useSelector((state: RootState) => state.mechanicSlice);
   const [setAvailabilityStatus] = useSetAvailabilityMutation();
-  const { data: notifications , isLoading} = useGetNotitficationsQuery()
-  const { data} = useGetInfoQuery();
+  // const { data: notifications , isLoading} = useGetNotificationsQuery()
+  const { data } = useGetInfoQuery();
 
   useEffect(() => {
     socket.on("forceLogout", (data) => {
@@ -258,7 +258,7 @@ export default function MechanicDashboard() {
           <div className="flex items-center space-x-3 mb-3">
             <div className="w-10 h-10 rounded-full border border-gray-200 shadow-sm overflow-hidden">
               {avatar ? (
-                <LazyImage publicId={avatar} resourceType={'image'} alt="avatar"/>
+                <LazyImage publicId={avatar} resourceType={'image'} alt="avatar" />
               ) : (
                 <div className="w-full h-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
                   <span className="text-white font-semibold">{initials}</span>
@@ -298,8 +298,8 @@ export default function MechanicDashboard() {
                 {mechanic.availability === "notAvailable"
                   ? "Offline"
                   : mechanic.availability === "busy"
-                  ? "Busy"
-                  : "Online"}
+                    ? "Busy"
+                    : "Online"}
               </span>
 
               <Switch
@@ -357,7 +357,7 @@ export default function MechanicDashboard() {
                       key={subItem.id}
                       onClick={() => {
                         navigate(subItem.href);
-                        setActiveTab(item.id); 
+                        setActiveTab(item.id);
                         setIsSidebarOpen(false);
                       }}
                       className={cn(
@@ -377,7 +377,7 @@ export default function MechanicDashboard() {
           ))}
         </nav>
 
-       
+
       </aside>
 
       {/* Main Content */}
@@ -420,19 +420,17 @@ export default function MechanicDashboard() {
                     {mechanic.availability === "available"
                       ? "Available"
                       : mechanic.availability === "busy"
-                      ? "Busy"
-                      : "Offline"}
+                        ? "Busy"
+                        : "Offline"}
                   </span>
                 </div>
               </div>
             </div>
 
             <div className="flex items-center space-x-4">
-              {isLoading ? (
-                <Bell className="h-5 w-5" />
-              ) : (
-                <Notification notifications={notifications} />
-              )}
+
+              <Notification />
+
 
               <div className="relative" ref={dropdownRef}>
                 <Button
@@ -443,7 +441,7 @@ export default function MechanicDashboard() {
                 >
                   <div className="w-8 h-8 rounded-full overflow-hidden border border-gray-200 shadow-sm">
                     {avatar ? (
-                      <LazyImage publicId={avatar} resourceType={'image'} alt="avatar"/>
+                      <LazyImage publicId={avatar} resourceType={'image'} alt="avatar" />
                     ) : (
                       <div className="w-full h-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
                         <span className="text-white font-medium text-sm">
@@ -483,7 +481,7 @@ export default function MechanicDashboard() {
                       <User className="mr-3 h-4 w-4" />
                       Profile
                     </button>
-                   
+
 
                     <Logout />
                   </div>

@@ -5,42 +5,62 @@ import { initSocket } from "@/lib/socket";
 import { useNotification } from "@/hooks/useNotification";
 import { formatTimeToNow } from "@/lib/dateFormater";
 import toast from "react-hot-toast";
-import { useUpdateNotificationsMutation } from "@/services/commonServices/notificationApi";
+import { useLazyGetNotificationsQuery, useUpdateNotificationsMutation } from "@/services/commonServices/notificationApi";
 
 interface Notification {
-  _id: number;
+  _id: string;
   senderName?: string;
   message: string;
   createdAt: string;
   isRead: boolean;
 }
 
-interface NotificationProps {
-  notifications: Notification[];
-}
-
-const Notification: React.FC<NotificationProps> = ({ notifications }) => {
-  const [localNotifications, setLocalNotifications] = useState<Notification[]>(notifications);
+const Notification: React.FC = () => {
+  const [getNotifications, { isFetching }] = useLazyGetNotificationsQuery();
+  const [localNotifications, setLocalNotifications] = useState<Notification[]>([]);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const listRef = useRef<HTMLDivElement>(null);
   const socket = initSocket();
   const notify = useNotification();
   const [setRead] = useUpdateNotificationsMutation();
 
   useEffect(() => {
-    socket.on("notification", (data) => {
+    const fetchInitial = async () => {
+      try {
+        const result = await getNotifications(1).unwrap();
+        if (result) {
+          setLocalNotifications(result.notifications);
+          setHasMore(result.hasMore);
+          setPage(2);
+        }
+      } catch (error: any) {
+        toast.error(error.message || "Failed to fetch notifications");
+      }
+    };
+
+    fetchInitial();
+  }, [getNotifications]);
+
+  useEffect(() => {
+    socket.on("notification", (data: Notification) => {
       notify("Notification", data.message, formatTimeToNow(data.createdAt));
-      setLocalNotifications((prev) => [data, ...prev]);
+      setLocalNotifications((prev) => {
+        if (prev.some((n) => n._id === data._id)) {
+          return prev;
+        }
+        return [{ ...data, isRead: false }, ...prev];
+      });
     });
 
     return () => {
       socket.off("notification");
     };
-  }, []);
+  }, [socket, notify]);
 
-  const unreadCount: number = localNotifications.filter(
-    (n) => !n.isRead
-  ).length;
+  const unreadCount: number = localNotifications.filter((n) => !n.isRead).length;
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -56,9 +76,52 @@ const Notification: React.FC<NotificationProps> = ({ notifications }) => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!listRef.current || isFetching || !hasMore || !isOpen) return;
+
+      const { scrollTop, scrollHeight, clientHeight } = listRef.current;
+      if (scrollTop + clientHeight >= scrollHeight - 50) {
+        loadMore();
+      }
+    };
+
+    const currentRef = listRef.current;
+    if (currentRef) {
+      currentRef.addEventListener("scroll", handleScroll, { passive: true });
+    }
+
+    return () => {
+      if (currentRef) {
+        currentRef.removeEventListener("scroll", handleScroll);
+      }
+    };
+  }, [isFetching, hasMore, page, getNotifications, isOpen]);
+
+  const loadMore = async () => {
+    if (!hasMore || isFetching) return;
+
+    try {
+      const result = await getNotifications(page).unwrap();
+      if (result) {
+        setLocalNotifications((prev) => {
+          const newNotifications = result.notifications.filter(
+            (n) => !prev.some((p) => p._id === n._id)
+          );
+          return [...prev, ...newNotifications];
+        });
+        setHasMore(result.hasMore);
+        setPage((prev) => prev + 1);
+      }
+    } catch (error: any) {
+      toast.error(error.message || "Failed to load more notifications");
+    }
+  };
+
   const toggleDropdown = async () => {
+    const wasOpen = isOpen;
     setIsOpen(!isOpen);
-    if (unreadCount > 0) {
+    if (!wasOpen && unreadCount > 0) {
       try {
         await setRead().unwrap();
         setLocalNotifications((prev) =>
@@ -102,8 +165,8 @@ const Notification: React.FC<NotificationProps> = ({ notifications }) => {
           </div>
 
           {/* Notifications List */}
-          <div className="max-h-80 sm:max-h-96 min-h-24 sm:min-h-32 overflow-y-auto">
-            {localNotifications.length === 0 ? (
+          <div ref={listRef} className="max-h-80 sm:max-h-96 min-h-24 sm:min-h-32 overflow-y-auto">
+            {localNotifications.length === 0 && !isFetching ? (
               <div className="flex flex-col items-center justify-center py-6 sm:py-8 text-gray-500">
                 <Bell className="h-6 w-6 sm:h-8 sm:w-8 mb-2 opacity-50" />
                 <p className="text-xs sm:text-sm">No notifications yet</p>
@@ -149,6 +212,11 @@ const Notification: React.FC<NotificationProps> = ({ notifications }) => {
                     </div>
                   </div>
                 ))}
+                {isFetching && localNotifications.length > 0 && (
+                  <div className="p-4 text-center text-gray-500 text-xs sm:text-sm">
+                    Loading more...
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -156,8 +224,8 @@ const Notification: React.FC<NotificationProps> = ({ notifications }) => {
           {/* Footer */}
           {localNotifications.length > 0 && (
             <div className="p-2 sm:p-3 border-t border-gray-100">
-              <div className="flex justify-center text-xs sm:text-sm text-blue-600 py-2 sm:py-2.5">
-                Latest Notifications
+              <div className={`flex justify-center text-xs sm:text-sm py-2 sm:py-2.5 ${hasMore ? 'text-blue-600' : 'text-gray-500'}`}>
+                {hasMore ? 'Latest Notifications' : 'No more notifications'}
               </div>
             </div>
           )}
@@ -168,11 +236,3 @@ const Notification: React.FC<NotificationProps> = ({ notifications }) => {
 };
 
 export default Notification;
-
-
-
-
-
-
-
-

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { X, Home, Settings, HelpCircle, DollarSign, MessageCircle, Loader2, Search, Bell } from "lucide-react"
+import { X, Home, Settings, HelpCircle, DollarSign, MessageCircle, Loader2, Search } from "lucide-react"
 import UserProfileDropdown from "./Dropdown"
 import type { RootState } from "@/store/store"
 import { useSelector, useDispatch } from "react-redux"
@@ -9,11 +9,9 @@ import { useLogoutMutation } from "@/services/authServices/authApi"
 import { clearUser } from "@/features/auth/slices/authSlice"
 import toast from "react-hot-toast"
 import SearchBar from "./SearchBar"
-import { useGetNotitficationsQuery } from "@/services/commonServices/notificationApi" 
 import Notification from "@/components/shared/Notification"
 
 export default function NavbarWithProfile() {
-  const { data, isLoading: isNotificationLoading } = useGetNotitficationsQuery();
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false)
   const { isAuthenticated, user } = useSelector((state: RootState) => state.auth)
@@ -124,11 +122,7 @@ export default function NavbarWithProfile() {
                   </Link>
                 ) : (
                   <>
-                    {isNotificationLoading ? (
-                      <Bell className="h-5 w-5" />
-                    ) : (
-                      <Notification notifications={data} />
-                    )}
+                    <Notification />
                     <UserProfileDropdown user={user} />
                   </>
 
@@ -152,11 +146,9 @@ export default function NavbarWithProfile() {
                 {/* Profile/Menu Button */}
                 {isAuthenticated && user ? (
                   <>
-                    {isNotificationLoading ? (
-                      <Bell className="h-5 w-5" />
-                    ) : (
-                      <Notification notifications={data} />
-                    )}
+
+                    <Notification />
+
                     <button
                       className="transition-all duration-200 active:scale-95"
                       onClick={handleMenuToggle}

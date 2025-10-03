@@ -12,9 +12,12 @@ export class NotificationController {
     async getNotification(req: Request, res: Response, next: NextFunction) {
         try {
             const userId = req.user?.id
+            const {page} = req.query
             if (!userId) throw new ApiError("Invalid User", HttpStatus.UNAUTHORIZED)
+            if(Number(page) <= 0) throw new ApiError("Invalid Page", HttpStatus.BAD_REQUEST);
+            if(isNaN(Number(page))) throw new ApiError("Invalid Page", HttpStatus.BAD_REQUEST);
 
-            const notifications = await this._notificationService.getNotifications(userId)
+            const notifications = await this._notificationService.getNotifications(userId, Number(page))
             sendSuccess(res, 'Notifications', notifications);
         } catch (error: any) {
             next(error);

@@ -10,8 +10,12 @@ export class NotificationService implements INotificationService {
         private _notificationRepository: INotificationRepository
     ) { }
 
-    async getNotifications(userId:Types.ObjectId): Promise<any> {
-        return await this._notificationRepository.findByRecipientId(userId)
+    async getNotifications(userId:Types.ObjectId, page: number): Promise<any> {
+
+        const start = Number(page) <= 0 ? 0 : (page - 1) * Number(process.env.ITEMS_PER_PAGE);
+        const end = start + Number(process.env.ITEMS_PER_PAGE); 
+        
+        return await this._notificationRepository.findByRecipientId(userId,start,end)
     }
 
 
