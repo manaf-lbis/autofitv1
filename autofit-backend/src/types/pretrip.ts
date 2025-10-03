@@ -43,6 +43,7 @@ export interface IPretripBooking {
   status: PretripStatus;
   mechanicId: Types.ObjectId;
   userId: Types.ObjectId;
+  bookingId: string;
   vehicleId: Types.ObjectId;
   schedule:{
     start: Date;

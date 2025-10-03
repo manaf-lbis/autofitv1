@@ -183,7 +183,7 @@ export default function RoadsideDetails() {
           title={getDynamicTitle(bookingData?.status || "Processing")}
           description={getDynamicDescription(bookingData?.status || "Processing")}
           status={getStatusTitle(bookingData?.status || "Processing")}
-          bookingId={bookingData?._id || ""}
+          bookingId={bookingData?.bookingId || '' }
           onMessageClick={() => console.log("Message clicked")}
           onCancelClick={handleCancelBooking}
           isCancelled={isCancelled}

@@ -26,6 +26,7 @@ import { generateReceiptPDF } from "../../utils/templates/receiptTemplate";
 import { generateInspectionReportPDF } from "../../utils/templates/serviceReportTeplate";
 import { MechanicAvailabilityStatus } from "../../types/mechanic/mechanic";
 import { IRatingRepository } from "../../repositories/interfaces/IRatingRepository";
+import { INotificationService } from "../notifications/INotificationService";
 
 
 
@@ -43,7 +44,8 @@ export class PretripService implements IPretripService {
         private _transactionRepo: ITransactionRepository,
         private _paymentRepository: IPaymentRepository,
         private _mechnaicProfileRepo: IMechanicProfileRepository,
-        private _ratingRepo : IRatingRepository
+        private _ratingRepo : IRatingRepository,
+        private _notificationService: INotificationService
     ) { }
 
 
@@ -357,6 +359,7 @@ export class PretripService implements IPretripService {
             await this._timeBlockingRepo.delete(booking.timeBlockingId!);
             await this._mechanicProfileRepository.findByMechanicIdAndUpdate(booking.mechanicId, { availability: MechanicAvailabilityStatus.AVAILABLE });
         }
+
         if(status === PretripStatus.ANALYSING) {
             await this._mechanicProfileRepository.findByMechanicIdAndUpdate(booking.mechanicId, { availability: MechanicAvailabilityStatus.BUSY });
         }
@@ -460,6 +463,12 @@ export class PretripService implements IPretripService {
                 remarks: item?.remarks
             }
         });
+
+        await this._notificationService.sendNotification({
+            recipientId: service.userId,
+            message: `Pretrip Checkup Completed and Report Created by Mechanic, You vehicle Will deliver soon`,
+            recipientType: 'user'
+        })
 
 
         return generateInspectionReportPDF({

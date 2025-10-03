@@ -21,6 +21,7 @@ interface IPretripSlotDetailsModalProps {
 }
 
 const PretripSlotDetailsModal: React.FC<IPretripSlotDetailsModalProps> = ({ slot, onClose }) => {
+  
   const startDate = formatTime(new Date(slot.schedule.start))
   const endDate = formatTime(new Date(slot.schedule.end))
   const serviceDurationHours = getTimeDuration(startDate,endDate)
@@ -122,7 +123,7 @@ const PretripSlotDetailsModal: React.FC<IPretripSlotDetailsModalProps> = ({ slot
                       </div>
                       <div className="flex-1">
                         <span className="text-xs text-gray-500 uppercase tracking-wide">Booking ID</span>
-                        <p className="font-semibold text-gray-900 text-sm">{slot._id || "N/A"}</p>
+                        <p className="font-semibold text-gray-900 text-sm">{slot.bookingId || "N/A"}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-3 p-2 bg-gray-50 rounded-lg">

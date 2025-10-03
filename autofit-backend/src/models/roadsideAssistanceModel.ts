@@ -1,5 +1,6 @@
 import mongoose, { Types, Document, Schema } from "mongoose";
-import { RoadsideAssistance, RoadsideAssistanceStatus } from "../types/services";
+import { RoadsideAssistance, RoadsideAssistanceStatus, ServiceType } from "../types/services";
+import { generateBookingId } from "../utils/bookingIdGenerator";
 
 
 export interface RoadsideAssistanceDocument extends RoadsideAssistance, Document<Types.ObjectId> { }
@@ -10,6 +11,12 @@ const roadsideAssistanceSchema: Schema<RoadsideAssistanceDocument> = new Schema<
         type: Schema.Types.ObjectId,
         required: true,
         ref: 'user'
+    },
+    bookingId: {
+        type: String,
+        unique: true,
+        required: true,
+        default: () => generateBookingId(ServiceType.ROADSIDE),
     },
     issue: {
         type: String,
@@ -74,7 +81,7 @@ const roadsideAssistanceSchema: Schema<RoadsideAssistanceDocument> = new Schema<
         type: Date,
         default: null
     },
-    arrivedAt :{
+    arrivedAt: {
         type: Date,
         default: null
     },
@@ -82,10 +89,10 @@ const roadsideAssistanceSchema: Schema<RoadsideAssistanceDocument> = new Schema<
         type: Date,
         default: null
     },
-    ratingId :{
+    ratingId: {
         type: Schema.Types.ObjectId,
         ref: 'rating',
-        default : null
+        default: null
     }
 }, { timestamps: true });
 

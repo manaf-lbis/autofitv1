@@ -1,12 +1,14 @@
 import { Document, model, Schema, Types } from "mongoose";
 import { PretripStatus, IPretripBooking, PaymentStatus } from "../types/pretrip";
+import { ServiceType } from "../types/services";
+import { generateBookingId } from "../utils/bookingIdGenerator";
 
 
 
-export interface PretripBookingDocument extends IPretripBooking , Document<Types.ObjectId> {}
+export interface PretripBookingDocument extends IPretripBooking, Document<Types.ObjectId> { }
 
 const pretripBookingSchema = new Schema<PretripBookingDocument>({
-    status:{
+    status: {
         type: String,
         enum: Object.values(PretripStatus),
         required: true,
@@ -16,6 +18,12 @@ const pretripBookingSchema = new Schema<PretripBookingDocument>({
         type: Schema.Types.ObjectId,
         ref: "user",
         required: true
+    },
+    bookingId: {
+        type: String,
+        unique: true,
+        required: true,
+        default: () => generateBookingId(ServiceType.PRETRIP),
     },
     mechanicId: {
         type: Schema.Types.ObjectId,
@@ -37,15 +45,15 @@ const pretripBookingSchema = new Schema<PretripBookingDocument>({
             required: true
         }
     },
-    timeBlockingId:{
+    timeBlockingId: {
         type: Schema.Types.ObjectId,
         ref: "timeBlock",
     },
-    serviceReportId:{
+    serviceReportId: {
         type: Schema.Types.ObjectId,
         ref: "pretripReport",
     },
-    payment:{
+    payment: {
         status: {
             type: String,
             enum: Object.values(PaymentStatus),
@@ -53,11 +61,11 @@ const pretripBookingSchema = new Schema<PretripBookingDocument>({
             default: PaymentStatus.INITIATED
         },
         paymentId: {
-            type:Types.ObjectId,
-            ref:'payment'
+            type: Types.ObjectId,
+            ref: 'payment'
         }
     },
-    cancellationReason:{
+    cancellationReason: {
         type: String
     },
     pickedUpAt: {
@@ -78,14 +86,14 @@ const pretripBookingSchema = new Schema<PretripBookingDocument>({
             required: true
         }
     },
-    ratingId :{
+    ratingId: {
         type: Schema.Types.ObjectId,
         ref: 'rating',
         default: null
     }
 
 
-},{ timestamps: true });
+}, { timestamps: true });
 
 
 

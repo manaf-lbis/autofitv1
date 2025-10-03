@@ -64,7 +64,7 @@ export function HeadingSection({
               {status}
             </Badge>
             <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-100 text-xs">
-              ID: {bookingId}
+              Order Id : {bookingId}
             </Badge>
           </div>
         </div>

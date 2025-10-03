@@ -71,9 +71,9 @@ const timeBlockingRepository = new TimeBlockRepository()
 const transactionRepo = new TransactionRepository()
 const quotationRepo = new QuotationRepository()
 const roadsideAssistanceRepo = new RoadsideAssistanceRepository()
-const pretripPaymentHandler = new PretripPaymentHandler(pretripBookingRepository, paymentRepository, timeBlockingRepository);
-const liveAssistancePaymentHandler = new LiveAssistancePaymentHandler(liveAssistanceRepo, paymentRepository, timeBlockingRepository, transactionRepo)
-const roadsidePaymentHandler = new RoadsidePaymentHandler(roadsideAssistanceRepo, paymentRepository,quotationRepo)
+const pretripPaymentHandler = new PretripPaymentHandler(pretripBookingRepository, paymentRepository, timeBlockingRepository, notificationService);
+const liveAssistancePaymentHandler = new LiveAssistancePaymentHandler(liveAssistanceRepo, paymentRepository, timeBlockingRepository, transactionRepo, notificationService)
+const roadsidePaymentHandler = new RoadsidePaymentHandler(roadsideAssistanceRepo, paymentRepository, quotationRepo, notificationService)
 const servicePaymentHanleResolver = new ServicePaymentHandleResolver([
     { type: ServiceType.PRETRIP, handler: pretripPaymentHandler },
     { type: ServiceType.LIVE, handler: liveAssistancePaymentHandler },
@@ -81,18 +81,21 @@ const servicePaymentHanleResolver = new ServicePaymentHandleResolver([
 ]);
 const checkoutService = new CheckoutService(pretripBookingRepository, paymentGatewayResolver, servicePaymentHanleResolver, paymentRepository, liveAssistanceRepo, roadsideAssistanceRepo)
 const workingHoursRepository = new WorkingHoursRepository()
-const liveAssistanceService = new LiveAssistanceService(workingHoursRepository, timeBlockingRepository, liveAssistanceRepo)
+const liveAssistanceService = new LiveAssistanceService(workingHoursRepository, timeBlockingRepository, liveAssistanceRepo, notificationService)
 const pretripPlanRepository = new PretripPlanRepository()
 const pretripFeaterRepository = new PretripFeatureRepository()
 const pretripPlanService = new PretripPlanService(pretripFeaterRepository, pretripPlanRepository);
 const mechanicProfileRepository = new MechanicProfileRepository()
 const googleMapRepo = new GoogleMapRepository()
 const pretripReportRepository = new PretripReportRepository()
-const pretripService = new PretripService(mechanicProfileRepository, googleMapRepo, pretripBookingRepository, pretripPlanRepository, workingHoursRepository, timeBlockingRepository, pretripReportRepository, transactionRepo, paymentRepository, mechanicProfileRepository,ratingRepo)
-const profileService = new UserProfileService(userRepository, roadsideAssistanceRepo, pretripBookingRepository, liveAssistanceRepo,hashService,ratingRepo)
+const pretripService = new PretripService(mechanicProfileRepository, googleMapRepo, pretripBookingRepository,
+    pretripPlanRepository, workingHoursRepository, timeBlockingRepository, pretripReportRepository, transactionRepo,
+    paymentRepository, mechanicProfileRepository, ratingRepo, notificationService)
+const profileService = new UserProfileService(userRepository, roadsideAssistanceRepo, pretripBookingRepository,
+    liveAssistanceRepo, hashService, ratingRepo)
 const vehicleRepository = new VehicleRepository()
-const roadsideService = new RoadsideService(roadsideAssistanceRepo, quotationRepo, mechanicProfileRepository, transactionRepo, paymentRepository)
-const roadsideAssistanceService = new UserRoadsideService(mechanicProfileRepository, googleMapRepo, roadsideAssistanceRepo, vehicleRepository, notificationRepository, timeBlockingRepository,ratingRepo,notificationService)
+const roadsideService = new RoadsideService(roadsideAssistanceRepo, quotationRepo, mechanicProfileRepository, transactionRepo, paymentRepository, notificationService)
+const roadsideAssistanceService = new UserRoadsideService(mechanicProfileRepository, googleMapRepo, roadsideAssistanceRepo, vehicleRepository, notificationRepository, timeBlockingRepository, ratingRepo, notificationService)
 const vehicleBrands = new VehicleBrandRepository()
 const vehicleService = new VehicleService(vehicleRepository, vehicleBrands)
 
@@ -102,7 +105,7 @@ export const authController = new AuthController(authService, userRegistrationSe
 export const checkoutcontroller = new CheckoutController(checkoutService)
 export const liveAssistanceController = new LiveAssistanceController(liveAssistanceService)
 export const pretripController = new PretripController(pretripPlanService, pretripService)
-export const profileController = new ProfileController(profileService,notificationService)
+export const profileController = new ProfileController(profileService, notificationService)
 export const servicesController = new ServicesController(roadsideAssistanceService, roadsideService)
 export const vehicleController = new VehicleController(vehicleService);
 

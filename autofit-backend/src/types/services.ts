@@ -22,6 +22,7 @@ export interface RoadsideAssistance {
     _id: Types.ObjectId;
     userId: Types.ObjectId;
     issue: string;
+    bookingId: string;
     description: string;
     vehicle: {
         regNo: string;
