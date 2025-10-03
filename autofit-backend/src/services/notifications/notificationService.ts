@@ -1,6 +1,7 @@
 import { Types } from "mongoose";
 import { INotificationRepository } from "../../repositories/interfaces/INotificationRepository";
 import { INotificationService, SentParam } from "./INotificationService";
+import { notifyUser } from "../../utils/notificationIO";
 
 export class NotificationService implements INotificationService {
 
@@ -15,7 +16,16 @@ export class NotificationService implements INotificationService {
 
 
     async sendNotification(data: SentParam): Promise<any> {
-        return await this._notificationRepository.save(data)
+        const res = await this._notificationRepository.save(data)
+
+        notifyUser(res.recipientId.toString(), {
+            _id: res._id.toString(),
+            message: res.message,
+            createdAt: res.createdAt,
+            isRead: res.isRead
+        });
+
+        return res
     }
     
 

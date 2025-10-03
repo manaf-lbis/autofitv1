@@ -92,7 +92,7 @@ const pretripService = new PretripService(mechanicProfileRepository, googleMapRe
 const profileService = new UserProfileService(userRepository, roadsideAssistanceRepo, pretripBookingRepository, liveAssistanceRepo,hashService,ratingRepo)
 const vehicleRepository = new VehicleRepository()
 const roadsideService = new RoadsideService(roadsideAssistanceRepo, quotationRepo, mechanicProfileRepository, transactionRepo, paymentRepository)
-const roadsideAssistanceService = new UserRoadsideService(mechanicProfileRepository, googleMapRepo, roadsideAssistanceRepo, vehicleRepository, notificationRepository, timeBlockingRepository,ratingRepo)
+const roadsideAssistanceService = new UserRoadsideService(mechanicProfileRepository, googleMapRepo, roadsideAssistanceRepo, vehicleRepository, notificationRepository, timeBlockingRepository,ratingRepo,notificationService)
 const vehicleBrands = new VehicleBrandRepository()
 const vehicleService = new VehicleService(vehicleRepository, vehicleBrands)
 

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { LayoutDashboard, MessageSquare, Briefcase, User, DollarSign, Menu, X, Settings, ChevronDown, Wrench, Power, Bell, ChevronRight } from "lucide-react";
+import { LayoutDashboard, MessageSquare, Briefcase, User, DollarSign, Menu, X, ChevronDown, Wrench, Power, Bell, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -377,18 +377,7 @@ export default function MechanicDashboard() {
           ))}
         </nav>
 
-        {/* Bottom Menu */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-100 bg-gray-50/80 backdrop-blur-md">
-          <Button
-            variant="ghost"
-            className="w-full justify-start text-gray-700 hover:bg-gray-100"
-            onClick={() => navigate("/mechanic/settings")}
-            aria-label="Go to settings"
-          >
-            <Settings className="w-4 h-4 mr-3" />
-            Settings
-          </Button>
-        </div>
+       
       </aside>
 
       {/* Main Content */}
@@ -494,16 +483,7 @@ export default function MechanicDashboard() {
                       <User className="mr-3 h-4 w-4" />
                       Profile
                     </button>
-                    <button
-                      className="w-full flex items-center hover:bg-gray-50 rounded-lg px-3 py-2 text-left transition-colors duration-150"
-                      onClick={() => {
-                        navigate("/mechanic/settings");
-                        setIsDropdownOpen(false);
-                      }}
-                    >
-                      <Settings className="mr-3 h-4 w-4" />
-                      Settings
-                    </button>
+                   
 
                     <Logout />
                   </div>

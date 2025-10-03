@@ -6,13 +6,14 @@ import { IVehicleRepository } from "../../repositories/interfaces/IVehicleReposi
 import { ApiError } from "../../utils/apiError";
 import { INotificationRepository } from "../../repositories/interfaces/INotificationRepository";
 import { IUserRoadsideService } from "./interface/IUserRoadsideService";
-import { Role } from "../../types/role";
+
 import logger from "../../utils/logger";
 import { ITimeBlockRepository } from "../../repositories/interfaces/ITimeBlockRepository";
 import { differenceInMinutes, startOfDay } from "date-fns";
 import { HttpStatus } from "../../types/responseCode";
 import { MechanicAvailabilityStatus } from "../../types/mechanic/mechanic";
 import { IRatingRepository } from "../../repositories/interfaces/IRatingRepository";
+import { INotificationService } from "../notifications/INotificationService";
 
 export class UserRoadsideService implements IUserRoadsideService {
   constructor(
@@ -22,7 +23,8 @@ export class UserRoadsideService implements IUserRoadsideService {
     private _vehicleRepository: IVehicleRepository,
     private _notificationRepository: INotificationRepository,
     private _timeBlockingRepo: ITimeBlockRepository,
-    private _ratingRepo: IRatingRepository
+    private _ratingRepo: IRatingRepository,
+    private _notificationService:INotificationService
   ) { }
 
   async getNearByMechanic({ lat, lng }: { lat: number; lng: number }) {
@@ -80,19 +82,20 @@ export class UserRoadsideService implements IUserRoadsideService {
         type: 'Point',
         coordinates: serviceLocation
       },
-    })
+    });
 
     await this._mechanicProfileRepo.update(mechanicId, { availability: MechanicAvailabilityStatus.BUSY })
 
-    const notification = await this._notificationRepository.save({
-      message: `Emergency - ${vehicle.regNo.toUpperCase()} Requested For RoadSide Assistance.`,
-      recipientId: mechanicId,
-      recipientType: Role.MECHANIC,
+    await this._notificationService.sendNotification({
+        recipientId: mechanicId,
+        message: `Emergency - ${vehicle.regNo.toUpperCase()} Requested For RoadSide Assistance.`,
+        recipientType: 'mechanic'
     })
+
 
     logger.info(`Emergency - ${vehicle.regNo.toUpperCase()} Requested For RoadSide Assistance.`)
 
-    return { notification, emergencyAssistance }
+    return { emergencyAssistance }
   }
 
 
