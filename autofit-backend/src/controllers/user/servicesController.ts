@@ -47,18 +47,12 @@ export class ServicesController {
             const mechanicId = new Types.ObjectId(mecId)
             const vehicleId = new Types.ObjectId(vehId)
 
-            const { emergencyAssistance, notification } = (await this._userRoadsideService.createAssistanceRequest({ mechanicId, vehicleId, issue, description, serviceLocation }))
+            const { emergencyAssistance } = (await this._userRoadsideService.createAssistanceRequest({ mechanicId, vehicleId, issue, description, serviceLocation }))
 
             const mechData = userSocketMap.get(mechanicId.toString());
             if (mechData && mechData.socketIds.size > 0) {
                 const io = getIO()
                 mechData.socketIds.forEach((id) => {
-                    io.to(id).emit('notification', {
-                        _id: notification._id,
-                        message: notification.message,
-                        createdAt: notification.createdAt,
-                        isRead: notification.isRead
-                    });
                     io.to(id).emit('emergency', {
                         _id: emergencyAssistance._id,
                         name: (emergencyAssistance.userId as any).name,

@@ -11,6 +11,7 @@ import { NotificationRepository } from "../repositories/notificationRepository"
 import { PretripBookingRepository } from "../repositories/pretripBookingRepository"
 import { PretripFeatureRepository } from "../repositories/pretripFeatureRepository"
 import { PretripPlanRepository } from "../repositories/pretripPlanRepository"
+import { RatingRepository } from "../repositories/ratingRepository"
 import { RoadsideAssistanceRepository } from "../repositories/roadsideAssistanceRepo"
 import { TimeBlockRepository } from "../repositories/timeBlockRepository"
 import { TransactionRepository } from "../repositories/transactionsRepository"
@@ -30,6 +31,7 @@ import { TokenService } from "../services/token/tokenService"
 const adminRepository = new AdminRepository()
 const hashService = new HashService()
 const tokenService = new TokenService()
+const ratingRepo = new RatingRepository()
 const adminAuthService = new AdminAuthService(adminRepository,hashService,tokenService)
 const googleAuthService = new AdminGoogleAuthService(adminRepository,tokenService)
 const mechanicProfileRepository = new MechanicProfileRepository()
@@ -38,7 +40,7 @@ const mechanicService = new MechanicService(mechanicRepository, mechanicProfileR
 const notificationRepository = new NotificationRepository()
 const workingHoursRepository = new WorkingHoursRepository()
 const timeBlockingRepo = new TimeBlockRepository()
-const profileService = new ProfileService( mechanicProfileRepository,mechanicRepository,notificationRepository,workingHoursRepository,timeBlockingRepo)
+const profileService = new ProfileService( mechanicProfileRepository,mechanicRepository,notificationRepository,workingHoursRepository,timeBlockingRepo,ratingRepo)
 const pretripFeatureRepository = new PretripFeatureRepository()
 const pretripPlanRepository = new PretripPlanRepository()
 const pretripPlanService = new PretripPlanService(pretripFeatureRepository,pretripPlanRepository)

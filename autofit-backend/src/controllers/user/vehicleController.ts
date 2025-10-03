@@ -9,7 +9,7 @@ import { IVehicleService } from '../../services/vehicle/IVehicleService';
 
 export class VehicleController {
     constructor(
-        private _vehicleService: IVehicleService
+        private _vehicleService: IVehicleService,
     ) { }
 
 

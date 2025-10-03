@@ -19,6 +19,7 @@ import { paymentApi } from "@/services/userServices/paymentApi";
 import { liveAssistanceApi } from "@/services/userServices/liveAssistanceApi";
 import { mechanicLiveAssistanceApi } from "@/services/mechanicServices/mechanicLiveAssistanceApi";
 import { adminApi } from "@/services/adminServices/adminApi";
+import { notificationApi } from "@/services/commonServices/notificationApi";
 
 
 import authReducer from "../features/auth/slices/authSlice";
@@ -57,7 +58,8 @@ export const store = configureStore({
     [paymentApi.reducerPath]: paymentApi.reducer,
     [liveAssistanceApi.reducerPath]: liveAssistanceApi.reducer,
     [mechanicLiveAssistanceApi.reducerPath]: mechanicLiveAssistanceApi.reducer,
-    [adminApi.reducerPath]: adminApi.reducer
+    [adminApi.reducerPath]: adminApi.reducer,
+    [notificationApi.reducerPath]: notificationApi.reducer
 
 
   },
@@ -83,7 +85,8 @@ export const store = configureStore({
       paymentApi.middleware,
       liveAssistanceApi.middleware,
       mechanicLiveAssistanceApi.middleware,
-      adminApi.middleware
+      adminApi.middleware,
+      notificationApi.middleware
     ),
 });
 

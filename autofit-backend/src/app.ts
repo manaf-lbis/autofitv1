@@ -13,6 +13,7 @@ import mechanicRoute from './routes/mechanic/mechanicRoutes'
 import adminRoute from './routes/admin/adminRoute'
 import chatRoute from './routes/common/chatRoutes'
 import assetRoute from './routes/common/assetsRoute'
+import notificationRoute from './routes/common/notificationRoute'
 import httpLogger from "./utils/httpLogger";
 import morgan from 'morgan'
 import rateLimit from "express-rate-limit";
@@ -61,6 +62,7 @@ app.use("/mechanic", mechanicRoute );
 app.use("/admin",adminRoute)
 app.use("/chat",chatRoute)
 app.use("/assets",assetRoute)
+app.use("/notifications",notificationRoute )
 
 app.use(errorHandler);
 

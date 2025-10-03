@@ -22,14 +22,19 @@ export class PretripBookingRepository extends BaseRepository<PretripBookingDocum
             .populate('userId', 'name email mobile')
             .populate('payment.paymentId')
             .populate('serviceReportId')
+            .populate('ratingId', '_id review rating')
     }
 
     async dayWiseBookings(mechanicId: Types.ObjectId, date: Date): Promise<any> {
         return await PretripBookingModel.find({ mechanicId, 'schedule.start': { $gte: date } }).select('schedule -_id')
     }
 
-    async updatePaymentStatus(serviceId: Types.ObjectId, status: PaymentStatus,): Promise<any> {
-        return await PretripBookingModel.updateOne({ _id: serviceId }, { $set: { 'payment.status': status } })
+    async updatePaymentStatus(serviceId: Types.ObjectId, status: PaymentStatus): Promise<any> {
+        return await PretripBookingModel.findOneAndUpdate(
+            { _id: serviceId },
+            { $set: { 'payment.status': status } },
+            { new: true } 
+        );
     }
 
     async weeklyScheduleOfMechanic(mechanicId: Types.ObjectId): Promise<any> {
@@ -42,7 +47,7 @@ export class PretripBookingRepository extends BaseRepository<PretripBookingDocum
         })
             .populate('userId', 'name email mobile')
             .populate('vehicleId', 'regNo brand modelName')
-            .select('userId vehicleId schedule servicePlan.name status')
+            .select('userId vehicleId schedule servicePlan.name status bookingId')
     }
 
     async todayScheduleOfMechanic(mechanicId: Types.ObjectId): Promise<any> {

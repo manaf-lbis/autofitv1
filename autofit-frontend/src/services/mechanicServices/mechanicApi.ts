@@ -89,13 +89,6 @@ export const mechanicApi = createApi({
       }),
     }),
 
-    notificationRead: builder.mutation({
-      query: () => ({
-        url: "/mechanic/profile/updateNotification",
-        method: "POST"
-      }),
-    }),
-
     getWorkingHours: builder.query<WorkingHoursData | null, void>({
       query: () => ({
         url: "/mechanic/profile/working-hours",
@@ -147,7 +140,6 @@ export const {
   useResubmitRequestMutation,
   useGetDashboardQuery,
   useSetAvailabilityMutation,
-  useNotificationReadMutation,
   useGetWorkingHoursQuery,
   useCreateWorkingHoursMutation,
   useUpdateWorkingHoursMutation,

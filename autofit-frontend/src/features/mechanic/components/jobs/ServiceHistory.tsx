@@ -58,9 +58,8 @@ export function ServiceHistory({ loading = false, mode }: ServiceHistoryProps) {
 
   const handleServiceClick = (serviceId: string): void => {
     if (mode === 'pretrip') {
-      navigate(`/mechanic/pretrip/${serviceId}/details`)
+      navigate(`/mechanic/pre-trip-checkup/${serviceId}/details`)
     }
-    // No nav for live
   }
 
   if (loading || isLoading) {

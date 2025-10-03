@@ -9,6 +9,7 @@ import { useLogoutMutation } from "@/services/authServices/authApi"
 import { clearUser } from "@/features/auth/slices/authSlice"
 import toast from "react-hot-toast"
 import SearchBar from "./SearchBar"
+import Notification from "@/components/shared/Notification"
 
 export default function NavbarWithProfile() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -84,9 +85,8 @@ export default function NavbarWithProfile() {
   return (
     <>
       <header
-        className={`fixed top-0 w-full z-40 transition-transform duration-300 ease-out ${
-          isVisible ? "translate-y-0" : "-translate-y-full"
-        }`}
+        className={`fixed top-0 w-full z-40 transition-transform duration-300 ease-out ${isVisible ? "translate-y-0" : "-translate-y-full"
+          }`}
       >
         {/* Modern Clean Navbar */}
         <div className="bg-white/85 backdrop-blur-xl border-b border-slate-200/60 shadow-sm">
@@ -109,8 +109,10 @@ export default function NavbarWithProfile() {
               </nav>
 
               {/* Desktop Actions */}
-              <div className="hidden lg:flex items-center space-x-3 relative z-50">
+              <div className="hidden lg:flex items-center space-x-6 relative z-50">
                 <SearchBar isNavbar={true} />
+
+
 
                 {!isAuthenticated || !user ? (
                   <Link to="/user/login">
@@ -119,19 +121,22 @@ export default function NavbarWithProfile() {
                     </button>
                   </Link>
                 ) : (
-                  <UserProfileDropdown user={user} />
+                  <>
+                    <Notification />
+                    <UserProfileDropdown user={user} />
+                  </>
+
                 )}
               </div>
 
               {/* Mobile Controls */}
-              <div className="lg:hidden flex items-center space-x-2">
+              <div className="lg:hidden flex items-center space-x-4">
                 {/* Mobile Search Button */}
                 <button
-                  className={`p-2.5 rounded-xl transition-all duration-200 active:scale-95 ${
-                    isMobileSearchOpen 
-                      ? 'bg-slate-100 text-slate-800' 
-                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
-                  }`}
+                  className={`p-2.5 rounded-xl transition-all duration-200 active:scale-95 ${isMobileSearchOpen
+                    ? 'bg-slate-100 text-slate-800'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                    }`}
                   onClick={handleMobileSearchToggle}
                   aria-label="Search"
                 >
@@ -140,21 +145,26 @@ export default function NavbarWithProfile() {
 
                 {/* Profile/Menu Button */}
                 {isAuthenticated && user ? (
-                  <button
-                    className="transition-all duration-200 active:scale-95"
-                    onClick={handleMenuToggle}
-                    aria-label="User Menu"
-                  >
-                    <div className={`w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center text-white font-semibold text-sm shadow-sm transition-all duration-200 ${
-                      isMenuOpen ? 'bg-blue-700 rotate-90' : 'hover:bg-blue-700'
-                    }`}>
-                      {isMenuOpen ? (
-                        <X size={16} />
-                      ) : (
-                        user.name.slice(0, 2).toUpperCase()
-                      )}
-                    </div>
-                  </button>
+                  <>
+
+                    <Notification />
+
+                    <button
+                      className="transition-all duration-200 active:scale-95"
+                      onClick={handleMenuToggle}
+                      aria-label="User Menu"
+                    >
+                      <div className={`w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center text-white font-semibold text-sm shadow-sm transition-all duration-200 ${isMenuOpen ? 'bg-blue-700 rotate-90' : 'hover:bg-blue-700'
+                        }`}>
+                        {isMenuOpen ? (
+                          <X size={16} />
+                        ) : (
+                          user.name.slice(0, 2).toUpperCase()
+                        )}
+                      </div>
+                    </button>
+
+                  </>
                 ) : (
                   <button
                     className="p-2.5 text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-xl transition-all duration-200 active:scale-95"
@@ -174,9 +184,8 @@ export default function NavbarWithProfile() {
         </div>
 
         {/* Mobile Search Bar */}
-        <div className={`lg:hidden transition-all duration-300 ease-out ${
-          isMobileSearchOpen ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none'
-        }`}>
+        <div className={`lg:hidden transition-all duration-300 ease-out ${isMobileSearchOpen ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none'
+          }`}>
           <div className="bg-white/85 backdrop-blur-xl border-b border-slate-200/60">
             <div className="max-w-7xl mx-auto px-4 py-4">
               <div className="flex items-center space-x-3">
@@ -196,27 +205,24 @@ export default function NavbarWithProfile() {
       </header>
 
       {/* Mobile Menu Overlay */}
-      <div className={`fixed inset-0 z-50 lg:hidden transition-all duration-300 ${
-        isMenuOpen ? 'visible' : 'invisible'
-      }`}>
+      <div className={`fixed inset-0 z-50 lg:hidden transition-all duration-300 ${isMenuOpen ? 'visible' : 'invisible'
+        }`}>
         {/* Backdrop */}
-        <div 
-          className={`absolute inset-0 bg-black/15 backdrop-blur-sm transition-all duration-300 ${
-            isMenuOpen ? 'opacity-100' : 'opacity-0'
-          }`} 
+        <div
+          className={`absolute inset-0 bg-black/15 backdrop-blur-sm transition-all duration-300 ${isMenuOpen ? 'opacity-100' : 'opacity-0'
+            }`}
           onClick={closeMenu}
         />
-        
+
         {/* Menu Panel */}
-        <div className={`absolute top-16 right-4 w-80 max-w-[calc(100vw-2rem)] bg-white rounded-2xl shadow-2xl border border-slate-200/80 transition-all duration-300 ${
-          isMenuOpen ? 'translate-x-0 opacity-100 scale-100' : 'translate-x-4 opacity-0 scale-95'
-        }`}>
+        <div className={`absolute top-16 right-4 w-80 max-w-[calc(100vw-2rem)] bg-white rounded-2xl shadow-2xl border border-slate-200/80 transition-all duration-300 ${isMenuOpen ? 'translate-x-0 opacity-100 scale-100' : 'translate-x-4 opacity-0 scale-95'
+          }`}>
           <div className="p-5 space-y-5 max-h-[calc(100vh-6rem)] overflow-y-auto">
             {/* User Profile Section */}
             {isAuthenticated && user ? (
               <div className="p-4 bg-slate-50/80 rounded-xl">
-                <button 
-                  onClick={() => navigate('/user/profile')} 
+                <button
+                  onClick={() => navigate('/user/profile')}
                   className="w-full flex items-center space-x-3 cursor-pointer focus:outline-none"
                   aria-label="Go to profile"
                   tabIndex={0}
@@ -299,3 +305,12 @@ export default function NavbarWithProfile() {
     </>
   )
 }
+
+
+
+
+// { isNotificationLoading ? (
+//   <Bell className="h-5 w-5" />
+// ) : (
+//   <Notification notifications={data.notifications} />
+// )}

@@ -43,6 +43,7 @@ export interface IPretripBooking {
   status: PretripStatus;
   mechanicId: Types.ObjectId;
   userId: Types.ObjectId;
+  bookingId: string;
   vehicleId: Types.ObjectId;
   schedule:{
     start: Date;
@@ -60,7 +61,8 @@ export interface IPretripBooking {
   payment?: {
     status: PaymentStatus;
     paymentId?: Types.ObjectId;
-  }
+  },
+  ratingId?: Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
 }

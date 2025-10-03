@@ -4,6 +4,8 @@ import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
 import { useGenerateInvoiceMutation } from "@/services/userServices/servicesApi";
 import toast from "react-hot-toast";
+import { RatingButton } from "@/components/shared/rating/RatingButton";
+import { ServiceType } from "@/types/user";
 
 interface HeadingSectionProps {
   title: string;
@@ -15,6 +17,12 @@ interface HeadingSectionProps {
   onCancelClick?: () => void;
   isCancelled: boolean;
   isCompleted: boolean;
+  rating?:{
+    rating: number;
+    review: string;
+    _id: string;
+  },
+  refetch: () => void
 }
 
 export function HeadingSection({
@@ -24,10 +32,11 @@ export function HeadingSection({
   bookingId,
   onCancelClick,
   isCompleted,
-  statusString
+  statusString,
+  rating,
+  refetch
 }: HeadingSectionProps) {
   const [getInvoice, { isLoading }] = useGenerateInvoiceMutation();
-  
 
   const handleDownloadInvoice = async () => {
     try {
@@ -55,13 +64,13 @@ export function HeadingSection({
               {status}
             </Badge>
             <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-100 text-xs">
-              ID: {bookingId}
+              Order Id : {bookingId}
             </Badge>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
-          { onCancelClick && !["in_progress", "completed" , "canceled"].includes(statusString) && (
+          {onCancelClick && !["in_progress", "completed", "canceled"].includes(statusString) && (
             <Button
               variant="outline"
               size="sm"
@@ -74,20 +83,37 @@ export function HeadingSection({
             </Button>
           )}
           {isCompleted && (
-            <Button
-              size="sm"
-              className="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white"
-              onClick={handleDownloadInvoice}
-              disabled={isLoading}
-              aria-label="Download invoice"
-            >
-              {isLoading ? (
-                <span className="loading loading-spinner text-white"></span>
-              ) : (
-                <Download className="w-4 h-4" />
-              )}
-              Invoice
-            </Button>
+
+            <div className="flex items-center gap-2">
+              <RatingButton
+                serviceId={bookingId}
+                serviceType={ServiceType.ROADSIDE}
+                size="xs"
+                displayStyle="stars"
+                hasRated={rating !== undefined}
+                refetch={refetch}
+                serviceName="Roadside Assistance"
+                userRating={rating?.rating}
+                userReview={rating?.review}
+              />
+
+
+              <Button
+                size="sm"
+                className="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white"
+                onClick={handleDownloadInvoice}
+                disabled={isLoading}
+                aria-label="Download invoice"
+              >
+                {isLoading ? (
+                  <span className="loading loading-spinner text-white"></span>
+                ) : (
+                  <Download className="w-4 h-4" />
+                )}
+                Invoice
+              </Button>
+            </div>
+
           )}
         </div>
       </div>

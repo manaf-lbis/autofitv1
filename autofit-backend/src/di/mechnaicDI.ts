@@ -30,12 +30,17 @@ import { OtpService } from "../services/otp/otpService"
 import { PretripService } from "../services/pretripCheckup/pretripService"
 import { RoadsideService } from "../services/roadsideAssistance/roadsideService"
 import { TokenService } from "../services/token/tokenService"
+import { RatingRepository } from "../repositories/ratingRepository"
+import { NotificationService } from "../services/notifications/notificationService"
 
 const hashService = new HashService()
 const tokenService = new TokenService()
 const mechanicRepository = new MechanicRepository()
 const otpRepository = new OtpRepository()
+const ratingRepo = new RatingRepository()
 const mechanicProfileRepository = new MechanicProfileRepository()
+const notificationRepository = new NotificationRepository()
+const notificationService = new NotificationService(notificationRepository)
 const otpService = new OtpService(otpRepository, hashService)
 const authService = new AuthService(hashService, tokenService, mechanicRepository, otpService, mechanicProfileRepository)
 const mechanicRegistration = new MechanicRegistrationService(mechanicRepository)
@@ -43,20 +48,19 @@ const googleAuth = new GoogleAuthService(mechanicRepository, tokenService)
 const timeBlockRepo = new TimeBlockRepository()
 const workingHoursRepo = new WorkingHoursRepository()
 const liveAsistanceRepository = new LiveAsistanceRepository()
-const liveAssistanceService = new LiveAssistanceService(workingHoursRepo,timeBlockRepo,liveAsistanceRepository)
-const notificationRepository = new NotificationRepository()
+const liveAssistanceService = new LiveAssistanceService(workingHoursRepo,timeBlockRepo,liveAsistanceRepository,notificationService)
 const roadsideAssistanceRepo = new RoadsideAssistanceRepository()
 const pretripBookingRepository = new PretripBookingRepository()
 const transactionRepo = new TransactionRepository()
-const pageService = new PageService(mechanicProfileRepository,notificationRepository,roadsideAssistanceRepo,pretripBookingRepository,transactionRepo)
+const pageService = new PageService(mechanicProfileRepository,notificationRepository,roadsideAssistanceRepo,pretripBookingRepository,transactionRepo,ratingRepo)
 const googleMapRepo = new GoogleMapRepository()
 const pretripPlanRepository = new PretripPlanRepository()
 const pretripReportRepository = new PretripReportRepository()
-const mechanicProfileService = new ProfileService( mechanicProfileRepository, mechanicRepository,notificationRepository, workingHoursRepo,timeBlockRepo)
+const mechanicProfileService = new ProfileService( mechanicProfileRepository, mechanicRepository,notificationRepository, workingHoursRepo,timeBlockRepo,ratingRepo)
 const paymentRepo = new PaymentRepository()
-const pretripService = new PretripService( mechanicProfileRepository,googleMapRepo,pretripBookingRepository,pretripPlanRepository,workingHoursRepo,timeBlockRepo, pretripReportRepository, transactionRepo, paymentRepo,mechanicProfileRepository)
+const pretripService = new PretripService( mechanicProfileRepository,googleMapRepo,pretripBookingRepository,pretripPlanRepository,workingHoursRepo,timeBlockRepo, pretripReportRepository, transactionRepo, paymentRepo,mechanicProfileRepository,ratingRepo,notificationService)
 const quotationRepo = new QuotationRepository()
-const roadsideService = new RoadsideService(roadsideAssistanceRepo,quotationRepo,mechanicProfileRepository,transactionRepo,paymentRepo)
+const roadsideService = new RoadsideService(roadsideAssistanceRepo,quotationRepo,mechanicProfileRepository,transactionRepo,paymentRepo,notificationService)
 
 
 

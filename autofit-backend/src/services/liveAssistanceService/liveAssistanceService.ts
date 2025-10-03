@@ -10,12 +10,14 @@ import { ILiveAssistanceRepository } from "../../repositories/interfaces/ILiveAs
 import { Role } from "../../types/role";
 import { generateReceiptPDF } from "../../utils/templates/receiptTemplate";
 import { LiveAssistanceStatus } from "../../types/liveAssistance";
+import { INotificationService } from "../notifications/INotificationService";
 
 export class LiveAssistanceService implements ILiveAssistanceService {
     constructor(
         private _workingHoursRepo: IWorkingHoursRepository,
         private _timeBlockingRepo: ITimeBlockRepository,
-        private _liveAssistanceRepo: ILiveAssistanceRepository
+        private _liveAssistanceRepo: ILiveAssistanceRepository,
+        private _notificationService: INotificationService
     ) { }
 
     async createBooking(concern: string, description: string, userId: Types.ObjectId): Promise<any> {
@@ -142,6 +144,13 @@ export class LiveAssistanceService implements ILiveAssistanceService {
 
         await this._timeBlockingRepo.delete(booking.blockedTimeId)
         await this._liveAssistanceRepo.update(serviceId, { status: LiveAssistanceStatus.COMPLETED });
+
+        await this._notificationService.sendNotification({
+            recipientId: booking.userId,
+            message: `Live Assistance Completed by Mechanic`,
+            recipientType: 'user'
+        })
+
 
     }
 

@@ -8,13 +8,15 @@ import { IPaymentRepository } from "../../../repositories/interfaces/IPaymentRep
 import logger from "../../../utils/logger";
 import { IQuotationRepository } from "../../../repositories/interfaces/IQuotationRepository";
 import { RoadsideAssistanceStatus, RoadsideQuotationStatus } from "../../../types/services";
+import { INotificationService } from "../../notifications/INotificationService";
 
 export class RoadsidePaymentHandler implements IServicePaymentHandler {
 
     constructor(
         private _roadsideAssistanceRepo: IRoadsideAssistanceRepo,
         private _paymentRepository: IPaymentRepository,
-        private _quotationRepo: IQuotationRepository
+        private _quotationRepo: IQuotationRepository,
+        private _notificationService: INotificationService
     ) { }
 
 
@@ -78,6 +80,12 @@ export class RoadsidePaymentHandler implements IServicePaymentHandler {
         const response = await this._roadsideAssistanceRepo.findById(serviceId);
         if (!response?.quotationId) throw new ApiError('Booking not found', HttpStatus.NOT_FOUND);
         await this._quotationRepo.update(response?.quotationId, { status: RoadsideQuotationStatus.APPROVED });
+
+        await this._notificationService.sendNotification({
+            recipientId: response?.userId!._id,
+            message: `Quotation approved and payment Completed Continue with the service.`,
+            recipientType: 'mechanic'
+        })
 
     }
 
