@@ -5,7 +5,6 @@ export interface IPageService {
 
   primaryInfo(mechanicId: Types.ObjectId): Promise<{
     availability: string;
-    notifications: any[]; 
     messages: number;
   }>;
 

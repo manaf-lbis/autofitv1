@@ -26,8 +26,7 @@ export class PageService implements IPageService {
   async primaryInfo(mechanicId: Types.ObjectId) {
     const response = await this._mechanicProfileRepository.getAvailablity(mechanicId)
     const availability = response?.availability ?? 'notAvailable'
-    const notifications = await this._notificationRepository.findByRecipientId(mechanicId)
-    return { availability, notifications, messages: 0 }
+    return { availability, messages: 0 }
   }
 
 

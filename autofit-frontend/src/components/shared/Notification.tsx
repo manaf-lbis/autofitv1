@@ -4,8 +4,8 @@ import React, { useState, useRef, useEffect } from "react";
 import { initSocket } from "@/lib/socket";
 import { useNotification } from "@/hooks/useNotification";
 import { formatTimeToNow } from "@/lib/dateFormater";
-import { useNotificationReadMutation } from "../../../services/mechanicServices/mechanicApi";
 import toast from "react-hot-toast";
+import { useUpdateNotificationsMutation } from "@/services/commonServices/notificationApi";
 
 interface Notification {
   _id: number;
@@ -20,13 +20,12 @@ interface NotificationProps {
 }
 
 const Notification: React.FC<NotificationProps> = ({ notifications }) => {
-  const [localNotifications, setLocalNotifications] =
-  useState<Notification[]>(notifications);
+  const [localNotifications, setLocalNotifications] = useState<Notification[]>(notifications);
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const socket = initSocket();
   const notify = useNotification();
-  const [setRead] = useNotificationReadMutation();
+  const [setRead] = useUpdateNotificationsMutation();
 
   useEffect(() => {
     socket.on("notification", (data) => {
@@ -61,7 +60,7 @@ const Notification: React.FC<NotificationProps> = ({ notifications }) => {
     setIsOpen(!isOpen);
     if (unreadCount > 0) {
       try {
-        await setRead({}).unwrap();
+        await setRead().unwrap();
         setLocalNotifications((prev) =>
           prev.map((n) => ({ ...n, isRead: true }))
         );

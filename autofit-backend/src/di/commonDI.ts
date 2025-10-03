@@ -13,8 +13,13 @@ import { OtpService } from "../services/otp/otpService";
 import { TokenService } from "../services/token/tokenService";
 import { ResetPasswordController } from "../controllers/common/resetPassword";
 import { MechanicRepository } from "../repositories/mechanicRepository";
+import { NotificationController } from "../controllers/common/notificationController";
+import { NotificationService } from "../services/notifications/notificationService";
+import { NotificationRepository } from "../repositories/notificationRepository";
 
 const assetsService = new AssetsService();
+const notificationRepository = new NotificationRepository()
+const notificationService = new NotificationService(notificationRepository)
 const chatRepository = new ChatRepository();
 const roadsideAssistanceRepo = new RoadsideAssistanceRepository()
 const chatService = new ChatService(chatRepository, roadsideAssistanceRepo);
@@ -33,3 +38,4 @@ const tokenService = new TokenService()
 export const resetPasswordController = new  ResetPasswordController(resetPasswordService,otpService,tokenService)
 export const chatController = new ChatController(chatService);
 export const assetsController = new AssetsController(assetsService);
+export const notificationController = new NotificationController(notificationService);

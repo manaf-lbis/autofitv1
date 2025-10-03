@@ -46,6 +46,7 @@ import { PaymentGateway } from "../types/payment";
 import { ServiceType } from "../types/services";
 import { RoadsidePaymentHandler } from "../services/paymentServices/servicePaymentHandler/roadsidePaymentHandler";
 import { RatingRepository } from "../repositories/ratingRepository";
+import { NotificationService } from "../services/notifications/notificationService";
 
 
 
@@ -55,6 +56,8 @@ const otpRepository = new OtpRepository();
 const tokenService = new TokenService();
 const hashService = new HashService();
 const ratingRepo = new RatingRepository()
+const notificationRepository = new NotificationRepository()
+const notificationService = new NotificationService(notificationRepository)
 const otpService = new OtpService(otpRepository, hashService);
 const authService = new AuthService(userRepository, otpService, tokenService, hashService);
 const googleAuthService = new GoogleAuthService(userRepository, tokenService);
@@ -88,7 +91,6 @@ const pretripReportRepository = new PretripReportRepository()
 const pretripService = new PretripService(mechanicProfileRepository, googleMapRepo, pretripBookingRepository, pretripPlanRepository, workingHoursRepository, timeBlockingRepository, pretripReportRepository, transactionRepo, paymentRepository, mechanicProfileRepository,ratingRepo)
 const profileService = new UserProfileService(userRepository, roadsideAssistanceRepo, pretripBookingRepository, liveAssistanceRepo,hashService,ratingRepo)
 const vehicleRepository = new VehicleRepository()
-const notificationRepository = new NotificationRepository()
 const roadsideService = new RoadsideService(roadsideAssistanceRepo, quotationRepo, mechanicProfileRepository, transactionRepo, paymentRepository)
 const roadsideAssistanceService = new UserRoadsideService(mechanicProfileRepository, googleMapRepo, roadsideAssistanceRepo, vehicleRepository, notificationRepository, timeBlockingRepository,ratingRepo)
 const vehicleBrands = new VehicleBrandRepository()
@@ -100,7 +102,7 @@ export const authController = new AuthController(authService, userRegistrationSe
 export const checkoutcontroller = new CheckoutController(checkoutService)
 export const liveAssistanceController = new LiveAssistanceController(liveAssistanceService)
 export const pretripController = new PretripController(pretripPlanService, pretripService)
-export const profileController = new ProfileController(profileService)
+export const profileController = new ProfileController(profileService,notificationService)
 export const servicesController = new ServicesController(roadsideAssistanceService, roadsideService)
 export const vehicleController = new VehicleController(vehicleService);
 

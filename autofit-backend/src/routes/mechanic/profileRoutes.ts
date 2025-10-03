@@ -12,7 +12,6 @@ router.post('/update', mechProfileController.update.bind(mechProfileController))
 
 router.post('/resubmit-request', mechProfileController.removeApplication.bind(mechProfileController));
 router.post('/availability', mechProfileController.changeAvailablity.bind(mechProfileController));
-router.post('/updateNotification', mechProfileController.setReadNotification.bind(mechProfileController));
 
 router.get('/working-hours', mechProfileController.getWorkingHours.bind(mechProfileController));
 router.post('/working-hours', mechProfileController.createWorkingHours.bind(mechProfileController));

@@ -6,7 +6,7 @@ import { Switch } from "@/components/ui/switch";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store/store";
-import Notification from "../Notification";
+import Notification from "../../../../components/shared/Notification";
 import Logout from "./Logout";
 import { initSocket } from "@/lib/socket";
 import { useLogoutHandler } from "../../../../hooks/useLogoutHandler";
@@ -14,6 +14,7 @@ import toast from "react-hot-toast";
 import { useGetInfoQuery, useSetAvailabilityMutation } from "../../../../services/mechanicServices/mechanicApi";
 import { setAvailability } from "../../slices/mechanicSlice";
 import LazyImage from "@/components/shared/LazyImage";
+import { useGetNotitficationsQuery } from "@/services/commonServices/notificationApi";
 
 const navItems = [
   {
@@ -80,7 +81,8 @@ export default function MechanicDashboard() {
   const dispatch = useDispatch();
   const mechanic = useSelector((state: RootState) => state.mechanicSlice);
   const [setAvailabilityStatus] = useSetAvailabilityMutation();
-  const { data, isLoading: isFetchingInfo } = useGetInfoQuery();
+  const { data: notifications , isLoading} = useGetNotitficationsQuery()
+  const { data} = useGetInfoQuery();
 
   useEffect(() => {
     socket.on("forceLogout", (data) => {
@@ -111,7 +113,6 @@ export default function MechanicDashboard() {
         : location.pathname.startsWith(item.href)
     );
     setActiveTab(activeItem?.id || "dashboard");
-    // Expand Jobs if a sub-item is active
     if (activeItem?.id === "jobs") {
       setIsJobsExpanded(true);
     }
@@ -438,10 +439,10 @@ export default function MechanicDashboard() {
             </div>
 
             <div className="flex items-center space-x-4">
-              {isFetchingInfo ? (
+              {isLoading ? (
                 <Bell className="h-5 w-5" />
               ) : (
-                <Notification notifications={data.data.notifications} />
+                <Notification notifications={notifications} />
               )}
 
               <div className="relative" ref={dropdownRef}>

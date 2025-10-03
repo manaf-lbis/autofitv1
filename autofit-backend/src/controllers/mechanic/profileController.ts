@@ -102,18 +102,6 @@ export class ProfileController {
         }
     }
 
-    async setReadNotification(req: Request, res: Response, next: NextFunction): Promise<void> {
-        try {
-            const userId = req.user?.id
-            if (!userId) throw new ApiError('Invalid User')
-            await this._mechanicProfileService.setNotificationRead(userId)
-
-
-            sendSuccess(res, 'Success');
-        } catch (err) {
-            next(err);
-        }
-    }
 
     async getWorkingHours(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {

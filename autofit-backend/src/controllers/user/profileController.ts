@@ -7,11 +7,13 @@ import { IUserProfileService } from "../../services/user/Interface/IUserProfileS
 import { ServiceType } from "../../types/services";
 import { Types } from "mongoose";
 import { Sort } from "../../types/rating";
+import { INotificationService } from "../../services/notifications/INotificationService";
 
 export class ProfileController {
 
     constructor(
-        private _profileService: IUserProfileService
+        private _profileService: IUserProfileService,
+        private _notificationService: INotificationService
     ) { }
 
 
@@ -113,6 +115,9 @@ export class ProfileController {
             next(error);
         }
     }
+
+
+
 
 
 }
