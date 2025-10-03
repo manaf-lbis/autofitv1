@@ -12,6 +12,7 @@ export enum LiveAssistanceStatus {
 export interface ILiveAssistance {
     _id: Types.ObjectId;
     userId: Types.ObjectId;
+    bookingId: string;
     mechanicId: Types.ObjectId;
     status: LiveAssistanceStatus;
     price: number;
@@ -23,6 +24,7 @@ export interface ILiveAssistance {
     issue: string;
     description: string;
     duration: number;
+    ratingId : Types.ObjectId;
     createdAt: Date;
     updatedAt: Date;
 }

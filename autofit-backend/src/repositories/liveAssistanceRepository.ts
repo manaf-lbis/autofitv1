@@ -17,7 +17,9 @@ export class LiveAsistanceRepository extends BaseRepository<LiveAssistanceDocume
     }
 
     async detailedBooking(serviceId: Types.ObjectId): Promise<any> {
-        return await LiveAssistanceModel.findOne({ _id: serviceId }).populate('paymentId').populate('userId', '_id name email mobile')
+        return await LiveAssistanceModel.findOne({ _id: serviceId })
+        .populate('paymentId')
+        .populate('userId', '_id name email mobile')
     }
 
 
@@ -38,16 +40,30 @@ export class LiveAsistanceRepository extends BaseRepository<LiveAssistanceDocume
 
 
     async getServiceDetails(serviceId: Types.ObjectId): Promise<any> {
-        return await LiveAssistanceModel.findOne({ _id: serviceId }).populate('paymentId', 'status amount methord receipt').populate('mechanicId', 'name email')
-            .select('paymentId mechanicId userId issue description status startTime endTime price')
+        return await LiveAssistanceModel.findOne({ _id: serviceId })
+        .populate('paymentId', 'status amount methord receipt')
+        .populate('mechanicId', 'name email')
+        .populate('ratingId', '_id review rating')
+        .select('paymentId mechanicId userId issue description status startTime endTime price ratingId')
     }
 
     async activeBookingsByMechanicId(mechanicId: Types.ObjectId): Promise<LiveAssistanceDocument | null> {
-        return await LiveAssistanceModel.findOne({
-            mechanicId, status: { $in: [LiveAssistanceStatus.ONGOING, LiveAssistanceStatus.PENDING] },
+        const res = await LiveAssistanceModel.findOne({
+            mechanicId,
+            status: { $in: [LiveAssistanceStatus.ONGOING, LiveAssistanceStatus.PENDING] },
             startTime: { $lte: new Date() },
             endTime: { $gte: new Date() }
-        }).populate('userId', 'name mobile').select('userId issue description status startTime endTime price sessionId mechanicId')
+        })
+            .populate('userId', 'name mobile')
+            .populate({
+                path: 'paymentId',
+                match: { status: 'success' },
+            })
+            .select('userId issue description status startTime endTime price sessionId mechanicId paymentId')
+
+        if (!res?.paymentId) return null;
+        return res
+
     }
 
     async liveAssistanceDetails(start: Date, end: Date, groupBy: GroupBy): Promise<any> {

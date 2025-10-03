@@ -5,12 +5,11 @@ export interface IPageService {
 
   primaryInfo(mechanicId: Types.ObjectId): Promise<{
     availability: string;
-    notifications: any[]; 
     messages: number;
   }>;
 
   dashboard(mechanicId: Types.ObjectId): Promise<{
-    recentActivities: { id: number; name: string; action: string; time: string }[];
+    reviews: { id: string; reviewerName: string; rating: number; comment: string }[] | null;
     emergencyRequest: {
       _id: Types.ObjectId;
       name: string;

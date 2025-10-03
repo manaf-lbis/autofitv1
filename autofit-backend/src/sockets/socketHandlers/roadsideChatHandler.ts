@@ -1,5 +1,5 @@
 import { Socket } from "socket.io";
-import { ChatService } from "../../services/chat/chatService"; 
+import { ChatService } from "../../services/chat/chatService";
 import { ChatRepository } from "../../repositories/chatRepository";
 import { verifyJwt } from "../verifyJwt";
 import { RoadsideAssistanceModel } from "../../models/roadsideAssistanceModel";
@@ -70,8 +70,8 @@ export const roadsideChatHandler = (socket: Socket) => {
 
 
     });
-    
-  } catch  {
+
+  } catch {
     socket.emit("error", { message: "Failed to send message" });
   }
 };

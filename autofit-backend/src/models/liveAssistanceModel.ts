@@ -1,6 +1,8 @@
 import mongoose, { Schema, Document, Types } from 'mongoose';
 import { ILiveAssistance, LiveAssistanceStatus } from '../types/liveAssistance';
 import { randomUUID } from "crypto";
+import { generateBookingId } from '../utils/bookingIdGenerator';
+import { ServiceType } from '../types/services';
 
 export interface LiveAssistanceDocument extends ILiveAssistance, Document<Types.ObjectId> { }
 
@@ -9,6 +11,12 @@ const liveAssistanceSchema: Schema<LiveAssistanceDocument> = new Schema<LiveAssi
         type: Schema.Types.ObjectId,
         ref: 'user',
         required: true
+    },
+    bookingId: {
+        type: String,
+        unique: true,
+        required: true,
+        default: () => generateBookingId(ServiceType.LIVE),
     },
     mechanicId: {
         type: Schema.Types.ObjectId,
@@ -65,6 +73,11 @@ const liveAssistanceSchema: Schema<LiveAssistanceDocument> = new Schema<LiveAssi
     duration: {
         type: Number,
         required: true
+    },
+    ratingId :{
+        type: Schema.Types.ObjectId,
+        ref: 'rating',
+        default : null
     }
 }, { timestamps: true })
 

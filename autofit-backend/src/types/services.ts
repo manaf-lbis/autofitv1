@@ -22,6 +22,7 @@ export interface RoadsideAssistance {
     _id: Types.ObjectId;
     userId: Types.ObjectId;
     issue: string;
+    bookingId: string;
     description: string;
     vehicle: {
         regNo: string;
@@ -40,6 +41,7 @@ export interface RoadsideAssistance {
     startedAt: Date;
     arrivedAt?:Date;
     endedAt: Date;
+    ratingId?: Types.ObjectId;
     createdAt: Date;
     updatedAt: Date;
 }

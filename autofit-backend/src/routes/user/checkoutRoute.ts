@@ -2,12 +2,7 @@ import { Router } from "express";
 import { checkoutcontroller } from "../../di/userDI";
 
 
-
-
 const router = Router();
-
-
-
 
 
 router.get('/:service_type/details/:id', checkoutcontroller.checkoutDetails.bind(checkoutcontroller));

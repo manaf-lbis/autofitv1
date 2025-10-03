@@ -3,13 +3,13 @@ import { lazy, Suspense } from "react";
 import ProtectedRoute from "../components/Routes/ProtectedRoute";
 import UserSocketContext from "@/context/UserSocketContext";
 import PageLoading from "@/components/Animations/PageLoading";
+import ChangePasswordPage from "@/components/shared/ChangePasswordPage";
 
 const MainLayout = lazy(() => import("../features/user/components/layout/UserLayout"));
 const ProfileLayout = lazy(() => import("@/features/user/components/layout/ProfileLayout"));
 const ServiceHistory = lazy(() => import("@/features/user/pages/profile/ServiceHistory"));
 const ProfilePage = lazy(() => import("@/features/user/pages/profile/Profile"));
 const MyVehicle = lazy(() => import("@/features/user/pages/profile/MyVehicle"));
-const PaymentPage = lazy(() => import("@/features/user/pages/profile/PaymentPage"));
 const MechanicBooking = lazy(() => import("@/features/user/pages/roadsideAssistance/MechanicBooking"));
 const BookingSuccessPage = lazy(() => import("@/features/user/pages/roadsideAssistance/RoadsideDetails"));
 const PaymentStatusPage = lazy(() => import("@/features/user/pages/roadsideAssistance/PaymentStatusPage"));
@@ -18,6 +18,7 @@ const PretripDetails = lazy(() => import("@/features/user/pages/PreTripCheckup/P
 const LiveAssistanceBookingPage = lazy(() => import("@/features/user/pages/liveAssistance/LiveAssistanceBookingPage"));
 const BookingDetailsPage = lazy(() => import("@/features/user/pages/liveAssistance/BookingDetails"));
 const Checkout = lazy(() => import("@/features/user/paymentAndCheckout/Checkout"));
+
 
 
 
@@ -36,6 +37,7 @@ const UserRoutes: React.FC = () => {
                 <Route path="pretrip-checkup/:id/details" element={<PretripDetails />} />
                 <Route path="live-assistance/:id/details" element={<BookingDetailsPage />} />
                 <Route path="roadside-assistance/:id/details" element={<BookingSuccessPage />} />
+                <Route path="change-password" element={<ChangePasswordPage/>} />
 
                 <Route path="*" element={<>Not Found</>} />
               </Route>
@@ -47,7 +49,6 @@ const UserRoutes: React.FC = () => {
             </Route>
 
             <Route path="payment/status/:status" element={<PaymentStatusPage />} />
-            <Route path="payment/:id" element={<PaymentPage />} />
           </Route>
         </Routes>
       </Suspense>

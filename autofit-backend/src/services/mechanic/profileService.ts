@@ -5,7 +5,7 @@ import { ApiError } from "../../utils/apiError";
 import { Types } from "mongoose";
 import { MechanicProfileDocument } from "../../models/mechanicProfileModel";
 import { INotificationRepository } from "../../repositories/interfaces/INotificationRepository";
-import { IProfileService, IScheduleDetails } from "./interface/IProfileService";
+import { IProfileService, IScheduleDetails, UpdateProfile } from "./interface/IProfileService";
 import { MechanicRegisterPayload } from "./interface/IProfileService";
 import { HttpStatus } from "../../types/responseCode";
 import { IMechanicTiming } from "../../types/mechanic/mechanic";
@@ -16,6 +16,8 @@ import { ITimeBlockRepository } from "../../repositories/interfaces/ITimeBlockRe
 import { endOfDay, startOfDay } from "date-fns";
 import { BlockType } from "../../models/timeBlock";
 import { ZodError } from "zod";
+import { IRatingRepository } from "../../repositories/interfaces/IRatingRepository";
+import { Sort } from "../../types/rating";
 
 
 export class ProfileService implements IProfileService {
@@ -24,7 +26,8 @@ export class ProfileService implements IProfileService {
     private _mechanicRepository: IMechanicRepository,
     private _notificationRepository: INotificationRepository,
     private _workingHoursRepository: IWorkingHoursRepository,
-    private _timeBlockingRepo: ITimeBlockRepository
+    private _timeBlockingRepo: ITimeBlockRepository,
+    private _ratingRepo: IRatingRepository
   ) { }
 
 
@@ -50,13 +53,37 @@ export class ProfileService implements IProfileService {
     await this._mechanicProfileRepository.save(toCreate);
   }
 
+  async updateUser(mechanicId: Types.ObjectId, data: UpdateProfile) {
+    const res = await this._mechanicRepository.findAllByEmail(data.email!);
+    if (res.length > 1) throw new ApiError('Email already exists', HttpStatus.BAD_REQUEST);
+    await this._mechanicRepository.update(mechanicId, {
+      email: data.email,
+      name: data.name,
+      mobile: data.mobile
+    });
+    await this._mechanicProfileRepository.update(mechanicId, {
+      location: data.location,
+      shopName: data.shopName,
+      place: data.place,
+      landmark: data.landmark,
+      education: data.education,
+      specialised: data.specialised,
+      experience: data.experience
+    });
+  }
+
 
   async getProfile(mechanicId: ObjectId) {
     try {
 
       const profile = await this._mechanicProfileRepository.findByMechanicId(mechanicId);
+      const ratings = await this._ratingRepo.avgRatingOfMechanic(new Types.ObjectId(mechanicId));
+
       if (!profile) return null;
-      return profile;
+      return {
+        ...profile,
+        rating: ratings[0]
+      };
 
     } catch (err) {
       if (err instanceof ApiError) throw err;
@@ -75,7 +102,7 @@ export class ProfileService implements IProfileService {
   async getAvailablity(mechanicId: Types.ObjectId) {
     const response = await this._mechanicProfileRepository.getAvailablity(mechanicId)
     const availability = response?.availability ?? 'notAvailable'
-    
+
     return availability
   }
 
@@ -124,6 +151,7 @@ export class ProfileService implements IProfileService {
 
     const isFullDayBlock = scheduleDetails.isFullDayBlock
     const blockDate = new Date(scheduleDetails.date);
+
     const now = new Date();
     if (blockDate < now) throw new ApiError("Cannot block in the past", HttpStatus.BAD_REQUEST);
 
@@ -168,6 +196,12 @@ export class ProfileService implements IProfileService {
   }
 
 
+  async listReviews(mechanicId: Types.ObjectId, page: number, sort: string): Promise<any> {
+    const start = Number(page) <= 0 ? 0 : (page - 1) * Number(process.env.ITEMS_PER_PAGE);
+    const end = start + Number(process.env.ITEMS_PER_PAGE);
+
+    return await this._ratingRepo.pagenatedRatings(start, end, mechanicId, sort as Sort);
+  }
 
 
 

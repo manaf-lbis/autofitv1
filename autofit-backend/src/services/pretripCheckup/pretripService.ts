@@ -24,6 +24,9 @@ import { IPaymentRepository } from "../../repositories/interfaces/IPaymentReposi
 import { Role } from "../../types/role";
 import { generateReceiptPDF } from "../../utils/templates/receiptTemplate";
 import { generateInspectionReportPDF } from "../../utils/templates/serviceReportTeplate";
+import { MechanicAvailabilityStatus } from "../../types/mechanic/mechanic";
+import { IRatingRepository } from "../../repositories/interfaces/IRatingRepository";
+import { INotificationService } from "../notifications/INotificationService";
 
 
 
@@ -39,7 +42,10 @@ export class PretripService implements IPretripService {
         private _timeBlockingRepo: ITimeBlockRepository,
         private _pretripReportRepo: IPretripReportRepository,
         private _transactionRepo: ITransactionRepository,
-        private _paymentRepository: IPaymentRepository
+        private _paymentRepository: IPaymentRepository,
+        private _mechnaicProfileRepo: IMechanicProfileRepository,
+        private _ratingRepo : IRatingRepository,
+        private _notificationService: INotificationService
     ) { }
 
 
@@ -125,22 +131,7 @@ export class PretripService implements IPretripService {
             reportItems: features.map((feature: any) => ({ feature }))
         })
 
-        const booking = await this._pretripBookingRepository.save({
-            userId,
-            vehicleId,
-            mechanicId,
-            schedule: {
-                start: startDateTime,
-                end: endDateTime
-            },
-            serviceReportId: report._id,
-            pickupLocation: {
-                type: "Point",
-                coordinates: [coords.lng, coords.lat]
-            }
-        });
-
-        await this._timeBlockingRepo.save({
+        const blocking = await this._timeBlockingRepo.save({
             mechanicId,
             date,
             startMinutes: startingMinute,
@@ -149,6 +140,24 @@ export class PretripService implements IPretripService {
             userId,
             reason: `Booking for ${name}`
         });
+
+        const booking = await this._pretripBookingRepository.save({
+            userId,
+            vehicleId,
+            mechanicId,
+            schedule: {
+                start: startDateTime,
+                end: endDateTime
+            },
+            timeBlockingId: blocking._id,
+            serviceReportId: report._id,
+            pickupLocation: {
+                type: "Point",
+                coordinates: [coords.lng, coords.lat]
+            }
+        });
+
+
 
         return {
             coords,
@@ -260,7 +269,15 @@ export class PretripService implements IPretripService {
         const mechanicIds = nearestMechanics.map((mechanic) => mechanic.mechanicId);
         const workingHours = await this._workingHoursRepo.workingHoursOfMultipleMechanics(mechanicIds);
 
-        return this.transformMechanicsSchedule(nearestMechanicsWithDistance, workingHours);
+        const mechanic = await this.transformMechanicsSchedule(nearestMechanicsWithDistance, workingHours);
+        const mechanicId = mechanic.map((mech:any)=> new Types.ObjectId(mech.mechanicId));
+
+        const ratings = await this._ratingRepo.avgRatingOfMechanics(mechanicId);
+        
+        return mechanic.map((mech:any, index:number) => ({
+            ...mech,
+            rating: ratings[index]
+        }))
     }
 
     async weeklySchedules(mechanicId: Types.ObjectId): Promise<any> {
@@ -338,6 +355,13 @@ export class PretripService implements IPretripService {
                 userId: booking.userId,
                 serviceType: ServiceType.PRETRIP,
             })
+
+            await this._timeBlockingRepo.delete(booking.timeBlockingId!);
+            await this._mechanicProfileRepository.findByMechanicIdAndUpdate(booking.mechanicId, { availability: MechanicAvailabilityStatus.AVAILABLE });
+        }
+
+        if(status === PretripStatus.ANALYSING) {
+            await this._mechanicProfileRepository.findByMechanicIdAndUpdate(booking.mechanicId, { availability: MechanicAvailabilityStatus.BUSY });
         }
 
         if (!Object.values(PretripStatus).includes(status)) throw new ApiError('Invalid Status', HttpStatus.BAD_REQUEST);
@@ -428,44 +452,50 @@ export class PretripService implements IPretripService {
 
     async generateReport(serviceId: Types.ObjectId): Promise<any> {
         const service = await this._pretripBookingRepository.detailedBooking(serviceId);
-        if(!service) throw new ApiError('Invalid Service', HttpStatus.BAD_REQUEST)
-        if(service.status !== PretripStatus.VEHICLE_RETURNED) throw new ApiError('Report is not created', HttpStatus.BAD_REQUEST)
+        if (!service) throw new ApiError('Invalid Service', HttpStatus.BAD_REQUEST)
+        if (service.status !== PretripStatus.VEHICLE_RETURNED) throw new ApiError('Report is not created', HttpStatus.BAD_REQUEST)
 
-       const checks = service.serviceReportId.reportItems.map((item:any)=>{
+        const checks = service.serviceReportId.reportItems.map((item: any) => {
             return {
-                condition : item?.condition,
-                feature : item?.feature,
-                needsAction : item?.needsAction,
-                remarks : item?.remarks
+                condition: item?.condition,
+                feature: item?.feature,
+                needsAction: item?.needsAction,
+                remarks: item?.remarks
             }
         });
+
+        await this._notificationService.sendNotification({
+            recipientId: service.userId,
+            message: `Pretrip Checkup Completed and Report Created by Mechanic, You vehicle Will deliver soon`,
+            recipientType: 'user'
+        })
 
 
         return generateInspectionReportPDF({
             checks,
             reference: service._id,
-            customer :{
-                name : service.userId?.name,
-                email : service.userId?.email,
-                mobile : service.userId.mobile
+            customer: {
+                name: service.userId?.name,
+                email: service.userId?.email,
+                mobile: service.userId.mobile
             },
-            overallReport : service.serviceReportId?.mechanicNotes,
-            plan :{
-                description : service.serviceReportId?.servicePlan?.description,
-                price : service.serviceReportId?.servicePlan?.price,
-                name : service.serviceReportId?.servicePlan?.name
+            overallReport: service.serviceReportId?.mechanicNotes,
+            plan: {
+                description: service.serviceReportId?.servicePlan?.description,
+                price: service.serviceReportId?.servicePlan?.price,
+                name: service.serviceReportId?.servicePlan?.name
             },
-            preparedBy:{
-                address : COMPANY_ADDRESS,
-                email : COMPANY_EMAIL,
-                mechanicName : 'mechnaic nae'
+            preparedBy: {
+                address: COMPANY_ADDRESS,
+                email: COMPANY_EMAIL,
+                mechanicName: 'mechnaic nae'
             },
-            reportDate : formatDate(service.createdAt, "dd MMM yyyy"),
-            vehicle :{
-                brand : service.vehicleId?.brand,
-                model : service.vehicleId?.modelName,
-                ownerName : service.vehicleId?.ownerName,
-                regNo : service.vehicleId?.regNo
+            reportDate: formatDate(service.createdAt, "dd MMM yyyy"),
+            vehicle: {
+                brand: service.vehicleId?.brand,
+                model: service.vehicleId?.modelName,
+                ownerName: service.vehicleId?.ownerName,
+                regNo: service.vehicleId?.regNo
             }
         })
 

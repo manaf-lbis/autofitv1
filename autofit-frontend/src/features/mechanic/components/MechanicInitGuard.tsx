@@ -11,6 +11,9 @@ const MechanicInitGuard:React.FC = () => {
     if (user?.profileStatus === null) return <Navigate to="/mechanic/registration" replace />;
     if (user?.profileStatus === 'pending' || user?.profileStatus === 'rejected') return <RegistrationStatus />
     if (user?.profileStatus === "approved") return <Outlet />;
+    
 };
 
 export default MechanicInitGuard;
+
+

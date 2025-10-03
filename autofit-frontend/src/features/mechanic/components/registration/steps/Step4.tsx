@@ -21,7 +21,7 @@ const Step4: React.FC = () => {
   const dispatch = useDispatch();
   const { register, handleSubmit, watch, formState: { errors },} = useForm<FormData>();
   const { formData } = useSelector((state: RootState) => state.mechRegistration);
-  const [mechRegistration,] = useRegisterMechanicMutation()
+  const [mechRegistration] = useRegisterMechanicMutation()
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const photoFile = watch("photo")?.[0];

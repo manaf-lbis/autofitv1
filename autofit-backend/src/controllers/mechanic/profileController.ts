@@ -4,6 +4,8 @@ import { ApiError } from "../../utils/apiError";
 import { mechanicRegisterValidation } from "../../validation/mechanicValidation";
 import { HttpStatus } from "../../types/responseCode";
 import { IProfileService } from "../../services/mechanic/interface/IProfileService";
+import { Sort } from "../../types/rating";
+import { Types } from "mongoose";
 
 
 interface CloudinaryFile extends Express.Multer.File {
@@ -57,6 +59,20 @@ export class ProfileController {
             next(err);
         }
     }
+    async update(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const mechanicId = req.user?.id;
+            if (!mechanicId) throw new ApiError('Unauthorized', HttpStatus.UNAUTHORIZED);
+
+            const validated = mechanicRegisterValidation.parse(req.body);
+
+            await this._mechanicProfileService.updateUser(mechanicId, validated);
+
+            sendSuccess(res, 'Profile Updated Successfully');
+        } catch (err) {
+            next(err);
+        }
+    }
 
 
     async removeApplication(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -86,18 +102,6 @@ export class ProfileController {
         }
     }
 
-    async setReadNotification(req: Request, res: Response, next: NextFunction): Promise<void> {
-        try {
-            const userId = req.user?.id
-            if (!userId) throw new ApiError('Invalid User')
-            await this._mechanicProfileService.setNotificationRead(userId)
-
-
-            sendSuccess(res, 'Success');
-        } catch (err) {
-            next(err);
-        }
-    }
 
     async getWorkingHours(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
@@ -139,6 +143,7 @@ export class ProfileController {
         try {
             const mechanicId = req.user?.id
             if (!mechanicId) throw new ApiError('Invalid User')
+
             const { date, isFullDayBlock, blockedTiming, reason } = req.body;
 
             if (!date) throw new ApiError('Date is required');
@@ -166,6 +171,22 @@ export class ProfileController {
             sendSuccess(res, 'Success', result);
         } catch (err) {
             next(err);
+        }
+    }
+
+    async listReviews(req: Request, res: Response, next: NextFunction) {
+        try {
+            const { page, mechanic, sort } = req.query
+
+            if (!page || isNaN(Number(page)) || Number(page) < 1) throw new ApiError('Invalid page number', HttpStatus.BAD_REQUEST)
+            if (!mechanic) throw new ApiError('Invalid user')
+            if (!Types.ObjectId.isValid(String(mechanic))) throw new ApiError('Invalid mechanic', HttpStatus.BAD_REQUEST)
+            if (!Object.values(Sort).includes(String(sort) as Sort)) throw new ApiError('Invalid sort', HttpStatus.BAD_REQUEST)
+
+            const reviews = await this._mechanicProfileService.listReviews(new Types.ObjectId(String(mechanic)), Number(page),sort as Sort);
+            sendSuccess(res, 'Reviews', reviews);
+        } catch (error: any) {
+            next(error);
         }
     }
 

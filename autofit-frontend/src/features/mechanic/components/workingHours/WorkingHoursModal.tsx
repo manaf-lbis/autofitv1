@@ -10,7 +10,6 @@ import ModernTimePicker from "./ModernTimePicker"
 import { format, parse } from "date-fns"
 import { useGetWorkingHoursQuery, useUpdateWorkingHoursMutation, useCreateWorkingHoursMutation } from "@/services/mechanicServices/mechanicApi"
 import { DaySchedule, WorkingHoursData } from "@/types/mechanic"
-import { } from "@/services/mechanicServices/pretripMechanicApi"
 import toast from "react-hot-toast"
 
 
@@ -76,7 +75,8 @@ const WorkingHoursModal: React.FC<WorkingHoursModalProps> = ({ isOpen, onClose }
   const onSubmit = async (data: WorkingHoursData) => {
     try {
       if (workingHours) {
-        await updateWorkingHours(data).unwrap()
+        const res = await updateWorkingHours(data).unwrap()
+        toast.success(res?.message)
       } else {
         await createWorkingHours(data).unwrap()
       }

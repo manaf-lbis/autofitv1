@@ -3,6 +3,7 @@ import { Routes, Route } from "react-router-dom";
 import { lazy, Suspense } from "react";
 import ProtectedRoute from "../components/Routes/ProtectedRoute";
 import PageLoading from "@/components/Animations/PageLoading";
+import ChangePasswordPage from "@/components/shared/ChangePasswordPage";
 
 const AdminLayout = lazy(() => import("../features/admin/components/layout/AdminLayout"));
 const AdminDashboard = lazy(() => import("@/features/admin/pages/AdminDashboard"));
@@ -36,6 +37,7 @@ const AdminRoutes: React.FC = () => {
             <Route path="mechanic-application/:id" element={<VerifyNewApplication />} />
 
             <Route path="pretrip-plans" element={<PretripPlans />} />
+            <Route path="change-password" element={<ChangePasswordPage />} />
 
             <Route path="*" element={<>Not Found</>} />
           </Route>

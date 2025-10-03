@@ -10,7 +10,7 @@ import { HttpStatus } from '../types/responseCode';
 
 export class MechanicProfileRepository extends BaseRepository<MechanicProfileDocument> implements IMechanicProfileRepository {
 
-  constructor(){
+  constructor() {
     super(MechanicProfileModel)
   }
 
@@ -25,7 +25,7 @@ export class MechanicProfileRepository extends BaseRepository<MechanicProfileDoc
   }
 
   async findByMechanicId(mechanicId: ObjectId): Promise<MechanicProfileDocument | null> {
-    return await MechanicProfileModel.findOne({ mechanicId }).populate('mechanicId','name').lean().exec();
+    return await MechanicProfileModel.findOne({ mechanicId }).populate('mechanicId', 'name').lean().exec();
   }
 
 
@@ -108,64 +108,66 @@ export class MechanicProfileRepository extends BaseRepository<MechanicProfileDoc
     return await MechanicProfileModel.findOne({ mechanicId }, { availability: 1, _id: 0 })
   }
 
-  async findMechnaicWithRadius({radius,lat,lng,checkAvailablity = true}: { radius: number;lat: number;  lng: number; checkAvailablity: boolean}) {
-  const EARTH_RADIUS_KM = 6371;
-  const radiusInRadians = radius / EARTH_RADIUS_KM;
+  async findMechnaicWithRadius({ radius, lat, lng, checkAvailablity = true }: { radius: number; lat: number; lng: number; checkAvailablity: boolean }) {
+    const EARTH_RADIUS_KM = 6371;
+    const radiusInRadians = radius / EARTH_RADIUS_KM;
 
-  const matchStage: any = {
-    "registration.status": "approved",
-    location: {
-      $geoWithin: {
-        $centerSphere: [[lng, lat], radiusInRadians],
+    const matchStage: any = {
+      "registration.status": "approved",
+      location: {
+        $geoWithin: {
+          $centerSphere: [[lng, lat], radiusInRadians],
+        },
       },
-    },
-  };
+    };
 
-  if (checkAvailablity) {
-    matchStage.availability = "available";
+    if (checkAvailablity) {
+      matchStage.availability = "available";
+    }
+
+    const mechanics = await MechanicProfileModel.aggregate([
+      {
+        $match: matchStage,
+      },
+      {
+        $lookup: {
+          from: "mechanics",
+          localField: "mechanicId",
+          foreignField: "_id",
+          as: "mechanic",
+        },
+      },
+      { $unwind: "$mechanic" },
+      {
+        $match: {
+          "mechanic.status": "active",
+        },
+      },
+      {
+        $project: {
+          name: "$mechanic.name",
+          mobile: "$mechanic.mobile",
+          shopName: 1,
+          place: 1,
+          "location.coordinates": 1,
+          specialised: 1,
+          experience: 1,
+          status: "$registration.status",
+          photo: 1,
+          mechanicId: "$mechanic._id",
+          _id: 0,
+        },
+      },
+    ]);
+
+    return mechanics;
   }
 
-  const mechanics = await MechanicProfileModel.aggregate([
-    {
-      $match: matchStage,
-    },
-    {
-      $lookup: {
-        from: "mechanics",
-        localField: "mechanicId",
-        foreignField: "_id",
-        as: "mechanic",
-      },
-    },
-    { $unwind: "$mechanic" },
-    {
-      $match: {
-        "mechanic.status": "active",
-      },
-    },
-    {
-      $project: {
-        name: "$mechanic.name",
-        mobile: "$mechanic.mobile",
-        shopName: 1,
-        place: 1,
-        "location.coordinates": 1,
-        specialised: 1,
-        experience: 1,
-        status: "$registration.status",
-        photo: 1,
-        mechanicId: "$mechanic._id",
-        _id: 0,
-      },
-    },
-  ]);
 
-  return mechanics;
-}
-
-
-  async findByMechanicIdAndUpdate(mechanicId: Types.ObjectId,entity:Partial<MechanicProfileDocument>): Promise<MechanicProfileDocument | null> {
-    return await MechanicProfileModel.findOneAndUpdate({mechanicId},entity,{new:true})
+  async findByMechanicIdAndUpdate(mechanicId: Types.ObjectId, entity: Partial<MechanicProfileDocument>): Promise<MechanicProfileDocument | null> {
+    return await MechanicProfileModel.findOneAndUpdate({ mechanicId }, entity, { new: true })
   }
+
+
 
 }

@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, CheckCircle, CheckSquare, Car, Shield, FileText, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { useApproveQuoteAndPayMutation, useCancelBookingMutation, useRejectQuotationMutation, useRoadsideDetailsQuery } from "../../../../services/userServices/servicesApi";
+import { useCancelBookingMutation, useRejectQuotationMutation, useRoadsideDetailsQuery } from "../../../../services/userServices/servicesApi";
 import RoadsideDetailsShimmer from "../../components/shimmer/RoadsideDetailsShimmer";
 import { HeadingSection } from "../../components/roadsideAssistance/HeadingSection";
 import { TabsSection } from "../../components/roadsideAssistance/TabsSection";
@@ -18,17 +18,18 @@ import { formatDateTime } from "@/lib/dateFormater";
 import { initSocket } from "@/lib/socket";
 import ChatBubble from "../../components/ChatBubble";
 import toast from "react-hot-toast";
+import { ServiceType } from "@/types/user";
 
 type ServiceStatus = "assigned" | "on_the_way" | "analysing" | "quotation_sent" | "in_progress" | "completed" | "canceled";
 
-const queryOptions = { refetchOnMountOrArgChange: true };
+const queryOptions = { refetchOnMountOrArgChange: true , refetchOnReconnect: true , refetchOnFocus: true};
 
 export default function RoadsideDetails() {
   const [activeTab, setActiveTab] = useState("details");
   const [showQuotationModal, setShowQuotationModal] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [showErrorModal, setShowErrorModal] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
+  const [errorMessage] = useState("");
   const [isPaymentComplete, setIsPaymentComplete] = useState(false);
   const [isCancelling, setIsCancelling] = useState(false);
   const [isCancelled, setIsCancelled] = useState(false);
@@ -38,31 +39,22 @@ export default function RoadsideDetails() {
   const serviceId = params.id as string;
 
   const { data, isLoading, isError, refetch } = useRoadsideDetailsQuery(serviceId, queryOptions);
-  const [approveAndPay, { isLoading: isPaymentLoading, isError: isPaymentError, error: paymentError }] = useApproveQuoteAndPayMutation();
   const [cancelBooking] = useCancelBookingMutation();
   const [rejectQuotation] = useRejectQuotationMutation();
-  
+
 
   const bookingData = data?.data;
 
   useEffect(() => {
     const socket = initSocket();
     socket.on('roadside_assistance_changed', () => refetch());
-    return () => { socket.off('roadside_assistance_changed')};
+    return () => { socket.off('roadside_assistance_changed') };
   }, [refetch]);
 
   useEffect(() => {
-    if (bookingData?.paymentId) setIsPaymentComplete(true);
+    if (bookingData?.paymentId?.status === "success") setIsPaymentComplete(true);
     if (bookingData?.status === "canceled") setIsCancelled(true);
   }, [bookingData]);
-
-  useEffect(() => {
-    if (isPaymentError && paymentError && 'data' in paymentError) {
-      const errorData = paymentError.data as { message?: string };
-      setErrorMessage(errorData.message || "An unexpected error occurred");
-      setShowErrorModal(true);
-    }
-  }, [isPaymentError, paymentError]);
 
   const handleRejectQuotation = async () => {
     setIsRejecting(true);
@@ -88,21 +80,11 @@ export default function RoadsideDetails() {
     setShowCancelModal(false);
   };
 
+
+
   const handlePayment = async () => {
     try {
-      const response = await approveAndPay({
-        quotationId: bookingData?.quotationId._id,
-        serviceId: bookingData._id,
-      }).unwrap();
-      const { data } = response;
-      const query = {
-        service_id: params.id || "",
-        vehicle: bookingData.vehicle.regNo || "",
-        service: "roadside",
-        issue: bookingData.issue || "",
-      };
-      const queryString = new URLSearchParams(query).toString();
-      navigate(`/user/payment/${data.orderId}?${queryString}`);
+      navigate(`/user/${ServiceType.ROADSIDE}/checkout/${bookingData._id}`);
     } catch {
       toast.error("Failed to initiate payment");
     }
@@ -201,11 +183,14 @@ export default function RoadsideDetails() {
           title={getDynamicTitle(bookingData?.status || "Processing")}
           description={getDynamicDescription(bookingData?.status || "Processing")}
           status={getStatusTitle(bookingData?.status || "Processing")}
-          bookingId={bookingData?._id || ""}
+          bookingId={bookingData?.bookingId || '' }
           onMessageClick={() => console.log("Message clicked")}
           onCancelClick={handleCancelBooking}
           isCancelled={isCancelled}
           isCompleted={bookingData?.status === "completed"}
+          statusString={bookingData?.status}
+          refetch={refetch}
+          rating={bookingData?.ratingId}
         />
 
         <TabsSection
@@ -248,6 +233,7 @@ export default function RoadsideDetails() {
                 paymentDetails={bookingData.paymentId}
                 quotationId={bookingData?.quotationId}
                 onViewQuotation={() => setShowQuotationModal(true)}
+                status={bookingData?.status}
               />
             )}
           </motion.div>
@@ -260,7 +246,7 @@ export default function RoadsideDetails() {
           />
         </div>
       </main>
-      <ChatBubble serviceId={serviceId} mechanicId={bookingData.mechanic._id} mechanicName={bookingData.mechanic.name} />
+      <ChatBubble serviceId={serviceId} mechanicId={bookingData.mechanic._id} mechanicName={bookingData.mechanic.name} status={bookingData.status} />
 
       {showQuotationModal && bookingData?.quotationId && (
         <QuotationModal
@@ -268,7 +254,6 @@ export default function RoadsideDetails() {
           onClose={() => setShowQuotationModal(false)}
           onAccept={handlePayment}
           onReject={handleRejectQuotation}
-          isProcessing={isPaymentLoading}
           isRejecting={isRejecting}
         />
       )}

@@ -16,6 +16,22 @@ export interface MechanicRegisterPayload {
   mechanicId: ObjectId;
 }
 
+export interface UpdateProfile {
+  name?: string;
+  email?: string;
+  mobile?: string;
+  education?: string;
+  specialised?: string;
+  experience?: number;
+  shopName?: string;
+  place?: string;
+  landmark?: string;
+  location?: {
+    type: "Point";
+    coordinates: [number, number];
+  };
+}
+
 export interface IScheduleDetails {
   date: string,
   isFullDayBlock:boolean,
@@ -30,8 +46,9 @@ export interface IScheduleDetails {
 export interface IProfileService {
 
   registerUser(payload: MechanicRegisterPayload): Promise<void>;
+  updateUser(mechanicId: Types.ObjectId, updates: UpdateProfile): Promise<void>;
 
-  getProfile(mechanicId: ObjectId): Promise<MechanicProfileDocument | null>;
+  getProfile(mechanicId: ObjectId): Promise<any | null>;
 
   changeStatus(input: {
     profileId: Types.ObjectId;
@@ -56,5 +73,6 @@ export interface IProfileService {
 
   blockSchedule(mechanicId: Types.ObjectId, scheduleDetails: IScheduleDetails): Promise<void>;
   unblockSchedule(mechanicId: Types.ObjectId, id:Types.ObjectId): Promise<void>;
+  listReviews(mechanicId: Types.ObjectId, page: number, sort: string): Promise<any>;
 
 }

@@ -12,6 +12,7 @@ import { ITransactionRepository } from "../../../repositories/interfaces/ITransa
 import { TransactionStatus } from "../../../types/transaction";
 import { generateTransactionId, getDeductionRate } from "../../../utils/transactionUtils";
 import { ServiceType } from "../../../types/services";
+import { INotificationService } from "../../notifications/INotificationService";
 
 export class LiveAssistancePaymentHandler implements IServicePaymentHandler {
 
@@ -19,7 +20,8 @@ export class LiveAssistancePaymentHandler implements IServicePaymentHandler {
         private _liveAssistanceRepository: ILiveAssistanceRepository,
         private _paymentRepository: IPaymentRepository,
         private _timeBlockingRepo: ITimeBlockRepository,
-        private _transactionRepo: ITransactionRepository
+        private _transactionRepo: ITransactionRepository,
+        private _notificationService: INotificationService
     ) { }
 
     async makeReadyForPayment(serviceId: Types.ObjectId): Promise<PaymentData> {
@@ -87,7 +89,7 @@ export class LiveAssistancePaymentHandler implements IServicePaymentHandler {
 
         if (!paymentDetais) throw new ApiError('Invalid Payment', HttpStatus.BAD_REQUEST)
         const response = await this._liveAssistanceRepository.update(serviceId, { status: LiveAssistanceStatus.ONGOING });
-        if(!response) throw new ApiError('Invalid Service', HttpStatus.BAD_REQUEST)
+        if (!response) throw new ApiError('Invalid Service', HttpStatus.BAD_REQUEST)
 
         await this._transactionRepo.save({
             serviceId: serviceId,
@@ -105,6 +107,13 @@ export class LiveAssistancePaymentHandler implements IServicePaymentHandler {
         })
 
         if (!response) throw new ApiError('Invalid Service', HttpStatus.BAD_REQUEST)
+
+        await this._notificationService.sendNotification({
+            recipientId: response?.mechanicId,
+            message: 'You have been assigned a Live Assistance request',
+            recipientType: 'mechanic'
+        })
+
         await this._timeBlockingRepo.update(response?.blockedTimeId, { blockType: BlockType.USER_BOOKING });
     }
 

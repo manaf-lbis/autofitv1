@@ -64,4 +64,6 @@ export interface IRoadsideAssistanceRepo extends IBaseRepository<RoadsideAssista
     getActiveServiceId(userId: Types.ObjectId): Promise<Types.ObjectId[]>;
     pagenatedRoadsideHistory(params: PagenatedHistoryParams): Promise<PagenatedResponse>
     roadsideAssistanceDetails(start: Date, end: Date, groupBy: GroupBy): Promise<any>
+    detailedBooking(serviceId: Types.ObjectId): Promise<any>
+    checkIsCompleted(serviceId: Types.ObjectId[]): Promise<any>
 }

@@ -1,12 +1,12 @@
 import { useState, useEffect, useRef } from "react";
-import { LayoutDashboard, MessageSquare, Briefcase, User, DollarSign, Menu, X, Settings, ChevronDown, Wrench, Power, Bell, ChevronRight } from "lucide-react";
+import { LayoutDashboard, MessageSquare, Briefcase, User, DollarSign, Menu, X, ChevronDown, Wrench, Power, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store/store";
-import Notification from "../Notification";
+import Notification from "../../../../components/shared/Notification";
 import Logout from "./Logout";
 import { initSocket } from "@/lib/socket";
 import { useLogoutHandler } from "../../../../hooks/useLogoutHandler";
@@ -14,6 +14,7 @@ import toast from "react-hot-toast";
 import { useGetInfoQuery, useSetAvailabilityMutation } from "../../../../services/mechanicServices/mechanicApi";
 import { setAvailability } from "../../slices/mechanicSlice";
 import LazyImage from "@/components/shared/LazyImage";
+
 
 const navItems = [
   {
@@ -26,7 +27,6 @@ const navItems = [
     id: "messages",
     label: "Messages",
     icon: MessageSquare,
-    count: 3,
     href: "/mechanic/messages",
   },
   {
@@ -72,7 +72,7 @@ export default function MechanicDashboard() {
   const [isNavbarVisible, setIsNavbarVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [isJobsExpanded, setIsJobsExpanded] = useState(false); 
+  const [isJobsExpanded, setIsJobsExpanded] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -81,7 +81,8 @@ export default function MechanicDashboard() {
   const dispatch = useDispatch();
   const mechanic = useSelector((state: RootState) => state.mechanicSlice);
   const [setAvailabilityStatus] = useSetAvailabilityMutation();
-  const { data, isLoading: isFetchingInfo } = useGetInfoQuery();
+  // const { data: notifications , isLoading} = useGetNotificationsQuery()
+  const { data } = useGetInfoQuery();
 
   useEffect(() => {
     socket.on("forceLogout", (data) => {
@@ -112,7 +113,6 @@ export default function MechanicDashboard() {
         : location.pathname.startsWith(item.href)
     );
     setActiveTab(activeItem?.id || "dashboard");
-    // Expand Jobs if a sub-item is active
     if (activeItem?.id === "jobs") {
       setIsJobsExpanded(true);
     }
@@ -258,7 +258,7 @@ export default function MechanicDashboard() {
           <div className="flex items-center space-x-3 mb-3">
             <div className="w-10 h-10 rounded-full border border-gray-200 shadow-sm overflow-hidden">
               {avatar ? (
-                <LazyImage publicId={avatar} resourceType={'image'} alt="avatar"/>
+                <LazyImage publicId={avatar} resourceType={'image'} alt="avatar" />
               ) : (
                 <div className="w-full h-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
                   <span className="text-white font-semibold">{initials}</span>
@@ -298,8 +298,8 @@ export default function MechanicDashboard() {
                 {mechanic.availability === "notAvailable"
                   ? "Offline"
                   : mechanic.availability === "busy"
-                  ? "Busy"
-                  : "Online"}
+                    ? "Busy"
+                    : "Online"}
               </span>
 
               <Switch
@@ -324,7 +324,7 @@ export default function MechanicDashboard() {
               <button
                 onClick={() => {
                   if (item.id === "jobs") {
-                    setIsJobsExpanded(!isJobsExpanded); // Toggle sub-menu
+                    setIsJobsExpanded(!isJobsExpanded);
                   } else {
                     navigate(item.href);
                     setActiveTab(item.id);
@@ -341,11 +341,6 @@ export default function MechanicDashboard() {
               >
                 <item.icon className="w-5 h-5 mr-3" />
                 <span className="flex-1 text-left">{item.label}</span>
-                {item.count && (
-                  <span className="bg-red-500 text-white text-xs font-medium px-2 py-0.5 rounded-full">
-                    {item.count}
-                  </span>
-                )}
                 {item.subItems && (
                   <ChevronRight
                     className={cn(
@@ -362,7 +357,7 @@ export default function MechanicDashboard() {
                       key={subItem.id}
                       onClick={() => {
                         navigate(subItem.href);
-                        setActiveTab(item.id); // Keep Jobs as active tab
+                        setActiveTab(item.id);
                         setIsSidebarOpen(false);
                       }}
                       className={cn(
@@ -382,18 +377,7 @@ export default function MechanicDashboard() {
           ))}
         </nav>
 
-        {/* Bottom Menu */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-100 bg-gray-50/80 backdrop-blur-md">
-          <Button
-            variant="ghost"
-            className="w-full justify-start text-gray-700 hover:bg-gray-100"
-            onClick={() => navigate("/mechanic/settings")}
-            aria-label="Go to settings"
-          >
-            <Settings className="w-4 h-4 mr-3" />
-            Settings
-          </Button>
-        </div>
+
       </aside>
 
       {/* Main Content */}
@@ -436,19 +420,17 @@ export default function MechanicDashboard() {
                     {mechanic.availability === "available"
                       ? "Available"
                       : mechanic.availability === "busy"
-                      ? "Busy"
-                      : "Offline"}
+                        ? "Busy"
+                        : "Offline"}
                   </span>
                 </div>
               </div>
             </div>
 
             <div className="flex items-center space-x-4">
-              {isFetchingInfo ? (
-                <Bell className="h-5 w-5" />
-              ) : (
-                <Notification notifications={data.data.notifications} />
-              )}
+
+              <Notification />
+
 
               <div className="relative" ref={dropdownRef}>
                 <Button
@@ -459,7 +441,7 @@ export default function MechanicDashboard() {
                 >
                   <div className="w-8 h-8 rounded-full overflow-hidden border border-gray-200 shadow-sm">
                     {avatar ? (
-                      <LazyImage publicId={avatar} resourceType={'image'} alt="avatar"/>
+                      <LazyImage publicId={avatar} resourceType={'image'} alt="avatar" />
                     ) : (
                       <div className="w-full h-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
                         <span className="text-white font-medium text-sm">
@@ -499,16 +481,7 @@ export default function MechanicDashboard() {
                       <User className="mr-3 h-4 w-4" />
                       Profile
                     </button>
-                    <button
-                      className="w-full flex items-center hover:bg-gray-50 rounded-lg px-3 py-2 text-left transition-colors duration-150"
-                      onClick={() => {
-                        navigate("/mechanic/settings");
-                        setIsDropdownOpen(false);
-                      }}
-                    >
-                      <Settings className="mr-3 h-4 w-4" />
-                      Settings
-                    </button>
+
 
                     <Logout />
                   </div>
@@ -518,7 +491,6 @@ export default function MechanicDashboard() {
           </div>
         </header>
 
-        {/* Conditionally render the heading section only if not on the messages page or jobs sub-pages */}
         {activeTab !== "messages" && (
           <div className="bg-white/95 backdrop-blur-md border-b border-gray-100 px-6 py-6 mt-16">
             <div className="flex items-center justify-between">

@@ -1,6 +1,5 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { baseQueryWithRefresh } from "@/utils/baseQuery";
-// import { ChatData } from "@/types/chatdata";
 
 
 interface SenderInfo {
@@ -26,6 +25,7 @@ interface Message {
 interface ChatData {
   _id: string
   name: string
+  isCompleted: boolean
   messages: Message[]
 }
 

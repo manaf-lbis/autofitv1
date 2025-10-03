@@ -20,6 +20,7 @@ interface PaymentTabContentProps {
   paymentDetails?: any;
   quotationId?: Quotation;
   onViewQuotation: () => void;
+  status: string;
 }
 
 export function PaymentTabContent({
@@ -27,6 +28,7 @@ export function PaymentTabContent({
   paymentDetails,
   quotationId,
   onViewQuotation,
+  status
 }: PaymentTabContentProps) {
   return (
     <div className="space-y-4">
@@ -48,26 +50,32 @@ export function PaymentTabContent({
             </div>
             <div>
               <h4 className="text-sm font-medium text-gray-900">
-                Payment {isPaymentComplete ? `Completed  - ${paymentDetails.receipt.toUpperCase()}` : "Pending"}
+                {isPaymentComplete
+                  ? `Payment Completed - ${paymentDetails?.receipt?.toUpperCase()}`
+                  : status === "canceled"
+                    ? "Payment Canceled"
+                    : "Payment Pending"}
               </h4>
+
               <p className="text-xs text-gray-600">
-                {!isPaymentComplete && "Payment will be processed after accepting the quotation."}
+                {!isPaymentComplete && status !== "canceled" && "Payment will be processed after accepting the quotation."}
+                {status === "canceled" && "This service has been canceled, and no payment will be processed."}
               </p>
               {
                 isPaymentComplete && (
-                <>
-                  <div className="mt-2 flex-col ">
-                    <p className="text-xs text-gray-600 mt-2">Method : {paymentDetails.method.toUpperCase()}</p>
-                    <p className="text-xs text-gray-600 mt-2">Paid At : {formatDateTime(paymentDetails.createdAt)}</p>
-                    <p className="text-xs text-gray-600 mt-2">Amount : {paymentDetails.amount/100}</p>
-                  </div>
-                
-                </>)
+                  <>
+                    <div className="mt-2 flex-col ">
+                      <p className="text-xs text-gray-600 mt-2">Method : {paymentDetails?.method?.toUpperCase()}</p>
+                      <p className="text-xs text-gray-600 mt-2">Paid At : {formatDateTime(paymentDetails.createdAt)}</p>
+                      <p className="text-xs text-gray-600 mt-2">Amount : {paymentDetails.amount}</p>
+                    </div>
+
+                  </>)
 
               }
             </div>
           </div>
-          {!isPaymentComplete && quotationId && (
+          {!isPaymentComplete && quotationId && status !== 'canceled' && (
             <Button onClick={onViewQuotation} className="w-full text-sm h-9">
               View & Accept Quotation
             </Button>

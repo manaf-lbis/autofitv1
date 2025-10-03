@@ -9,13 +9,15 @@ import { IPaymentRepository } from "../../../repositories/interfaces/IPaymentRep
 import { ITimeBlockRepository } from "../../../repositories/interfaces/ITimeBlockRepository";
 import { BlockType } from "../../../models/timeBlock";
 import logger from "../../../utils/logger";
+import { INotificationService } from "../../notifications/INotificationService";
 
 
 export class PretripPaymentHandler implements IServicePaymentHandler {
   constructor(
     private _pretripBookingRepo: IPretripBookingRepository,
     private _paymentRepository: IPaymentRepository,
-    private _timeBlockRepo : ITimeBlockRepository
+    private _timeBlockRepo: ITimeBlockRepository,
+    private _notificationService: INotificationService
   ) { }
 
 
@@ -59,7 +61,7 @@ export class PretripPaymentHandler implements IServicePaymentHandler {
       logger.error('payment failed')
     } else {
 
-      await this._paymentRepository.updatePayemtStatus({
+       await this._paymentRepository.updatePayemtStatus({
         serviceId,
         paymentId: verificationDetails.paymentId,
         method: verificationDetails.method,
@@ -72,8 +74,14 @@ export class PretripPaymentHandler implements IServicePaymentHandler {
         PaymentStatus.PAID
       );
 
-      if(!response) throw new ApiError('Booking not found', HttpStatus.NOT_FOUND);
-      await this._timeBlockRepo.update(response.blockedTimeId, {blockType: BlockType.USER_BOOKING});
+      if (!response) throw new ApiError('Booking not found', HttpStatus.NOT_FOUND);
+      await this._timeBlockRepo.update(response.blockedTimeId, { blockType: BlockType.USER_BOOKING });
+
+      await this._notificationService.sendNotification({
+        recipientId: response.mechanicId,
+        message: `New Pretrip Booking completed`,
+        recipientType: 'mechanic'
+      })
 
     }
   }

@@ -62,7 +62,17 @@ export class AuthService implements IAuthService {
         const refreshToken = this._tokenService.generateRefreshToken(payload);
 
         await this._mechanicRepository.storeRefreshToken(mechanic._id, refreshToken);
-        return { token: accessToken, user: { name: mechanic.name, role: mechanic.role } };
+        const mechProfile = await this._mechanicProfileRepo.getProfileStatus(mechanic._id)
+        return {
+            token: accessToken, user: {
+                name: mechanic.name,
+                role: mechanic.role,
+                email: mechanic.email,
+                mobile: mechanic.mobile,
+                profileStatus: mechProfile?.registration?.status ?? null,
+                avatar: mechanic.avatar
+            }
+        };
 
     }
     async logout(userId: Types.ObjectId): Promise<void> {

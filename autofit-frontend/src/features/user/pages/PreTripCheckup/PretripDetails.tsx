@@ -17,6 +17,8 @@ import {
 } from "lucide-react"
 import { useNavigate, useParams } from "react-router-dom"
 import toast from "react-hot-toast"
+import { RatingButton } from "@/components/shared/rating/RatingButton"
+import { ServiceType } from "@/types/user"
 
 const formatTime = (dateString: string) => {
   return new Date(dateString).toLocaleTimeString("en-US", {
@@ -54,27 +56,27 @@ const getOverallStatus = (score: number) => {
 
 export default function PretripDetails() {
   const { id } = useParams();
-  const { data } = usePretripDetailsQuery({ id: id! }, { skip: !id });
-  const [generateInvoice,{isLoading}] = useGenerateInvoiceMutation();
-  const [generateReport,{isLoading:isLoadingReport}] = useGenerateReportMutation();
+  const { data, refetch, isLoading: isRefreshing } = usePretripDetailsQuery({ id: id! }, { skip: !id, refetchOnMountOrArgChange: true, refetchOnReconnect: true, refetchOnFocus: true });
+  const [generateInvoice, { isLoading }] = useGenerateInvoiceMutation();
+  const [generateReport, { isLoading: isLoadingReport }] = useGenerateReportMutation();
   const navigate = useNavigate();
 
   const safetyScore = calculateSafetyScore(data?.serviceReportId?.reportItems || []);
   const overallStatus = getOverallStatus(safetyScore);
   const recommendations = (data?.serviceReportId?.reportItems || []).filter((item: any) => item.needsAction).map((item: any) => `Check ${item.feature}`);
 
-  const handleDownloadReceipt = async ()=>{
+  const handleDownloadReceipt = async () => {
     try {
-      await generateInvoice({serviceId:data?._id}).unwrap();
-    } catch (error:any) {
+      await generateInvoice({ serviceId: data?._id }).unwrap();
+    } catch (error: any) {
       toast.error(error.data.message || "Failed to download receipt");
     }
   }
 
-  const handleDownloadReport = async ()=>{
+  const handleDownloadReport = async () => {
     try {
-      await generateReport({serviceId:data?._id}).unwrap();
-    } catch (error:any) {
+      await generateReport({ serviceId: data?._id }).unwrap();
+    } catch (error: any) {
       toast.error(error.data.message || "Failed to download receipt");
     }
   }
@@ -87,10 +89,10 @@ export default function PretripDetails() {
         <div className="sticky top-0 bg-white border-b border-gray-200 px-4 py-3 z-10">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="focus:outline-none -ml-2" 
+              <Button
+                variant="ghost"
+                size="icon"
+                className="focus:outline-none -ml-2"
                 onClick={() => navigate(-1)}
                 aria-label="Go back"
               >
@@ -104,6 +106,7 @@ export default function PretripDetails() {
                 size="sm"
                 className="text-xs px-2"
                 aria-label="Refresh data"
+                onClick={() => refetch()}
               >
                 <RefreshCw className="h-3 w-3" />
               </Button>
@@ -236,7 +239,7 @@ export default function PretripDetails() {
                 <div className="py-2">
                   <span className="text-sm text-gray-600 block mb-2">Recommendations</span>
                   <ul className="space-y-1">
-                    {recommendations.map((rec:any, index:any) => (
+                    {recommendations.map((rec: any, index: any) => (
                       <li key={index} className="text-sm text-gray-900 flex items-start gap-2">
                         <span className="text-yellow-600 mt-1">•</span>
                         {rec}
@@ -267,13 +270,12 @@ export default function PretripDetails() {
                     <div className="flex flex-col items-end gap-1 ml-2">
                       <Badge
                         variant={item.condition === "excellent" ? "secondary" : "outline"}
-                        className={`text-xs ${
-                          item.condition === "excellent"
-                            ? "bg-green-100 text-green-800"
-                            : item.condition === "good"
-                              ? "bg-yellow-100 text-yellow-800"
-                              : "bg-red-100 text-red-800"
-                        }`}
+                        className={`text-xs ${item.condition === "excellent"
+                          ? "bg-green-100 text-green-800"
+                          : item.condition === "good"
+                            ? "bg-yellow-100 text-yellow-800"
+                            : "bg-red-100 text-red-800"
+                          }`}
                       >
                         {item.condition}
                       </Badge>
@@ -297,10 +299,25 @@ export default function PretripDetails() {
 
           {/* Action Buttons */}
           <div className="space-y-2 pb-4">
-            <Button disabled={isLoadingReport} onClick={handleDownloadReport} className="w-full bg-blue-600 hover:bg-blue-700 h-10 focus:outline-none">
-              <Download className="h-4 w-4 mr-2" />
-              Download Report
-            </Button>
+            <div className="flex gap-2">
+              <Button disabled={isLoadingReport} onClick={handleDownloadReport} className="w-full bg-blue-600 hover:bg-blue-700 h-10 focus:outline-none">
+                <Download className="h-4 w-4 mr-2" />
+                Download Report
+              </Button>
+              {data?.status === "vehicle_returned" && <RatingButton
+                displayStyle='single-star'
+                size="sm"
+                serviceId={data?._id}
+                serviceType={ServiceType.PRETRIP}
+                serviceName="Pretrip Checkup"
+                hasRated={data?.ratingId?._id ? true : false}
+                userRating={data?.ratingId?.rating}
+                userReview={data?.ratingId?.review}
+                refetch={refetch}
+
+              />}
+            </div>
+
             <Button disabled={isLoading} onClick={handleDownloadReceipt} variant="outline" className="w-full bg-transparent h-10 focus:outline-none">
               <ReceiptText className="h-4 w-4 mr-2" />
               Download Receipt
@@ -324,8 +341,9 @@ export default function PretripDetails() {
               size="sm"
               className="flex items-center space-x-1 bg-transparent"
               aria-label="Refresh data"
+              onClick={() => refetch()}
             >
-              <RefreshCw className="h-4 w-4" />
+              <RefreshCw className={`mr-2 h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`} />
               <span>Refresh</span>
             </Button>
             <Badge className="bg-green-500 text-white">{data?.status}</Badge>
@@ -466,7 +484,7 @@ export default function PretripDetails() {
               <div className="py-2">
                 <span className="text-sm text-gray-600 block mb-2">Recommendations</span>
                 <ul className="space-y-1">
-                  {recommendations.map((rec:any, index:any) => (
+                  {recommendations.map((rec: any, index: any) => (
                     <li key={index} className="text-sm text-gray-900 flex items-start gap-2">
                       <span className="text-yellow-600 mt-1">•</span>
                       {rec}
@@ -529,6 +547,19 @@ export default function PretripDetails() {
         </Card>
 
         <div className="flex justify-end space-x-3">
+          {data?.status === "vehicle_returned" && <RatingButton
+            displayStyle='stars'
+            size="sm"
+            serviceId={data?._id}
+            serviceType={ServiceType.PRETRIP}
+            serviceName="Pretrip Checkup"
+            hasRated={data?.ratingId?._id ? true : false}
+            userRating={data?.ratingId?.rating}
+            userReview={data?.ratingId?.review}
+            refetch={refetch}
+
+          />}
+
           <Button disabled={isLoadingReport} onClick={handleDownloadReport} className="bg-blue-600 hover:bg-blue-700 h-9 focus:outline-none">
             <Download className="h-4 w-4 mr-2" />
             Download Report

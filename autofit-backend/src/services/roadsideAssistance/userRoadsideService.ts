@@ -5,16 +5,15 @@ import { IRoadsideAssistanceRepo } from "../../repositories/interfaces/IRoadside
 import { IVehicleRepository } from "../../repositories/interfaces/IVehicleRepository";
 import { ApiError } from "../../utils/apiError";
 import { INotificationRepository } from "../../repositories/interfaces/INotificationRepository";
-import { IPaymentGateayRepository } from "../../repositories/interfaces/IPaymentGateayRepository";
-import { IQuotationRepository } from "../../repositories/interfaces/IQuotationRepository";
-import { IPaymentRepository } from "../../repositories/interfaces/IPaymentRepository";
 import { IUserRoadsideService } from "./interface/IUserRoadsideService";
-import { Role } from "../../types/role";
+
 import logger from "../../utils/logger";
-import { RoadsideAssistanceStatus, RoadsideQuotationStatus } from "../../types/services";
 import { ITimeBlockRepository } from "../../repositories/interfaces/ITimeBlockRepository";
 import { differenceInMinutes, startOfDay } from "date-fns";
 import { HttpStatus } from "../../types/responseCode";
+import { MechanicAvailabilityStatus } from "../../types/mechanic/mechanic";
+import { IRatingRepository } from "../../repositories/interfaces/IRatingRepository";
+import { INotificationService } from "../notifications/INotificationService";
 
 export class UserRoadsideService implements IUserRoadsideService {
   constructor(
@@ -23,10 +22,9 @@ export class UserRoadsideService implements IUserRoadsideService {
     private _roadsideAssistanceRepo: IRoadsideAssistanceRepo,
     private _vehicleRepository: IVehicleRepository,
     private _notificationRepository: INotificationRepository,
-    private _razorpayRepository: IPaymentGateayRepository,
-    private _quotaionRepo: IQuotationRepository,
-    private _paymentRepo: IPaymentRepository,
-    private _timeBlockingRepo: ITimeBlockRepository
+    private _timeBlockingRepo: ITimeBlockRepository,
+    private _ratingRepo: IRatingRepository,
+    private _notificationService:INotificationService
   ) { }
 
   async getNearByMechanic({ lat, lng }: { lat: number; lng: number }) {
@@ -40,9 +38,13 @@ export class UserRoadsideService implements IUserRoadsideService {
     }));
 
     const { distances, durations } = await this._googleMapRepo.getDistanceMatrix({ lat, lng }, destinations);
+    const mechanicIds = mechanics.map((mechanic) => mechanic.mechanicId);
+
+    const ratings = await this._ratingRepo.avgRatingOfMechanics(mechanicIds);
 
     const enriched = mechanics.map((mech, index) => ({
       ...mech,
+      rating: ratings[index],
       distanceInMeters: distances[index],
       durationInSeconds: durations[index],
     }));
@@ -60,9 +62,9 @@ export class UserRoadsideService implements IUserRoadsideService {
     const now = new Date();
     const start = startOfDay(now);
     const currentMinutes = differenceInMinutes(now, start);
-    const blockings = await this._timeBlockingRepo.timeBlockByTimeRange(mechanicId, currentMinutes, currentMinutes+30 ,now)
-    
-    if(blockings) throw new ApiError('Sorry Selected Mechnaic is busy', HttpStatus.BAD_REQUEST)
+    const blockings = await this._timeBlockingRepo.timeBlockByTimeRange(mechanicId, currentMinutes, currentMinutes + 30, now)
+
+    if (blockings) throw new ApiError('Sorry Selected Mechnaic is busy', HttpStatus.BAD_REQUEST)
 
 
     const emergencyAssistance = await this._roadsideAssistanceRepo.create({
@@ -80,93 +82,25 @@ export class UserRoadsideService implements IUserRoadsideService {
         type: 'Point',
         coordinates: serviceLocation
       },
+    });
+
+    await this._mechanicProfileRepo.update(mechanicId, { availability: MechanicAvailabilityStatus.BUSY })
+
+    await this._notificationService.sendNotification({
+        recipientId: mechanicId,
+        message: `Emergency - ${vehicle.regNo.toUpperCase()} Requested For RoadSide Assistance.`,
+        recipientType: 'mechanic'
     })
 
-    await this._mechanicProfileRepo.update(mechanicId, { availability: 'busy' })
-
-    const notification = await this._notificationRepository.save({
-      message: `Emergency - ${vehicle.regNo.toUpperCase()} Requested For RoadSide Assistance.`,
-      recipientId: mechanicId,
-      recipientType: Role.MECHANIC,
-    })
 
     logger.info(`Emergency - ${vehicle.regNo.toUpperCase()} Requested For RoadSide Assistance.`)
 
-    return { notification, emergencyAssistance }
-  }
-
-  async approveQuoteAndPay({ serviceId, quotationId, userId }: { serviceId: Types.ObjectId, quotationId: Types.ObjectId, userId: Types.ObjectId }) {
-
-    const service = await this._roadsideAssistanceRepo.findById(serviceId);
-    const quotation = await this._quotaionRepo.findById(quotationId);
-    const payment = await this._paymentRepo.veryfyPaymentStatus(serviceId.toString());
-
-    if (payment?.status === 'success') {
-      logger.info('Payment Already Done')
-      throw new ApiError('Payment Already Done')
-    }
-
-    if (payment?.createdAt) {
-      const createdAt = new Date(payment.createdAt).getTime();
-      const expiry = createdAt + 10 * 60 * 1000;
-      const now = Date.now();
-
-      if (now < expiry) {
-        throw new ApiError(`Previous payment is still processing. Try after 10 Minutes`);
-      } else {
-        await this._paymentRepo.deletePayment(serviceId.toString())
-      }
-    }
-
-    if (!quotation) throw new ApiError('Quotation Not Generated')
-
-    if (!service?.quotationId?._id.equals(quotation._id)) throw new ApiError('Quotation Not Match With Service')
-
-    const { orderId } = await this._razorpayRepository.createOrder(quotation.total, serviceId.toString());
-
-    await this._paymentRepo.createPayment({
-      userId: userId,
-      serviceId,
-      paymentId: '',
-      amount: quotation.total,
-      method: 'razorpay',
-      status: 'pending',
-      receipt: orderId
-    })
-
-    logger.info(`payment created for ${serviceId}`)
-
-    return { orderId, mechanicId: service.mechanicId }
+    return { emergencyAssistance }
   }
 
 
-  async VerifyPaymentAndApprove({ paymentId, orderId, signature, userId }: { paymentId: string, orderId: string, signature: string, userId: Types.ObjectId }) {
-    await this._razorpayRepository.verifyPayment(paymentId, orderId, signature)
 
-    const order = await this._razorpayRepository.payloadFromOrderId(orderId)
-    const payment = await this._razorpayRepository.payloadFromPaymentId(paymentId)
 
-    const paymentDoc = await this._paymentRepo.updatePayemtStatus({
-      userId,
-      serviceId: order.notes.serviceId,
-      paymentId: payment.id,
-      method: payment.method,
-      status: "success",
-      receipt: order.receipt
-    });
 
-    if (!paymentDoc) {
-      logger.info('Invalid Payment Details')
-      throw new ApiError('Invalid Payment')
-    }
-
-    const response = await this._roadsideAssistanceRepo.update(order.notes.serviceId, { status: RoadsideAssistanceStatus.IN_PROGRESS, startedAt: new Date(), paymentId: paymentDoc._id })
-    if (!response?.quotationId) throw new ApiError('Invalid Service')
-    await this._quotaionRepo.update(response.quotationId, { status: RoadsideQuotationStatus.APPROVED })
-
-    logger.info(`payment verified for ${response._id}`)
-    return { mechanicId: response.mechanicId }
-
-  }
 
 }

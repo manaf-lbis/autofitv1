@@ -110,8 +110,14 @@ export default function MechanicDashboard() {
         </div>
 
         {/* Sidebar */}
-        <RecentActivity recentActivities={dashboardData?.data?.recentActivities} />
+        <RecentActivity recentReviews={dashboardData?.data?.reviews} />
       </div>
     </div>
   );
 }
+
+
+
+
+
+

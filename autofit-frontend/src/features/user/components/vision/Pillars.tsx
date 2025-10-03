@@ -86,12 +86,7 @@ export function Pillars() {
             </ul>
 
             <div className="mt-6">
-              <button
-                className={`w-full rounded-xl px-4 py-2 text-sm font-semibold text-white shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 ${tones[p.tone].button}`}
-                aria-label={`Learn more about ${p.title}`}
-              >
-                Learn More
-              </button>
+             
             </div>
           </article>
         ))}

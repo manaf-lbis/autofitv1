@@ -35,7 +35,7 @@ const CountdownTimer: React.FC<CountdownTimerProps> = ({
       });
     }, 1000);
 
-    return () => clearInterval(interval); // Cleanup
+    return () => clearInterval(interval);
   }, [secondsLeft, onComplete]);
 
   const formatTime = (seconds: number): { minutes: string; seconds: string } => {
@@ -89,3 +89,5 @@ const CountdownTimer: React.FC<CountdownTimerProps> = ({
 };
 
 export default CountdownTimer;
+
+

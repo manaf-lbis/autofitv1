@@ -1,7 +1,7 @@
 import { FilterQuery, Types } from "mongoose";
 import { RoadsideAssistanceDocument, RoadsideAssistanceModel } from "../models/roadsideAssistanceModel";
 import { IRoadsideAssistanceRepo, PagenatedHistoryParams, PagenatedResponse } from "./interfaces/IRoadsideAssistanceRepo";
-import { CreateRoadsideAssistanceDTO } from "../types/services";
+import { CreateRoadsideAssistanceDTO, RoadsideAssistanceStatus } from "../types/services";
 import { ApiError } from "../utils/apiError";
 import { BaseRepository } from "./baseRepository";
 import { HttpStatus } from "../types/responseCode"; import { Role } from "../types/role";
@@ -54,6 +54,7 @@ export class RoadsideAssistanceRepository extends BaseRepository<RoadsideAssista
             .populate('mechanicId', 'name email avatar')
             .populate('quotationId', '-requestId')
             .populate('paymentId', '-userId')
+            .populate('ratingId', '_id review rating')
             .lean();
 
         if (!result) throw new ApiError('No Service Details Found', HttpStatus.NOT_FOUND);
@@ -67,7 +68,10 @@ export class RoadsideAssistanceRepository extends BaseRepository<RoadsideAssista
     }
 
     async getActiveServiceId(userId: Types.ObjectId): Promise<Types.ObjectId[]> {
-        const services = await RoadsideAssistanceModel.find({ $or: [{ mechanicId: userId }, { userId: userId }] }).select('_id').lean()
+        const services = await RoadsideAssistanceModel.find({
+            $or: [{ mechanicId: userId }, { userId: userId }],
+            status: { $nin: [RoadsideAssistanceStatus.COMPLETED, RoadsideAssistanceStatus.CANCELED] }
+        }).select('_id').lean()
         return services.map(service => service._id);
     }
 
@@ -169,6 +173,17 @@ export class RoadsideAssistanceRepository extends BaseRepository<RoadsideAssista
             return result[0] || { totalOrders: 0, totalAmount: 0 }
         }
         return result
+    }
+
+    async detailedBooking(serviceId: Types.ObjectId): Promise<any> {
+        return await RoadsideAssistanceModel.findById(serviceId)
+            .populate('quotationId', '-requestId')
+            .populate('paymentId', '-userId')
+            .populate('userId', 'name email mobile')
+    }
+
+    async checkIsCompleted(serviceId: Types.ObjectId[]): Promise<any> {
+        return await RoadsideAssistanceModel.find({ _id: { $in: serviceId } }, { status: 1 }).lean()
     }
 
 }

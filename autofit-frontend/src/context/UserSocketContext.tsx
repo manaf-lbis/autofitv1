@@ -5,7 +5,6 @@ import { useAvailableRoomsQuery } from "@/services/userServices/userChatApi";
 import { addMessage, markAsSeen } from "@/features/user/slices/chatSlice";
 import { useNotification } from "@/hooks/useNotification";
 import { formatTimeToNow } from "@/lib/dateFormater";
-import toast from "react-hot-toast";
 import { useLazyGetCurrentUserQuery } from "@/services/authServices/authApi";
 
 const UserSocketContext = ({ children }: { children: React.ReactNode }) => {
@@ -36,9 +35,6 @@ const UserSocketContext = ({ children }: { children: React.ReactNode }) => {
         dispatch(addMessage(data));
       });
     }
-    socket.on("unauthorized", (data) => {
-      toast.error(data.message);
-    });
 
     socket.on('refresh',()=>{
       trigger()
