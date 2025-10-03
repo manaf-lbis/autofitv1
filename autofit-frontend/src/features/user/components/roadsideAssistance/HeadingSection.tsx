@@ -13,6 +13,7 @@ interface HeadingSectionProps {
   status: string;
   statusString: string;
   bookingId: string;
+  serviceId: string;
   onMessageClick?: () => void;
   onCancelClick?: () => void;
   isCancelled: boolean;
@@ -34,6 +35,7 @@ export function HeadingSection({
   isCompleted,
   statusString,
   rating,
+  serviceId,
   refetch
 }: HeadingSectionProps) {
   const [getInvoice, { isLoading }] = useGenerateInvoiceMutation();
@@ -86,7 +88,7 @@ export function HeadingSection({
 
             <div className="flex items-center gap-2">
               <RatingButton
-                serviceId={bookingId}
+                serviceId={serviceId}
                 serviceType={ServiceType.ROADSIDE}
                 size="xs"
                 displayStyle="stars"
