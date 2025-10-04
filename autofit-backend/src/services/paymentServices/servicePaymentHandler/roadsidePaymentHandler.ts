@@ -82,7 +82,7 @@ export class RoadsidePaymentHandler implements IServicePaymentHandler {
         await this._quotationRepo.update(response?.quotationId, { status: RoadsideQuotationStatus.APPROVED });
 
         await this._notificationService.sendNotification({
-            recipientId: response?.userId!._id,
+            recipientId: (response as any).user._id,
             message: `Quotation approved and payment Completed Continue with the service.`,
             recipientType: 'mechanic'
         })

@@ -50,7 +50,7 @@ export class RoadsideAssistanceRepository extends BaseRepository<RoadsideAssista
     async findById(id: Types.ObjectId): Promise<any> {
         const result = await RoadsideAssistanceModel
             .findById(id)
-            .populate('userId', 'name email mobile -_id')
+            .populate('userId', 'name email mobile _id')
             .populate('mechanicId', 'name email avatar')
             .populate('quotationId', '-requestId')
             .populate('paymentId', '-userId')
