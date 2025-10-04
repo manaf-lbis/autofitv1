@@ -42,8 +42,8 @@ export function HeadingSection({
 
   const handleDownloadInvoice = async () => {
     try {
-      if (!bookingId) throw new Error("Invalid service ID");
-      await getInvoice({ serviceId: bookingId }).unwrap();
+      if (!serviceId) throw new Error("Invalid service ID");
+      await getInvoice({ serviceId: serviceId }).unwrap();
       toast.success("Invoice download started!");
     } catch (error: any) {
       toast.error(error.message || "Failed to download invoice");
