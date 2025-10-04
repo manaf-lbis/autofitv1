@@ -313,8 +313,8 @@ export function VideoCallModal({
       });
     };
 
-    const handleWaiting = (payload: any) => {
-      toast.loading(payload.message || "Waiting for mechanic to join");
+    const handleWaiting = () => {
+      // toast.loading(payload.message || "Waiting for mechanic to join");
     };
 
     const handleSessionEnded = (payload: { message: string }) => {
