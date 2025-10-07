@@ -2,6 +2,7 @@ import { createApi } from "@reduxjs/toolkit/query/react";
 import { baseQueryWithRefresh } from "@/utils/baseQuery";
 import { Role } from "../../features/auth/components/Layouts/AuthLayout";
 import { clearUser } from "../../features/auth/slices/authSlice";
+import { disconnectSocket } from "@/lib/socket";
 
 export interface UserData {
   name : string;
@@ -88,6 +89,7 @@ export const authApi = createApi({
       },
       onQueryStarted: async (_, { dispatch, queryFulfilled }) => {
         try {
+          disconnectSocket();
           await queryFulfilled;
           dispatch(clearUser());
           localStorage.clear();

@@ -34,6 +34,7 @@ const ChatBubble: React.FC<Props> = ({ serviceId, mechanicId, mechanicName, stat
   const socketRef = useRef<Socket | null>(null);
 
   useEffect(() => {
+    socketRef.current?.emit("joinRoom", { room: `roadside_${serviceId}` });
     const count = messages.filter(
       (msg) => msg.senderRole === "mechanic" && !msg.seen
     ).length;
@@ -83,7 +84,6 @@ const ChatBubble: React.FC<Props> = ({ serviceId, mechanicId, mechanicName, stat
 
   const handleSendMessage = () => {
     if (!newMessage.trim()) return;
-
     socketRef.current?.emit("roadsideChat", {
       serviceId,
       message: newMessage,
@@ -273,6 +273,4 @@ const ChatBubble: React.FC<Props> = ({ serviceId, mechanicId, mechanicName, stat
 };
 
 export default ChatBubble;
-
-
 
