@@ -112,6 +112,3 @@ export const { setMessages, setNewMessage ,markAsSeen} = mechanicChatSlice.actio
 
 export default mechanicChatSlice.reducer;
 
-
-
-

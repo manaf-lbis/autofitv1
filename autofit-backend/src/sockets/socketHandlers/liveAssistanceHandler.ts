@@ -158,5 +158,3 @@ function leaveRoom(socket: Socket, sessionId: string, userId: string) {
     }
   }
 }
-
-
