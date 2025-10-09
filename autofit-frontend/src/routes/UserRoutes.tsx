@@ -4,6 +4,7 @@ import ProtectedRoute from "../components/Routes/ProtectedRoute";
 import UserSocketContext from "@/context/UserSocketContext";
 import PageLoading from "@/components/Animations/PageLoading";
 import ChangePasswordPage from "@/components/shared/ChangePasswordPage";
+import SocketProvider from "@/context/SocketProvider";
 
 const MainLayout = lazy(() => import("../features/user/components/layout/UserLayout"));
 const ProfileLayout = lazy(() => import("@/features/user/components/layout/ProfileLayout"));
@@ -25,6 +26,7 @@ const Checkout = lazy(() => import("@/features/user/paymentAndCheckout/Checkout"
 const UserRoutes: React.FC = () => {
   return (
     <UserSocketContext>
+      <SocketProvider>
       <Suspense fallback={<PageLoading/>}>
         <Routes>
           <Route element={<ProtectedRoute allowedRoles={["user"]} />}>
@@ -52,6 +54,7 @@ const UserRoutes: React.FC = () => {
           </Route>
         </Routes>
       </Suspense>
+      </SocketProvider>
     </UserSocketContext>
   );
 };

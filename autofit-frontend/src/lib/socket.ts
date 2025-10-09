@@ -12,8 +12,10 @@ export const initSocket = (): Socket => {
       reconnectionDelay: 1000,
     });
 
-    socket.on("connect", () => {});
-    socket.on("disconnect", () =>{});
+    socket.on("connect", () => {console.log('WS connected');
+    });
+    socket.on("disconnect", () =>{console.log('WS disconnected ');
+    });
   }
   return socket;
 };
@@ -25,9 +27,6 @@ export const disconnectSocket = () => {
     socket = null;
   }
 };
-
-
-
 
 
 

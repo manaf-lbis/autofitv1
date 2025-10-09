@@ -4,7 +4,7 @@ import { ChatRepository } from "../../repositories/chatRepository";
 import { verifyJwt } from "../verifyJwt";
 import { RoadsideAssistanceModel } from "../../models/roadsideAssistanceModel";
 import { ApiError } from "../../utils/apiError";
-import { getIO, userSocketMap } from "../socket"; // Import userSocketMap
+import { getIO, userSocketMap } from "../socket"; 
 import { RoadsideAssistanceRepository } from "../../repositories/roadsideAssistanceRepo";
 import { Role } from "../../types/role";
 
@@ -47,11 +47,9 @@ export const roadsideChatHandler = (socket: Socket) => {
         throw new ApiError("Invalid user", 400);
       }
 
-      // Ensure both sender and receiver are in the room
       const room = `roadside_${serviceId}`;
       const io = getIO();
 
-      // Check and add sender's sockets to the room
       const senderSockets = userSocketMap.get(senderId)?.socketIds;
       if (senderSockets) {
         senderSockets.forEach((socketId) => {
@@ -62,7 +60,6 @@ export const roadsideChatHandler = (socket: Socket) => {
         });
       }
 
-      // Check and add receiver's sockets to the room
       const receiverSockets = userSocketMap.get(receiverId)?.socketIds;
       if (receiverSockets) {
         receiverSockets.forEach((socketId) => {
@@ -83,7 +80,6 @@ export const roadsideChatHandler = (socket: Socket) => {
         message
       );
 
-      // Emit the message to the room
       io.to(room).emit("roadsideMessage", {
         _id: savedMsg._id,
         serviceId,

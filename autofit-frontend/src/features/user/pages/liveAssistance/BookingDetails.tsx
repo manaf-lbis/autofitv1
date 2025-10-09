@@ -235,8 +235,8 @@ export default function BookingDetailsPage() {
                     hasRated={data?.data?.ratingId?._id ? true : false}
                     refetch={refetch}
                     serviceName="Live Assistance"
-                    userRating={data.data.ratingId.rating}
-                    userReview={data.data.ratingId.review}
+                    userRating={data.data?.ratingId?.rating}
+                    userReview={data.data?.ratingId?.review}
                   />
                 </>
               )}
@@ -449,8 +449,8 @@ export default function BookingDetailsPage() {
                             hasRated={data?.data?.ratingId?._id ? true : false}
                             refetch={refetch}
                             serviceName="Live Assistance"
-                            userRating={data.data.ratingId.rating}
-                            userReview={data.data.ratingId.review}
+                            userRating={data.data?.ratingId?.rating}
+                            userReview={data.data?.ratingId?.review}
                           />
                         </>
                       )}

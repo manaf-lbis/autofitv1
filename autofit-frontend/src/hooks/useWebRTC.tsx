@@ -1,4 +1,3 @@
-
 import { useEffect, useRef, useState } from "react";
 import { initSocket } from "@/lib/socket";
 
@@ -69,9 +68,9 @@ export const useWebRTC = ({
       return;
     }
 
-    const transRef = track.kind === "audio" ? audioTransceiverRef.current : videoTransceiverRef.current;
-    if (transRef && transRef.sender) {
-      transRef.sender.replaceTrack(track);
+    const transRef = track.kind === "audio" ? audioTransceiverRef : videoTransceiverRef;
+    if (transRef.current && transRef.current.sender) {
+      transRef.current.sender.replaceTrack(track);
       return;
     }
 

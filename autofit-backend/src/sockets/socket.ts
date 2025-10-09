@@ -66,5 +66,3 @@ export const getIO = (): Server => {
   }
   return io;
 };
-
-

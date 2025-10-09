@@ -1,5 +1,4 @@
-
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useContext, useEffect, useRef, useState, useCallback } from "react";
 import {
   Video,
   VideoOff,
@@ -20,7 +19,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import toast from "react-hot-toast";
 import { useWebRTC } from "@/hooks/useWebRTC";
-import { initSocket } from "@/lib/socket";
+import { SocketContext } from "@/context/SocketContext"; 
 
 interface VideoCallModalProps {
   isOpen: boolean;
@@ -62,7 +61,6 @@ export function VideoCallModal({
   const [videoPermissionDenied, setVideoPermissionDenied] = useState(false);
   const [duplicateSessionWarning, setDuplicateSessionWarning] = useState(false);
 
-  // UI-level participant list
   const [participants, setParticipants] = useState<Participant[]>([
     {
       id: userId,
@@ -78,11 +76,7 @@ export function VideoCallModal({
   const localVideoRef = useRef<HTMLVideoElement | null>(null);
   const remoteVideoRef = useRef<HTMLVideoElement | null>(null);
 
-  const socketRef = useRef<any | null>(null);
-  if (!socketRef.current) {
-    socketRef.current = initSocket();
-  }
-  const socket = socketRef.current;
+  const socket = useContext(SocketContext); // Use global socket
 
   const remoteAudioMuted = false;
 
@@ -172,7 +166,7 @@ export function VideoCallModal({
       prev.map((p) => (p.isYou ? { ...p, stream: localStream ?? undefined, isVideoOn: hasVid, isMuted: !hasAud } : p))
     );
 
-    socket.emit("mediaState", { sessionId, userId, isMuted: !hasAud, isVideoOn: hasVid });
+    socket?.emit("mediaState", { sessionId, userId, isMuted: !hasAud, isVideoOn: hasVid });
 
     if (localVideoRef.current) {
       localVideoRef.current.srcObject = localStream ?? null;
@@ -314,7 +308,6 @@ export function VideoCallModal({
     };
 
     const handleWaiting = () => {
-      // toast.loading(payload.message || "Waiting for mechanic to join");
     };
 
     const handleSessionEnded = (payload: { message: string }) => {
@@ -322,8 +315,8 @@ export function VideoCallModal({
       if (payload.message.includes("another device")) {
         setDuplicateSessionWarning(true);
       }
-      endConnection(); // Clean up WebRTC on session end
-      onClose(); // Close modal
+      endConnection(); 
+      onClose(); 
     };
 
     socket.on("participantsList", handleParticipantsList);
@@ -343,10 +336,7 @@ export function VideoCallModal({
 
       // Full cleanup on unmount/close
       endConnection();
-      try {
-        socket.disconnect?.();
-      } catch { /* ignore */ }
-      socketRef.current = null;
+      // Remove socket.disconnect to keep global socket connected
     };
   }, [isOpen]);
 
@@ -357,12 +347,12 @@ export function VideoCallModal({
         await startLocalStream(isVideoOn, true);
         setIsMuted(false);
         setMicPermissionDenied(false);
-        socket.emit("mediaState", { sessionId, userId, isMuted: false, isVideoOn });
+        socket?.emit("mediaState", { sessionId, userId, isMuted: false, isVideoOn });
         setParticipants((prev) => prev.map((p) => (p.isYou ? { ...p, isMuted: false } : p)));
       } else {
         setSendingKind("audio", false);
         setIsMuted(true);
-        socket.emit("mediaState", { sessionId, userId, isMuted: true, isVideoOn });
+        socket?.emit("mediaState", { sessionId, userId, isMuted: true, isVideoOn });
         setParticipants((prev) => prev.map((p) => (p.isYou ? { ...p, isMuted: true } : p)));
       }
     } catch (err: any) {
@@ -380,7 +370,7 @@ export function VideoCallModal({
         await startLocalStream(true, !isMuted);
         setIsVideoOn(true);
         setVideoPermissionDenied(false);
-        socket.emit("mediaState", { sessionId, userId, isMuted, isVideoOn: true });
+        socket?.emit("mediaState", { sessionId, userId, isMuted, isVideoOn: true });
         setParticipants((prev) => prev.map((p) => (p.isYou ? { ...p, isVideoOn: true } : p)));
       } catch (err: any) {
         setVideoPermissionDenied(true);
@@ -392,14 +382,14 @@ export function VideoCallModal({
     } else {
       setSendingKind("video", false);
       setIsVideoOn(false);
-      socket.emit("mediaState", { sessionId, userId, isMuted, isVideoOn: false });
+      socket?.emit("mediaState", { sessionId, userId, isMuted, isVideoOn: false });
       setParticipants((prev) => prev.map((p) => (p.isYou ? { ...p, isVideoOn: false } : p)));
     }
   };
 
   const handleEndCall = () => {
     endConnection();
-    socket.emit("liveAssistanceDisconnect", { sessionId, userId });
+    socket?.emit("liveAssistanceDisconnect", { sessionId, userId });
     setIsMuted(true);
     setIsVideoOn(false);
     setCallDuration(0);
@@ -650,9 +640,3 @@ export function VideoCallModal({
     </div>
   );
 }
-
-
-
-
-
-
