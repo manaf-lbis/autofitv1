@@ -34,7 +34,7 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
       return;
     }
 
-    if (userDoc.status === 'blocked') {
+    if ( userDoc.status === 'blocked' && req.path !== '/logout') {
       res.status(HttpStatus.FORBIDDEN).json({ message: 'Access Denied. User is Blocked' });
       return;
     }

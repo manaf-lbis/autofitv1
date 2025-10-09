@@ -6,6 +6,7 @@ import MechanicLayout from "@/features/mechanic/components/layout/MechanicLayout
 import MechanicSocketContext from "@/context/MechanicSocketContext";
 import PageLoading from "@/components/Animations/PageLoading";
 import ChangePasswordPage from "@/components/shared/ChangePasswordPage";
+import SocketProvider from "@/context/SocketProvider";
 
 const Registration = lazy(() => import("@/features/mechanic/pages/Registration"));
 const Dashboard = lazy(() => import("@/features/mechanic/pages/Dashboard"));
@@ -22,6 +23,7 @@ const NotFound = lazy(() => import("@/features/mechanic/pages/NotFound"));
 const MechanicRoutes: React.FC = () => {
   return (
     <MechanicSocketContext>
+      <SocketProvider>
       <Suspense fallback={<PageLoading/>}>
         <Routes>
           <Route element={<ProtectedRoute allowedRoles={["mechanic"]} />}>
@@ -50,6 +52,7 @@ const MechanicRoutes: React.FC = () => {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>
+      </SocketProvider>
     </MechanicSocketContext>
   );
 };

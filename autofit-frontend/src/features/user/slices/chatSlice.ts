@@ -22,6 +22,7 @@ const chatSlice = createSlice({
         },
 
         addMessage: (state, action: PayloadAction<Message>) => {
+            if (state.find((msg) => msg._id === action.payload._id)) return;
             state.push(action.payload);
         },
 
@@ -42,9 +43,6 @@ const chatSlice = createSlice({
 export const { setMessages, addMessage, clearMessages,markAsSeen } = chatSlice.actions;
 
 export default chatSlice.reducer;
-
-
-
 
 
 
