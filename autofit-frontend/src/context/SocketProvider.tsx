@@ -6,8 +6,8 @@ const SocketProvider = ({ children }: PropsWithChildren) => {
   const socket = initSocket();
 
   useEffect(() => {
-    socket.on("connect", () => console.log("Global WS Connected"));
-    socket.on("disconnect", () => console.log("Global WS Disconnected"));
+    socket.on("connect", () => {});
+    socket.on("disconnect", () => {});
   }, [socket]);
 
   return (
