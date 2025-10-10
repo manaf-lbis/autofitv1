@@ -126,9 +126,9 @@ export class RoadsideService implements IRoadsideService {
 
     return generateReceiptPDF({
       customer: {
-        name: 'sanitizedCustomerName',
-        email: "manaf@gmail.com",
-        phone: "1234567890"
+        name: (service as any).user.name,
+        email: (service as any).user.email,
+        phone: (service as any).user.mobile
       },
       items: items,
       serviceDate: formatDate(service?.endedAt!, "dd MMM yyyy") ?? new Date().toISOString(),
