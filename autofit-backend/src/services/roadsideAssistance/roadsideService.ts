@@ -124,6 +124,10 @@ export class RoadsideService implements IRoadsideService {
       }
     })
 
+
+    console.log(service);
+    
+
     return generateReceiptPDF({
       customer: {
         name: 'sanitizedCustomerName',

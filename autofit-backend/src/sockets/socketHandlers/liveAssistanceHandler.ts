@@ -131,7 +131,6 @@ function leaveRoom(socket: Socket, sessionId: string, userId: string) {
     return;
   }
 
-
   state.participants = state.participants.filter((p) => p.socketId !== socket.id);
   socket.to(sessionId).emit("participantLeft", { userId });
 
