@@ -1,8 +1,8 @@
 import { cn } from "@/lib/utils"
 
 type RatingStarsProps = {
-  rating: number // 0..5 
-  size?: number // px
+  rating: number 
+  size?: number
   className?: string
   "aria-label"?: string
 }
@@ -20,8 +20,8 @@ export function RatingStars({ rating, size = 18, className, ...rest }: RatingSta
     <div
       className={cn("inline-flex items-center whitespace-nowrap shrink-0", className)}
       role="img"
-      aria-label={rest["aria-label"] ?? `Rating: ${rating.toFixed(1)} out of 5`}
-      title={`${rating.toFixed(1)} / 5`}
+      aria-label={rest["aria-label"] ?? `Rating: ${rating?.toFixed(1) || 0} out of 5`}
+      title={`${rating?.toFixed(1) || 0} / 5`}
     >
       <div className="relative inline-block align-middle" style={{ width: totalWidth, height: size }}>
         <div className="absolute inset-0 flex gap-1 text-muted-foreground/40 pointer-events-none">
@@ -43,7 +43,7 @@ export function RatingStars({ rating, size = 18, className, ...rest }: RatingSta
           ))}
         </div>
       </div>
-      <span className="ml-2 shrink-0 text-xs sm:text-sm text-muted-foreground">{rating.toFixed(1)}</span>
+      <span className="ml-2 shrink-0 text-xs sm:text-sm text-muted-foreground">{rating?.toFixed(1) || 0}</span>
     </div>
   )
 }
