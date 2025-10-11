@@ -44,26 +44,25 @@ function InfoButton(props: React.ComponentProps<"button">) {
   )
 }
 
-export function ReviewListingModal({mechanic,triggerClassName,children,userType = 'user'}: {
+export function ReviewListingModal({ mechanic, triggerClassName, children, userType = 'user' }: {
   mechanic: Mechanic
   triggerClassName?: string
-  children?: React.ReactNode,
+  children?: React.ReactNode
   userType?: 'user' | 'mechanic'
 }) {
   const [queryArgs, setQueryArgs] = React.useState<{ page: number; sort: "all" | "top" | "least"; resetId: number }>({ page: 1, sort: "all", resetId: 0 })
+  const [isOpen, setIsOpen] = React.useState(false)
   const [isChangingSort, setIsChangingSort] = React.useState(false)
 
   const { data, error, isLoading, isFetching } = useListReviewsQuery(
     { ...queryArgs, mechanic: mechanic.id, user: userType },
-    {
-      skip: !mechanic.id,
-    }
+    { skip: !mechanic.id || !isOpen }
   )
 
   const allReviews = React.useMemo(() => data?.reviews ?? [], [data?.reviews])
   const totalCount = data?.totalCount ?? mechanic.reviewsCount ?? 0
   const hasMore = data?.hasMore ?? false
-  
+
   const sentinelRef = React.useRef<HTMLDivElement | null>(null)
   const scrollAreaRef = React.useRef<HTMLDivElement | null>(null)
 
@@ -95,7 +94,7 @@ export function ReviewListingModal({mechanic,triggerClassName,children,userType 
   const showOverlayLoading = isInitialLoading || isChangingSort || isFirstPageLoading
 
   React.useEffect(() => {
-    if (!sentinelRef.current || !hasMore) return
+    if (!sentinelRef.current || !hasMore || !isOpen) return
     const el = sentinelRef.current
     let ticking = false
 
@@ -119,7 +118,7 @@ export function ReviewListingModal({mechanic,triggerClassName,children,userType 
 
     observer.observe(el)
     return () => observer.disconnect()
-  }, [hasMore, isFetching, error, queryArgs.sort])
+  }, [hasMore, isFetching, error, queryArgs.sort, isOpen])
 
   const loadMore = () => {
     if (hasMore && !isFetching) {
@@ -128,7 +127,7 @@ export function ReviewListingModal({mechanic,triggerClassName,children,userType 
   }
 
   return (
-    <Dialog>
+    <Dialog onOpenChange={setIsOpen}>
       <DialogTrigger asChild>{children ? children : <InfoButton className={triggerClassName} />}</DialogTrigger>
       <DialogContent
         className={cn(
@@ -144,7 +143,6 @@ export function ReviewListingModal({mechanic,triggerClassName,children,userType 
           <DialogDescription className="sr-only">Customer ratings and feedback for the mechanic.</DialogDescription>
         </DialogHeader>
 
-        {/* Header block */}
         <div className="px-4 sm:px-5 pb-2 sm:pb-3">
           <div className="flex flex-col gap-2">
             <div className="flex items-start sm:items-center gap-3 sm:gap-4">
@@ -166,7 +164,6 @@ export function ReviewListingModal({mechanic,triggerClassName,children,userType 
               </div>
             </div>
 
-            {/* Sort control */}
             <div className="flex items-center justify-between">
               <span className="text-xs sm:text-sm text-muted-foreground">Sort</span>
               <DropdownMenu>
@@ -239,24 +236,42 @@ export function ReviewListingModal({mechanic,triggerClassName,children,userType 
             </div>
           )}
 
-          <div className="grid grid-cols-1 gap-3 sm:gap-4">
-            {allReviews.map((rev) => (
-              <ReviewItem key={rev.id} review={{
-                customerName: rev.customerName,
-                dateISO: rev.createdAt,
-                rating: rev.rating,
-                comment: rev.review,
-                id: rev.id
-              }} />
-            ))}
-          </div>
+          {allReviews.length === 0 && !showOverlayLoading && !error && (
+            <div className="flex flex-col items-center justify-center h-full text-center py-8">
+              <svg
+                className="text-muted-foreground mb-4"
+                width="48"
+                height="48"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+              >
+                <path d="M12 2a10 10 0 0 0-10 10c0 5.52 4.48 10 10 10s10-4.48 10-10A10 10 0 0 0 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-12v4l3 3m-3-7h.01" />
+              </svg>
+              <p className="text-sm text-muted-foreground">No reviews yet.</p>
+              <p className="text-xs text-muted-foreground mt-1">Be the first to share your experience!</p>
+            </div>
+          )}
+
+          {allReviews.length > 0 && (
+            <div className="grid grid-cols-1 gap-3 sm:gap-4">
+              {allReviews.map((rev) => (
+                <ReviewItem key={rev.id} review={{
+                  customerName: rev.customerName,
+                  dateISO: rev.createdAt,
+                  rating: rev.rating,
+                  comment: rev.review,
+                  id: rev.id
+                }} />
+              ))}
+            </div>
+          )}
 
           <div className="mt-3 sm:mt-4 flex items-center justify-center">
-            {error ? (
+            {error && (
               <p className="text-sm text-destructive">Failed to load reviews.</p>
-            ) : isFetching && allReviews.length === 0 ? (
-              <p className="text-sm text-muted-foreground">Loading reviews…</p>
-            ) : null}
+            )}
           </div>
 
           <div ref={sentinelRef} aria-hidden className="h-2" />
