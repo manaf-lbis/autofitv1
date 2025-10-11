@@ -9,7 +9,7 @@ type FormData = {
   owner: string;
 };
 
-type UpdateVehicleData = FormData & { id: string };
+type UpdateVehicleData = FormData & { _id: string };
 
 export const vehicleApi = createApi({
   reducerPath: "vehicleApi",
@@ -25,13 +25,15 @@ export const vehicleApi = createApi({
       }),
       invalidatesTags: ["Vehicle"],
     }),
+
     getMyVehicles: builder.query({
       query: () => ({
         url: "user/vehicle/my-vehicles",
         method: "GET",
       }),
-      providesTags:["Vehicle"],
+      providesTags: ["Vehicle"],
     }),
+
     updateVehicle: builder.mutation({
       query: (data: UpdateVehicleData) => ({
         url: `user/vehicle/my-vehicle`,
@@ -40,6 +42,7 @@ export const vehicleApi = createApi({
       }),
       invalidatesTags: ["Vehicle"],
     }),
+
     deleteVehicle: builder.mutation({
       query: (id: string) => ({
         url: `user/vehicle/my-vehicle?id=${id}`,
@@ -47,7 +50,7 @@ export const vehicleApi = createApi({
       }),
       invalidatesTags: ["Vehicle"],
     }),
-    
+
     getVehicleBrand: builder.query({
       query: () => ({
         url: "user/vehicle/vehicle-brands",
