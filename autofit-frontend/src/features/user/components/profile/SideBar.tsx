@@ -1,7 +1,7 @@
 import type React from "react"
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { User, Wrench, CarFront, Bell, ChevronRight,LockIcon } from "lucide-react"
+import { User, Wrench, CarFront, ChevronRight,LockIcon } from "lucide-react"
 import { useLocation, useNavigate } from "react-router-dom"
 
 
@@ -116,22 +116,7 @@ const ModernProfileSidebar: React.FC = () => {
           </motion.nav>
 
           {/* Bottom Section */}
-          <motion.div
-            className="bg-white/60 backdrop-blur-xl rounded-xl p-3 border border-white/70 shadow-lg mt-4"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-7 h-7 bg-yellow-100 rounded-lg flex items-center justify-center">
-                <Bell className="text-yellow-600" size={14} />
-              </div>
-              <div className="flex-1">
-                <p className="text-xs font-medium text-gray-900">Need Help?</p>
-                <p className="text-xs text-gray-600">Contact support</p>
-              </div>
-            </div>
-          </motion.div>
+         
         </div>
       </aside>
 
