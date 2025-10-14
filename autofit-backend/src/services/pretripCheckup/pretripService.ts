@@ -44,7 +44,7 @@ export class PretripService implements IPretripService {
         private _transactionRepo: ITransactionRepository,
         private _paymentRepository: IPaymentRepository,
         private _mechnaicProfileRepo: IMechanicProfileRepository,
-        private _ratingRepo : IRatingRepository,
+        private _ratingRepo: IRatingRepository,
         private _notificationService: INotificationService
     ) { }
 
@@ -270,13 +270,13 @@ export class PretripService implements IPretripService {
         const workingHours = await this._workingHoursRepo.workingHoursOfMultipleMechanics(mechanicIds);
 
         const mechanic = await this.transformMechanicsSchedule(nearestMechanicsWithDistance, workingHours);
-        const mechanicId = mechanic.map((mech:any)=> new Types.ObjectId(mech.mechanicId));
+        const mechanicId = mechanic.map((mech: any) => new Types.ObjectId(mech.mechanicId));
 
         const ratings = await this._ratingRepo.avgRatingOfMechanics(mechanicId);
-        
-        return mechanic.map((mech:any, index:number) => ({
+
+        return mechanic.map((mech: any) => ({
             ...mech,
-            rating: ratings[index]
+            rating: ratings.find((rating: any) => rating?._id.toString() === mech?.mechanicId?.toString())
         }))
     }
 
@@ -360,7 +360,7 @@ export class PretripService implements IPretripService {
             await this._mechanicProfileRepository.findByMechanicIdAndUpdate(booking.mechanicId, { availability: MechanicAvailabilityStatus.AVAILABLE });
         }
 
-        if(status === PretripStatus.ANALYSING) {
+        if (status === PretripStatus.ANALYSING) {
             await this._mechanicProfileRepository.findByMechanicIdAndUpdate(booking.mechanicId, { availability: MechanicAvailabilityStatus.BUSY });
         }
 

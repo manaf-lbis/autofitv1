@@ -214,7 +214,7 @@ export const profileApi = createApi({
                 params: { page, mechanic, sort },
             }),
             serializeQueryArgs: ({ endpointName, queryArgs }) => {
-                return `${endpointName}_${queryArgs.sort}_${queryArgs.resetId || 0}`;
+                return `${endpointName}_${queryArgs.mechanic}_${queryArgs.user}_${queryArgs.sort}_${queryArgs.resetId || 0}`;
             },
             merge: (currentCache, newCache) => {
                 currentCache.reviews.push(...newCache.reviews);
@@ -223,7 +223,11 @@ export const profileApi = createApi({
                 currentCache.averageRating = newCache.averageRating ?? currentCache.averageRating;
             },
             forceRefetch({ currentArg, previousArg }) {
-                return currentArg?.page !== previousArg?.page || currentArg?.sort !== previousArg?.sort || currentArg?.resetId !== previousArg?.resetId;
+                return currentArg?.page !== previousArg?.page ||
+                    currentArg?.sort !== previousArg?.sort ||
+                    currentArg?.resetId !== previousArg?.resetId ||
+                    currentArg?.mechanic !== previousArg?.mechanic ||
+                    currentArg?.user !== previousArg?.user;
             },
             transformResponse: (response: { data: { reviews: Array<{ _id: string; rating: number; review: string; userId: { name: string }; createdAt: string }>; totalDocuments: number; hasMore: boolean } }, meta, arg) => ({
                 reviews: response.data.reviews.map((item) => ({

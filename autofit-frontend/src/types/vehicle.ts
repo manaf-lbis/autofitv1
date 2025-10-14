@@ -1,5 +1,5 @@
 export interface Vehicle {
-  _id: string;
+  id: string;
   regNo: string;
   owner: string;
   brand:string

@@ -77,7 +77,7 @@ const VehicleCard: React.FC = () => {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 pr-2">
                 {vehicles.map((vehicle) => (
                   <div
-                    key={vehicle._id}
+                    key={vehicle.id}
                     className="bg-white p-4 rounded-lg border border-gray-100 hover:border-gray-200 hover:shadow-sm transition-all flex items-center group"
                   >
                     <div className="bg-gray-50 p-2 rounded-lg mr-4">
@@ -104,7 +104,7 @@ const VehicleCard: React.FC = () => {
 
                       <ConfirmationAlert
                         description={`Are you sure you want to delete vehicle ${vehicle.regNo}?`}
-                        onConfirm={() => handleDelete(vehicle._id)}
+                        onConfirm={() => handleDelete(vehicle.id)}
                         isLoading={isLoading}
                       >
                         <Button

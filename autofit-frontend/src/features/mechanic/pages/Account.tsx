@@ -130,10 +130,10 @@ export default function Account() {
                     <h1 className="text-lg sm:text-xl lg:text-2xl xl:text-3xl font-bold uppercase truncate">{mechanic.mechanicId.name}</h1>
                     <ReviewListingModal mechanic={{
                       name: mechanic.mechanicId.name,
-                      averageRating: data?.data?.rating?.avg,
+                      averageRating: data?.data?.rating?.avg || 0,
                       id: mechanic.mechanicId._id,
                       avatarUrl: mechanic.photo,
-                      reviewsCount: data?.data?.rating?.reviews
+                      reviewsCount: data?.data?.rating?.reviews || 0
                     }}
                    triggerClassName="text-xs sm:text-sm w-5 h-5 text-green-800"
                    userType="mechanic"

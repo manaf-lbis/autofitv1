@@ -21,13 +21,13 @@ export class VehicleService implements IVehicleService {
   }
 
   async getVehicle(userId: Types.ObjectId) {
-    // return await this._vehicleRepository.findWithUserId(userId)
     const response = await this._vehicleRepository.findWithUserId(userId)
     return response.map((vehicle) => VehicleMapper.toVehicleWithId(vehicle))
   }
 
   async updateVehicle(data: Vehicle) {
-    if (!data._id) throw new ApiError('user not found', HttpStatus.NOT_FOUND)
+    
+    if (!data._id) throw new ApiError('Vehicle not found', HttpStatus.NOT_FOUND)
 
     await this._vehicleRepository.updateByUserId(data)
   }

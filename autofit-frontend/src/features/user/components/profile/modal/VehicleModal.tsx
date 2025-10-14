@@ -51,7 +51,7 @@ const VehicleModal = ({ isOpen, setIsOpen, vehicle }: { isOpen: boolean; setIsOp
   const onSubmit = async (data: VehicleFormData) => {
     try {
       if(vehicle){
-        await updateVehicle({ ...data, id: vehicle._id } as any)
+        await updateVehicle({ ...data, _id: vehicle.id } as any)
       }else{
         await addVehicle(data);
       }
