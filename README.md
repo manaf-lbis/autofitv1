@@ -15,8 +15,7 @@
 
 ## 🎯 About AutoFit
 
-Stranded on the road? Fuel running out? Mechanical issues? **AutoFit** connects you with professional, certified mechanics in real-time. We solve roadside emergencies with three powerful services designed to keep you moving.
-
+**AutoFit** is a comprehensive mechanic booking platform designed to solve roadside emergencies. Whether you're stuck on the road with car trouble, facing a fuel outage, or experiencing mechanical issues, AutoFit connects you with professional, certified mechanics in real-time.
 ---
 
 ## ✨ Core Features
