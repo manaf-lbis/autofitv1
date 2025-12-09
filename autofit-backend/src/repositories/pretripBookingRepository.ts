@@ -18,6 +18,7 @@ export class PretripBookingRepository extends BaseRepository<PretripBookingDocum
 
     async detailedBooking(serviceId: Types.ObjectId): Promise<any> {
         return await PretripBookingModel.findOne({ _id: serviceId })
+            .populate('mechanicId','name email mobile')
             .populate('vehicleId')
             .populate('userId', 'name email mobile')
             .populate('payment.paymentId')
