@@ -5,7 +5,7 @@ import { RequestHandler } from 'express';
 
 const storage = new CloudinaryStorage({
     cloudinary,
-    params: async (req, file) => {
+    params: async (req:any, file:any) => {
         let folder = 'autoFit';
         if (file.fieldname === 'photo') folder += '/profiles';
         if (file.fieldname === 'shopImage') folder += '/shops';
