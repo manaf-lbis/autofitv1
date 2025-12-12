@@ -1,4 +1,3 @@
-
 import { IOtpRepository } from "../../repositories/interfaces/IOtpRepository";
 import { HttpStatus } from "../../types/responseCode";
 import { Role } from "../../types/role";
@@ -115,4 +114,6 @@ export class OtpService implements IOtpService {
   }
 
 }
+
+
 

@@ -1,36 +1,34 @@
-import nodemailer from "nodemailer";
-import fs from "fs";
-import path from "path";
-import dotenv from "dotenv";
+import * as Brevo from "@getbrevo/brevo";
+import { autofitOtpTemplate } from '../mail/template/otpTemplate';
+
+import dotenv from 'dotenv';
 dotenv.config();
 
-const transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-      user: process.env.EMAIL_USER, 
-      pass: process.env.EMAIL_PASS, 
-    },
-});
+const key = process.env.BREVO_API_KEY || "";
+const senderEmail = process.env.EMAIL_USER || "";
+const senderName = process.env.EMAIL_SENDER_NAME || "Autofit";
 
-  
-export const sendMail = async (to: string ,otp : string) => {
+const apiInstance = new Brevo.TransactionalEmailsApi();
+apiInstance.setApiKey(Brevo.TransactionalEmailsApiApiKeys.apiKey, key);
 
-  const templatePath = path.resolve(__dirname, "template", "otpTemplate.html");
-  let htmlContent = fs.readFileSync(templatePath, "utf-8");
+export const sendMail = async (to: string, otp: string, username?: string): Promise<void> => {
+  try {
+    const htmlContent = autofitOtpTemplate(otp, username);
+    const textContent = `Your Autofit OTP is: ${otp}. It's valid for 10 minutes.`;
 
-  htmlContent = htmlContent.replace("{{OTP_CODE}}", otp);
-  
-    const mailOptions = {
-      from: `"AutoFit" <${process.env.EMAIL_USER}>`,
-      to ,
-      subject : 'Your OTP Code',
-      html: htmlContent,
+    const payload = {
+      sender: { name: senderName, email: senderEmail },
+      to: [{ email: to }],
+      subject: "Your Autofit OTP",
+      htmlContent,
+      textContent,
     };
-  
-    try {
-      await transporter.sendMail(mailOptions);
-    } catch (err) {
-      console.error("Error sending email:", err);
-      throw err;
-    }
-  };
+
+     await apiInstance.sendTransacEmail(payload as any);
+
+    console.log(`Brevo: queued email to ${to}`);
+  } catch (err: any) {
+    console.error('Brevo send error full:', err?.response?.data ?? err?.message ?? err);
+    throw err;
+  }
+};

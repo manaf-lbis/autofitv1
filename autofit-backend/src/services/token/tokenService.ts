@@ -1,11 +1,13 @@
 import jwt, { SignOptions, JwtPayload, VerifyOptions } from "jsonwebtoken";
 import { ITokenService } from "./ITokenService";
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 export class TokenService implements ITokenService{
   private _jwtSecret: string;
 
   constructor() {
-
     if (!process.env.JWT_SECRET) {
       throw new Error("JWT_SECRET is not defined");
     }
