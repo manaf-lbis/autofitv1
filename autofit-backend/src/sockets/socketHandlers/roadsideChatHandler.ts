@@ -4,7 +4,7 @@ import { ChatRepository } from "../../repositories/chatRepository";
 import { verifyJwt } from "../verifyJwt";
 import { RoadsideAssistanceModel } from "../../models/roadsideAssistanceModel";
 import { ApiError } from "../../utils/apiError";
-import { getIO, userSocketMap } from "../socket"; 
+import { getIO, userSocketMap } from "../socket";
 import { RoadsideAssistanceRepository } from "../../repositories/roadsideAssistanceRepo";
 import { Role } from "../../types/role";
 
@@ -21,7 +21,7 @@ export const roadsideChatHandler = (socket: Socket) => {
 
       const room = `roadside_${serviceId}`;
       getIO().to(room).emit("seen", { serviceId });
-    } catch  {
+    } catch {
       socket.emit("error", { message: "Failed to mark as seen" });
     }
   });
@@ -80,6 +80,12 @@ export const roadsideChatHandler = (socket: Socket) => {
         message
       );
 
+      console.log(`Emitting roadsideMessage to room ${room}:`, {
+        serviceId,
+        senderId,
+        senderRole
+      });
+
       io.to(room).emit("roadsideMessage", {
         _id: savedMsg._id,
         serviceId,
@@ -92,7 +98,8 @@ export const roadsideChatHandler = (socket: Socket) => {
         seen: savedMsg.seen,
         createdAt: savedMsg.createdAt,
       });
-    } catch {
+    } catch (error: any) {
+      console.error("Failed to send roadside message:", error);
       socket.emit("error", { message: "Failed to send message" });
     }
   });

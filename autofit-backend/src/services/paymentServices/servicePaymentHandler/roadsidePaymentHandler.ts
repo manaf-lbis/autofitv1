@@ -29,10 +29,13 @@ export class RoadsidePaymentHandler implements IServicePaymentHandler {
         if (response.paymentId?.createdAt) {
             const createdAt = new Date(response.paymentId?.createdAt);
             const now = new Date();
-            const bufferInMs = Number(process.env.PAYMENT_BUFFER || 10) * 60 * 1000;
+            // Reduce buffer to 1 minute for better DX and testing
+            const bufferInMs = Number(process.env.PAYMENT_BUFFER || 1) * 60 * 1000;
             const isExpired = now.getTime() - createdAt.getTime() > bufferInMs;
 
-            if (response.paymentId.status === 'pending' && !isExpired) throw new ApiError('Previous Payment is still processing Try after 10 Minutes', HttpStatus.BAD_REQUEST)
+            if (response.paymentId.status === 'pending' && !isExpired) {
+                throw new ApiError('Previous Payment is still processing. Please wait a moment before trying again.', HttpStatus.BAD_REQUEST);
+            }
         }
 
         if (!response.quotationId) {
