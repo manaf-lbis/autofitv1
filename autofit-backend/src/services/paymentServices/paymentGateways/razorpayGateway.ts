@@ -22,6 +22,8 @@ export class RazorpayGateway implements IPaymentGateway {
     this._RAZORPAY_KEY = key;
     this._RAZORPAY_SECRET = secret;
 
+    console.log(`RazorpayGateway initialized with key: ${this._RAZORPAY_KEY.substring(0, 8)}...`);
+
     this._razorpay = new Razorpay({
       key_id: this._RAZORPAY_KEY,
       key_secret: this._RAZORPAY_SECRET,
@@ -31,16 +33,45 @@ export class RazorpayGateway implements IPaymentGateway {
   async createPayment(data: PaymentData): Promise<{ orderId: string, amountInRupees: number }> {
     const receipt = `rcpt_${Date.now().toString(36)}_${Math.random().toString(36).substring(2, 5)}`;
     try {
-      const order = await this._razorpay.orders.create({
+      // Ensure all metadata values are strings as required by Razorpay
+      const notes: { [key: string]: string } = {};
+      if (data.metadata) {
+        Object.entries(data.metadata).forEach(([key, value]) => {
+          notes[key] = String(value);
+        });
+      }
+
+      console.log("Creating Razorpay order with data:", {
         amount: data.amount * 100,
         currency: "INR",
         receipt,
-        notes: data.metadata,
+        notes
+      });
+
+      const order = await this._razorpay.orders.create({
+        amount: Math.round(data.amount * 100), // Ensure amount is an integer
+        currency: "INR",
+        receipt,
+        notes,
       });
       return { orderId: order.id, amountInRupees: data.amount };
 
     } catch (error: any) {
-      throw new ApiError("Failed to create order : " + error.message);
+      console.error("Razorpay Order Creation Error Detail:", {
+        message: error.message,
+        error: error,
+        stack: error.stack
+      });
+
+      // Razorpay SDK errors can be deeply nested. We try multiple paths to get the description.
+      const errorDescription =
+        error.error?.error?.description ||
+        error.error?.description ||
+        error.description ||
+        error.message ||
+        "Unknown error occurred during Razorpay order creation";
+
+      throw new ApiError("Failed to create order : " + errorDescription);
     }
   }
 

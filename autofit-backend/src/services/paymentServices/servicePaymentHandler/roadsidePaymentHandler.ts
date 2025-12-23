@@ -35,6 +35,14 @@ export class RoadsidePaymentHandler implements IServicePaymentHandler {
             if (response.paymentId.status === 'pending' && !isExpired) throw new ApiError('Previous Payment is still processing Try after 10 Minutes', HttpStatus.BAD_REQUEST)
         }
 
+        if (!response.quotationId) {
+            throw new ApiError('Quotation not found for this booking. Please wait for the mechanic to provide a quotation.', HttpStatus.BAD_REQUEST);
+        }
+
+        if (!response.quotationId.total || response.quotationId.total <= 0) {
+            throw new ApiError('Invalid quotation amount.', HttpStatus.BAD_REQUEST);
+        }
+
         const payment = await this._paymentRepository.createPayment({ serviceId, status: 'pending', userId: response?.userId?._id, amount: response?.quotationId?.total });
         await this._roadsideAssistanceRepo.update(serviceId, {
             paymentId: payment._id,
